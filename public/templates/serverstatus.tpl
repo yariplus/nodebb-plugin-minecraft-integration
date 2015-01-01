@@ -17,8 +17,7 @@
                     <td class="td-label"><b>Address</b></td>
                     <td>
                         {serverhost}<!-- IF showportdomain -->:{hostport}<!-- ENDIF showportdomain -->
-                        <!-- IF showip --> ( {hostip}<!-- IF showportip -->:{hostport}<!-- ENDIF showportip --><!-- ENDIF showip -->
-                        <!-- IF showip --> ) <!-- ENDIF showip -->
+                        <!-- IF showip -->(&nbsp;{hostip}<!-- IF showportip -->:{hostport}<!-- ENDIF showportip --><!-- ENDIF showip --><!-- IF showip -->&nbsp;)<!-- ENDIF showip -->
                     </td>
                 </tr>
                 <!-- IF serveronline -->
