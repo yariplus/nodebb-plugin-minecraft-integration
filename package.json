@@ -1,0 +1,40 @@
+{
+  "name": "nodebb-widget-minecraft-essentials",
+  "version": "0.2.7",
+  "description": "NodeBB Minecraft Widgets",
+  "main": "library.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yariplus/nodebb-widget-minecraft-essentials"
+  },
+  "keywords": [
+    "nodebb",
+    "widget",
+    "minecraft",
+    "query"
+  ],
+  "author": {
+    "name": "yariplus",
+    "email": "tafike@gmail.com"
+  },
+  "license": "CC0",
+  "bugs": {
+    "url": "https://github.com/yariplus/nodebb-widget-minecraft-essentials/issues"
+  },
+  "readme": "# NodeBB Minecraft Widgets\n\nNodeBB widgets for Minecraft. Uses the \"mcquery\" node package.\n\n## Installation\n\n    npm install nodebb-minecraft-widgets\n",
+  "readmeFilename": "README.md",
+  "_id": "nodebb-widget-minecraft-essentials@0.2.7",
+  "_from": "/home/yari/nodepackages/nodebb-widget-minecraft-essentials",
+  "dependencies": {
+    "async": "^0.9.0",
+    "mcquery": "^0.2.5"
+  },
+  "nbbpm": {
+    "compatibility": "^0.6.0"
+  },
+  "homepage": "https://github.com/yariplus/nodebb-widget-minecraft-essentials",
+  "_shasum": "43da99337567178a6cdf7218c20c2e0b8996a730"
+}
