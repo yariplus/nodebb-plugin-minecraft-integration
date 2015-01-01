@@ -4,4 +4,4 @@ NodeBB widgets for Minecraft. Uses the "mcquery" node package.
 
 ## Installation
 
-    npm install nodebb-minecraft-widgets
+    npm install nodebb-widget-minecraft-essentials
