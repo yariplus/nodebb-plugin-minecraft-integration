@@ -1,3 +1,7 @@
+.td-label {
+    width: 60px;
+}
+
 .recent-replies {
 	overflow-y: hidden;
 	overflow-x: hidden;

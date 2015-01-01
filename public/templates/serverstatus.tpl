@@ -6,7 +6,7 @@
                 <table class="table table-striped">
                 <tbody>
                 <tr>
-                    <td><b>Status</b></td>
+                    <td class="td-label"><b>Status</b></td>
                     <!-- IF !serveronline -->
                     <td>Offline</td>
                     <!-- ELSE -->
@@ -14,7 +14,7 @@
                     <!-- ENDIF !serveronline -->
                 </tr>
                 <tr>
-                    <td><b>Address</b></td>
+                    <td class="td-label"><b>Address</b></td>
                     <td>
                         {serverhost}<!-- IF showportdomain -->:{hostport}<!-- ENDIF showportdomain -->
                         <!-- IF showip --> ( {hostip}<!-- IF showportip -->:{hostport}<!-- ENDIF showportip --><!-- ENDIF showip -->
@@ -23,11 +23,11 @@
                 </tr>
                 <!-- IF serveronline -->
                 <tr>
-                    <td><b>Version</b></td>
+                    <td class="td-label"><b>Version</b></td>
                     <td>{version}</td>
                 </tr>
                 <tr>
-                    <td><b>Players</b></td>
+                    <td class="td-label"><b>Players</b></td>
                     <td>
                         <!-- BEGIN players -->
                         
