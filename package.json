@@ -12,6 +12,7 @@
   },
   "keywords": [
     "nodebb",
+    "plugin",
     "widget",
     "minecraft",
     "query"
@@ -24,7 +25,7 @@
   "bugs": {
     "url": "https://github.com/yariplus/nodebb-widget-minecraft-essentials/issues"
   },
-  "readme": "# NodeBB Minecraft Widgets\n\nNodeBB widgets for Minecraft. Uses the \"mcquery\" node package.\n\n## Installation\n\n    npm install nodebb-minecraft-widgets\n",
+  "readme": "# NodeBB Minecraft Widgets\n\nNodeBB widgets for Minecraft. Uses the \"mcquery\" node package.\n\n## Installation\n\n    npm install nodebb-widget-minecraft-essentials\n",
   "readmeFilename": "README.md",
   "_id": "nodebb-widget-minecraft-essentials@0.2.7",
   "_from": "/home/yari/nodepackages/nodebb-widget-minecraft-essentials",
