@@ -1,6 +1,6 @@
 # NodeBB Minecraft Widgets
 
-NodeBB widgets for Minecraft. Uses the "mcquery" node package.
+NodeBB widgets for Minecraft.
 
 ## Installation
 

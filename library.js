@@ -14,6 +14,8 @@
 		templates = module.parent.require('templates.js'),
 		websockets = module.parent.require('./socket.io'),
         mcquery = require('mcquery'),
+        srv = require('dns-srv'),
+        rcon = require('simple-rcon'),
 		app;
 
 	var Widget = {
@@ -25,7 +27,9 @@
 
 		var templatesToLoad = [
 			"serverstatus.tpl",
-			"admin/serverstatus.tpl"
+            "console.tpl",
+			"admin/adminserverstatus.tpl",
+            "admin/adminconsole.tpl"
 		];
 
 		function loadTemplate(template, next) {
@@ -136,7 +140,7 @@
                 data.hostname = data.hostname.replace("�o", "<span style=\"font-style:italic;\">");
                 data.hostname = data.hostname + "</span></span></span></span></span></span></span></span></span>";
             }
-            
+
             data.serverhost = widget.data.serverhost;
             data.showip = widget.data.showip;
             data.showportdomain = widget.data.showportdomain;
