@@ -146,7 +146,31 @@
             data.showportdomain = widget.data.showportdomain;
             data.showportip = widget.data.showportip;
             
-            //console.log(serverdata);
+            if ( data.serverhost == "0.0.0.0" || data.serverhost == "127.0.0.1" || data.serverhost == "localhost" ) {
+                data.showip = false;
+                data.serverhost = data.hostip;
+                if ( !data.showportdomain && data.showportip ) {
+                    data.showportdomain = true;
+                }
+            }
+            
+            switch ( data.serverhost.substring(0,1) ) {
+                case "0":
+                case "1":
+                case "2":
+                case "3":
+                case "4":
+                case "5":
+                case "6":
+                case "7":
+                case "8":
+                case "9":
+                    break;
+                default:
+                    // Using a domain
+                    
+            }
+            
             html = templates.parse(html, data);
             callback(null, html);
         }
