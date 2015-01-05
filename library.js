@@ -64,8 +64,20 @@
 			cid = match ? match[0] : 1;
 		}
         
-        var serverhost = widget.data.serverhost || "0.0.0.0";
+        var serverhost = "0.0.0.0";
         var serverport = widget.data.serverport || "25565";
+        if ( widget.data.serverhost ) {
+            var hostarray = widget.data.serverhost.split(":");
+            if ( hostarray.length == 1 ) {
+                serverhost = hostarray[0];
+            } else if ( hostarray.length == 2 ) {
+                serverhost = hostarray[0];
+                serverport = hostarray[1];
+            } else {
+                console.log("Configuration error: Invalid host. Too many \":\", using default \"0.0.0.0\". ");
+            }
+        }
+        
         var queryport = widget.data.queryport || "25565";
         
         pingServer();
