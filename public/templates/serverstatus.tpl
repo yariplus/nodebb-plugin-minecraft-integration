@@ -7,11 +7,14 @@
                 <tbody>
                 <tr>
                     <td class="td-label"><b>Status</b></td>
+                    <td>
                     <!-- IF !serveronline -->
-                    <td>Offline</td>
+                        Offline
                     <!-- ELSE -->
-                    <td>Online</td>
+                        Online
                     <!-- ENDIF !serveronline -->
+                    <!-- IF showplayercount -->&nbsp;(0/0)<!-- ENDIF showplayercount -->
+                    </td>
                 </tr>
                 <tr>
                     <td class="td-label"><b>Address</b></td>
@@ -20,6 +23,12 @@
                         <!-- IF showip -->(&nbsp;{hostip}<!-- IF showportip -->:{hostport}<!-- ENDIF showportip --><!-- ENDIF showip --><!-- IF showip -->&nbsp;)<!-- ENDIF showip -->
                     </td>
                 </tr>
+                <!-- IF !queryonline -->
+                <tr>
+                    <td class="td-label"><b>Query</b></td>
+                    <td>Did not find query port {queryport}</td>
+                </tr>
+                <!-- ENDIF !queryonline -->
                 <!-- IF serveronline -->
                 <tr>
                     <td class="td-label"><b>Version</b></td>
