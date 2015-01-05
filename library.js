@@ -14,11 +14,9 @@
 		templates = module.parent.require('templates.js'),
 		websockets = module.parent.require('./socket.io'),
         mcquery = require('mcquery'),
-        srv = require('dns-srv'),
         rcon = require('simple-rcon'),
         net = require('net'),
         dns = require('dns'),
-        varint = require("varint"),
         bufferpack = require("bufferpack"),
         encoding = require("encoding"),
 		app;
