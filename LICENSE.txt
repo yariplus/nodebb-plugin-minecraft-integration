@@ -1,3 +1,5 @@
+Any content not included in another license in this repository is Copyright 2015 Timothy Fike and licensed as follows:
+
 CC0 1.0 Universal
 
 Statement of Purpose
