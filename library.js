@@ -68,7 +68,7 @@
         htmldata.servername = widget.data.servername || "Unknown Server";
         htmldata.serverhost = widget.data.serverhost || "0.0.0.0";
         htmldata.serverport = widget.data.serverport || "25565";
-        htmldata.queryport = widget.data.queryport || "25565";
+        htmldata.queryport = widget.data.queryport;
         htmldata.showip = widget.data.showip;
         htmldata.showportdomain = widget.data.showportdomain;
         htmldata.showportip = widget.data.showportip;
@@ -104,7 +104,7 @@
                 case "9":
                     // Using an IP as host.
                     htmldata.showip = false;
-                    htmldata.showportdomain = true;
+                    if ( htmldata.serverport !== "25565" ) htmldata.showportdomain = true;
                     doPing();
                     break;
                 default:
@@ -237,6 +237,7 @@
         
         function queryServer() {
             var query;
+            if ( !htmldata.queryport ) htmldata.queryport = htmldata.serverport
             if ( widget.data.uselocalhost ) {
                 query = new mcquery("0.0.0.0", htmldata.queryport);
             }else{
@@ -276,6 +277,15 @@
                        htmldata.players[htmldata.players.length] = { name: stat.player_[index] };
                     }
                     
+                    // Use queried hostname if localhost.
+                    if ( htmldata.serverhost == "0.0.0.0" || htmldata.serverhost == "127.0.0.1" || htmldata.serverhost == "localhost" ) {
+                        htmldata.serverhost = stat.hostip;
+                        if ( stat.hostport != "25565" ) {
+                            htmldata.showportdomain = true;
+                            htmldata.serverport = stat.hostport;
+                        }
+                    }
+                    
                     shouldWeClose();
                     doCallback();
                 }
@@ -298,32 +308,24 @@
             }
             
             if ( widget.data.parseformatcodes ) {
-               htmldata.servername =htmldata.servername.replace("�0", "<span style=\"color:#000000;\">");
-               htmldata.servername =htmldata.servername.replace("�1", "<span style=\"color:#0000AA;\">");
-               htmldata.servername =htmldata.servername.replace("�2", "<span style=\"color:#00AA00;\">");
-               htmldata.servername =htmldata.servername.replace("�3", "<span style=\"color:#00AAAA;\">");
-               htmldata.servername =htmldata.servername.replace("�4", "<span style=\"color:#AA0000;\">");
-               htmldata.servername =htmldata.servername.replace("�5", "<span style=\"color:#AA00AA;\">");
-               htmldata.servername =htmldata.servername.replace("�6", "<span style=\"color:#FFAA00;\">");
-               htmldata.servername =htmldata.servername.replace("�7", "<span style=\"color:#AAAAAA;\">");
-               htmldata.servername =htmldata.servername.replace("�8", "<span style=\"color:#555555;\">");
-               htmldata.servername =htmldata.servername.replace("�9", "<span style=\"color:#5555FF;\">");
-               htmldata.servername =htmldata.servername.replace("�a", "<span style=\"color:#55FF55;\">");
-               htmldata.servername =htmldata.servername.replace("�b", "<span style=\"color:#55FFFF;\">");
-               htmldata.servername =htmldata.servername.replace("�c", "<span style=\"color:#FF5555;\">");
-               htmldata.servername =htmldata.servername.replace("�d", "<span style=\"color:#FF55FF;\">");
-               htmldata.servername =htmldata.servername.replace("�e", "<span style=\"color:#FFFF55;\">");
-               htmldata.servername =htmldata.servername.replace("�f", "<span style=\"color:#FFFFFF;\">");
-               htmldata.servername =htmldata.servername.replace("�o", "<span style=\"font-style:italic;\">");
-               htmldata.servername =htmldata.servername + "</span></span></span></span></span></span></span></span></span>";
-            }
-            
-            if ( htmldata.serverhost == "0.0.0.0" || htmldata.serverhost == "127.0.0.1" || htmldata.serverhost == "localhost" ) {
-                htmldata.showip = false;
-                htmldata.serverhost = htmldata.hostip;
-                if ( !htmldata.showportdomain && htmldata.showportip ) {
-                    htmldata.showportdomain = true;
-                }
+               htmldata.servername = htmldata.servername.replace("�0", "<span style=\"color:#000000;\">");
+               htmldata.servername = htmldata.servername.replace("�1", "<span style=\"color:#0000AA;\">");
+               htmldata.servername = htmldata.servername.replace("�2", "<span style=\"color:#00AA00;\">");
+               htmldata.servername = htmldata.servername.replace("�3", "<span style=\"color:#00AAAA;\">");
+               htmldata.servername = htmldata.servername.replace("�4", "<span style=\"color:#AA0000;\">");
+               htmldata.servername = htmldata.servername.replace("�5", "<span style=\"color:#AA00AA;\">");
+               htmldata.servername = htmldata.servername.replace("�6", "<span style=\"color:#FFAA00;\">");
+               htmldata.servername = htmldata.servername.replace("�7", "<span style=\"color:#AAAAAA;\">");
+               htmldata.servername = htmldata.servername.replace("�8", "<span style=\"color:#555555;\">");
+               htmldata.servername = htmldata.servername.replace("�9", "<span style=\"color:#5555FF;\">");
+               htmldata.servername = htmldata.servername.replace("�a", "<span style=\"color:#55FF55;\">");
+               htmldata.servername = htmldata.servername.replace("�b", "<span style=\"color:#55FFFF;\">");
+               htmldata.servername = htmldata.servername.replace("�c", "<span style=\"color:#FF5555;\">");
+               htmldata.servername = htmldata.servername.replace("�d", "<span style=\"color:#FF55FF;\">");
+               htmldata.servername = htmldata.servername.replace("�e", "<span style=\"color:#FFFF55;\">");
+               htmldata.servername = htmldata.servername.replace("�f", "<span style=\"color:#FFFFFF;\">");
+               htmldata.servername = htmldata.servername.replace("�o", "<span style=\"font-style:italic;\">");
+               htmldata.servername = htmldata.servername + "</span></span></span></span></span></span></span></span></span>";
             }
             
             htmldata.queryonline = true;
