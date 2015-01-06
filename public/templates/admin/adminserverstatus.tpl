@@ -14,10 +14,19 @@
 <input type="text" class="form-control" name="queryport" placeholder="25565" />
 <br />
 
+<h3>Display Options</h3>
+
+<div class="checkbox">
+    <label>
+        <input type="checkbox" name="shownamemotd"></input>
+        Show name and MOTD? &nbsp; (&nbsp;e.g.&nbsp;"&nbsp;Server Name ~MOTD~&nbsp;"&nbsp;)
+    </label>
+</div>
+
 <div class="checkbox">
     <label>
         <input type="checkbox" name="showname" checked></input>
-        Use queried name (MOTD) instead of Server Name when available?
+        Use MOTD instead of Server Name when available?
     </label>
 </div>
 
@@ -30,6 +39,13 @@
 
 <div class="checkbox">
     <label>
+        <input type="checkbox" name="showplayercount" checked></input>
+        Show (online/max) players?
+    </label>
+</div>
+
+<div class="checkbox">
+    <label>
         <input type="checkbox" name="showportdomain"></input>
         Show port after DNS address? &nbsp; (&nbsp;e.g. "someserver.com:25565"&nbsp;)
     </label>
@@ -37,15 +53,15 @@
 
 <div class="checkbox">
     <label>
-        <input type="checkbox" name="showportip" checked></input>
-        Show port after IP address? &nbsp; (&nbsp;e.g. "(&nbsp;1.2.3.4:25565&nbsp;)"&nbsp;)
+        <input type="checkbox" name="showip"></input>
+        Show IP after DNS address or SRV record? &nbsp; (&nbsp;e.g. "someserver.com (1.2.3.4)"&nbsp;)
     </label>
 </div>
 
 <div class="checkbox">
     <label>
-        <input type="checkbox" name="showip"></input>
-        Show IP after DNS address or SRV record? &nbsp; (&nbsp;e.g. "someserver.com (1.2.3.4)"&nbsp;)
+        <input type="checkbox" name="showportip" checked></input>
+        Show port after IP address? &nbsp; (&nbsp;e.g. "(&nbsp;1.2.3.4:25565&nbsp;)"&nbsp;)
     </label>
 </div>
 

@@ -6,18 +6,17 @@
                 <table class="table table-striped">
                 <tbody>
                 <tr>
-                    <td class="td-label"><b>Status</b></td>
+                    <td class="td-label"><strong>Status</strong></td>
                     <td>
                     <!-- IF !serveronline -->
-                        Offline
+                        <strong><span class="text-warning">Offline</span></strong>
                     <!-- ELSE -->
-                        Online
+                        <strong><span class="text-success">Online</span></strong><!-- IF showplayercount -->&nbsp;({onlineplayers}/{maxplayers})<!-- ENDIF showplayercount -->
                     <!-- ENDIF !serveronline -->
-                    <!-- IF showplayercount -->&nbsp;(0/0)<!-- ENDIF showplayercount -->
                     </td>
                 </tr>
                 <tr>
-                    <td class="td-label"><b>Address</b></td>
+                    <td class="td-label"><strong>Address</strong></td>
                     <td>
                         {serverhost}<!-- IF showportdomain -->:{serverport}<!-- ENDIF showportdomain -->
                         <!-- IF showip -->(&nbsp;{serverip}<!-- IF showportip -->:{serverport}<!-- ENDIF showportip --><!-- ENDIF showip --><!-- IF showip -->&nbsp;)<!-- ENDIF showip -->
@@ -25,17 +24,17 @@
                 </tr>
                 <!-- IF !queryonline -->
                 <tr>
-                    <td class="td-label"><b>Query</b></td>
+                    <td class="td-label"><strong>Query</strong></td>
                     <td>Did not find query port {queryport}</td>
                 </tr>
                 <!-- ENDIF !queryonline -->
                 <!-- IF serveronline -->
                 <tr>
-                    <td class="td-label"><b>Version</b></td>
+                    <td class="td-label"><strong>Version</strong></td>
                     <td>{version}</td>
                 </tr>
                 <tr>
-                    <td class="td-label"><b>Players</b></td>
+                    <td class="td-label"><strong>Players</strong></td>
                     <td>
                         <!-- BEGIN players -->
                         

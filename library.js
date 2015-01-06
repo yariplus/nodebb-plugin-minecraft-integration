@@ -72,6 +72,7 @@
         htmldata.showip = widget.data.showip;
         htmldata.showportdomain = widget.data.showportdomain;
         htmldata.showportip = widget.data.showportip;
+        htmldata.showplayercount = widget.data.showplayercount;
         
         htmldata.serveronline = false;
         
@@ -205,8 +206,10 @@
                         var version = resp.version.name.split(" ");
                         htmldata.version = version[version.length-1];
                         htmldata.servername = resp.description;
-                        htmldata.currentPlayers = resp.players.online;
-                        htmldata.maxPlayers = resp.players.max;
+                        
+                        htmldata.onlineplayers = resp.players.online;
+                        htmldata.maxplayers = resp.players.max;
+                        
                         if(resp.players.sample) htmldata.players = resp.players.sample;
                         if(resp.favicon) htmldata.icon = resp.favicon;
                         
