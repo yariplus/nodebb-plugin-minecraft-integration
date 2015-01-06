@@ -19,6 +19,7 @@
         dns = require('dns'),
         bufferpack = require("bufferpack"),
         encoding = require("encoding"),
+        varint = require("varint"),
 		app;
 
 	var Widget = {
@@ -62,26 +63,35 @@
 			cid = match ? match[0] : 1;
 		}
         
-        var serverhost = "0.0.0.0";
-        var serverport = widget.data.serverport || "25565";
-        if ( widget.data.serverhost ) {
-            var hostarray = widget.data.serverhost.split(":");
-            if ( hostarray.length == 1 ) {
-                serverhost = hostarray[0];
-            } else if ( hostarray.length == 2 ) {
-                serverhost = hostarray[0];
-                serverport = hostarray[1];
-            } else {
-                console.log("Configuration error: Invalid host. Too many \":\", using default \"0.0.0.0\". ");
-            }
+        // Read from config and defaults
+        var htmldata = {};
+        htmldata.servername = widget.data.servername || "Unknown Server";
+        htmldata.serverhost = widget.data.serverhost || "0.0.0.0";
+        htmldata.serverport = widget.data.serverport || "25565";
+        htmldata.queryport = widget.data.queryport || "25565";
+        htmldata.showip = widget.data.showip;
+        htmldata.showportdomain = widget.data.showportdomain;
+        htmldata.showportip = widget.data.showportip;
+        
+        htmldata.serveronline = false;
+        
+        // Get port from host
+        var hostarray = htmldata.serverhost.split(":");
+        if ( hostarray.length == 1 ) {
+            // NOOP
+        } else if ( hostarray.length == 2 ) {
+            htmldata.serverhost = hostarray[0];
+            htmldata.serverport = hostarray[1];
+        } else {
+            console.log("Configuration error: Invalid host. Too many \":\", using default \"0.0.0.0\". ");
+            htmldata.serverhost = "0.0.0.0";
         }
         
-        var queryport = widget.data.queryport || "25565";
-        
-        pingServer();
+        // Process DNS/SRV addresses
+        resolveHost();
         
         function resolveHost() {
-            switch ( serverhost.substring(0,1) ) {
+            switch ( htmldata.serverhost.substring(0,1) ) {
                 case "0":
                 case "1":
                 case "2":
@@ -92,124 +102,154 @@
                 case "7":
                 case "8":
                 case "9":
+                    // Using an IP as host.
+                    htmldata.showip = false;
+                    htmldata.showportdomain = true;
+                    doPing();
                     break;
-                    // Using an IP, do ping.
-                    pingServer();
                 default:
-                    // Using a domain, check for SRV record.
-                    dns.resolve( "_minecraft._tcp." + serverhost, 'SRV', function (err, addresses) {
+                    // Using a domain, check for DNS and SRV record.
+                    dns.resolve( "_minecraft._tcp." + htmldata.serverhost, 'SRV', function (err, addresses) {
                         if ( err ) {
-                            console.info("SRV lookup failed for " + serverhost);
+                            console.info("SRV lookup failed for " + htmldata.serverhost);
+                            dns.resolve4(htmldata.serverhost, function (err, addresses) {
+                                if ( err ) {
+                                    doCallback(true);
+                                }else{
+                                    htmldata.serverip = addresses[0];
+                                    doPing();
+                                }
+                            });
                         }else{
-                            console.info("SRV lookup for " + serverhost);
-                            console.info(addresses);
+                            console.info("Found SRV for " + htmldata.serverhost);
+                            htmldata.serverport = addresses[0].port;
+                            htmldata.serverip = addresses[0].name;
+                            dns.resolve4(htmldata.serverhost, function (err, addresses) {
+                                if ( err ) {
+                                    doCallback(true);
+                                }else{
+                                    htmldata.serverip = addresses[0];
+                                    doPing();
+                                }
+                            });
                         }
                     });
-                    pingServer();
             }
         }
         
-        function pingServer() {
+        function doPing() {
+        
             var pingdata;
             if ( widget.data.uselocalhost ) {
-                    pingdata = { port: serverport, host: "0.0.0.0" };
-                    console.log("Pinging " + "0.0.0.0" + ":" + serverport);
-                }else{
-                    pingdata = { port: serverport, host: serverhost };
-                    console.log("Pinging " + serverhost + ":" + serverport);
+                pingdata = { port: htmldata.serverport, host: "0.0.0.0" };
+                console.log("Pinging " + "0.0.0.0" + ":" + pingdata.port);
+            }else{
+                pingdata = { port: htmldata.serverport, host: htmldata.serverip || htmldata.serverhost };
+                console.log("Pinging " + pingdata.host + ":" + pingdata.port);
             }
+            
             var socket = net.connect(pingdata, function() {
-                    var buf = new Buffer(2);
-                    buf[0] = 254;
-                    buf[1] = 1;
-                    socket.write(buf);
-            });
+                var buf = [
+                    packData([
+                        new Buffer([0x00]),
+                        new Buffer(varint.encode(4)),
+                        new Buffer(varint.encode(pingdata.host.length)),
+                        new Buffer(pingdata.host, "utf8"),
+                        bufferpack.pack("H", pingdata.port),
+                        new Buffer(varint.encode(1))
+                    ]),
+                    packData(new Buffer([0x00]))
+                ]
                 
-            socket.setTimeout(1000, function () {
-                console.log("mc-ping failed when connecting to " + serverhost + ":" + serverport);
-                socket.end();
+                //console.info("Writing request.");
                 
-                var data = {};
-                    
-                data.serveronline = false;
-                data.hostname = widget.data.hostname || "Unknown Server";
-                
-                data.serverhost = serverhost;
-                data.hostip = serverport;
-                data.showip = false;
-                data.showportdomain = true;
-                data.showportip = false;
-                
-                html = templates.parse(html, data);
-                callback(null, html);
+                socket.write(buf[0]);
+                socket.write(buf[1]);
             });
             
-            socket.on("data", function(data) {
-                var newdata = [];
-                if (data[0] == 255) { // Server's magic response
-                    var iszero = false,
-                        y = 0;
-                    for (var i =  1; i < data.length; i++) {
-                        if (data[i] === 0 && iszero) { // Separator
-                            if (newdata[y].length > 0)
-                                y++;
-                            newdata[y] = "";
-                            continue;
-                        }
-                        if (newdata[y] === undefined) {
-                            newdata[y] = "";
-                        }
-                        if (data[i] !== 0) {
-                            iszero = false;
-                            var newchar = String.fromCharCode(data[i]);
-                            if (newchar !== undefined) {
-                                newdata[y] = newdata[y] + newchar;
-                            }
-                        } else {
-                            iszero = true;
-                        }
-                    }
-                    if (callback !== undefined) {
-                        data = {};
-                        data.protocol_version = newdata[1];
-                        data.minecraft_version = newdata[2];
-                        data.server_name = newdata[3];
-                        data.num_players = newdata[4];
-                        data.max_players = newdata[5];
-                        //callback(null, data);
-                        console.log("GOT DATA");
-                        console.log(data);
-                        queryServer();
-                    }
-                } else {
-                    console.log("Unexpected data from server");
-                }
+            socket.setTimeout(1000, function () {
+                console.log("Server List Ping failed when connecting to " + serverhost + ":" + htmldata.serverport);
                 socket.end();
+                
+                doCallback(true);
+            });
+            
+            var dataLength = -1, currentLength = 0, chunks = [];
+            socket.on("data", function(data) {
+                console.log("Server List Ping received for " + htmldata.serverhost + ":" + htmldata.serverport);
+                try {
+                    if(dataLength < 0) {
+                        dataLength = varint.decode(data);
+                        data = data.slice(varint.decode.bytes);
+                        
+                        if(data[0] != 0x00) {
+                            callback(new Error("Invalid handshake."));
+                            client.destroy();
+                            return;
+                        }
+                        
+                        data = data.slice(1);
+                        currentLength++;
+                    }
+                    
+                    currentLength += data.length;
+                    chunks.push(data);
+
+                    if(currentLength >= dataLength) {
+                        data = Buffer.concat(chunks);
+                        var strLen = varint.decode(data);
+                        var strLenOffset = varint.decode.bytes;
+                        var resp = JSON.parse(data.toString("utf8", strLenOffset));
+                        
+                        htmldata.protocolVersion = resp.version.protocol;
+                        var version = resp.version.name.split(" ");
+                        htmldata.version = version[version.length-1];
+                        htmldata.servername = resp.description;
+                        htmldata.currentPlayers = resp.players.online;
+                        htmldata.maxPlayers = resp.players.max;
+                        if(resp.players.sample) htmldata.players = resp.players.sample;
+                        if(resp.favicon) htmldata.icon = resp.favicon;
+                        
+                        socket.end();
+                        
+                        if ( htmldata.players ) {
+                            doCallback();
+                        }else{
+                            queryServer();
+                        }
+                    }
+                } catch(err) {
+                    doCallback(true);
+                    socket.destroy();
+                }
             });
 
-            socket.once('error', function(e) {
-                if (callback !== undefined) {
-                    // ???
-                }
+            socket.on('error', function(e) {
+                console.log(e);
+                doCallback(true);
             });
+        };
+        
+        function packData(raw) {
+            if(raw instanceof Array) raw = Buffer.concat(raw);
+            return Buffer.concat( [ new Buffer(varint.encode(raw.length)), raw ] );
         }
         
         function queryServer() {
             var query;
             if ( widget.data.uselocalhost ) {
-                query = new mcquery("0.0.0.0", queryport);
+                query = new mcquery("0.0.0.0", htmldata.queryport);
             }else{
-                query = new mcquery(serverhost, queryport);
+                query = new mcquery(htmldata.serverip || htmldata.serverhost, htmldata.queryport);
             }
-        
-            var queryonline = false;
+            
             query.connect(function (err) {
-                console.log("Doing query.connect for " + serverhost + ":" + queryport);
+                console.log("Doing query.connect for " + ( htmldata.serverip || htmldata.serverhost ) + ":" + htmldata.queryport);
                 if (err) {
-                    console.log("query.connect failed for " + serverhost + ":" + queryport);
-                    parseCallback(true);
+                    console.log("query.connect failed for " + ( htmldata.serverip || htmldata.serverhost ) + ":" + htmldata.queryport);
+                    doCallback(true);
                 } else {
-                    queryonline = true;
+                    htmldata.queryonline = true;
                     query.full_stat(fullStatBack);
                     //query.basic_stat(basicStatBack);
                 }
@@ -227,10 +267,17 @@
                 console.log("Doing query.fullStatBack");
                 if (err) {
                     console.log("query.fullStatBack failed for " + serverhost);
-                    parseCallback(true);
+                    doCallback(true);
                 } else {
-                    parseCallback(null, stat);
+                    // Convert player objects to the way NodeBB likes.
+                    htmldata.players = [];
+                    var index;
+                    for (index = 0; index < stat.player_.length; ++index) {
+                       htmldata.players[htmldata.players.length] = { name: stat.player_[index] };
+                    }
+                    
                     shouldWeClose();
+                    doCallback();
                 }
             }
 
@@ -241,75 +288,55 @@
                 }
             }
             
-            function parseCallback (err, data) {
-                if (err) {
-                    data = {};
-                    data.serveronline = false;
-                    data.hostname = widget.data.hostname || "Unknown Server";
-                    
-                    data.serverhost = serverhost;
-                    data.hostip = serverport;
-                    data.showip = false;
-                    data.showportdomain = true;
-                    data.showportip = false;
-                }else{                    
-                    // Convert player objects to the way NodeBB likes.
-                    data.players = [];
-                    var index;
-                    for (index = 0; index < data.player_.length; ++index) {
-                        data.players[data.players.length] = { name: data.player_[index] };
-                    }
-                    
-                    data.serveronline = true;
-                    data.hostname = data.hostname || widget.data.hostname || "Unknown";
-                    
-                    data.serverhost = widget.data.serverhost;
-                    data.showip = widget.data.showip;
-                    data.showportdomain = widget.data.showportdomain;
-                    data.showportip = widget.data.showportip;
-                }
-                
-                if ( widget.data.parseformatcodes ) {
-                    data.hostname = data.hostname.replace("�0", "<span style=\"color:#000000;\">");
-                    data.hostname = data.hostname.replace("�1", "<span style=\"color:#0000AA;\">");
-                    data.hostname = data.hostname.replace("�2", "<span style=\"color:#00AA00;\">");
-                    data.hostname = data.hostname.replace("�3", "<span style=\"color:#00AAAA;\">");
-                    data.hostname = data.hostname.replace("�4", "<span style=\"color:#AA0000;\">");
-                    data.hostname = data.hostname.replace("�5", "<span style=\"color:#AA00AA;\">");
-                    data.hostname = data.hostname.replace("�6", "<span style=\"color:#FFAA00;\">");
-                    data.hostname = data.hostname.replace("�7", "<span style=\"color:#AAAAAA;\">");
-                    data.hostname = data.hostname.replace("�8", "<span style=\"color:#555555;\">");
-                    data.hostname = data.hostname.replace("�9", "<span style=\"color:#5555FF;\">");
-                    data.hostname = data.hostname.replace("�a", "<span style=\"color:#55FF55;\">");
-                    data.hostname = data.hostname.replace("�b", "<span style=\"color:#55FFFF;\">");
-                    data.hostname = data.hostname.replace("�c", "<span style=\"color:#FF5555;\">");
-                    data.hostname = data.hostname.replace("�d", "<span style=\"color:#FF55FF;\">");
-                    data.hostname = data.hostname.replace("�e", "<span style=\"color:#FFFF55;\">");
-                    data.hostname = data.hostname.replace("�f", "<span style=\"color:#FFFFFF;\">");
-                    data.hostname = data.hostname.replace("�o", "<span style=\"font-style:italic;\">");
-                    data.hostname = data.hostname + "</span></span></span></span></span></span></span></span></span>";
-                }
-                
-                if ( data.serverhost == "0.0.0.0" || data.serverhost == "127.0.0.1" || data.serverhost == "localhost" ) {
-                    data.showip = false;
-                    data.serverhost = data.hostip;
-                    if ( !data.showportdomain && data.showportip ) {
-                        data.showportdomain = true;
-                    }
-                }
-                
-                data.queryonline = true;
-                html = templates.parse(html, data);
-                callback(null, html);
-            }
         }
-	};
+        
+        function doCallback (err) {
+            if (err) {
+                // NOOP
+            }else{
+                htmldata.serveronline = true;
+            }
+            
+            if ( widget.data.parseformatcodes ) {
+               htmldata.servername =htmldata.servername.replace("�0", "<span style=\"color:#000000;\">");
+               htmldata.servername =htmldata.servername.replace("�1", "<span style=\"color:#0000AA;\">");
+               htmldata.servername =htmldata.servername.replace("�2", "<span style=\"color:#00AA00;\">");
+               htmldata.servername =htmldata.servername.replace("�3", "<span style=\"color:#00AAAA;\">");
+               htmldata.servername =htmldata.servername.replace("�4", "<span style=\"color:#AA0000;\">");
+               htmldata.servername =htmldata.servername.replace("�5", "<span style=\"color:#AA00AA;\">");
+               htmldata.servername =htmldata.servername.replace("�6", "<span style=\"color:#FFAA00;\">");
+               htmldata.servername =htmldata.servername.replace("�7", "<span style=\"color:#AAAAAA;\">");
+               htmldata.servername =htmldata.servername.replace("�8", "<span style=\"color:#555555;\">");
+               htmldata.servername =htmldata.servername.replace("�9", "<span style=\"color:#5555FF;\">");
+               htmldata.servername =htmldata.servername.replace("�a", "<span style=\"color:#55FF55;\">");
+               htmldata.servername =htmldata.servername.replace("�b", "<span style=\"color:#55FFFF;\">");
+               htmldata.servername =htmldata.servername.replace("�c", "<span style=\"color:#FF5555;\">");
+               htmldata.servername =htmldata.servername.replace("�d", "<span style=\"color:#FF55FF;\">");
+               htmldata.servername =htmldata.servername.replace("�e", "<span style=\"color:#FFFF55;\">");
+               htmldata.servername =htmldata.servername.replace("�f", "<span style=\"color:#FFFFFF;\">");
+               htmldata.servername =htmldata.servername.replace("�o", "<span style=\"font-style:italic;\">");
+               htmldata.servername =htmldata.servername + "</span></span></span></span></span></span></span></span></span>";
+            }
+            
+            if ( htmldata.serverhost == "0.0.0.0" || htmldata.serverhost == "127.0.0.1" || htmldata.serverhost == "localhost" ) {
+                htmldata.showip = false;
+                htmldata.serverhost = htmldata.hostip;
+                if ( !htmldata.showportdomain && htmldata.showportip ) {
+                    htmldata.showportdomain = true;
+                }
+            }
+            
+            htmldata.queryonline = true;
+            html = templates.parse(html, htmldata);
+            callback(null, html);
+        }
+    };
 
 	Widget.defineWidgets = function(widgets, callback) {
 		widgets = widgets.concat([
 			{
 				widget: "serverstatus",
-				name: "Minecraft Server Status",
+				name: "Minecraft Server Status 1.7+",
 				description: "Lists information on a Minecraft server.",
 				content: Widget.templates['admin/adminserverstatus.tpl']
 			}

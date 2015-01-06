@@ -2,7 +2,7 @@
     <div class="container">
         <div class="row">
             <div class="col-md-4">
-                <h4>{hostname}</h4>
+                <h4>{servername}</h4>
                 <table class="table table-striped">
                 <tbody>
                 <tr>
@@ -19,8 +19,8 @@
                 <tr>
                     <td class="td-label"><b>Address</b></td>
                     <td>
-                        {serverhost}<!-- IF showportdomain -->:{hostport}<!-- ENDIF showportdomain -->
-                        <!-- IF showip -->(&nbsp;{hostip}<!-- IF showportip -->:{hostport}<!-- ENDIF showportip --><!-- ENDIF showip --><!-- IF showip -->&nbsp;)<!-- ENDIF showip -->
+                        {serverhost}<!-- IF showportdomain -->:{serverport}<!-- ENDIF showportdomain -->
+                        <!-- IF showip -->(&nbsp;{serverip}<!-- IF showportip -->:{serverport}<!-- ENDIF showportip --><!-- ENDIF showip --><!-- IF showip -->&nbsp;)<!-- ENDIF showip -->
                     </td>
                 </tr>
                 <!-- IF !queryonline -->
