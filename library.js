@@ -198,7 +198,7 @@
             });
             
             socket.setTimeout(1000, function () {
-                console.log("Server List Ping failed when connecting to " + serverhost + ":" + htmldata.serverport);
+                console.log("Server List Ping failed when connecting to " + htmldata.serverhost + ":" + htmldata.serverport);
                 socket.end();
                 
                 doCallback(true);
@@ -304,7 +304,7 @@
             function fullStatBack(err, stat) {
                 console.log("Doing query.fullStatBack");
                 if (err) {
-                    console.log("query.fullStatBack failed for " + serverhost);
+                    console.log("query.fullStatBack failed for " + htmldata.serverhost);
                     doCallback(true);
                 } else {
                     // Convert player objects to the way NodeBB likes.
