@@ -47,7 +47,6 @@
 			});
 		}
         
-
 		async.each(templatesToLoad, loadTemplate);
 
 		callback();

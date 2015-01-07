@@ -12,6 +12,6 @@ NodeBB widgets for Minecraft.
 
 Pulls MOTD, min/max players, version, and player avatars. Displays everything in a pretty table.
 
-![Status Sample Image 1](http://www.yaricraft.com/images/npm/sample1.png "Status Sample Image 1")
+![Status Sample Image 1](http://yariplus.x10.mx/images/sample1.png "Status Sample Image 1")
 
-![Status Sample Image 2](http://www.yaricraft.com/images/npm/sample2.png "Status Sample Image 2")
+![Status Sample Image 2](http://yariplus.x10.mx/images/sample2.png "Status Sample Image 2")
