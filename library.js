@@ -1,7 +1,6 @@
-"use strict";
-/*global define, socket, app, bootbox, templates, ajaxify, RELATIVE_PATH*/
-
-(function(module) {
+(function() {
+    "use strict";
+    
 	var async = require('async'),
 		fs = require('fs'),
 		path = require('path'),
@@ -399,4 +398,4 @@
 	};
 
 	module.exports = Widget;
-}(module));
+})();
