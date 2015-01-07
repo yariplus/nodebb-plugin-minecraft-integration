@@ -79,15 +79,15 @@
 <h4>Style Options</h4>
 
 <label>Color Server Name</label>
-<input type="text" class="form-control" name="colorservername" />
+<input id="colorServerName" class="form-control category_color" name="colorServerName" data-name="color" />
 <br />
 
 <label>Color Labels</label>
-<input type="text" class="form-control" name="colorlabels" />
+<input id="colorLabels" class="form-control category_color" name="colorLabels" data-name="color" />
 <br />
 
 <label>Color Text</label>
-<input type="text" class="form-control" name="colortext" />
+<input type="colorText" class="form-control category_color" name="colorText" data-name="color" />
 <br />
 
 <h4>Custom Rows</h4>

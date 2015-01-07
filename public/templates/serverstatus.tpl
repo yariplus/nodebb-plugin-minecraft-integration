@@ -80,9 +80,9 @@
                     <td class="td-label"><strong>Players</strong></td>
                     <td>
                         <!-- BEGIN players -->
-                        
+                            <!-- IF players.linkprofile --><a href="user/{players.name}"><!-- ENDIF players.linkprofile -->
                             <img src="https://cravatar.eu/helmavatar/{players.name}/40" data-placement="top" data-toggle="tooltip" rel="tooltip" class="user-img" title="{players.name}" size="40" width="40" height="40" style="width: 40px; height: 40px; margin-bottom: 5px; margin-right: 5px; border-radius: 3px;" />
-                        
+                            <!-- IF players.linkprofile --></a><!-- ENDIF players.linkprofile -->
                         <!-- END players -->
                     </td>
                 </tr>

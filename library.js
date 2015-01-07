@@ -1,6 +1,7 @@
-(function(module) {
-	"use strict";
+"use strict";
+/*global define, socket, app, bootbox, templates, ajaxify, RELATIVE_PATH*/
 
+(function(module) {
 	var async = require('async'),
 		fs = require('fs'),
 		path = require('path'),
@@ -105,10 +106,10 @@
         
         htmldata.serveronline = false;
         
-        // Get port from host
+        // See if there is a port in the host input
         var hostarray = htmldata.serverhost.split(":");
         if ( hostarray.length == 1 ) {
-            // NOOP
+            // There's no port entered in the host input
         } else if ( hostarray.length == 2 ) {
             htmldata.serverhost = hostarray[0];
             htmldata.serverport = hostarray[1];
@@ -117,7 +118,7 @@
             htmldata.serverhost = "0.0.0.0";
         }
         
-        // Process DNS/SRV addresses
+        // Start by processing DNS/SRV addresses
         resolveHost();
         
         function resolveHost() {
@@ -168,7 +169,6 @@
         }
         
         function doPing() {
-        
             var pingdata;
             if ( widget.data.uselocalhost ) {
                 pingdata = { port: htmldata.serverport, host: "0.0.0.0" };
@@ -250,7 +250,7 @@
                         socket.end();
                         
                         if ( htmldata.players ) {
-                            doCallback();
+                            findUsers(0);
                         }else{
                             queryServer();
                         }
@@ -268,7 +268,7 @@
         };
         
         function packData(raw) {
-            if(raw instanceof Array) raw = Buffer.concat(raw);
+            if ( raw instanceof Array ) raw = Buffer.concat(raw);
             return Buffer.concat( [ new Buffer(varint.encode(raw.length)), raw ] );
         }
         
@@ -311,7 +311,7 @@
                     htmldata.players = [];
                     var index;
                     for (index = 0; index < stat.player_.length; ++index) {
-                       htmldata.players[htmldata.players.length] = { name: stat.player_[index] };
+                        htmldata.players[htmldata.players.length] = { name: stat.player_[index] };
                     }
                     
                     // Use queried hostname if localhost.
@@ -324,7 +324,7 @@
                     }
                     
                     shouldWeClose();
-                    doCallback();
+                    findUsers(0);
                 }
             }
 
@@ -334,15 +334,28 @@
                     query.close();
                 }
             }
-            
         }
         
-        function doCallback (err) {
-            if (err) {
-                // NOOP
-            }else{
-                htmldata.serveronline = true;
+        var findUsers = function(index) {
+            if ( htmldata.players.length != index ) {
+                user.exists(htmldata.players[index].name, function(err, exists) {
+                    if ( err ) {
+                        console.log("Error finding user: " + err);
+                    } else if ( exists ) {
+                        htmldata.players[index].linkprofile = true;
+                    } else {
+                        // NOOP
+                    }
+                    index++;
+                    findUsers(index);
+                });
+            } else {
+                doCallback();
             }
+        }
+        
+        function doCallback ( offline ) {
+            if ( !offline ) htmldata.serveronline = true;
             
             if ( widget.data.parseformatcodes ) {
                 var spancount = htmldata.servername.split("§").length - 1;
@@ -363,9 +376,7 @@
                 htmldata.servername = htmldata.servername.replace("§e", "<span style=\"color:#FFFF55;\">");
                 htmldata.servername = htmldata.servername.replace("§f", "<span style=\"color:#FFFFFF;\">");
                 htmldata.servername = htmldata.servername.replace("§o", "<span style=\"font-style:italic;\">");
-                for ( var i = 0; i < spancount; i++ ) {
-                    htmldata.servername = htmldata.servername + "</span>";
-                }
+                for ( var i = 0; i < spancount; i++ ) htmldata.servername = htmldata.servername + "</span>";
             }
             
             htmldata.queryonline = true;
