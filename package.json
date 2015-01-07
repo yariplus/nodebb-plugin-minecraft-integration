@@ -1,6 +1,6 @@
 {
   "name": "nodebb-widget-minecraft-essentials",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "NodeBB Minecraft Widgets",
   "main": "library.js",
   "scripts": {
@@ -35,8 +35,7 @@
     "simple-rcon": "^0.2.1",
     "encoding": "^0.1.11",
     "bufferpack": "^0.0.6",
-    "varint": "^3.0.1",
-    "encoding": "^0.1.11"
+    "varint": "^3.0.1"
   },
   "nbbpm": {
     "compatibility": "^0.6.0"
