@@ -5,6 +5,16 @@
                 <h4>{servername}</h4>
                 <table class="table table-striped">
                 <tbody>
+                
+                <!-- BEGIN customaftername -->
+                <tr>
+                    <td class="td-label"><strong>{customaftername.label}</strong></td>
+                    <td>
+                        {customaftername.text}
+                    </td>
+                </tr>
+                <!-- END customaftername -->
+                
                 <tr>
                     <td class="td-label"><strong>Status</strong></td>
                     <td>
@@ -15,6 +25,16 @@
                     <!-- ENDIF !serveronline -->
                     </td>
                 </tr>
+                
+                <!-- BEGIN customafterstatus -->
+                <tr>
+                    <td class="td-label"><strong>{customafterstatus.label}</strong></td>
+                    <td>
+                        {customafterstatus.text}
+                    </td>
+                </tr>
+                <!-- END customafterstatus -->
+                
                 <tr>
                     <td class="td-label"><strong>Address</strong></td>
                     <td>
@@ -22,17 +42,40 @@
                         <!-- IF showip -->(&nbsp;{serverip}<!-- IF showportip -->:{serverport}<!-- ENDIF showportip --><!-- ENDIF showip --><!-- IF showip -->&nbsp;)<!-- ENDIF showip -->
                     </td>
                 </tr>
+                
+                <!-- BEGIN customafteraddress -->
+                <tr>
+                    <td class="td-label"><strong>{customafteraddress.label}</strong></td>
+                    <td>
+                        {customafteraddress.text}
+                    </td>
+                </tr>
+                <!-- END customafteraddress -->
+                
                 <!-- IF !queryonline -->
                 <tr>
                     <td class="td-label"><strong>Query</strong></td>
                     <td>Did not find query port {queryport}</td>
                 </tr>
                 <!-- ENDIF !queryonline -->
+                
                 <!-- IF serveronline -->
                 <tr>
                     <td class="td-label"><strong>Version</strong></td>
                     <td>{version}</td>
                 </tr>
+                <!-- ENDIF serveronline -->
+                
+                <!-- BEGIN customafterversion -->
+                <tr>
+                    <td class="td-label"><strong>{customafterversion.label}</strong></td>
+                    <td>
+                        {customafterversion.text}
+                    </td>
+                </tr>
+                <!-- END customafterversion -->
+                
+                <!-- IF serveronline -->
                 <tr>
                     <td class="td-label"><strong>Players</strong></td>
                     <td>
@@ -44,6 +87,16 @@
                     </td>
                 </tr>
                 <!-- ENDIF serveronline -->
+                
+                <!-- BEGIN customafterplayers -->
+                <tr>
+                    <td class="td-label"><strong>{customafterplayers.label}</strong></td>
+                    <td>
+                        {customafterplayers.text}
+                    </td>
+                </tr>
+                <!-- END customafterplayers -->
+                
                 </tbody>
                 </table>
             </div>

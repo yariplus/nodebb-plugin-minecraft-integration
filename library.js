@@ -65,7 +65,7 @@
         
         // Read from config and defaults
         var htmldata = {};
-        htmldata.servername = widget.data.servername || "Unknown Server";
+        htmldata.servername = widget.data.servername || "Minecraft Server";
         htmldata.serverhost = widget.data.serverhost || "0.0.0.0";
         htmldata.serverport = widget.data.serverport || "25565";
         htmldata.queryport = widget.data.queryport;
@@ -73,6 +73,36 @@
         htmldata.showportdomain = widget.data.showportdomain;
         htmldata.showportip = widget.data.showportip;
         htmldata.showplayercount = widget.data.showplayercount;
+        
+        var addCustom = function ( label, text, after ) {
+            switch ( after ) {
+                case "name":
+                    if ( !htmldata.customaftername ) { htmldata.customaftername = []; }
+                    htmldata.customaftername[htmldata.customaftername.length] = { label: label, text: text }
+                    break;
+                case "status":
+                default:
+                    if ( !htmldata.customafterstatus ) { htmldata.customafterstatus = []; }
+                    htmldata.customafterstatus[htmldata.customafterstatus.length] = { label: label, text: text }
+                    break;
+                case "address":
+                    if ( !htmldata.customafteraddress ) { htmldata.customafteraddress = []; }
+                    htmldata.customafteraddress[htmldata.customafteraddress.length] = { label: label, text: text }
+                    break;
+                case "version":
+                    if ( !htmldata.customafterversion ) { htmldata.customafterversion = []; }
+                    htmldata.customafterversion[htmldata.customafterversion.length] = { label: label, text: text }
+                    break;
+                case "players":
+                    if ( !htmldata.customafterplayers ) { htmldata.customafterplayers = []; }
+                    htmldata.customafterplayers[htmldata.customafterplayers.length] = { label: label, text: text }
+                    break;
+            }
+        }
+        
+        if ( widget.data.usecustom1 ) addCustom( widget.data.custom1label, widget.data.custom1text, widget.data.custom1orderafter );
+        if ( widget.data.usecustom2 ) addCustom( widget.data.custom2label, widget.data.custom2text, widget.data.custom2orderafter );
+        if ( widget.data.usecustom3 ) addCustom( widget.data.custom3label, widget.data.custom3text, widget.data.custom3orderafter );
         
         htmldata.serveronline = false;
         
@@ -205,7 +235,12 @@
                         htmldata.protocolVersion = resp.version.protocol;
                         var version = resp.version.name.split(" ");
                         htmldata.version = version[version.length-1];
-                        htmldata.servername = resp.description;
+                        
+                        if ( widget.data.shownamemotd ) {
+                            htmldata.servername = htmldata.servername + " ~" + resp.description + "~";
+                        } else if ( widget.data.showname ) {
+                            htmldata.servername = resp.description;
+                        }
                         
                         htmldata.onlineplayers = resp.players.online;
                         htmldata.maxplayers = resp.players.max;
@@ -311,24 +346,27 @@
             }
             
             if ( widget.data.parseformatcodes ) {
-               htmldata.servername = htmldata.servername.replace("�0", "<span style=\"color:#000000;\">");
-               htmldata.servername = htmldata.servername.replace("�1", "<span style=\"color:#0000AA;\">");
-               htmldata.servername = htmldata.servername.replace("�2", "<span style=\"color:#00AA00;\">");
-               htmldata.servername = htmldata.servername.replace("�3", "<span style=\"color:#00AAAA;\">");
-               htmldata.servername = htmldata.servername.replace("�4", "<span style=\"color:#AA0000;\">");
-               htmldata.servername = htmldata.servername.replace("�5", "<span style=\"color:#AA00AA;\">");
-               htmldata.servername = htmldata.servername.replace("�6", "<span style=\"color:#FFAA00;\">");
-               htmldata.servername = htmldata.servername.replace("�7", "<span style=\"color:#AAAAAA;\">");
-               htmldata.servername = htmldata.servername.replace("�8", "<span style=\"color:#555555;\">");
-               htmldata.servername = htmldata.servername.replace("�9", "<span style=\"color:#5555FF;\">");
-               htmldata.servername = htmldata.servername.replace("�a", "<span style=\"color:#55FF55;\">");
-               htmldata.servername = htmldata.servername.replace("�b", "<span style=\"color:#55FFFF;\">");
-               htmldata.servername = htmldata.servername.replace("�c", "<span style=\"color:#FF5555;\">");
-               htmldata.servername = htmldata.servername.replace("�d", "<span style=\"color:#FF55FF;\">");
-               htmldata.servername = htmldata.servername.replace("�e", "<span style=\"color:#FFFF55;\">");
-               htmldata.servername = htmldata.servername.replace("�f", "<span style=\"color:#FFFFFF;\">");
-               htmldata.servername = htmldata.servername.replace("�o", "<span style=\"font-style:italic;\">");
-               htmldata.servername = htmldata.servername + "</span></span></span></span></span></span></span></span></span>";
+                var spancount = htmldata.servername.split("§").length - 1;
+                htmldata.servername = htmldata.servername.replace("§0", "<span style=\"color:#000000;\">");
+                htmldata.servername = htmldata.servername.replace("§1", "<span style=\"color:#0000AA;\">");
+                htmldata.servername = htmldata.servername.replace("§2", "<span style=\"color:#00AA00;\">");
+                htmldata.servername = htmldata.servername.replace("§3", "<span style=\"color:#00AAAA;\">");
+                htmldata.servername = htmldata.servername.replace("§4", "<span style=\"color:#AA0000;\">");
+                htmldata.servername = htmldata.servername.replace("§5", "<span style=\"color:#AA00AA;\">");
+                htmldata.servername = htmldata.servername.replace("§6", "<span style=\"color:#FFAA00;\">");
+                htmldata.servername = htmldata.servername.replace("§7", "<span style=\"color:#AAAAAA;\">");
+                htmldata.servername = htmldata.servername.replace("§8", "<span style=\"color:#555555;\">");
+                htmldata.servername = htmldata.servername.replace("§9", "<span style=\"color:#5555FF;\">");
+                htmldata.servername = htmldata.servername.replace("§a", "<span style=\"color:#55FF55;\">");
+                htmldata.servername = htmldata.servername.replace("§b", "<span style=\"color:#55FFFF;\">");
+                htmldata.servername = htmldata.servername.replace("§c", "<span style=\"color:#FF5555;\">");
+                htmldata.servername = htmldata.servername.replace("§d", "<span style=\"color:#FF55FF;\">");
+                htmldata.servername = htmldata.servername.replace("§e", "<span style=\"color:#FFFF55;\">");
+                htmldata.servername = htmldata.servername.replace("§f", "<span style=\"color:#FFFFFF;\">");
+                htmldata.servername = htmldata.servername.replace("§o", "<span style=\"font-style:italic;\">");
+                for ( var i = 0; i < spancount; i++ ) {
+                    htmldata.servername = htmldata.servername + "</span>";
+                }
             }
             
             htmldata.queryonline = true;
