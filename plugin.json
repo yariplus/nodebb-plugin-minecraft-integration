@@ -5,15 +5,10 @@
 	"url": "https://github.com/yariplus/nodebb-widget-minecraft-essentials",
 	"library": "./library.js",
 	"hooks": [
-		{
-			"hook": "static:app.load", "method": "init"
-		},
-		{
-			"hook": "filter:widgets.getWidgets", "method": "defineWidgets"
-		},
-		{
-			"hook": "filter:widget.render:serverstatus", "method": "renderServerStatus"
-		}
+		{ "hook": "static:app.load", "method": "init" },
+		{ "hook": "filter:widgets.getWidgets", "method": "defineWidgets" },
+        { "hook": "filter:widget.render:console", "method": "renderConsole" },
+		{ "hook": "filter:widget.render:serverstatus", "method": "renderServerStatus" }
 	],
 	"templates": "./public/templates",
 	"css": [

@@ -20,13 +20,12 @@
         bufferpack = require("bufferpack"),
         encoding = require("encoding"),
         varint = require("varint"),
-		app;
+		app,
+        MinecraftWidgets = {
+            templates: {}
+        };
 
-	var Widget = {
-		templates: {}
-	};
-
-	Widget.init = function(params, callback) {
+	MinecraftWidgets.init = function(params, callback) {
 		app = params.app;
 
 		var templatesToLoad = [
@@ -42,7 +41,7 @@
 					console.log(err.message);
 					return next(err);
 				}
-				Widget.templates[template] = data.toString();
+				MinecraftWidgets.templates[template] = data.toString();
 				next(null);
 			});
 		}
@@ -51,9 +50,23 @@
 
 		callback();
 	};
+    
+    MinecraftWidgets.renderConsole = function(widget, callback) {
+        var html = MinecraftWidgets.templates['console.tpl'], cid;
+        
+		if (widget.data.cid) {
+			cid = widget.data.cid;
+		} else {
+			var match = widget.area.url.match('[0-9]+');
+			cid = match ? match[0] : 1;
+		}
+        
+        //html = templates.parse(html, htmldata);
+        callback(null, html);
+    }
 
-	Widget.renderServerStatus = function(widget, callback) {
-		var html = Widget.templates['serverstatus.tpl'], cid;
+	MinecraftWidgets.renderServerStatus = function(widget, callback) {
+		var html = MinecraftWidgets.templates['serverstatus.tpl'], cid;
         
 		if (widget.data.cid) {
 			cid = widget.data.cid;
@@ -384,18 +397,24 @@
         }
     };
 
-	Widget.defineWidgets = function(widgets, callback) {
+	MinecraftWidgets.defineWidgets = function(widgets, callback) {
 		widgets = widgets.concat([
 			{
 				widget: "serverstatus",
 				name: "Minecraft Server Status 1.7+",
 				description: "Lists information on a Minecraft server.",
-				content: Widget.templates['admin/adminserverstatus.tpl']
+				content: MinecraftWidgets.templates['admin/adminserverstatus.tpl']
+			},
+            {
+				widget: "console",
+				name: "Minecraft Server RCON",
+				description: "Send console commands to a Minecraft server.",
+				content: MinecraftWidgets.templates['admin/adminconsole.tpl']
 			}
 		]);
 
 		callback(null, widgets);
 	};
 
-	module.exports = Widget;
+	module.exports = MinecraftWidgets;
 })();
