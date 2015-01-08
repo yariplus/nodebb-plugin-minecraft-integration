@@ -134,61 +134,46 @@
         resolveHost();
         
         function resolveHost() {
-            switch ( htmldata.serverhost.substring(0,1) ) {
-                case "0":
-                case "1":
-                case "2":
-                case "3":
-                case "4":
-                case "5":
-                case "6":
-                case "7":
-                case "8":
-                case "9":
-                    // Using an IP as host.
-                    htmldata.showip = false;
-                    if ( htmldata.serverport !== "25565" ) htmldata.showportdomain = true;
-                    doPing();
-                    break;
-                default:
-                    // Using a domain, check for DNS and SRV record.
-                    dns.resolve( "_minecraft._tcp." + htmldata.serverhost, 'SRV', function (err, addresses) {
-                        if ( err ) {
-                            console.info("SRV lookup failed for " + htmldata.serverhost);
-                            dns.resolve4(htmldata.serverhost, function (err, addresses) {
-                                if ( err ) {
-                                    doCallback(true);
-                                }else{
-                                    htmldata.serverip = addresses[0];
-                                    doPing();
-                                }
-                            });
+            if ( isIP(htmldata.serverhost) ) {
+                // Using an IP as host.
+                htmldata.showip = false;
+                if ( htmldata.serverport !== "25565" ) htmldata.showportdomain = true;
+                doPing();
+            }else{
+                // Using a domain, check for DNS and SRV record.
+                getSRV(htmldata.serverhost, function(err, theHost, thePort) {
+                    if ( err ) {
+                        getIP(htmldata.serverhost, function(err, theIP) {
+                            if ( err ) {
+                                doCallback(true);
+                            }else{
+                                htmldata.serverip = theIP;
+                                doPing();
+                            }
+                        });
+                    }else{
+                        htmldata.serverport = thePort;
+                        if ( isIP(theHost) ) {
+                            htmldata.serverip = theHost;
+                            doPing();
                         }else{
-                            console.info("Found SRV for " + htmldata.serverhost);
-                            htmldata.serverport = addresses[0].port;
-                            htmldata.serverip = addresses[0].name;
-                            dns.resolve4(htmldata.serverhost, function (err, addresses) {
+                            getIP(theHost, function(err, theIP) {
                                 if ( err ) {
                                     doCallback(true);
                                 }else{
-                                    htmldata.serverip = addresses[0];
+                                    htmldata.serverip = theIP;
                                     doPing();
                                 }
                             });
                         }
-                    });
+                    }
+                });
             }
-        }
+        };
         
         function doPing() {
-            var pingdata;
-            if ( widget.data.uselocalhost ) {
-                pingdata = { port: htmldata.serverport, host: "0.0.0.0" };
-                console.log("Pinging " + "0.0.0.0" + ":" + pingdata.port);
-            }else{
-                pingdata = { port: htmldata.serverport, host: htmldata.serverip || htmldata.serverhost };
-                console.log("Pinging " + pingdata.host + ":" + pingdata.port);
-            }
+            var pingdata = { port: htmldata.serverport, host: htmldata.serverip || htmldata.serverhost };
+            console.log("Pinging " + pingdata.host + ":" + pingdata.port);
             
             var socket = net.connect(pingdata, function() {
                 var buf = [
@@ -202,8 +187,6 @@
                     ]),
                     packData(new Buffer([0x00]))
                 ]
-                
-                //console.info("Writing request.");
                 
                 socket.write(buf[0]);
                 socket.write(buf[1]);
@@ -282,21 +265,24 @@
         function packData(raw) {
             if ( raw instanceof Array ) raw = Buffer.concat(raw);
             return Buffer.concat( [ new Buffer(varint.encode(raw.length)), raw ] );
-        }
+        };
         
         function queryServer() {
-            var query;
             if ( !htmldata.queryport ) htmldata.queryport = htmldata.serverport
+            var queryData;
             if ( widget.data.uselocalhost ) {
-                query = new mcquery("0.0.0.0", htmldata.queryport);
+                queryData = { host: "0.0.0.0", port: htmldata.queryport };
             }else{
-                query = new mcquery(htmldata.serverip || htmldata.serverhost, htmldata.queryport);
+                queryData = { host: htmldata.serverip || htmldata.serverhost, port: htmldata.queryport };
             }
             
+            console.log("Querying " + queryData.host + ":" + queryData.port);
+            
+            var query = new mcquery( queryData.host, queryData.port );
+            
             query.connect(function (err) {
-                console.log("Doing query.connect for " + ( htmldata.serverip || htmldata.serverhost ) + ":" + htmldata.queryport);
                 if (err) {
-                    console.log("query.connect failed for " + ( htmldata.serverip || htmldata.serverhost ) + ":" + htmldata.queryport);
+                    console.log("Query failed for " + ( htmldata.serverip || htmldata.serverhost ) + ":" + htmldata.queryport + ", is query-enabled set to true in server.properties?" );
                     doCallback(true);
                 } else {
                     htmldata.queryonline = true;
@@ -415,6 +401,52 @@
 
 		callback(null, widgets);
 	};
+    
+    function getIP(host, callback) {
+        dns.resolve4(host, function (err, addresses) {
+            if (err) {
+                console.error("Couldn't find an IP for " + htmldata.serverhost + ", is it a valid address?");
+                callback(err);
+            }else{
+                if ( isIP(addresses[0]) ) {
+                    callback( null, addresses[0] );
+                }else{
+                    getIP(addresses[0], callback);
+                }
+            }
+        });
+    }
+    
+    function getSRV(host, callback) {
+        dns.resolve( "_minecraft._tcp." + host, 'SRV', function (err, addresses) {
+            if ( err ) {
+                console.info("No SRV for " + host)
+                callback(true);
+            }else{
+                console.info("Found SRV record for " + host);
+                callback(null, addresses[0].name, addresses[0].port)
+            }
+        });
+    }
+    
+    function isIP(host) {
+        if ( typeof  host !== "string" ) return false;
+        switch ( host.substring(0,1) ) {
+            case "0":
+            case "1":
+            case "2":
+            case "3":
+            case "4":
+            case "5":
+            case "6":
+            case "7":
+            case "8":
+            case "9":
+                return true;
+            default:
+                return false;
+        }
+    }
 
 	module.exports = MinecraftWidgets;
 })();
