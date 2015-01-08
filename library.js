@@ -208,8 +208,6 @@
                         data = data.slice(varint.decode.bytes);
                         
                         if(data[0] != 0x00) {
-                            callback(new Error("Invalid handshake."));
-                            client.destroy();
                             return;
                         }
                         
@@ -241,6 +239,10 @@
                         
                         if(resp.players.sample) htmldata.players = resp.players.sample;
                         if(resp.favicon) htmldata.icon = resp.favicon;
+                        if(resp.modinfo) {
+                            htmldata.modinfo = true;
+                            htmldata.modList = resp.modinfo.modList.slice(2);
+                        }
                         
                         socket.end();
                         
@@ -251,8 +253,8 @@
                         }
                     }
                 } catch(err) {
-                    doCallback(true);
                     socket.destroy();
+                    doCallback(true);
                 }
             });
 
@@ -300,16 +302,17 @@
             }
 
             function fullStatBack(err, stat) {
-                console.log("Doing query.fullStatBack");
                 if (err) {
-                    console.log("query.fullStatBack failed for " + htmldata.serverhost);
+                    console.log("full_stat failed for " + htmldata.serverhost);
                     doCallback(true);
                 } else {
-                    // Convert player objects to the way NodeBB likes.
-                    htmldata.players = [];
-                    var index;
-                    for (index = 0; index < stat.player_.length; ++index) {
-                        htmldata.players[htmldata.players.length] = { name: stat.player_[index] };
+                    if ( !htmldata.players ) {                    
+                        // Convert player objects to the way NodeBB likes.
+                        htmldata.players = [];
+                        var index;
+                        for (index = 0; index < stat.player_.length; ++index) {
+                            htmldata.players[htmldata.players.length] = { name: stat.player_[index] };
+                        }
                     }
                     
                     // Use queried hostname if localhost.
@@ -318,6 +321,16 @@
                         if ( stat.hostport != "25565" ) {
                             htmldata.showportdomain = true;
                             htmldata.serverport = stat.hostport;
+                        }
+                    }
+                    
+                    if ( stat.plugins && stat.plugins !== "") {
+                        htmldata.pluginInfo = true;
+                        var pluginString = stat.plugins.split(": ")[1].split("; ");
+                        htmldata.pluginList = [];
+                        var index;
+                        for (index = 0; index < pluginString.length; ++index) {
+                            htmldata.pluginList[htmldata.pluginList.length] = { name: pluginString[index] };
                         }
                     }
                     

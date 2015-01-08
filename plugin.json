@@ -4,6 +4,12 @@
 	"description": "Widgets for displaying information on Minecraft servers.",
 	"url": "https://github.com/yariplus/nodebb-widget-minecraft-essentials",
 	"library": "./library.js",
+    "less": [
+        "public/less/style.less"
+    ],
+    "scripts": [
+        "public/js/client.js"
+    ],
 	"hooks": [
 		{ "hook": "static:app.load", "method": "init" },
 		{ "hook": "filter:widgets.getWidgets", "method": "defineWidgets" },

@@ -79,7 +79,7 @@
 <h4>Style Options</h4>
 
 <label>Color Server Name</label>
-<input id="colorServerName" class="form-control category_color" name="colorServerName" data-name="color" />
+<input id="colorSelector" class="form-control category_color" name="colorServerName" data-name="color" />
 <br />
 
 <label>Color Labels</label>

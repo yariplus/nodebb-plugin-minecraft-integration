@@ -2,7 +2,7 @@
     <div class="container">
         <div class="row">
             <div class="col-md-4">
-                <h4>{servername}</h4>
+                <strong><h4>{servername}</h4></strong>
                 <table class="table table-striped">
                 <tbody>
                 
@@ -19,9 +19,9 @@
                     <td class="td-label"><strong>Status</strong></td>
                     <td>
                     <!-- IF !serveronline -->
-                        <strong><span class="text-warning">Offline</span></strong>
+                        <span class="fa fa-exclamation-circle text-danger" />&nbsp;<strong><span class="text-warning">Offline</span></strong>
                     <!-- ELSE -->
-                        <strong><span class="text-success">Online</span></strong><!-- IF showplayercount -->&nbsp;({onlineplayers}/{maxplayers})<!-- ENDIF showplayercount -->
+                        <span data-placement="top" data-title="Status" data-title="Online" class="fa fa-check-circle text-success has-tooltip" />&nbsp;<strong><span class="text-success">Online</span></strong><!-- IF showplayercount -->&nbsp;({onlineplayers}/{maxplayers})<!-- ENDIF showplayercount -->
                     <!-- ENDIF !serveronline -->
                     </td>
                 </tr>
@@ -62,7 +62,10 @@
                 <!-- IF serveronline -->
                 <tr>
                     <td class="td-label"><strong>Version</strong></td>
-                    <td>{version}</td>
+                    <td>{version}
+                        <!-- IF modinfo -->&nbsp;<div class="fa fa-cog text-info  has-popover" data-html="true" data-title="<h6><b>Mod List</b></h6>"    data-placement="bottom"<!-- ENDIF modinfo --><!-- BEGIN modList -->{modList.modid}<!-- IF @first -->   data-content="&lt;h6&gt;<!-- ENDIF @first --><!-- IF @last -->&lt;/h6&gt;"<!-- ELSE --><!-- IF !@first -->, <!-- ENDIF !@first --><!-- ENDIF @last --><!-- END modList --><!-- IF modinfo -->></div><!-- ENDIF modinfo -->
+                        <!-- IF pluginInfo -->&nbsp;<div class="fa fa-plug text-info has-popover" data-html="true" data-title="<h6><b>Plugin List</b></h6>" data-placement="bottom"<!-- ENDIF pluginInfo --><!-- BEGIN pluginList -->{pluginList.name}<!-- IF @first --> data-content="&lt;h6&gt;<!-- ENDIF @first --><!-- IF @last -->&lt;/h6&gt;"<!-- ELSE --><!-- IF !@first -->, <!-- ENDIF !@first --><!-- ENDIF @last --><!-- END pluginList --><!-- IF pluginInfo -->></div><!-- ENDIF pluginInfo -->
+                    </td>
                 </tr>
                 <!-- ENDIF serveronline -->
                 
