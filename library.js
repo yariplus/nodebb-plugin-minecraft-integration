@@ -1,8 +1,6 @@
 (function() {
     "use strict";
     
-    console.log("define");
-    
 	var async = require('async'),
 		fs = require('fs'),
 		path = require('path'),
@@ -29,7 +27,6 @@
         };
 
 	MinecraftWidgets.init = function(params, callback) {
-        console.log("init");
 		app = params.app;
 
 		var templatesToLoad = [
@@ -236,7 +233,7 @@
         templateData.hasInvalidQuery = false;
         //templateData.showPlayersList = true;
         templateData.showModList     = true;
-        templateData.showPluginList  = true;
+        templateData.showPluginList  = false;
         
         // See if there is a port in the host input
         var hostarray = templateData.serverHost.split(":");
@@ -368,6 +365,7 @@
     function readServerListPing(templateData, requestBack, responseBack, dataBack) {
         var hostData = { 'host':( templateData.serverIP || templateData.serverHost ), 'port':templateData.serverPort };
         if (templateData.logDebug) console.log("Sending ServerListPing to " + hostData.host + ":" + hostData.port);
+        var dataLength = -1, currentLength = 0, chunks = [];
         var socket = net.connect( hostData, function() {
             requestBack(socket, hostData);
         });
@@ -381,45 +379,42 @@
             //dataBack(true, templateData);
         });
         
-        socket.on('data', function(responseData) {
-            if (templateData.logDebug) console.log("ServerListPing received for " + hostData.host + ":" + hostData.port);
+        socket.on('data', function(data) {
+            if (templateData.logDebug) console.log("ServerListPing packet received from " + hostData.host + ":" + hostData.port);
             templateData.isServerOnline = true;
             
-            var dataLength = -1, currentLength = 0, chunks = [];
             try {
                 if(dataLength < 0) {
-                    if (templateData.logDebug) console.log("Decoding message.");
-                    console.log(responseData);
-                    dataLength = varint.decode(responseData);
-                    responseData = responseData.slice(varint.decode.bytes);
-                    
-                    if(responseData[0] != 0x00) {
-                        templateData.isServerOnline = false;
-                        templateData.failPing = true;
-                        dataBack(true, templateData);
-                        return;
+                    dataLength = varint.decode(data);
+                    data = data.slice(varint.decode.bytes);
+                    if(data[0] != 0x00) {
+                        console.log("Bad handshake.");
+                        socket.destroy();
                     }
-                    
-                    responseData = responseData.slice(1);
+                    data = data.slice(1);
                     currentLength++;
                 }
-                
-                if (templateData.logDebug) console.log("Reading message.");
-                
-                currentLength += responseData.length;
-                chunks.push(responseData);
+                currentLength += data.length;
+                chunks.push(data);
 
                 if(currentLength >= dataLength) {
-                    if (templateData.logDebug) console.log("Data was valid");
-                    responseData = Buffer.concat(chunks);
-                    var strLen = varint.decode(responseData);
+                    data = Buffer.concat(chunks);
+                    var strLen = varint.decode(data);
                     var strLenOffset = varint.decode.bytes;
-                    var resp = JSON.parse(responseData.toString("utf8", strLenOffset));
+                    var resp = JSON.parse(data.toString("utf8", strLenOffset));
                     
                     templateData.protocolVersion = resp.version.protocol;
-                    var version = resp.version.name.split(" ");
-                    templateData.version = version[version.length-1];
                     
+                    var versionSplit = resp.version.name.split(/ /g);
+                    if (versionSplit.length > 1) {
+                        templateData.version = versionSplit.pop();
+                        if (versionSplit[0].search("Bukkit") >= 0 || versionSplit[0].search("MCPC") >= 0 || versionSplit[0].search("Cauldron") >= 0) {
+                            templateData.pluginInfo = true;
+                        }
+                    }else{
+                        templateData.version = versionSplit[0];
+                    }
+                  
                     if (resp.description) {
                         if (templateData.showNameAlways) {
                             templateData.serverName = templateData.serverName + " ~" + resp.description + "~";
@@ -427,31 +422,24 @@
                             templateData.serverName = resp.description;
                         }
                     }
-                    
-                    if (templateData.logDebug) console.log("Setting players.");
+                  
                     templateData.onlinePlayers = resp.players.online;
                     templateData.maxPlayers = resp.players.max;
                     
-                    if(resp.players.sample) {
-                        templateData.players = resp.players.sample;a
-                        templateData.seesPlayers = true;
-                    }
+                    if(resp.players.sample) templateData.players = resp.players.sample;
                     if(resp.favicon) templateData.icon = resp.favicon;
+                  
                     if(resp.modinfo) {
                         templateData.modInfo = true;
                         templateData.modList = resp.modinfo.modList.slice(2);
-                        if(templateData.modList.length == 0) {
-                            templateData.showModList = false;
-                            templateData.failListMods = true;
-                        }
                     }
+                  
+                    socket.destroy();
                 }
             } catch(err) {
-                if (templateData.logDebug) console.log(err);
-                templateData.failPing = true;
+                console.log(err);
+                socket.destroy();
             }
-            
-            socket.destroy();
         });
 
         socket.on('error', function(e) {            
@@ -671,7 +659,7 @@
                     }
                 }
                 
-                if ( stat.plugins && stat.plugins !== "") {
+                if (stat.plugins) {
                     templateData.pluginInfo = true;
                     var pluginString = stat.plugins.split(": ")[1].split("; ");
                     templateData.pluginList = [];
@@ -679,6 +667,7 @@
                     for (index = 0; index < pluginString.length; ++index) {
                         templateData.pluginList[templateData.pluginList.length] = { name: pluginString[index] };
                     }
+                    if (templateData.pluginList.length > 1) templateData.showPluginList = true;
                 }
                 
                 templateData.onlinePlayers = stat.numplayers;
@@ -690,10 +679,6 @@
                     }else{
                         templateData.serverName = stat.motd;
                     }
-                }
-                
-                for (var property in stat) {
-                    console.log(property);
                 }
                 
                 shouldWeClose();
@@ -754,7 +739,7 @@
             templateData.serverName = templateData.serverName.replace(/§m/g, "<span style=\"text-decoration: line-through;\">");
             templateData.serverName = templateData.serverName.replace(/§n/g, "<span style=\"text-decoration: underline;\">");
             templateData.serverName = templateData.serverName.replace(/§o/g, "<span style=\"font-style: italic;\">");
-            templateData.serverName = templateData.serverName.replace(/§r/g, "<span style=\"font-style: normal; text-decoration: none; font-weight: normal;\">");
+            templateData.serverName = templateData.serverName.replace(/§r/g, "<span style=\"font-style: normal; text-decoration: none; font-weight: normal; color:#000000;\">");
             for ( var i = 0; i < spancount; i++ ) templateData.serverName = templateData.serverName + "</span>";
         }
         
@@ -764,6 +749,8 @@
         if (templateData.isServerOnline && templateData.players && templateData.players.length > 0) templateData.hasPlayers = true;
         
         if (templateData.showIP && templateData.serverPort != "25565") templateData.showPortIP = true;
+        
+        if (templateData.pluginInfo && !(templateData.showPluginList)) templateData.failListPlugins = true;
         
         templateBack(null, templateData);
     }
