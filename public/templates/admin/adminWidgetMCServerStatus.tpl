@@ -33,7 +33,7 @@
                             <div class="checkbox" style="margin-top:30px;">
                                 <label>
                                     <input type="checkbox" name="uselocalhost"></input>
-                                    Use localhost? &nbsp; <a class="fa fa-question-circle text-info has-tooltip" data-html="true" data-title="Will still ping remotely, but<br>query locally to quicken lookup time."></a>
+                                    Use localhost? &nbsp; <a class="fa fa-question-circle text-info has-tooltip" data-html="true" data-title="Will still ping remotely, but query<br>locally to quicken load times."></a>
                                 </label>
                             </div>
                         </div>

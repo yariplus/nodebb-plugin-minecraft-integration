@@ -23,35 +23,79 @@
         mcping = require("mc-ping"),
 		app,
         MinecraftWidgets = {
+            config: {},
+			onLoad: function(params, callback) {
+				function render(req, res, next) {
+					res.render('admin/plugins/minecraft-essentials', {
+						themes: MinecraftWidgets.themes
+					});
+				}
+
+				params.router.get('/admin/plugins/minecraft-essentials', params.middleware.admin.buildHeader, render);
+				params.router.get('/api/admin/plugins/minecraft-essentials', render);
+				params.router.get('/minecraft-essentials/config', function(req, res) {
+					res.status(200).json({
+						highlight: MinecraftWidgets.highlight ? 1 : 0,
+						theme: MinecraftWidgets.config.highlightTheme || 'railscasts.css'
+					});
+				});
+
+				MinecraftWidgets.init(params);
+				MinecraftWidgets.loadThemes();
+				callback();
+			},
+			init: function(params) {
+                app = params.app;
+
+                var templatesToLoad = [
+                    "widgetMCServerStatus.tpl",
+                    "widgetMCCommand.tpl",
+                    "admin/adminWidgetMCServerStatus.tpl",
+                    "admin/adminWidgetMCCommand.tpl"
+                ];
+
+                function loadTemplate(template, next) {
+                    fs.readFile(path.resolve(__dirname, './public/templates/' + template), function (err, data) {
+                        if (err) {
+                            console.log(err.message);
+                            return next(err);
+                        }
+                        MinecraftWidgets.templates[template] = data.toString();
+                        next(null);
+                    });
+                }
+                
+                async.each(templatesToLoad, loadTemplate);
+            },
+			loadThemes: function() {
+				fs.readdir(path.join(__dirname, 'public/css'), function(err, files) {
+					var isStylesheet = /\.css$/;
+					MinecraftWidgets.themes = files.filter(function(file) {
+						return isStylesheet.test(file);
+					}).map(function(file) {
+						return {
+							name: file
+						}
+					});
+				});
+			},
+			parsePost: function(data, callback) {},
+			parseSignature: function(data, callback) {},
+			parseRaw: function(raw, callback) {},
+			admin: {
+				menu: function(custom_header, callback) {
+					custom_header.plugins.push({
+						"route": '/plugins/minecraft-essentials',
+						"icon": 'fa-edit',
+						"name": 'MC-WE Servers'
+					});
+
+					callback(null, custom_header);
+				}
+			},
             templates: {}
         };
-
-	MinecraftWidgets.init = function(params, callback) {
-		app = params.app;
-
-		var templatesToLoad = [
-			"widgetMCServerStatus.tpl",
-            "widgetMCCommand.tpl",
-			"admin/adminWidgetMCServerStatus.tpl",
-            "admin/adminWidgetMCCommand.tpl"
-		];
-
-		function loadTemplate(template, next) {
-			fs.readFile(path.resolve(__dirname, './public/templates/' + template), function (err, data) {
-				if (err) {
-					console.log(err.message);
-					return next(err);
-				}
-				MinecraftWidgets.templates[template] = data.toString();
-				next(null);
-			});
-		}
         
-		async.each(templatesToLoad, loadTemplate);
-
-		callback();
-	};
-    
     MinecraftWidgets.renderMCCommand = function(widget, callback) {
         var html = MinecraftWidgets.templates['console.tpl'], cid;
         

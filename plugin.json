@@ -11,11 +11,12 @@
         "public/js/client.js"
     ],
 	"hooks": [
-		{ "hook": "static:app.load", "method": "init" },
+		{ "hook": "static:app.load", "method": "onLoad" },
 		{ "hook": "filter:widgets.getWidgets", "method": "defineWidgets" },
         { "hook": "filter:widget.render:widgetMCCommand", "method": "renderMCCommander" },
 		{ "hook": "filter:widget.render:widgetMCServerStatus", "method": "renderMCServerStatus" },
-        { "hook": "filter:widget.render:widgetMCServerStatusLegacy", "method": "renderMCServerStatusLegacy" }
+        { "hook": "filter:widget.render:widgetMCServerStatusLegacy", "method": "renderMCServerStatusLegacy" },
+        { "hook": "filter:admin.header.build", "method": "admin.menu" }
 	],
 	"templates": "./public/templates",
 	"css": [
