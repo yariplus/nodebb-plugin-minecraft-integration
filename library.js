@@ -252,7 +252,7 @@
         templateData.showPluginList  = false;
         
         // See if there is a port in the host input
-        var hostarray = templateData.serverHost.split(":");
+        var hostarray = templateData.serverHost.split(/:/g);
         if ( hostarray.length > 1 ) {
             if ( hostarray.length == 2 ) {
                 if ( !templateData.serverPort ) {
@@ -276,12 +276,12 @@
         // Debug Messages
         templateData.showDebugIcons = widget.data.showDebugIcons;
         
-        templateData.msgInvalidHost  = "";
-        templateData.msgInvalidPort  = "";
-        templateData.msgInvalidQuery = "";
+        templateData.msgInvalidHost  = "<a class=\"fa fa-exclamation-circle text-warning has-tooltip\" data-html=\"true\" data-title=\"Configured host invalid: {serverHost}<br>Using the default localhost\"></a>";
+        templateData.msgInvalidPort  = "<a class=\"fa fa-exclamation-circle text-warning has-tooltip\" data-html=\"true\" data-title=\"Configured server port invalid: {serverPort}<br>Using the default 25565\"></a>";
+        templateData.msgInvalidQuery = "<a class=\"fa fa-exclamation-circle text-warning has-tooltip\" data-html=\"true\" data-title=\"Configured query port invalid: {queryPort}<br>Using the default 25565\"></a>";
         
-        templateData.msgFailHost        = "";
-        templateData.msgFailPing        = "";
+        templateData.msgFailHost        = "<a class=\"fa fa-exclamation-circle text-danger has-tooltip\" data-html=\"true\" data-title=\"No IP was found for {host}\"></a>";
+        templateData.msgFailPing        = "<a class=\"fa fa-exclamation-circle text-danger has-tooltip\" data-html=\"true\" data-title=\"Server did not respond to a ServerListPing.\"></a>";
         templateData.msgFailQuery       = "<a class=\"fa fa-question-circle text-warning has-tooltip\" data-html=\"true\" data-title=\"Server Query Failed<br>Tried to query the server at {serverIP}:{queryPort}<br>Is enable-query true in server.properties?\"></a>";
         templateData.msgFailListPlayers = "<a class=\"fa fa-question-circle text-info has-tooltip\" data-html=\"true\" data-title=\"Server may be blocking its player list.\"></a>";
         templateData.msgFailListMods    = "<a class=\"fa fa-question-circle text-info has-tooltip\" data-html=\"true\" data-title=\"Server may be blocking its mod list.\"></a>";
@@ -447,7 +447,16 @@
                   
                     if(resp.modinfo) {
                         templateData.modInfo = true;
-                        templateData.modList = resp.modinfo.modList.slice(2);
+                        var fullModList = resp.modinfo.modList.slice(2);
+                        var modNames = [];
+                        templateData.modList = [];
+                        for (var i = 0; i < fullModList.length; i++) {
+                            var pipedMod = fullModList[i].modid.split("|")[0];
+                            if (modNames.indexOf(pipedMod) == -1) {
+                                modNames.push(pipedMod);
+                                templateData.modList.push({modid: pipedMod});
+                            }
+                        }
                     }
                   
                     socket.destroy();
