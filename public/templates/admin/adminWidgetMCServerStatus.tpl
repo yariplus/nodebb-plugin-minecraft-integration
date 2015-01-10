@@ -71,6 +71,20 @@
     </label>
 </div>
 
+<div class="checkbox">
+    <label>
+        <input type="checkbox" name="showDebugIcons"></input>
+        Show debug icons?
+    </label>
+</div>
+
+<div class="checkbox">
+    <label>
+        <input type="checkbox" name="logDebug"></input>
+        Write everything to log?
+    </label>
+</div>
+
 <br />
 
 <h4>Style Options</h4>

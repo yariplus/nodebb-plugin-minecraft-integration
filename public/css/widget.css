@@ -1,4 +1,6 @@
-.td-label {
+.status-widget .td-label {
+    padding-left: 16px;
+    max-width: 90px;
     width: 90px;
 }
 
