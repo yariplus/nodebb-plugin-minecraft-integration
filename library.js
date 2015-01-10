@@ -1,6 +1,8 @@
 (function() {
     "use strict";
     
+    console.log("define");
+    
 	var async = require('async'),
 		fs = require('fs'),
 		path = require('path'),
@@ -20,19 +22,21 @@
         bufferpack = require("bufferpack"),
         encoding = require("encoding"),
         varint = require("varint"),
+        mcping = require("mc-ping"),
 		app,
         MinecraftWidgets = {
             templates: {}
         };
 
 	MinecraftWidgets.init = function(params, callback) {
+        console.log("init");
 		app = params.app;
 
 		var templatesToLoad = [
-			"serverstatus.tpl",
-            "console.tpl",
-			"admin/adminserverstatus.tpl",
-            "admin/adminconsole.tpl"
+			"widgetMCServerStatus.tpl",
+            "widgetMCCommand.tpl",
+			"admin/adminWidgetMCServerStatus.tpl",
+            "admin/adminWidgetMCCommand.tpl"
 		];
 
 		function loadTemplate(template, next) {
@@ -51,7 +55,7 @@
 		callback();
 	};
     
-    MinecraftWidgets.renderConsole = function(widget, callback) {
+    MinecraftWidgets.renderMCCommand = function(widget, callback) {
         var html = MinecraftWidgets.templates['console.tpl'], cid;
         
 		if (widget.data.cid) {
@@ -61,12 +65,12 @@
 			cid = match ? match[0] : 1;
 		}
         
-        //html = templates.parse(html, htmldata);
+        //html = templates.parse(html, templateData);
         callback(null, html);
     }
-
-	MinecraftWidgets.renderServerStatus = function(widget, callback) {
-		var html = MinecraftWidgets.templates['serverstatus.tpl'], cid;
+    
+    MinecraftWidgets.renderMCServerStatusLegacy = function(widget, callback) {
+        var html = MinecraftWidgets.templates['widgetMCServerStatus.tpl'], cid;
         
 		if (widget.data.cid) {
 			cid = widget.data.cid;
@@ -75,372 +79,274 @@
 			cid = match ? match[0] : 1;
 		}
         
-        // Read from config and defaults
-        var htmldata = {};
-        htmldata.servername = widget.data.servername || "Minecraft Server";
-        htmldata.serverhost = widget.data.serverhost || "0.0.0.0";
-        htmldata.serverport = widget.data.serverport || "25565";
-        htmldata.queryport = widget.data.queryport;
-        htmldata.showip = widget.data.showip;
-        htmldata.showportdomain = widget.data.showportdomain;
-        htmldata.showportip = widget.data.showportip;
-        htmldata.showplayercount = widget.data.showplayercount;
+        // Read from config
+        var templateData = readWidgetMCServerStatus(widget);
         
-        var addCustom = function ( label, text, after ) {
+        //
+        templateData.usingLegacy = true;
+        
+        console.log("RENDER");
+        
+        // Query for data, still parse on any error.
+        console.log("Verifying host");
+        verifyHost(templateData, function(err, pingData) {
+            if (err) {
+                callback( null, templates.parse(html, templateData) );
+            }else{
+                templateData = pingData;
+                console.log("Pinging server");
+                mcping(templateData.serverIP, parseInt(templateData.serverPort), function(err, resp) {
+                    if (err) {
+                        callback( null, templates.parse(html, templateData) );
+                    }else{
+                        templateData.version = resp.minecraft_version;
+                        templateData.onlinePlayers = resp.num_players;
+                        templateData.maxPlayers = resp.max_players;
+                        templateData.isServerOnline = true;
+                        if (templateData.showNameAlways) {
+                            templateData.serverName = templateData.serverName + " ~" + resp.server_name + "~";
+                        }else{
+                            templateData.serverName = resp.server_name;
+                        }
+                        console.log("Querying server");
+                        queryServer(templateData, function(err, queryData) {
+                            if (err) {
+                                callback( null, templates.parse(html, templateData) );
+                                return;
+                            }else{
+                                templateData = queryData;
+                                console.log("Looking for users");
+                                findUsers(templateData, 0, function(err, userData) {
+                                    if (err) {
+                                        callback( null, templates.parse(html, templateData) );
+                                        return;
+                                    }else{
+                                        templateData = userData;
+                                        console.log("Parsing html");
+                                        parseStatusWidget(templateData, function(err, htmlData) {
+                                            if (err) {
+                                                callback( null, templates.parse(html, templateData) );
+                                                return;
+                                            }else{
+                                                callback( null, templates.parse(html, htmlData) );
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    }
+
+	MinecraftWidgets.renderMCServerStatus = function(widget, callback) {
+		var html = MinecraftWidgets.templates['widgetMCServerStatus.tpl'], cid;
+        
+		if (widget.data.cid) {
+			cid = widget.data.cid;
+		} else {
+			var match = widget.area.url.match('[0-9]+');
+			cid = match ? match[0] : 1;
+		}
+        
+        // Read from config
+        var templateData = readWidgetMCServerStatus(widget);
+        
+        console.log("RENDER");
+        
+        // Query for data, still parse on any error.
+        console.log("Verifying host");
+        verifyHost(templateData, function(err, pingData) {
+            if (err) {
+                callback( null, templates.parse(html, templateData) );
+            }else{
+                templateData = pingData;
+                console.log("Pinging server");
+                readServerListPing(templateData, modernRequestBack, modernResponseBack, function(err, responseData) {
+                    if (err) {
+                        callback( null, templates.parse(html, templateData) );
+                    }else{
+                        templateData = responseData;
+                        console.log("Querying server");
+                        queryServer(templateData, function(err, queryData) {
+                            if (err) {
+                                callback( null, templates.parse(html, templateData) );
+                                return;
+                            }else{
+                                templateData = queryData;
+                                console.log("Looking for users");
+                                findUsers(templateData, 0, function(err, userData) {
+                                    if (err) {
+                                        callback( null, templates.parse(html, templateData) );
+                                        return;
+                                    }else{
+                                        templateData = userData;
+                                        console.log("Parsing html");
+                                        parseStatusWidget(templateData, function(err, htmlData) {
+                                            if (err) {
+                                                callback( null, templates.parse(html, templateData) );
+                                                return;
+                                            }else{
+                                                callback( null, templates.parse(html, htmlData) );
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    };
+    
+    function readWidgetMCServerStatus(widget) {
+        var templateData = {};
+        templateData.serverName = widget.data.serverName || "Minecraft Server";
+        templateData.serverHost = widget.data.serverHost || "0.0.0.0";
+        templateData.serverPort = widget.data.serverPort || "25565";
+        templateData.queryPort = widget.data.queryPort;
+        templateData.showIP = widget.data.showIP;
+        templateData.showPlayerCount = widget.data.showPlayerCount;
+        templateData.showNameAlways = widget.data.showNameAlways;
+        templateData.parseFormatCodes = widget.data.parseFormatCodes;
+        
+        var readCustomRow = function ( label, text, after ) {
             switch ( after ) {
                 case "name":
-                    if ( !htmldata.customaftername ) { htmldata.customaftername = []; }
-                    htmldata.customaftername[htmldata.customaftername.length] = { label: label, text: text }
+                    if ( !templateData.customaftername ) { templateData.customaftername = []; }
+                    templateData.customaftername[templateData.customaftername.length] = { label: label, text: text }
                     break;
                 case "status":
                 default:
-                    if ( !htmldata.customafterstatus ) { htmldata.customafterstatus = []; }
-                    htmldata.customafterstatus[htmldata.customafterstatus.length] = { label: label, text: text }
+                    if ( !templateData.customafterstatus ) { templateData.customafterstatus = []; }
+                    templateData.customafterstatus[templateData.customafterstatus.length] = { label: label, text: text }
                     break;
                 case "address":
-                    if ( !htmldata.customafteraddress ) { htmldata.customafteraddress = []; }
-                    htmldata.customafteraddress[htmldata.customafteraddress.length] = { label: label, text: text }
+                    if ( !templateData.customafteraddress ) { templateData.customafteraddress = []; }
+                    templateData.customafteraddress[templateData.customafteraddress.length] = { label: label, text: text }
                     break;
                 case "version":
-                    if ( !htmldata.customafterversion ) { htmldata.customafterversion = []; }
-                    htmldata.customafterversion[htmldata.customafterversion.length] = { label: label, text: text }
+                    if ( !templateData.customafterversion ) { templateData.customafterversion = []; }
+                    templateData.customafterversion[templateData.customafterversion.length] = { label: label, text: text }
                     break;
                 case "players":
-                    if ( !htmldata.customafterplayers ) { htmldata.customafterplayers = []; }
-                    htmldata.customafterplayers[htmldata.customafterplayers.length] = { label: label, text: text }
+                    if ( !templateData.customafterplayers ) { templateData.customafterplayers = []; }
+                    templateData.customafterplayers[templateData.customafterplayers.length] = { label: label, text: text }
                     break;
             }
         }
         
-        if ( widget.data.usecustom1 ) addCustom( widget.data.custom1label, widget.data.custom1text, widget.data.custom1orderafter );
-        if ( widget.data.usecustom2 ) addCustom( widget.data.custom2label, widget.data.custom2text, widget.data.custom2orderafter );
-        if ( widget.data.usecustom3 ) addCustom( widget.data.custom3label, widget.data.custom3text, widget.data.custom3orderafter );
+        if ( widget.data.usecustom1 ) readCustomRow( widget.data.custom1label, widget.data.custom1text, widget.data.custom1orderafter );
+        if ( widget.data.usecustom2 ) readCustomRow( widget.data.custom2label, widget.data.custom2text, widget.data.custom2orderafter );
+        if ( widget.data.usecustom3 ) readCustomRow( widget.data.custom3label, widget.data.custom3text, widget.data.custom3orderafter );
         
-        htmldata.serveronline = false;
+        templateData.isServerOnline = false;
         
         // See if there is a port in the host input
-        var hostarray = htmldata.serverhost.split(":");
-        if ( hostarray.length == 1 ) {
-            // There's no port entered in the host input
-        } else if ( hostarray.length == 2 ) {
-            htmldata.serverhost = hostarray[0];
-            htmldata.serverport = hostarray[1];
-        } else {
-            console.log("Configuration error: Invalid host. Too many \":\", using default \"0.0.0.0\". ");
-            htmldata.serverhost = "0.0.0.0";
+        var hostarray = templateData.serverHost.split(":");
+        if ( hostarray.length > 1 ) {
+            if ( hostarray.length == 2 ) {
+                if ( !templateData.serverPort ) {
+                    console.log("Configuration error: Two ports entered. Using (" + hostarray[1] + ") and ignoring (" + templateData.serverPort + ").");
+                    templateData.hasInvalidPort = true;
+                }
+                templateData.serverHost = hostarray[0];
+                templateData.serverPort = hostarray[1];
+            } else {
+                console.log("Configuration error: Invalid host (" + templateData.serverHost + "). Too many \":\", using default \"0.0.0.0\". ");
+                templateData.serverHost = "0.0.0.0";
+                templateData.hasInvalidHost = true;
+            }
         }
         
-        // Start by processing DNS/SRV addresses
-        resolveHost();
+        if ( typeof parseInt(templateData.serverPort) !== "number" || templateData.serverPort.substring(0,1) == "0" ) {
+            templateData.serverPort = "25565";
+            templateData.hasInvalidPort = true;
+        }
         
-        function resolveHost() {
-            if ( isIP(htmldata.serverhost) ) {
-                // Using an IP as host.
-                htmldata.showip = false;
-                if ( htmldata.serverport !== "25565" ) htmldata.showportdomain = true;
-                doPing();
-            }else{
-                // Using a domain, check for DNS and SRV record.
-                getSRV(htmldata.serverhost, function(err, theHost, thePort) {
-                    if ( err ) {
-                        getIP(htmldata.serverhost, function(err, theIP) {
-                            if ( err ) {
-                                doCallback(true);
+        templateData.hasInvalidQuery = false;
+        
+        templateData.msgInvalidHost = "";
+        templateData.msgInvalidPort = "";
+        templateData.msgInvalidQuery = "";
+        
+        templateData.failHost = "";
+        templateData.failPing = "";
+        templateData.failQuery = "";
+        
+        return templateData;
+    };
+    
+    function verifyHost(templateData, hostBack) {
+        if ( isIP(templateData.serverHost) ) {
+            templateData.serverIP = templateData.serverHost;
+            templateData.showPortDomain = true;
+            templateData.showIP = false;
+            hostBack(null, templateData);
+        }else{
+            getSRV(templateData.serverHost, function(err, theHost, thePort) {
+                if ( err ) {
+                    getIP(templateData.serverHost, function(err, theIP) {
+                        if (err) {
+                            templateData.isServerOnline = false;
+                            templateData.failHost = true;
+                            hostBack(err, templateData);
+                        }
+                        templateData.serverIP = theIP;
+                        if (templateData.serverPort !== "25565") templateData.showPortDomain = true;
+                        hostBack(null, templateData);
+                    });
+                }else{
+                    templateData.serverPort = thePort;
+                    if ( isIP(theHost) ) {
+                        templateData.serverIP = theHost;
+                        hostBack(null, templateData);
+                    }else{
+                        getIP(theHost, function(err, theIP) {
+                            if (err) {
+                                templateData.isServerOnline = false;
+                                templateData.failHost = true;
+                                hostBack(err, templateData);
                             }else{
-                                htmldata.serverip = theIP;
-                                doPing();
+                                templateData.serverIP = theIP;
+                                hostBack(null, templateData);
                             }
                         });
-                    }else{
-                        htmldata.serverport = thePort;
-                        if ( isIP(theHost) ) {
-                            htmldata.serverip = theHost;
-                            doPing();
-                        }else{
-                            getIP(theHost, function(err, theIP) {
-                                if ( err ) {
-                                    doCallback(true);
-                                }else{
-                                    htmldata.serverip = theIP;
-                                    doPing();
-                                }
-                            });
-                        }
                     }
-                });
-            }
-        };
-        
-        function doPing() {
-            var pingdata = { port: htmldata.serverport, host: htmldata.serverip || htmldata.serverhost };
-            console.log("Pinging " + pingdata.host + ":" + pingdata.port);
-            
-            var socket = net.connect(pingdata, function() {
-                var buf = [
-                    packData([
-                        new Buffer([0x00]),
-                        new Buffer(varint.encode(4)),
-                        new Buffer(varint.encode(pingdata.host.length)),
-                        new Buffer(pingdata.host, "utf8"),
-                        bufferpack.pack("H", pingdata.port),
-                        new Buffer(varint.encode(1))
-                    ]),
-                    packData(new Buffer([0x00]))
-                ]
-                
-                socket.write(buf[0]);
-                socket.write(buf[1]);
-            });
-            
-            socket.setTimeout(1000, function () {
-                console.log("Server List Ping failed when connecting to " + htmldata.serverhost + ":" + htmldata.serverport);
-                socket.end();
-                
-                doCallback(true);
-            });
-            
-            var dataLength = -1, currentLength = 0, chunks = [];
-            socket.on("data", function(data) {
-                console.log("Server List Ping received for " + htmldata.serverhost + ":" + htmldata.serverport);
-                try {
-                    if(dataLength < 0) {
-                        dataLength = varint.decode(data);
-                        data = data.slice(varint.decode.bytes);
-                        
-                        if(data[0] != 0x00) {
-                            return;
-                        }
-                        
-                        data = data.slice(1);
-                        currentLength++;
-                    }
-                    
-                    currentLength += data.length;
-                    chunks.push(data);
-
-                    if(currentLength >= dataLength) {
-                        data = Buffer.concat(chunks);
-                        var strLen = varint.decode(data);
-                        var strLenOffset = varint.decode.bytes;
-                        var resp = JSON.parse(data.toString("utf8", strLenOffset));
-                        
-                        htmldata.protocolVersion = resp.version.protocol;
-                        var version = resp.version.name.split(" ");
-                        htmldata.version = version[version.length-1];
-                        
-                        if ( widget.data.shownamemotd ) {
-                            htmldata.servername = htmldata.servername + " ~" + resp.description + "~";
-                        } else if ( widget.data.showname ) {
-                            htmldata.servername = resp.description;
-                        }
-                        
-                        htmldata.onlineplayers = resp.players.online;
-                        htmldata.maxplayers = resp.players.max;
-                        
-                        if(resp.players.sample) htmldata.players = resp.players.sample;
-                        if(resp.favicon) htmldata.icon = resp.favicon;
-                        if(resp.modinfo) {
-                            htmldata.modinfo = true;
-                            htmldata.modList = resp.modinfo.modList.slice(2);
-                        }
-                        
-                        socket.end();
-                        
-                        if ( htmldata.players ) {
-                            findUsers(0);
-                        }else{
-                            queryServer();
-                        }
-                    }
-                } catch(err) {
-                    socket.destroy();
-                    doCallback(true);
                 }
             });
-
-            socket.on('error', function(e) {
-                console.log(e);
-                doCallback(true);
-            });
-        };
-        
-        function packData(raw) {
-            if ( raw instanceof Array ) raw = Buffer.concat(raw);
-            return Buffer.concat( [ new Buffer(varint.encode(raw.length)), raw ] );
-        };
-        
-        function queryServer() {
-            if ( !htmldata.queryport ) htmldata.queryport = htmldata.serverport
-            var queryData;
-            if ( widget.data.uselocalhost ) {
-                queryData = { host: "0.0.0.0", port: htmldata.queryport };
-            }else{
-                queryData = { host: htmldata.serverip || htmldata.serverhost, port: htmldata.queryport };
-            }
-            
-            console.log("Querying " + queryData.host + ":" + queryData.port);
-            
-            var query = new mcquery( queryData.host, queryData.port );
-            
-            query.connect(function (err) {
-                if (err) {
-                    console.log("Query failed for " + ( htmldata.serverip || htmldata.serverhost ) + ":" + htmldata.queryport + ", is query-enabled set to true in server.properties?" );
-                    doCallback(true);
-                } else {
-                    htmldata.queryonline = true;
-                    query.full_stat(fullStatBack);
-                    //query.basic_stat(basicStatBack);
-                }
-            });
-            
-            function basicStatBack(err, stat) {
-                if (err) {
-                    console.error(err);
-                }
-                callback(null, stat );
-                shouldWeClose();
-            }
-
-            function fullStatBack(err, stat) {
-                if (err) {
-                    console.log("full_stat failed for " + htmldata.serverhost);
-                    doCallback(true);
-                } else {
-                    if ( !htmldata.players ) {                    
-                        // Convert player objects to the way NodeBB likes.
-                        htmldata.players = [];
-                        var index;
-                        for (index = 0; index < stat.player_.length; ++index) {
-                            htmldata.players[htmldata.players.length] = { name: stat.player_[index] };
-                        }
-                    }
-                    
-                    // Use queried hostname if localhost.
-                    if ( htmldata.serverhost == "0.0.0.0" || htmldata.serverhost == "127.0.0.1" || htmldata.serverhost == "localhost" ) {
-                        htmldata.serverhost = stat.hostip;
-                        if ( stat.hostport != "25565" ) {
-                            htmldata.showportdomain = true;
-                            htmldata.serverport = stat.hostport;
-                        }
-                    }
-                    
-                    if ( stat.plugins && stat.plugins !== "") {
-                        htmldata.pluginInfo = true;
-                        var pluginString = stat.plugins.split(": ")[1].split("; ");
-                        htmldata.pluginList = [];
-                        var index;
-                        for (index = 0; index < pluginString.length; ++index) {
-                            htmldata.pluginList[htmldata.pluginList.length] = { name: pluginString[index] };
-                        }
-                    }
-                    
-                    shouldWeClose();
-                    findUsers(0);
-                }
-            }
-
-            function shouldWeClose() {
-                //have we got all answers
-                if (query.outstandingRequests() === 0) {
-                    query.close();
-                }
-            }
-        }
-        
-        var findUsers = function(index) {
-            if ( htmldata.players.length != index ) {
-                user.exists(htmldata.players[index].name, function(err, exists) {
-                    if ( err ) {
-                        console.log("Error finding user: " + err);
-                    } else if ( exists ) {
-                        htmldata.players[index].linkprofile = true;
-                    } else {
-                        // NOOP
-                    }
-                    index++;
-                    findUsers(index);
-                });
-            } else {
-                doCallback();
-            }
-        }
-        
-        function doCallback ( offline ) {
-            if ( !offline ) htmldata.serveronline = true;
-            
-            if ( widget.data.parseformatcodes ) {
-                var spancount = htmldata.servername.split("§").length - 1;
-                htmldata.servername = htmldata.servername.replace("§0", "<span style=\"color:#000000;\">");
-                htmldata.servername = htmldata.servername.replace("§1", "<span style=\"color:#0000AA;\">");
-                htmldata.servername = htmldata.servername.replace("§2", "<span style=\"color:#00AA00;\">");
-                htmldata.servername = htmldata.servername.replace("§3", "<span style=\"color:#00AAAA;\">");
-                htmldata.servername = htmldata.servername.replace("§4", "<span style=\"color:#AA0000;\">");
-                htmldata.servername = htmldata.servername.replace("§5", "<span style=\"color:#AA00AA;\">");
-                htmldata.servername = htmldata.servername.replace("§6", "<span style=\"color:#FFAA00;\">");
-                htmldata.servername = htmldata.servername.replace("§7", "<span style=\"color:#AAAAAA;\">");
-                htmldata.servername = htmldata.servername.replace("§8", "<span style=\"color:#555555;\">");
-                htmldata.servername = htmldata.servername.replace("§9", "<span style=\"color:#5555FF;\">");
-                htmldata.servername = htmldata.servername.replace("§a", "<span style=\"color:#55FF55;\">");
-                htmldata.servername = htmldata.servername.replace("§b", "<span style=\"color:#55FFFF;\">");
-                htmldata.servername = htmldata.servername.replace("§c", "<span style=\"color:#FF5555;\">");
-                htmldata.servername = htmldata.servername.replace("§d", "<span style=\"color:#FF55FF;\">");
-                htmldata.servername = htmldata.servername.replace("§e", "<span style=\"color:#FFFF55;\">");
-                htmldata.servername = htmldata.servername.replace("§f", "<span style=\"color:#FFFFFF;\">");
-                htmldata.servername = htmldata.servername.replace("§o", "<span style=\"font-style:italic;\">");
-                for ( var i = 0; i < spancount; i++ ) htmldata.servername = htmldata.servername + "</span>";
-            }
-            
-            htmldata.queryonline = true;
-            html = templates.parse(html, htmldata);
-            callback(null, html);
         }
     };
-
-	MinecraftWidgets.defineWidgets = function(widgets, callback) {
-		widgets = widgets.concat([
-			{
-				widget: "serverstatus",
-				name: "Minecraft Server Status 1.7+",
-				description: "Lists information on a Minecraft server.",
-				content: MinecraftWidgets.templates['admin/adminserverstatus.tpl']
-			},
-            {
-				widget: "console",
-				name: "Minecraft Server RCON",
-				description: "Send console commands to a Minecraft server.",
-				content: MinecraftWidgets.templates['admin/adminconsole.tpl']
-			}
-		]);
-
-		callback(null, widgets);
-	};
     
-    function getIP(host, callback) {
+    var getIP = function(host, ipBack) {
         dns.resolve4(host, function (err, addresses) {
             if (err) {
-                console.error("Couldn't find an IP for " + htmldata.serverhost + ", is it a valid address?");
-                callback(err);
+                console.error("Couldn't find an IP for " + host + ", is it a valid address?");
+                ipBack(err);
             }else{
                 if ( isIP(addresses[0]) ) {
-                    callback( null, addresses[0] );
+                    ipBack( null, addresses[0] );
                 }else{
-                    getIP(addresses[0], callback);
+                    getIP(addresses[0], ipBack);
                 }
             }
         });
-    }
+    };
     
-    function getSRV(host, callback) {
+    var getSRV = function(host, srvBack) {
         dns.resolve( "_minecraft._tcp." + host, 'SRV', function (err, addresses) {
             if ( err ) {
                 console.info("No SRV for " + host)
-                callback(true);
+                srvBack(true);
             }else{
                 console.info("Found SRV record for " + host);
-                callback(null, addresses[0].name, addresses[0].port)
+                srvBack(null, addresses[0].name, addresses[0].port)
             }
         });
-    }
+    };
     
     function isIP(host) {
         if ( typeof  host !== "string" ) return false;
@@ -459,7 +365,344 @@
             default:
                 return false;
         }
+    };
+    
+    function readServerListPing(templateData, requestBack, responseBack, dataBack) {
+        console.log("Pinging " + templateData.serverIP + ":" + templateData.serverPort);
+        
+        var hostData = { 'host':templateData.serverIP, 'port':templateData.serverPort };
+        var socket = net.connect( hostData, function() {
+            requestBack(socket, hostData);
+        });
+        
+        socket.setTimeout(4000, function () {
+            socket.end();
+            console.log("Server List Ping timed out when connecting to " + templateData.serverIP + ":" + templateData.serverPort);
+            templateData.isServerOnline = false;
+            templateData.failPing = true;
+            dataBack(true, templateData);
+        });
+        
+        socket.on('data', function(pingData) {
+            console.log("Server List Ping received for " + hostData.host + ":" + hostData.port);
+            templateData.isServerOnline = true;
+            responseBack(socket, templateData, pingData, dataBack);
+        });
+
+        socket.on('error', function(e) {            
+            console.log(e);
+            templateData.isServerOnline = false;
+            templateData.failPing = true;
+            dataBack(true, templateData);
+        });
+        
+        socket.on('close', function(e) {
+            if (e) {
+                console.log("Connection was closed unexpectedly, was the packet malformed?");
+            }
+        });
+    };
+    
+    function modernRequestBack(socket, hostData) {
+        var buf = [
+            packData([
+                new Buffer([0x00]),
+                new Buffer(varint.encode(4)),
+                new Buffer(varint.encode(hostData.host.length)),
+                new Buffer(hostData.host, "utf8"),
+                bufferpack.pack("H", hostData.port),
+                new Buffer(varint.encode(1))
+            ]),
+            packData(new Buffer([0x00]))
+        ];
+        
+        socket.write(buf[0]);
+        socket.write(buf[1]);
+    };
+    
+    function legacyRequestBack(socket, hostData) {
+        var buf = Buffer.concat([
+            new Buffer([
+                0xFE, 0x01, 0xFA, 0x00, 0x0B, 0x00, 0x4D, 0x00, 0x43,
+                0x00, 0x7C, 0x00, 0x50, 0x00, 0x69, 0x00, 0x6E, 0x00,
+                0x67, 0x00, 0x48, 0x00, 0x6F, 0x00, 0x73, 0x00, 0x74
+            ]),
+            bufferpack.pack("hbh", 7 + 2 * hostData.host.length, 74, hostData.host.length),
+            encoding.convert(hostData.host, "UTF-16BE"),
+            bufferpack.pack("i", parseInt(hostData.port))
+        ]);
+        
+        console.log(parseInt(hostData.port));
+        
+        if(!(buf instanceof Array)) buf = [buf];
+        socket.write(buf[0]);
+    };
+    
+    function modernResponseBack(socket, templateData, pingData, dataBack) {        
+        var dataLength = -1, currentLength = 0, chunks = [];
+        try {
+            if(dataLength < 0) {
+                dataLength = varint.decode(pingData);
+                pingData = pingData.slice(varint.decode.bytes);
+                
+                if(pingData[0] != 0x00) {
+                    templateData.isServerOnline = false;
+                    templateData.failPing = true;
+                    dataBack(true, templateData);
+                    return;
+                }
+                
+                pingData = pingData.slice(1);
+                currentLength++;
+            }
+            
+            currentLength += pingData.length;
+            chunks.push(pingData);
+
+            if(currentLength >= dataLength) {
+                pingData = Buffer.concat(chunks);
+                var strLen = varint.decode(pingData);
+                var strLenOffset = varint.decode.bytes;
+                var resp = JSON.parse(pingData.toString("utf8", strLenOffset));
+                
+                templateData.protocolVersion = resp.version.protocol;
+                var version = resp.version.name.split(" ");
+                templateData.version = version[version.length-1];
+                
+                if (resp.description) {
+                    if (templateData.showNameAlways) {
+                        templateData.serverName = templateData.serverName + " ~" + resp.description + "~";
+                    }else{
+                        templateData.serverName = resp.description;
+                    }
+                }
+                
+                templateData.onlinePlayers = resp.players.online;
+                templateData.maxPlayers = resp.players.max;
+                
+                if(resp.players.sample) templateData.players = resp.players.sample;
+                if(resp.favicon) templateData.icon = resp.favicon;
+                if(resp.modinfo) {
+                    templateData.modInfo = true;
+                    templateData.modList = resp.modinfo.modList.slice(2);
+                }
+                
+                socket.end();
+                dataBack(null, templateData)
+            }
+        } catch(err) {
+            socket.destroy();
+            console.log(err);
+            templateData.isServerOnline = false;
+            templateData.failPing = true;
+            dataBack(true, templateData);
+        }
     }
+    
+    function legacyResponseBack(socket, templateData, pingData, dataBack) {
+        try {
+            var resp = "",
+                isOneSix = false;
+            if(data[0] != 0xFF) {
+                doCallback(new Error("Invalid handshake."));
+                socker.destroy();
+                return;
+            }
+            
+            // Ignore the first three bytes, and convert the rest to a string.
+            resp = encoding.convert(data.slice(3), "UTF-8", "UTF-16BE").toString();
+            
+            // 1.6 sends a §1 first.
+            isOneSix = resp[0] == "\u00a7" && resp[1] == "1";
+            
+            // 1.6 is separated by NULL, others by §
+            resp = resp.split(isOneSix ? "\u0000" : "\u00a7");
+            
+            // Read data
+            templateData.protocolVersion = isOneSix ? parseInt(resp[1]) : 71;
+            templateData.version = isOneSix ? resp[2] : "Legacy (<1.6)";
+            var motd = resp[isOneSix ? 3 : 0];
+            
+            if (templateData.showNameAlways) {
+                templateData.serverName = templateData.serverName + " ~" + motd + "~";
+            }else{
+                templateData.serverName = motd;
+            }
+            
+            templateData.onlinePlayers = parseInt(resp[isOneSix ? 4 : 1]);
+            templateData.maxPlayers = parseInt(resp[isOneSix ? 5 : 2]);
+            
+            socket.end();
+            
+            queryServer();
+        } catch(err) {
+            socket.destroy();
+            console.log(err);
+            doCallback(true);
+        }
+    };
+    
+    function packData(raw) {
+        if ( raw instanceof Array ) raw = Buffer.concat(raw);
+        return Buffer.concat( [ new Buffer(varint.encode(raw.length)), raw ] );
+    };
+    
+    function queryServer(templateData, queryBack) {
+        if ( !templateData.queryPort ) templateData.queryPort = templateData.serverPort;
+        var queryData;
+        if ( templateData.uselocalhost ) {
+            queryData = { host: "0.0.0.0", port: templateData.queryPort };
+        }else{
+            queryData = { host: templateData.serverIP || templateData.serverHost, port: templateData.queryPort };
+        }
+        
+        console.log("Querying " + queryData.host + ":" + queryData.port);
+        
+        var query = new mcquery( queryData.host, queryData.port );
+        
+        query.connect(function (err) {
+            if (err) {
+                console.log("Query failed for " + ( templateData.serverIP || templateData.serverHost ) + ":" + templateData.queryPort + ", is query-enabled set to true in server.properties?" );
+                templateData.failQuery = true;
+                queryBack(null, templateData);
+            } else {
+                templateData.queryonline = true;
+                query.full_stat(fullStatBack);
+                //query.basic_stat(basicStatBack);
+            }
+        });
+        
+        function basicStatBack(err, stat) {
+            if (err) {
+                console.error(err);
+            }
+            callback(null, stat );
+            shouldWeClose();
+        }
+
+        function fullStatBack(err, stat) {
+            if (err) {
+                console.log("full_stat failed for " + templateData.serverHost);
+            } else {
+                console.log("Got full_stat for " + templateData.serverHost);
+                if ( !templateData.players ) {                    
+                    // Convert player objects to the way NodeBB likes.
+                    console.log("setting players.");
+                    templateData.players = [];
+                    var index;
+                    for (index = 0; index < stat.player_.length; ++index) {
+                        templateData.players[templateData.players.length] = { name: stat.player_[index] };
+                    }
+                }
+                
+                // Use queried hostname if localhost.
+                if ( templateData.serverHost == "0.0.0.0" || templateData.serverHost == "127.0.0.1" || templateData.serverHost == "localhost" ) {
+                    templateData.serverHost = stat.hostip;
+                    if ( stat.hostport != "25565" ) {
+                        templateData.showportdomain = true;
+                        templateData.serverPort = stat.hostport;
+                    }
+                }
+                
+                if ( stat.plugins && stat.plugins !== "") {
+                    templateData.pluginInfo = true;
+                    var pluginString = stat.plugins.split(": ")[1].split("; ");
+                    templateData.pluginList = [];
+                    var index;
+                    for (index = 0; index < pluginString.length; ++index) {
+                        templateData.pluginList[templateData.pluginList.length] = { name: pluginString[index] };
+                    }
+                }
+                
+                shouldWeClose();
+            }
+            
+            queryBack(null, templateData);
+        }
+
+        function shouldWeClose() {
+            //have we got all answers
+            if (query.outstandingRequests() === 0) {
+                query.close();
+            }
+        }
+    }
+    
+    var findUsers = function(templateData, index, usersBack) {
+        if ( !templateData.players ) templateData.players = []; 
+        if ( templateData.players.length != index ) {
+            user.exists(templateData.players[index].name, function(err, exists) {
+                if ( err ) {
+                    console.log("Error finding user: " + err);
+                } else if ( exists ) {
+                    templateData.players[index].linkprofile = true;
+                } else {
+                    // NOOP
+                }
+                index++;
+                findUsers(templateData, index, usersBack);
+            });
+        } else {
+            usersBack(null, templateData);
+        }
+    }
+    
+    function parseStatusWidget ( templateData, templateBack ) {
+        if ( templateData.parseFormatCodes ) {
+            console.log("Original name: " + templateData.serverName);
+            var spancount = templateData.serverName.split("§").length - 1;
+            templateData.serverName = templateData.serverName.replace(/§0/g, "<span style=\"color:#000000;\">");
+            templateData.serverName = templateData.serverName.replace(/§1/g, "<span style=\"color:#0000AA;\">");
+            templateData.serverName = templateData.serverName.replace(/§2/g, "<span style=\"color:#00AA00;\">");
+            templateData.serverName = templateData.serverName.replace(/§3/g, "<span style=\"color:#00AAAA;\">");
+            templateData.serverName = templateData.serverName.replace(/§4/g, "<span style=\"color:#AA0000;\">");
+            templateData.serverName = templateData.serverName.replace(/§5/g, "<span style=\"color:#AA00AA;\">");
+            templateData.serverName = templateData.serverName.replace(/§6/g, "<span style=\"color:#FFAA00;\">");
+            templateData.serverName = templateData.serverName.replace(/§7/g, "<span style=\"color:#AAAAAA;\">");
+            templateData.serverName = templateData.serverName.replace(/§8/g, "<span style=\"color:#555555;\">");
+            templateData.serverName = templateData.serverName.replace(/§9/g, "<span style=\"color:#5555FF;\">");
+            templateData.serverName = templateData.serverName.replace(/§a/g, "<span style=\"color:#55FF55;\">");
+            templateData.serverName = templateData.serverName.replace(/§b/g, "<span style=\"color:#55FFFF;\">");
+            templateData.serverName = templateData.serverName.replace(/§c/g, "<span style=\"color:#FF5555;\">");
+            templateData.serverName = templateData.serverName.replace(/§d/g, "<span style=\"color:#FF55FF;\">");
+            templateData.serverName = templateData.serverName.replace(/§e/g, "<span style=\"color:#FFFF55;\">");
+            templateData.serverName = templateData.serverName.replace(/§f/g, "<span style=\"color:#FFFFFF;\">");
+            templateData.serverName = templateData.serverName.replace(/§k/g, "<span>");
+            templateData.serverName = templateData.serverName.replace(/§l/g, "<span style=\"font-weight: bold;\">");
+            templateData.serverName = templateData.serverName.replace(/§m/g, "<span style=\"text-decoration: line-through;\">");
+            templateData.serverName = templateData.serverName.replace(/§n/g, "<span style=\"text-decoration: underline;\">");
+            templateData.serverName = templateData.serverName.replace(/§o/g, "<span style=\"font-style: italic;\">");
+            templateData.serverName = templateData.serverName.replace(/§r/g, "<span style=\"font-style: normal; text-decoration: none; font-weight: normal;\">");
+            for ( var i = 0; i < spancount; i++ ) templateData.serverName = templateData.serverName + "</span>";
+        }
+        templateData.queryonline = true;
+        templateBack(null, templateData);
+    }
+    
+    MinecraftWidgets.defineWidgets = function(widgets, callback) {
+		widgets = widgets.concat([
+			{
+				widget: "widgetMCServerStatus",
+				name: "Minecraft Server Status 1.7+",
+				description: "Lists information on a Minecraft server.",
+				content: MinecraftWidgets.templates['admin/adminWidgetMCServerStatus.tpl']
+			},
+            {
+				widget: "widgetMCServerStatusLegacy",
+				name: "Minecraft Server Status Legacy <=1.6",
+				description: "Lists information on a legacy Minecraft server.",
+				content: MinecraftWidgets.templates['admin/adminWidgetMCServerStatus.tpl']
+			},
+            {
+				widget: "widgetMCCommand",
+				name: "Minecraft Server Command Widget",
+				description: "Send a console command to a Minecraft server.",
+				content: MinecraftWidgets.templates['admin/adminWidgetMCCommand.tpl']
+			}
+		]);
+
+		callback(null, widgets);
+	};
 
 	module.exports = MinecraftWidgets;
 })();

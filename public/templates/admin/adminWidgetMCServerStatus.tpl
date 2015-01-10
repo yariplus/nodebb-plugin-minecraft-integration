@@ -1,69 +1,66 @@
-<h4>Server Information</h4>
-
-<label>Server Name</label>
-<input type="text" class="form-control" name="servername" placeholder="Minecraft Server" />
-<br />
-
-<label>Server Host</label> &nbsp; (&nbsp;IP, DNS, or SRV record.&nbsp;)
-<input type="text" class="form-control" name="serverhost" placeholder="0.0.0.0" />
-<br />
-
-<label>Server Port</label> &nbsp; (&nbsp;Not required if entered above or using an SRV record above.&nbsp;)
-<input type="text" class="form-control" name="serverport" placeholder="25565" />
-<br />
+<div class="console">
+    <div class="well">
+        <form class="form">
+            <div class="row">
+                <fieldset>
+                    <h4 style="margin-top:0;">Server Information</h4>
+                    <div class="col-sm-12 col-xs-12">
+                        <div class="form-group">
+                            <label>Server Name</label>
+                            <input type="text" class="form-control" name="serverName" placeholder="Minecraft Server" />
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label>Server Host</label> &nbsp; (&nbsp;IP, DNS, or SRV record.&nbsp;)
+                            <input type="text" class="form-control" name="serverHost" placeholder="0.0.0.0" />
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label>Server Port</label> &nbsp; (&nbsp;Not required if entered above or using an SRV record above.&nbsp;)
+                            <input type="text" class="form-control" name="serverPort" placeholder="25565" />
+                        </div>
+                    </div>
 
 <label>Query Port</label>
-<input type="text" class="form-control" name="queryport" placeholder="25565" />
+<input type="text" class="form-control" name="queryPort" placeholder="25565" />
 <br />
 
 <h4>Display Options</h4>
 
 <div class="checkbox">
     <label>
-        <input type="checkbox" name="shownamemotd"></input>
-        Show name and MOTD? &nbsp; (&nbsp;e.g.&nbsp;"&nbsp;Server Name ~MOTD~&nbsp;"&nbsp;)
+        <input type="checkbox" name="showNameAlways"></input>
+        Always show server name?
     </label>
 </div>
 
 <div class="checkbox">
     <label>
-        <input type="checkbox" name="showname" checked></input>
+        <input type="checkbox" name="showName" checked></input>
         Use MOTD instead of Server Name when available?
     </label>
 </div>
 
 <div class="checkbox">
     <label>
-        <input type="checkbox" name="parseformatcodes" checked></input>
+        <input type="checkbox" name="parseFormatCodes" checked></input>
         Parse format codes in Server Name and MOTD?
     </label>
 </div>
 
 <div class="checkbox">
     <label>
-        <input type="checkbox" name="showplayercount" checked></input>
+        <input type="checkbox" name="showPlayerCount" checked></input>
         Show (online/max) players?
     </label>
 </div>
 
 <div class="checkbox">
     <label>
-        <input type="checkbox" name="showportdomain"></input>
-        Show port after DNS address? &nbsp; (&nbsp;e.g. "someserver.com:25565"&nbsp;)
-    </label>
-</div>
-
-<div class="checkbox">
-    <label>
-        <input type="checkbox" name="showip"></input>
-        Show IP after DNS address or SRV record? &nbsp; (&nbsp;e.g. "someserver.com (1.2.3.4)"&nbsp;)
-    </label>
-</div>
-
-<div class="checkbox">
-    <label>
-        <input type="checkbox" name="showportip" checked></input>
-        Show port after IP address? &nbsp; (&nbsp;e.g. "(&nbsp;1.2.3.4:25565&nbsp;)"&nbsp;)
+        <input type="checkbox" name="showIP"></input>
+        Show IP after Host? &nbsp; (&nbsp;e.g. "someserver.com (1.2.3.4)"&nbsp;)
     </label>
 </div>
 
@@ -78,17 +75,24 @@
 
 <h4>Style Options</h4>
 
-<label>Color Server Name</label>
-<input id="colorSelector" class="form-control category_color" name="colorServerName" data-name="color" />
-<br />
-
-<label>Color Labels</label>
-<input id="colorLabels" class="form-control category_color" name="colorLabels" data-name="color" />
-<br />
-
-<label>Color Text</label>
-<input type="colorText" class="form-control category_color" name="colorText" data-name="color" />
-<br />
+                    <div class="col-sm-4 col-xs-12">
+                        <div class="form-group">
+                            <label>Color Server Name</label>
+                            <input id="colorSelector" class="form-control category_color" name="colorServerName" data-name="color" />
+                        </div>
+                    </div>
+                    <div class="col-sm-4 col-xs-12">
+                        <div class="form-group">
+                            <label>Color Labels</label>
+                            <input id="colorLabels" class="form-control category_color" name="colorLabels" data-name="color" />
+                        </div>
+                    </div>
+                    <div class="col-sm-4 col-xs-12">
+                        <div class="form-group">
+                            <label>Color Text</label>
+                            <input type="colorText" class="form-control category_color" name="colorText" data-name="color" />
+                        </div>
+                    </div>
 
 <h4>Custom Rows</h4>
 
@@ -152,5 +156,10 @@
     <div class="form-group">
         <label class="sr-only" for="custom3text">Text</label>
         <input type="text" class="col-lg-3 form-control" id="custom3text" name="custom3text" placeholder="Text" />
+    </div>
+</div>
+                </fieldset>
+            </div>
+        </form>
     </div>
 </div>

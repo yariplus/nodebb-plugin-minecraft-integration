@@ -2,7 +2,7 @@
     <div class="container">
         <div class="row">
             <div class="col-md-4">
-                <strong><h4>{servername}</h4></strong>
+                <strong><h4>{serverName}</h4></strong>
                 <table class="table table-striped">
                 <tbody>
                 
@@ -18,11 +18,11 @@
                 <tr>
                     <td class="td-label"><strong>Status</strong></td>
                     <td>
-                    <!-- IF !serveronline -->
+                    <!-- IF !isServerOnline -->
                         <span class="fa fa-exclamation-circle text-danger" />&nbsp;<strong><span class="text-warning">Offline</span></strong>
                     <!-- ELSE -->
-                        <span data-placement="top" data-title="Status" data-title="Online" class="fa fa-check-circle text-success has-tooltip" />&nbsp;<strong><span class="text-success">Online</span></strong><!-- IF showplayercount -->&nbsp;({onlineplayers}/{maxplayers})<!-- ENDIF showplayercount -->
-                    <!-- ENDIF !serveronline -->
+                        <span data-placement="top" data-title="Status" data-title="Online" class="fa fa-check-circle text-success has-tooltip" />&nbsp;<strong><span class="text-success">Online</span></strong><!-- IF showPlayerCount -->&nbsp;({onlinePlayers}/{maxPlayers})<!-- ENDIF showPlayerCount -->
+                    <!-- ENDIF !isServerOnline -->
                     </td>
                 </tr>
                 
@@ -38,8 +38,8 @@
                 <tr>
                     <td class="td-label"><strong>Address</strong></td>
                     <td>
-                        {serverhost}<!-- IF showportdomain -->:{serverport}<!-- ENDIF showportdomain -->
-                        <!-- IF showip -->(&nbsp;{serverip}<!-- IF showportip -->:{serverport}<!-- ENDIF showportip --><!-- ENDIF showip --><!-- IF showip -->&nbsp;)<!-- ENDIF showip -->
+                        {serverHost}<!-- IF showPortDomain -->:{serverPort}<!-- ENDIF showPortDomain -->
+                        <!-- IF showIP -->(&nbsp;{serverIP}<!-- IF showPortIP -->:{serverPort}<!-- ENDIF showPortIP --><!-- ENDIF showIP --><!-- IF showIP -->&nbsp;)<!-- ENDIF showIP -->
                     </td>
                 </tr>
                 
@@ -59,15 +59,15 @@
                 </tr>
                 <!-- ENDIF !queryonline -->
                 
-                <!-- IF serveronline -->
+                <!-- IF isServerOnline -->
                 <tr>
                     <td class="td-label"><strong>Version</strong></td>
                     <td>{version}
-                        <!-- IF modinfo -->&nbsp;<div class="fa fa-cog text-info  has-popover" data-html="true" data-title="<h6><b>Mod List</b></h6>"    data-placement="bottom"<!-- ENDIF modinfo --><!-- BEGIN modList -->{modList.modid}<!-- IF @first -->   data-content="&lt;h6&gt;<!-- ENDIF @first --><!-- IF @last -->&lt;/h6&gt;"<!-- ELSE --><!-- IF !@first -->, <!-- ENDIF !@first --><!-- ENDIF @last --><!-- END modList --><!-- IF modinfo -->></div><!-- ENDIF modinfo -->
+                        <!-- IF modInfo -->&nbsp;<div class="fa fa-cog text-info  has-popover" data-html="true" data-title="<h6><b>Mod List</b></h6>"    data-placement="bottom"<!-- ENDIF modInfo --><!-- BEGIN modList -->{modList.modid}<!-- IF @first -->   data-content="&lt;h6&gt;<!-- ENDIF @first --><!-- IF @last -->&lt;/h6&gt;"<!-- ELSE --><!-- IF !@first -->, <!-- ENDIF !@first --><!-- ENDIF @last --><!-- END modList --><!-- IF modInfo -->></div><!-- ENDIF modInfo -->
                         <!-- IF pluginInfo -->&nbsp;<div class="fa fa-plug text-info has-popover" data-html="true" data-title="<h6><b>Plugin List</b></h6>" data-placement="bottom"<!-- ENDIF pluginInfo --><!-- BEGIN pluginList -->{pluginList.name}<!-- IF @first --> data-content="&lt;h6&gt;<!-- ENDIF @first --><!-- IF @last -->&lt;/h6&gt;"<!-- ELSE --><!-- IF !@first -->, <!-- ENDIF !@first --><!-- ENDIF @last --><!-- END pluginList --><!-- IF pluginInfo -->></div><!-- ENDIF pluginInfo -->
                     </td>
                 </tr>
-                <!-- ENDIF serveronline -->
+                <!-- ENDIF isServerOnline -->
                 
                 <!-- BEGIN customafterversion -->
                 <tr>
@@ -78,7 +78,8 @@
                 </tr>
                 <!-- END customafterversion -->
                 
-                <!-- IF serveronline -->
+                <!-- IF isServerOnline -->
+                <!-- IF !failQuery -->
                 <tr>
                     <td class="td-label"><strong>Players</strong></td>
                     <td>
@@ -89,7 +90,8 @@
                         <!-- END players -->
                     </td>
                 </tr>
-                <!-- ENDIF serveronline -->
+                <!-- ENDIF !failQuery -->
+                <!-- ENDIF isServerOnline -->
                 
                 <!-- BEGIN customafterplayers -->
                 <tr>

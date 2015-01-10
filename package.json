@@ -35,7 +35,8 @@
     "simple-rcon": "^0.2.1",
     "encoding": "^0.1.11",
     "bufferpack": "^0.0.6",
-    "varint": "^3.0.1"
+    "varint": "^3.0.1",
+    "mc-ping": "^0.0.3"
   },
   "nbbpm": {
     "compatibility": "^0.6.0"
