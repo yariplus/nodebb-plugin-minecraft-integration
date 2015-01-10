@@ -21,8 +21,9 @@
                     <!-- IF !isServerOnline -->
                         <span class="fa fa-exclamation-circle text-danger" />&nbsp;<strong><span class="text-warning">Offline</span></strong>
                     <!-- ELSE -->
-                        <span data-placement="top" data-title="Status" data-title="Online" class="fa fa-check-circle text-success has-tooltip" />&nbsp;<strong><span class="text-success">Online</span></strong><!-- IF showPlayerCount -->&nbsp;({onlinePlayers}/{maxPlayers})<!-- ENDIF showPlayerCount -->
+                        <span data-placement="top" data-title="Online" class="fa fa-check-circle text-success has-tooltip" />&nbsp;<strong><span class="text-success">Online</span></strong><!-- IF showPlayerCount -->&nbsp;({onlinePlayers}/{maxPlayers})<!-- ENDIF showPlayerCount -->
                     <!-- ENDIF !isServerOnline -->
+                    <!-- IF failQuery -->{msgFailQuery}<!-- ENDIF failQuery -->
                     </td>
                 </tr>
                 
@@ -52,13 +53,6 @@
                 </tr>
                 <!-- END customafteraddress -->
                 
-                <!-- IF !queryonline -->
-                <tr>
-                    <td class="td-label"><strong>Query</strong></td>
-                    <td>Did not find query port {queryport}</td>
-                </tr>
-                <!-- ENDIF !queryonline -->
-                
                 <!-- IF isServerOnline -->
                 <tr>
                     <td class="td-label"><strong>Version</strong></td>
@@ -78,8 +72,7 @@
                 </tr>
                 <!-- END customafterversion -->
                 
-                <!-- IF isServerOnline -->
-                <!-- IF !failQuery -->
+                <!-- IF hasPlayers -->
                 <tr>
                     <td class="td-label"><strong>Players</strong></td>
                     <td>
@@ -90,8 +83,7 @@
                         <!-- END players -->
                     </td>
                 </tr>
-                <!-- ENDIF !failQuery -->
-                <!-- ENDIF isServerOnline -->
+                <!-- ENDIF hasPlayers -->
                 
                 <!-- BEGIN customafterplayers -->
                 <tr>

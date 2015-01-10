@@ -82,9 +82,6 @@
         // Read from config
         var templateData = readWidgetMCServerStatus(widget);
         
-        //
-        templateData.usingLegacy = true;
-        
         console.log("RENDER");
         
         // Query for data, still parse on any error.
@@ -269,13 +266,15 @@
         
         templateData.hasInvalidQuery = false;
         
-        templateData.msgInvalidHost = "";
-        templateData.msgInvalidPort = "";
+        templateData.msgInvalidHost  = "";
+        templateData.msgInvalidPort  = "";
         templateData.msgInvalidQuery = "";
         
-        templateData.failHost = "";
-        templateData.failPing = "";
-        templateData.failQuery = "";
+        templateData.msgFailHost  = "";
+        templateData.msgFailPing  = "";
+        templateData.msgFailQuery = "<a class=\"fa fa-question-circle text-warning has-tooltip\" data-html=\"true\" data-title=\"Server Query Failed<br>Tried to query the server at {serverIP}:{queryPort}<br>Is query-enable true in server.properties?\"></a>";
+        
+        //templateData.msgFailQuery = "lalala";
         
         return templateData;
     };
@@ -480,7 +479,10 @@
                 templateData.onlinePlayers = resp.players.online;
                 templateData.maxPlayers = resp.players.max;
                 
-                if(resp.players.sample) templateData.players = resp.players.sample;
+                if(resp.players.sample) {
+                    templateData.players = resp.players.sample;
+                    templateData.hasPlayers = true;
+                }
                 if(resp.favicon) templateData.icon = resp.favicon;
                 if(resp.modinfo) {
                     templateData.modInfo = true;
@@ -588,6 +590,7 @@
                 if ( !templateData.players ) {                    
                     // Convert player objects to the way NodeBB likes.
                     console.log("setting players.");
+                    templateData.hasPlayers = true;
                     templateData.players = [];
                     var index;
                     for (index = 0; index < stat.player_.length; ++index) {
@@ -675,7 +678,10 @@
             templateData.serverName = templateData.serverName.replace(/§r/g, "<span style=\"font-style: normal; text-decoration: none; font-weight: normal;\">");
             for ( var i = 0; i < spancount; i++ ) templateData.serverName = templateData.serverName + "</span>";
         }
-        templateData.queryonline = true;
+        
+        templateData.msgFailQuery = templateData.msgFailQuery.replace("{serverIP}",templateData.serverIP);
+        templateData.msgFailQuery = templateData.msgFailQuery.replace("{queryPort}",templateData.queryPort);
+        
         templateBack(null, templateData);
     }
     
