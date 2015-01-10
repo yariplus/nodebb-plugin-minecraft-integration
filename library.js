@@ -78,60 +78,42 @@
         
         // Read from config
         var templateData = readWidgetMCServerStatus(widget);
-        
-        if (templateData.logDebug) console.log("RENDER");
+        if (templateData.logDebug) console.log("Starting renderMCServerStatus.");
         
         // Query for data, still parse on any error.
-        if (templateData.logDebug) console.log("Verifying host");
+        if (templateData.logDebug) console.log("Verifying host address.");
         verifyHost(templateData, function(err, pingData) {
-            if (err) {
-                callback( null, templates.parse(html, templateData) );
-            }else{
-                templateData = pingData;
-                if (templateData.logDebug) console.log("Pinging server");
-                mcping(templateData.serverIP, parseInt(templateData.serverPort), function(err, resp) {
-                    if (err) {
-                        callback( null, templates.parse(html, templateData) );
+            templateData = pingData;
+            mcping(templateData.serverIP, parseInt(templateData.serverPort), function(err, resp) {
+                if (!err) {
+                    templateData.version = resp.minecraft_version;
+                    templateData.onlinePlayers = resp.num_players;
+                    templateData.maxPlayers = resp.max_players;
+                    templateData.isServerOnline = true;
+                    if (templateData.showNameAlways) {
+                        templateData.serverName = templateData.serverName + " ~" + resp.server_name + "~";
                     }else{
-                        templateData.version = resp.minecraft_version;
-                        templateData.onlinePlayers = resp.num_players;
-                        templateData.maxPlayers = resp.max_players;
-                        templateData.isServerOnline = true;
-                        if (templateData.showNameAlways) {
-                            templateData.serverName = templateData.serverName + " ~" + resp.server_name + "~";
-                        }else{
-                            templateData.serverName = resp.server_name;
-                        }
-                        if (templateData.logDebug) console.log("Querying server");
-                        queryServer(templateData, function(err, queryData) {
+                        templateData.serverName = resp.server_name;
+                    }
+                }
+                queryServer(templateData, function(err, queryData) {
+                    templateData = queryData;
+                    if (templateData.logDebug) console.log("Looking for users");
+                    findUsers(templateData, 0, function(err, userData) {
+                        templateData = userData;
+                        if (templateData.logDebug) console.log("Parsing html");
+                        parseStatusWidget(templateData, function(err, htmlData) {
                             if (err) {
                                 callback( null, templates.parse(html, templateData) );
                                 return;
                             }else{
-                                templateData = queryData;
-                                if (templateData.logDebug) console.log("Looking for users");
-                                findUsers(templateData, 0, function(err, userData) {
-                                    if (err) {
-                                        callback( null, templates.parse(html, templateData) );
-                                        return;
-                                    }else{
-                                        templateData = userData;
-                                        if (templateData.logDebug) console.log("Parsing html");
-                                        parseStatusWidget(templateData, function(err, htmlData) {
-                                            if (err) {
-                                                callback( null, templates.parse(html, templateData) );
-                                                return;
-                                            }else{
-                                                callback( null, templates.parse(html, htmlData) );
-                                            }
-                                        });
-                                    }
-                                });
+                                callback( null, templates.parse(html, htmlData) );
                             }
                         });
-                    }
+                    });
+                
                 });
-            }
+            });
         });
     }
 
@@ -156,31 +138,21 @@
             readServerListPing(templateData, modernRequestBack, modernResponseBack, function(err, responseData) {
                 templateData = responseData;
                 queryServer(templateData, function(err, queryData) {
-                    if (err) {
-                        callback( null, templates.parse(html, templateData) );
-                        return;
-                    }else{
-                        templateData = queryData;
-                        if (templateData.logDebug) console.log("Looking for users");
-                        findUsers(templateData, 0, function(err, userData) {
+                    templateData = queryData;
+                    if (templateData.logDebug) console.log("Looking for users");
+                    findUsers(templateData, 0, function(err, userData) {
+                        templateData = userData;
+                        if (templateData.logDebug) console.log("Parsing html");
+                        parseStatusWidget(templateData, function(err, htmlData) {
                             if (err) {
                                 callback( null, templates.parse(html, templateData) );
                                 return;
                             }else{
-                                templateData = userData;
-                                if (templateData.logDebug) console.log("Parsing html");
-                                parseStatusWidget(templateData, function(err, htmlData) {
-                                    if (err) {
-                                        callback( null, templates.parse(html, templateData) );
-                                        return;
-                                    }else{
-                                        callback( null, templates.parse(html, htmlData) );
-                                    }
-                                });
+                                callback( null, templates.parse(html, htmlData) );
                             }
                         });
-                    }
-                });                    
+                    });
+                });
             });
         });
     };
