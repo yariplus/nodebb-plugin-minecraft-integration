@@ -22,6 +22,20 @@
         varint = require("varint"),
         mcping = require("mc-ping"),
 		app,
+        updateServers = function() {
+            db.get("MCWES1-Temp", function(err, data) {
+                if (err) {
+                    console.log(err);
+                }else{
+                    console.log("data is " + data);
+                    db.set("MCWES1-Temp", data + 1, function(err) {
+                        if (err) console.log(err);
+                        setTimeout(updateServers, 1000);
+                    });
+                }
+            });
+        },
+        
         MinecraftWidgets = {
             config: {},
 			onLoad: function(params, callback) {
