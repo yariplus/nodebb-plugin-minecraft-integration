@@ -300,10 +300,11 @@
 	MinecraftWidgets.renderMCServerStatus = function(widget, callback) {
         // Read from plugin config
         var templateData = {};
-        templateData.serverName = widget.data.serverConfigName;
-        templateData.serverHost = MinecraftWidgets.config.server1serverHost;
-        templateData.serverPort = MinecraftWidgets.config.server1serverPort;
-        templateData.queryPort = MinecraftWidgets.config.server1queryPort;
+        var serverNumber = widget.data.serverConfigName;
+        templateData.serverName = MinecraftWidgets.config['server' + serverNumber + 'serverName'];
+        templateData.serverHost = MinecraftWidgets.config['server' + serverNumber + 'serverHost'];
+        templateData.serverPort = MinecraftWidgets.config['server' + serverNumber + 'serverPort'];
+        templateData.queryPort = MinecraftWidgets.config['server' + serverNumber + 'queryPort'];
         renderMCServerStatusNew(widget, templateData, callback);
     };
     
