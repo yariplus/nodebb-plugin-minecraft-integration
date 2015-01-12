@@ -101,7 +101,24 @@
                         'server1queryPort': '25565',
                         'server1rconPort': '25575',
                         'server1rconPass': 'password',
-                        'server1widgetPass': 'password'
+                        
+                        'server2serverConfigName': 'Server One',
+                        'server2serverName': 'Server One',
+                        'server2serverHost': '0.0.0.0',
+                        'server2serverIP': '0.0.0.0',
+                        'server2serverPort': '25565',
+                        'server2queryPort': '25565',
+                        'server2rconPort': '25575',
+                        'server2rconPass': 'password',
+                        
+                        'server3serverConfigName': 'Server One',
+                        'server3serverName': 'Server One',
+                        'server3serverHost': '0.0.0.0',
+                        'server3serverIP': '0.0.0.0',
+                        'server3serverPort': '25565',
+                        'server3queryPort': '25565',
+                        'server3rconPort': '25575',
+                        'server3rconPass': 'password'
 					};
                 
                 _self.servers = [];
@@ -119,6 +136,10 @@
 							}
 						}
 					}
+                    
+                    for (var property in options) {
+                        console.log(property + ": " + options[property]);
+                    }
 				});
             
                 app = params.app;
