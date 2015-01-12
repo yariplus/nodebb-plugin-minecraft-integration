@@ -18,9 +18,9 @@
             <td class="td-label"><strong>Status</strong></td>
             <td>
             <!-- IF !isServerOnline -->
-                <span class="fa fa-exclamation-circle text-danger" />&nbsp;<strong><span class="text-warning">Offline</span></strong>
+                <a class="fa fa-exclamation-circle text-danger has-tooltip" data-placement="top" data-title="Offline" />&nbsp;<strong><span class="text-danger">Offline</span></strong>
             <!-- ELSE -->
-                <span data-placement="top" data-title="Online" class="fa fa-check-circle text-success has-tooltip" />&nbsp;<strong><span class="text-success">Online</span></strong><!-- IF showPlayerCount -->&nbsp;({onlinePlayers}/{maxPlayers})<!-- ENDIF showPlayerCount -->
+                <a class="fa fa-check-circle text-success has-tooltip" data-placement="top" data-title="Online" />&nbsp;<strong><span class="text-success">Online</span></strong><!-- IF showPlayerCount -->&nbsp;({onlinePlayers}/{maxPlayers})<!-- ENDIF showPlayerCount -->
             <!-- ENDIF !isServerOnline -->
             <!-- IF failHost -->{msgFailHost}<!-- ENDIF failHost -->
             <!-- IF failPort -->{msgFailPort}<!-- ENDIF failPort -->

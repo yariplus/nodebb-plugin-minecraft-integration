@@ -8,10 +8,18 @@
                     <div class="minecraftServer">
                         <div class="row">
                             <fieldset>
-                                <div class="col-sm-12 col-xs-12">
+                                <div class="col-sm-9 col-xs-12">
                                     <div class="form-group">
                                         <label>Server Name</label>
                                         <input type="text" class="form-control" name="server1serverConfigName" placeholder="Minecraft Server" />
+                                    </div>
+                                </div>
+                                <div class="col-sm-3 col-xs-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" name="server1isLegacy"></input>
+                                            Is legacy? (<1.7)
+                                        </label>
                                     </div>
                                 </div>
                                 <div class="col-sm-12 col-xs-12">
@@ -60,10 +68,18 @@
                     <div class="minecraftServer">
                         <div class="row">
                             <fieldset>
-                                <div class="col-sm-12 col-xs-12">
+                                <div class="col-sm-9 col-xs-12">
                                     <div class="form-group">
                                         <label>Server Name</label>
                                         <input type="text" class="form-control" name="server2serverConfigName" placeholder="Minecraft Server" />
+                                    </div>
+                                </div>
+                                <div class="col-sm-3 col-xs-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" name="server2isLegacy"></input>
+                                            Is legacy? (<1.7)
+                                        </label>
                                     </div>
                                 </div>
                                 <div class="col-sm-12 col-xs-12">
@@ -112,10 +128,18 @@
                     <div class="minecraftServer">
                         <div class="row">
                             <fieldset>
-                                <div class="col-sm-12 col-xs-12">
+                                <div class="col-sm-9 col-xs-12">
                                     <div class="form-group">
                                         <label>Server Name</label>
                                         <input type="text" class="form-control" name="server3serverConfigName" placeholder="Minecraft Server" />
+                                    </div>
+                                </div>
+                                <div class="col-sm-3 col-xs-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" name="server3isLegacy"></input>
+                                            Is legacy? (<1.7)
+                                        </label>
                                     </div>
                                 </div>
                                 <div class="col-sm-12 col-xs-12">
