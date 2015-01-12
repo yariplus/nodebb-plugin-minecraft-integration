@@ -35,10 +35,42 @@
                 }
             });
         },
-        
+        logServers = function() {
+            for (var serverNumber = 1; serverNumber <= 10; serverNumber++) {
+                logServer("MCWES" + serverNumber);
+            }
+            setTimeout(logServers, 5000);
+        },
+        logServer = function(serverKey) {
+            db.exists(serverKey, function(err, isExtant) {
+                if (err) {
+                    console.log(err);
+                }else{
+                    if (!isExtant) {
+                        
+                    }else{
+                        console.log("Found " +  serverKey);
+                        db.get(serverKey, function(err, data) {
+                            if (err) {
+                                console.log(err);
+                            }else{
+                                //console.log(JSON.parse(data));
+                            }
+                        });
+                    }
+                }
+            });
+        },
+        storeServerData = function(serverNumber, serverData) {
+            db.set("MCWES" + serverNumber, serverData, function(err){
+                if (err) console.log(err);
+            });
+        },
         MinecraftWidgets = {
             config: {},
 			onLoad: function(params, callback) {
+                logServers();
+            
 				function render(req, res, next) {
 					res.render('admin/plugins/minecraft-essentials', {
 						themes: MinecraftWidgets.themes
@@ -206,6 +238,7 @@
                                 callback( null, templates.parse(html, templateData) );
                                 return;
                             }else{
+                                storeServerData("1", JSON.stringify(htmlData));
                                 callback( null, templates.parse(html, htmlData) );
                             }
                         });
