@@ -1,41 +1,17 @@
-<div class="console">
+<div class="widget-server-status">
     <div class="well">
         <form class="form">
             <div class="row">
                 <fieldset>
-                    <h4 style="margin-top:0;">Server Information</h4>
+                    <h4 style="margin-top:0;">Server</h4>
                     <div class="col-sm-12 col-xs-12">
                         <div class="form-group">
-                            <label>Server Name</label>
-                            <input type="text" class="form-control" name="serverName" placeholder="Minecraft Server" />
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label>Server Host</label>
-                            <input type="text" class="form-control" name="serverHost" placeholder="0.0.0.0" />
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label>Server Port</label>
-                            <input type="text" class="form-control" name="serverPort" placeholder="25565" />
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label>Query Port</label>
-                            <input type="text" class="form-control" name="queryPort" placeholder="25565" />
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <div class="checkbox" style="margin-top:30px;">
-                                <label>
-                                    <input type="checkbox" name="uselocalhost"></input>
-                                    Use localhost? &nbsp; <a class="fa fa-question-circle text-info has-tooltip" data-html="true" data-title="Will still ping remotely, but query<br>locally to quicken load times."></a>
-                                </label>
-                            </div>
+                            <label>Server</label>
+                            <select name="serverConfigName">
+                                <option value="1">One</option>
+                                <option value="2">Two</option>
+                                <option value="3">Three</option>
+                            </select>
                         </div>
                     </div>
                     

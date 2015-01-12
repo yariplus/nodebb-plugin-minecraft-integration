@@ -5,12 +5,10 @@
 		fs = require('fs'),
 		path = require('path'),
 		db = module.parent.require('./database'),
+		meta = module.parent.require('./meta'),
 		categories = module.parent.require('./categories'),
 		user = module.parent.require('./user'),
 		plugins = module.parent.require('./plugins'),
-		topics = module.parent.require('./topics'),
-		posts = module.parent.require('./posts'),
-		translator = module.parent.require('../public/src/translator'),
 		templates = module.parent.require('templates.js'),
 		websockets = module.parent.require('./socket.io'),
         mcquery = require('mcquery'),
@@ -69,8 +67,6 @@
         MinecraftWidgets = {
             config: {},
 			onLoad: function(params, callback) {
-                logServers();
-            
 				function render(req, res, next) {
 					res.render('admin/plugins/minecraft-essentials', {
 						themes: MinecraftWidgets.themes
@@ -91,6 +87,40 @@
 				callback();
 			},
 			init: function(params) {
+                // Load saved config
+				var	_self = this,
+					fields = [
+						'testData'
+					],
+					defaults = {
+						'server1serverConfigName': 'Server One',
+                        'server1serverName': 'Server One',
+                        'server1serverHost': '0.0.0.0',
+                        'server1serverIP': '0.0.0.0',
+                        'server1serverPort': '25565',
+                        'server1queryPort': '25565',
+                        'server1rconPort': '25575',
+                        'server1rconPass': 'password',
+                        'server1widgetPass': 'password'
+					};
+                
+                _self.servers = [];
+
+				meta.settings.get('minecraft-essentials', function(err, options) {
+					for(var field in defaults) {
+						// If not set in config (nil)
+						if (!options.hasOwnProperty(field)) {
+							_self.config[field] = defaults[field];
+						} else {
+							if (field == 'checkbox') {
+								_self.config[field] = options[field] === 'on' ? true : false;
+							} else {
+								_self.config[field] = options[field];
+							}
+						}
+					}
+				});
+            
                 app = params.app;
 
                 var templatesToLoad = [
@@ -140,6 +170,45 @@
 				}
 			},
             templates: {}
+        },
+        renderMCServerStatusNew = function(widget, templateData, callback) {
+            var html = MinecraftWidgets.templates['widgetMCServerStatus.tpl'], cid;
+            if (widget.data.cid) {
+                cid = widget.data.cid;
+            } else {
+                var match = widget.area.url.match('[0-9]+');
+                cid = match ? match[0] : 1;
+            }
+            
+            // Read from config
+            templateData = readWidgetMCServerStatus(widget, templateData);
+            if (templateData.logDebug) console.log("Starting renderMCServerStatus.");
+            
+            // Query for data, still parse on any error.
+            if (templateData.logDebug) console.log("Verifying host address.");
+            verifyHost(templateData, function(err, pingData) {
+                templateData = pingData;
+                readServerListPing(templateData, modernRequestBack, modernResponseBack, function(err, responseData) {
+                    templateData = responseData;
+                    queryServer(templateData, function(err, queryData) {
+                        templateData = queryData;
+                        if (templateData.logDebug) console.log("Looking for users");
+                        findUsers(templateData, 0, function(err, userData) {
+                            templateData = userData;
+                            if (templateData.logDebug) console.log("Parsing html");
+                            parseStatusWidget(templateData, function(err, htmlData) {
+                                if (err) {
+                                    callback( null, templates.parse(html, templateData) );
+                                    return;
+                                }else{
+                                    storeServerData("1", JSON.stringify(htmlData));
+                                    callback( null, templates.parse(html, htmlData) );
+                                }
+                            });
+                        });
+                    });
+                });
+            });
         };
         
     MinecraftWidgets.renderMCCommand = function(widget, callback) {
@@ -208,52 +277,16 @@
     }
 
 	MinecraftWidgets.renderMCServerStatus = function(widget, callback) {
-		var html = MinecraftWidgets.templates['widgetMCServerStatus.tpl'], cid;
-        
-		if (widget.data.cid) {
-			cid = widget.data.cid;
-		} else {
-			var match = widget.area.url.match('[0-9]+');
-			cid = match ? match[0] : 1;
-		}
-        
-        // Read from config
-        var templateData = readWidgetMCServerStatus(widget);
-        if (templateData.logDebug) console.log("Starting renderMCServerStatus.");
-        
-        // Query for data, still parse on any error.
-        if (templateData.logDebug) console.log("Verifying host address.");
-        verifyHost(templateData, function(err, pingData) {
-            templateData = pingData;
-            readServerListPing(templateData, modernRequestBack, modernResponseBack, function(err, responseData) {
-                templateData = responseData;
-                queryServer(templateData, function(err, queryData) {
-                    templateData = queryData;
-                    if (templateData.logDebug) console.log("Looking for users");
-                    findUsers(templateData, 0, function(err, userData) {
-                        templateData = userData;
-                        if (templateData.logDebug) console.log("Parsing html");
-                        parseStatusWidget(templateData, function(err, htmlData) {
-                            if (err) {
-                                callback( null, templates.parse(html, templateData) );
-                                return;
-                            }else{
-                                storeServerData("1", JSON.stringify(htmlData));
-                                callback( null, templates.parse(html, htmlData) );
-                            }
-                        });
-                    });
-                });
-            });
-        });
+        // Read from plugin config
+        var templateData = {};
+        templateData.serverName = widget.data.serverConfigName;
+        templateData.serverHost = MinecraftWidgets.config.server1serverHost;
+        templateData.serverPort = MinecraftWidgets.config.server1serverPort;
+        templateData.queryPort = MinecraftWidgets.config.server1queryPort;
+        renderMCServerStatusNew(widget, templateData, callback);
     };
     
-    function readWidgetMCServerStatus(widget) {
-        var templateData = {};
-        templateData.serverName = widget.data.serverName || "Minecraft Server";
-        templateData.serverHost = widget.data.serverHost || "0.0.0.0";
-        templateData.serverPort = widget.data.serverPort || "25565";
-        templateData.queryPort = widget.data.queryPort;
+    function readWidgetMCServerStatus(widget, templateData) {
         templateData.showIP = widget.data.showIP;
         templateData.showPlayerCount = widget.data.showPlayerCount;
         templateData.showNameAlways = widget.data.showNameAlways;
