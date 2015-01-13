@@ -233,10 +233,9 @@
                     serverStatusData = pingData;
                     if (MinecraftWidgets.config.logErrors) console.log("Resolved host " + ( serverStatusData.serverHost || "localhost" ) + " to " + serverStatusData.serverIP + ":" + serverStatusData.serverPort + " query at port " + serverStatusData.queryPort);
                     if (MinecraftWidgets.config['server'+serverNumber+'isLegacy']) {
-                        if (MinecraftWidgets.config.logErrors) console.log("Using legacy ServerListPing for " + serverStatusData.serverHost); 
+                        if (MinecraftWidgets.config.logDebug) console.log("Using legacy ServerListPing for " + serverStatusData.serverHost); 
                         mcping(serverStatusData.serverIP, parseInt(serverStatusData.serverPort), function(err, resp) {
                             if (!err) {
-                                //console.log(resp);
                                 serverStatusData.onlinePlayers = resp.num_players;
                                 serverStatusData.maxPlayers = resp.max_players;
                                 serverStatusData.isServerOnline = true;
@@ -256,7 +255,7 @@
                                     }
                                 }
                             }else{
-                                console.log(err);
+                                if (MinecraftWidgets.config.logErrors) console.log(ServerListPing failed err);
                             }
                             queryServer(serverStatusData, function(err, queryData) {
                                 serverStatusData = queryData;
@@ -327,9 +326,7 @@
         templateData.showIP = widget.data.showIP;
         templateData.showPlayerCount = widget.data.showPlayerCount;
         templateData.showNameAlways = widget.data.showNameAlways;
-        //console.log(widget.data.parseFormatCodes);
         templateData.parseFormatCodes = widget.data.parseFormatCodes == "on" ? true : false;
-        //console.log(templateData.parseFormatCodes);
         
         var readCustomRow = function ( label, text, after ) {
             switch ( after ) {
@@ -494,7 +491,6 @@
             templateData.isServerOnline = false;
             templateData.failPing = true;
             templateData.failTime = true;
-            //dataBack(true, templateData);
         });
         
         socket.on('data', function(data) {
@@ -642,9 +638,9 @@
 
         function fullStatBack(err, stat) {
             if (err) {
-                if (MinecraftWidgets.config.logErrors) console.log("full_stat failed for " + templateData.serverHost);
+                if (MinecraftWidgets.config.logErrors) console.log("FullStats failed for " + ( templateData.serverIP || templateData.serverHost ) + ":" + templateData.queryPort + ", is the server blocking FullStats?";
             } else {
-                if (MinecraftWidgets.config.logErrors) console.log("Got full_stat for " + templateData.serverHost);
+                if (MinecraftWidgets.config.logTemplateDataChanges) console.log("Applying FullStats for " + ( templateData.serverIP || templateData.serverHost ) + ":" + templateData.queryPort);
                 templateData.isServerOnline = true;
                 
                 if (stat.MOTD) {
@@ -655,9 +651,8 @@
                     }
                 }
                 
-                if ( !templateData.players ) {                    
+                if ( !templateData.players ) {
                     // Convert player objects to the way NodeBB likes.
-                    //if (MinecraftWidgets.config.logErrors) console.log("Setting player list.");
                     templateData.seesPlayers = true;
                     templateData.players = [];
                     var index;
@@ -689,8 +684,7 @@
                 templateData.onlinePlayers = stat.numplayers;
                 templateData.maxPlayers = stat.maxplayers;
                 templateData.version = stat.version;
-                
-                
+                               
                 shouldWeClose();
             }
             
@@ -725,7 +719,7 @@
     }
     
     function parseStatusWidget ( templateData ) {
-        //console.log("Original name: " + templateData.serverName);
+        if (MinecraftWidgets.config.logTemplateDataChanges) console.log("Original name: " + templateData.serverName);
         if ( templateData.parseFormatCodes ) {
             var spancount = templateData.serverName.split("§").length - 1;
             templateData.serverName = templateData.serverName.replace(/§0/g, "<span style=\"color:#000000;\">");
@@ -751,7 +745,7 @@
             templateData.serverName = templateData.serverName.replace(/§o/g, "<span style=\"font-style: italic;\">");
             templateData.serverName = templateData.serverName.replace(/§r/g, "<span style=\"font-style: normal; text-decoration: none; font-weight: normal; color:#000000;\">");
             for ( var i = 0; i < spancount; i++ ) templateData.serverName = templateData.serverName + "</span>";
-            //console.log("New Name:" + templateData.serverName);
+            if (MinecraftWidgets.config.logTemplateDataChanges) console.log("New Name:" + templateData.serverName);
         }
         
         templateData.msgFailQuery = templateData.msgFailQuery.replace("{serverIP}", ( templateData.serverIP || templateData.serverHost ) );
@@ -770,7 +764,7 @@
 		widgets = widgets.concat([
 			{
 				widget: "widgetMCServerStatus",
-				name: "Minecraft Server Status 1.7+",
+				name: "Minecraft Server Status",
 				description: "Lists information on a Minecraft server.",
 				content: MinecraftWidgets.templates['admin/adminWidgetMCServerStatus.tpl']
 			},
