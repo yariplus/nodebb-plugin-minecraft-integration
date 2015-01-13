@@ -13,7 +13,20 @@
                             <div class="col-sm-4">
                                 <input type="text" class="form-control" name="serverUpdateDelay" id="serverUpdateDelay" placeholder="1" />
                             </div>
-                            <div class="col-sm-6"> </div>
+                            <div class="col-sm-3 col-xs-12">
+                                <div class="checkbox">
+                                    <label for="showDebugIcons">
+                                        <input type="checkbox" name="showDebugIcons" id="showDebugIcons" /> Show Debug Icons?
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-sm-3 col-xs-12">
+                                <div class="checkbox">
+                                    <label for="logErrors">
+                                        <input type="checkbox" name="logErrors" id="logErrors" /> Log Errors?
+                                    </label>
+                                </div>
+                            </div>
                         </div>
                     </fieldset>
                 </div>
@@ -196,7 +209,13 @@
 	require(['settings'], function(Settings) {
 		Settings.load('minecraft-essentials', $('.minecraftServers'), function(err, settings) {
 			var defaults = {
+                'serverUpdateDelay': '1',
+                'showDebugIcons': false,
+                'logErrors': false,
+                
+                'server1enableLookup': true,
                 'server1serverName': 'Server One',
+                'server1isLegacy': false,
                 'server1serverHost': '0.0.0.0',
                 'server1serverIP': '0.0.0.0',
                 'server1serverPort': '25565',
@@ -204,7 +223,9 @@
                 'server1rconPort': '25575',
                 'server1rconPass': 'password',
                 
+                'server2enableLookup': true,
                 'server2serverName': 'Server Two',
+                'server2isLegacy': false,
                 'server2serverHost': '0.0.0.0',
                 'server2serverIP': '0.0.0.0',
                 'server2serverPort': '25565',
@@ -212,7 +233,9 @@
                 'server2rconPort': '25575',
                 'server2rconPass': 'password',
                 
+                'server3enableLookup': true,
                 'server3serverName': 'Server Three',
+                'server3isLegacy': false,
                 'server3serverHost': '0.0.0.0',
                 'server3serverIP': '0.0.0.0',
                 'server3serverPort': '25565',

@@ -18,9 +18,9 @@
             <td class="td-label"><strong>Status</strong></td>
             <td>
             <!-- IF !isServerOnline -->
-                <a class="fa fa-exclamation-circle text-danger has-tooltip" data-placement="top" data-title="Offline" />&nbsp;<strong><span class="text-danger">Offline</span></strong>
+                <a class="fa fa-exclamation-circle text-danger has-tooltip" data-placement="top" data-title="Offline"></a>&nbsp;<strong><span class="text-danger">Offline</span></strong>
             <!-- ELSE -->
-                <a class="fa fa-check-circle text-success has-tooltip" data-placement="top" data-title="Online" />&nbsp;<strong><span class="text-success">Online</span></strong><!-- IF showPlayerCount -->&nbsp;({onlinePlayers}/{maxPlayers})<!-- ENDIF showPlayerCount -->
+                <a class="fa fa-check-circle text-success has-tooltip" data-placement="top" data-title="Online"></a>&nbsp;<strong><span class="text-success">Online</span></strong><!-- IF showPlayerCount -->&nbsp;({onlinePlayers}/{maxPlayers})<!-- ENDIF showPlayerCount -->
             <!-- ENDIF !isServerOnline -->
             <!-- IF failHost -->{msgFailHost}<!-- ENDIF failHost -->
             <!-- IF failPort -->{msgFailPort}<!-- ENDIF failPort -->
@@ -64,8 +64,8 @@
         <tr>
             <td class="td-label"><strong>Version</strong></td>
             <td>{version}
-                <!-- IF modInfo -->&nbsp;<div class="fa fa-cog text-info<!-- IF showModList --> has-popover<!-- ENDIF showModList -->" data-html="true" data-title="<h6><b>Mod List</b></h6>"    data-placement="bottom"<!-- ENDIF modInfo --><!-- BEGIN modList -->{modList.modid}<!-- IF @first -->   data-content="&lt;h6&gt;<!-- ENDIF @first --><!-- IF @last -->&lt;/h6&gt;"<!-- ELSE --><!-- IF !@first -->, <!-- ENDIF !@first --><!-- ENDIF @last --><!-- END modList --><!-- IF modInfo -->></div><!-- ENDIF modInfo -->
-                <!-- IF pluginInfo -->&nbsp;<div class="fa fa-plug text-info<!-- IF showPluginList --> has-popover<!-- ENDIF showPluginList -->" data-html="true" data-title="<h6><b>Plugin List</b></h6>" data-placement="bottom"<!-- ENDIF pluginInfo --><!-- BEGIN pluginList -->{pluginList.name}<!-- IF @first --> data-content="&lt;h6&gt;<!-- ENDIF @first --><!-- IF @last -->&lt;/h6&gt;"<!-- ELSE --><!-- IF !@first -->, <!-- ENDIF !@first --><!-- ENDIF @last --><!-- END pluginList --><!-- IF pluginInfo -->></div><!-- ENDIF pluginInfo -->
+                <!-- IF modInfo -->&nbsp;<a class="fa fa-cog text-info<!-- IF showModList --> has-popover<!-- ENDIF showModList -->" data-html="true" data-title="<h6><b>Mod List</b></h6>"    data-placement="bottom"<!-- ENDIF modInfo --><!-- BEGIN modList -->{modList.modid}<!-- IF @first -->   data-content="&lt;h6&gt;<!-- ENDIF @first --><!-- IF @last -->&lt;/h6&gt;"<!-- ELSE --><!-- IF !@first -->, <!-- ENDIF !@first --><!-- ENDIF @last --><!-- END modList --><!-- IF modInfo -->></a><!-- ENDIF modInfo -->
+                <!-- IF pluginInfo -->&nbsp;<a class="fa fa-plug text-info<!-- ENDIF pluginInfo --><!-- IF showPluginList --> has-popover<!-- ENDIF showPluginList --><!-- IF pluginInfo -->" data-html="true" data-title="<h6><b>Plugin List</b></h6>" data-placement="bottom"<!-- ENDIF pluginInfo --><!-- BEGIN pluginList -->{pluginList.name}<!-- IF @first --> data-content="&lt;h6&gt;<!-- ENDIF @first --><!-- IF @last -->&lt;/h6&gt;"<!-- ELSE --><!-- IF !@first -->, <!-- ENDIF !@first --><!-- ENDIF @last --><!-- END pluginList --><!-- IF pluginInfo -->></a><!-- ENDIF pluginInfo -->
             </td>
         </tr>
         <!-- ENDIF isServerOnline -->
