@@ -15,7 +15,6 @@
 		{ "hook": "filter:widgets.getWidgets", "method": "defineWidgets" },
         { "hook": "filter:widget.render:widgetMCCommand", "method": "renderMCCommander" },
 		{ "hook": "filter:widget.render:widgetMCServerStatus", "method": "renderMCServerStatus" },
-        { "hook": "filter:widget.render:widgetMCServerStatusLegacy", "method": "renderMCServerStatus" },
         { "hook": "filter:admin.header.build", "method": "admin.menu" }
 	],
 	"templates": "./public/templates",

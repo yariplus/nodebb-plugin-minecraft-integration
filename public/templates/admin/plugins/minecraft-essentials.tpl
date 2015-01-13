@@ -23,7 +23,7 @@
                             <div class="col-sm-3 col-xs-12">
                                 <div class="checkbox">
                                     <label for="logErrors">
-                                        <input type="checkbox" name="logErrors" id="logErrors" /> Log Errors?
+                                        <input type="checkbox" name="logErrors" id="logErrors" /> Log Debug Messages?
                                     </label>
                                 </div>
                             </div>

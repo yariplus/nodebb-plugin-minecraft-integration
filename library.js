@@ -760,8 +760,8 @@
             //console.log("New Name:" + templateData.serverName);
         }
         
-        //templateData.msgFailQuery = templateData.msgFailQuery.replace("{serverIP}", ( templateData.serverIP || templateData.serverHost ) );
-        //templateData.msgFailQuery = templateData.msgFailQuery.replace("{queryPort}",templateData.queryPort);
+        templateData.msgFailQuery = templateData.msgFailQuery.replace("{serverIP}", ( templateData.serverIP || templateData.serverHost ) );
+        templateData.msgFailQuery = templateData.msgFailQuery.replace("{queryPort}", templateData.queryPort);
         
         if (templateData.isServerOnline && templateData.players && templateData.players.length > 0) templateData.hasPlayers = true;
         
@@ -778,12 +778,6 @@
 				widget: "widgetMCServerStatus",
 				name: "Minecraft Server Status 1.7+",
 				description: "Lists information on a Minecraft server.",
-				content: MinecraftWidgets.templates['admin/adminWidgetMCServerStatus.tpl']
-			},
-            {
-				widget: "widgetMCServerStatusLegacy",
-				name: "Minecraft Server Status Legacy <=1.6",
-				description: "Lists information on a legacy Minecraft server.",
 				content: MinecraftWidgets.templates['admin/adminWidgetMCServerStatus.tpl']
 			},
             {
