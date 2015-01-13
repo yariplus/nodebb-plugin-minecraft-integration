@@ -142,7 +142,7 @@
 					custom_header.plugins.push({
 						"route": '/plugins/minecraft-essentials',
 						"icon": 'fa-edit',
-						"name": 'MC-WE Servers'
+						"name": 'Minecraft Essentials'
 					});
 
 					callback(null, custom_header);
@@ -521,7 +521,7 @@
                         }
                     }
                     
-                    templateData.protocolVersion = resp.version.protocol;
+                    //templateData.protocolVersion = resp.version.protocolVersion;
                     
                     var versionSplit = resp.version.name.split(/ /g);
                     if (versionSplit.length > 1) {

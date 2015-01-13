@@ -1,195 +1,188 @@
 <div class="row">
 	<div class="col-lg-9">
-		<div class="panel panel-default">
-			<div class="panel-heading">Minecraft Essentials Server Configuration</div>
-			<div class="panel-body">
-                <form class="minecraftServers">
-                <div class="well" id="minecraftServersConfig">
-                    <div class="minecraftServer">
-                        <div class="row">
-                            <fieldset>
-                                <div class="col-sm-9 col-xs-12">
-                                    <div class="form-group">
-                                        <label>Server Name</label>
-                                        <input type="text" class="form-control" name="server1serverConfigName" placeholder="Minecraft Server" />
-                                    </div>
-                                </div>
-                                <div class="col-sm-3 col-xs-12">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" name="server1isLegacy"></input>
-                                            Is legacy? (<1.7)
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-sm-12 col-xs-12">
-                                    <div class="form-group">
-                                        <label>Server Display Name</label>
-                                        <input type="text" class="form-control" name="server1serverName" placeholder="Minecraft Server" />
-                                    </div>
-                                </div>
-                                <div class="col-sm-6 col-xs-12">
-                                    <div class="form-group">
-                                        <label>Server Host</label>
-                                        <input type="text" class="form-control" name="server1serverHost" placeholder="0.0.0.0" />
-                                    </div>
-                                </div>
-                                <div class="col-sm-6 col-xs-12">
-                                    <div class="form-group">
-                                        <label>Server Port</label>
-                                        <input type="text" class="form-control" name="server1serverPort" placeholder="25565" />
-                                    </div>
-                                </div>
-                                <div class="col-sm-6 col-xs-12">
-                                    <div class="form-group">
-                                        <label>Query Port</label>
-                                        <input type="text" class="form-control" name="server1queryPort" placeholder="25565" />
-                                    </div>
-                                </div>
-                                <div class="col-sm-6 col-xs-12">
-                                    <div class="form-group">
-                                        <label>RCON Port</label>
-                                        <input type="text" class="form-control" name="server1rconPort" placeholder="25575" />
-                                    </div>
-                                </div>
-                                <div class="col-sm-12 col-xs-12">
-                                    <div class="form-group">
-                                        <label>RCON Pass</label>
-                                        <input type="text" class="form-control" name="server1rconPass" placeholder="password" />
-                                    </div>
-                                </div>
-                            </fieldset>
-                            <br />
-                            <input type="button" class="removeServer" value="Remove" />
+        <form class="minecraftServers form-horizontal">
+        <div class="panel">
+            <div class="panel-heading">Minecraft Essentials Configuration</div>
+            <div class="panel-body">
+            
+                <div class="well">
+                    <h4>General Settings</h4>
+                    <fieldset>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label" for="serverUpdateDelay">Update Frequency</label>
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control" name="serverUpdateDelay" id="serverUpdateDelay" placeholder="1" />
+                            </div>
+                            <div class="col-sm-6"> </div>
                         </div>
-                    </div>
+                    </fieldset>
                 </div>
-                <div class="well" id="minecraftServersConfig">
-                    <div class="minecraftServer">
-                        <div class="row">
-                            <fieldset>
-                                <div class="col-sm-9 col-xs-12">
-                                    <div class="form-group">
-                                        <label>Server Name</label>
-                                        <input type="text" class="form-control" name="server2serverConfigName" placeholder="Minecraft Server" />
-                                    </div>
+                
+                <div class="well">
+                    <h4>Server One</h4>
+                    <fieldset>
+                        <div class="form-group">
+                            <label class="col-sm-2 col-xs-12 control-label" for="server1serverConfigName">Server Name</label>
+                            <div class="col-sm-6 col-xs-12">
+                                <input type="text" class="form-control" name="server1serverConfigName" id="server1serverConfigName" placeholder="Minecraft Server One" />
+                            </div>
+                            <div class="col-sm-4 col-xs-12">
+                                <div class="checkbox">
+                                    <label for="server1isLegacy">
+                                        <input type="checkbox" name="server1isLegacy" id="server1isLegacy" /> Is legacy? (<1.7)
+                                    </label>
                                 </div>
-                                <div class="col-sm-3 col-xs-12">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" name="server2isLegacy"></input>
-                                            Is legacy? (<1.7)
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-sm-12 col-xs-12">
-                                    <div class="form-group">
-                                        <label>Server Display Name</label>
-                                        <input type="text" class="form-control" name="server2serverName" placeholder="Minecraft Server" />
-                                    </div>
-                                </div>
-                                <div class="col-sm-6 col-xs-12">
-                                    <div class="form-group">
-                                        <label>Server Host</label>
-                                        <input type="text" class="form-control" name="server2serverHost" placeholder="0.0.0.0" />
-                                    </div>
-                                </div>
-                                <div class="col-sm-6 col-xs-12">
-                                    <div class="form-group">
-                                        <label>Server Port</label>
-                                        <input type="text" class="form-control" name="server2serverPort" placeholder="25565" />
-                                    </div>
-                                </div>
-                                <div class="col-sm-6 col-xs-12">
-                                    <div class="form-group">
-                                        <label>Query Port</label>
-                                        <input type="text" class="form-control" name="server2queryPort" placeholder="25565" />
-                                    </div>
-                                </div>
-                                <div class="col-sm-6 col-xs-12">
-                                    <div class="form-group">
-                                        <label>RCON Port</label>
-                                        <input type="text" class="form-control" name="server2rconPort" placeholder="25575" />
-                                    </div>
-                                </div>
-                                <div class="col-sm-12 col-xs-12">
-                                    <div class="form-group">
-                                        <label>RCON Pass</label>
-                                        <input type="text" class="form-control" name="server2rconPass" placeholder="password" />
-                                    </div>
-                                </div>
-                            </fieldset>
-                            <br />
-                            <input type="button" class="removeServer" value="Remove" />
+                            </div>
                         </div>
-                    </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 col-xs-12 control-label" for="server1serverName">Display Name</label>
+                            <div class="col-sm-6 col-xs-12">
+                                <input type="text" class="form-control" name="server1serverName" id="server1serverName" placeholder="A Minecraft Server" />
+                            </div>
+                            <div class="col-sm-4 col-xs-12"> </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 col-xs-12 control-label" for="server1serverHost">Server Host</label>
+                            <div class="col-sm-6" col-xs-12">
+                                <input type="text" class="form-control" name="server1serverHost" id="server1serverHost" placeholder="0.0.0.0" />
+                            </div>
+                            <div class="col-sm-4 col-xs-12"> </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 col-xs-12 control-label" for="server1serverPort">Server Port</label>
+                            <div class="col-sm-4 col-xs-12">
+                                <input type="text" class="form-control" name="server1serverPort" id="server1serverPort" placeholder="25565" />
+                            </div>
+                            <label class="col-sm-2 col-xs-12 control-label" for="server1queryPort">Query Port</label>
+                            <div class="col-sm-4 col-xs-12">
+                                <input type="text" class="form-control" name="server1queryPort" id="server1queryPort" placeholder="25565" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 col-xs-12 control-label" for="server1rconPort">RCON Port</label>
+                            <div class="col-sm-4 col-xs-12">
+                                <input type="text" class="form-control" name="server1rconPort" id="server1rconPort" placeholder="25575" />
+                            </div>
+                            <label class="col-sm-2 col-xs-12 control-label" for="server1rconPass">RCON Pass</label>
+                            <div class="col-sm-4 col-xs-12">
+                                <input type="password" class="form-control" name="server1rconPass" id="server1rconPass" placeholder="password" />
+                            </div>
+                        </div>
+                    </fieldset>
                 </div>
-                <div class="well" id="minecraftServersConfig">
-                    <div class="minecraftServer">
-                        <div class="row">
-                            <fieldset>
-                                <div class="col-sm-9 col-xs-12">
-                                    <div class="form-group">
-                                        <label>Server Name</label>
-                                        <input type="text" class="form-control" name="server3serverConfigName" placeholder="Minecraft Server" />
-                                    </div>
+                
+                <div class="well">
+                    <h4>Server Two</h4>
+                    <fieldset>
+                        <div class="form-group">
+                            <label class="col-sm-2 col-xs-12 control-label" for="server2serverConfigName">Server Name</label>
+                            <div class="col-sm-6 col-xs-12">
+                                <input type="text" class="form-control" name="server2serverConfigName" id="server2serverConfigName" placeholder="Minecraft Server Two" />
+                            </div>
+                            <div class="col-sm-4 col-xs-12">
+                                <div class="checkbox">
+                                    <label for="server2isLegacy">
+                                        <input type="checkbox" name="server2isLegacy" id="server2isLegacy" /> Is legacy? (<1.7)
+                                    </label>
                                 </div>
-                                <div class="col-sm-3 col-xs-12">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" name="server3isLegacy"></input>
-                                            Is legacy? (<1.7)
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-sm-12 col-xs-12">
-                                    <div class="form-group">
-                                        <label>Server Display Name</label>
-                                        <input type="text" class="form-control" name="server3serverName" placeholder="Minecraft Server" />
-                                    </div>
-                                </div>
-                                <div class="col-sm-6 col-xs-12">
-                                    <div class="form-group">
-                                        <label>Server Host</label>
-                                        <input type="text" class="form-control" name="server3serverHost" placeholder="0.0.0.0" />
-                                    </div>
-                                </div>
-                                <div class="col-sm-6 col-xs-12">
-                                    <div class="form-group">
-                                        <label>Server Port</label>
-                                        <input type="text" class="form-control" name="server3serverPort" placeholder="25565" />
-                                    </div>
-                                </div>
-                                <div class="col-sm-6 col-xs-12">
-                                    <div class="form-group">
-                                        <label>Query Port</label>
-                                        <input type="text" class="form-control" name="server3queryPort" placeholder="25565" />
-                                    </div>
-                                </div>
-                                <div class="col-sm-6 col-xs-12">
-                                    <div class="form-group">
-                                        <label>RCON Port</label>
-                                        <input type="text" class="form-control" name="server3rconPort" placeholder="25575" />
-                                    </div>
-                                </div>
-                                <div class="col-sm-12 col-xs-12">
-                                    <div class="form-group">
-                                        <label>RCON Pass</label>
-                                        <input type="text" class="form-control" name="server3rconPass" placeholder="password" />
-                                    </div>
-                                </div>
-                            </fieldset>
-                            <br />
+                            </div>
                         </div>
-                    </div>
-                </form>
+                        <div class="form-group">
+                            <label class="col-sm-2 col-xs-12 control-label" for="server2serverName">Display Name</label>
+                            <div class="col-sm-6 col-xs-12">
+                                <input type="text" class="form-control" name="server2serverName" id="server2serverName" placeholder="A Minecraft Server" />
+                            </div>
+                            <div class="col-sm-4 col-xs-12"> </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 col-xs-12 control-label" for="server2serverHost">Server Host</label>
+                            <div class="col-sm-6" col-xs-12">
+                                <input type="text" class="form-control" name="server2serverHost" id="server2serverHost" placeholder="0.0.0.0" />
+                            </div>
+                            <div class="col-sm-4 col-xs-12"> </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 col-xs-12 control-label" for="server2serverPort">Server Port</label>
+                            <div class="col-sm-4 col-xs-12">
+                                <input type="text" class="form-control" name="server2serverPort" id="server2serverPort" placeholder="25565" />
+                            </div>
+                            <label class="col-sm-2 col-xs-12 control-label" for="server2queryPort">Query Port</label>
+                            <div class="col-sm-4 col-xs-12">
+                                <input type="text" class="form-control" name="server2queryPort" id="server2queryPort" placeholder="25565" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 col-xs-12 control-label" for="server2rconPort">RCON Port</label>
+                            <div class="col-sm-4 col-xs-12">
+                                <input type="text" class="form-control" name="server2rconPort" id="server2rconPort" placeholder="25575" />
+                            </div>
+                            <label class="col-sm-2 col-xs-12 control-label" for="server2rconPass">RCON Pass</label>
+                            <div class="col-sm-4 col-xs-12">
+                                <input type="password" class="form-control" name="server2rconPass" id="server2rconPass" placeholder="password" />
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+                
+                <div class="well">
+                    <h4>Server Three</h4>
+                    <fieldset>
+                        <div class="form-group">
+                            <label class="col-sm-2 col-xs-12 control-label" for="server3serverConfigName">Server Name</label>
+                            <div class="col-sm-6 col-xs-12">
+                                <input type="text" class="form-control" name="server3serverConfigName" id="server3serverConfigName" placeholder="Minecraft Server Three" />
+                            </div>
+                            <div class="col-sm-4 col-xs-12">
+                                <div class="checkbox">
+                                    <label for="server3isLegacy">
+                                        <input type="checkbox" name="server3isLegacy" id="server3isLegacy" /> Is legacy? (<1.7)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 col-xs-12 control-label" for="server3serverName">Display Name</label>
+                            <div class="col-sm-6 col-xs-12">
+                                <input type="text" class="form-control" name="server3serverName" id="server3serverName" placeholder="A Minecraft Server" />
+                            </div>
+                            <div class="col-sm-4 col-xs-12"> </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 col-xs-12 control-label" for="server3serverHost">Server Host</label>
+                            <div class="col-sm-6" col-xs-12">
+                                <input type="text" class="form-control" name="server3serverHost" id="server3serverHost" placeholder="0.0.0.0" />
+                            </div>
+                            <div class="col-sm-4 col-xs-12"> </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 col-xs-12 control-label" for="server3serverPort">Server Port</label>
+                            <div class="col-sm-4 col-xs-12">
+                                <input type="text" class="form-control" name="server3serverPort" id="server3serverPort" placeholder="25565" />
+                            </div>
+                            <label class="col-sm-2 col-xs-12 control-label" for="server3queryPort">Query Port</label>
+                            <div class="col-sm-4 col-xs-12">
+                                <input type="text" class="form-control" name="server3queryPort" id="server3queryPort" placeholder="25565" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 col-xs-12 control-label" for="server3rconPort">RCON Port</label>
+                            <div class="col-sm-4 col-xs-12">
+                                <input type="text" class="form-control" name="server3rconPort" id="server3rconPort" placeholder="25575" />
+                            </div>
+                            <label class="col-sm-2 col-xs-12 control-label" for="server3rconPass">RCON Pass</label>
+                            <div class="col-sm-4 col-xs-12">
+                                <input type="password" class="form-control" name="server3rconPass" id="server3rconPass" placeholder="password" />
+                            </div>
+                        </div>
+                    </fieldset>
                 </div>
 			</div>
 		</div>
+        </form>
 	</div>
 	<div class="col-lg-3">
 		<div class="panel panel-default">
-			<div class="panel-heading">Minecraft Essentials Server Configuration</div>
+			<div class="panel-heading">Minecraft Essentials Configuration</div>
 			<div class="panel-body">
 				<button class="btn btn-primary" id="save">Save Settings</button><br />
                 <button class="btn btn-info" id="add-minecraft-server">Add a Server</button>
