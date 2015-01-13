@@ -1,6 +1,6 @@
 {
   "name": "nodebb-widget-minecraft-essentials",
-  "version": "0.1.9",
+  "version": "0.2.0",
   "description": "NodeBB Minecraft Widgets",
   "main": "library.js",
   "scripts": {
