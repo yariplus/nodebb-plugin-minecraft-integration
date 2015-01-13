@@ -6,12 +6,7 @@
                     <h4 style="margin-top:0;">Server</h4>
                     <div class="col-sm-12 col-xs-12">
                         <div class="form-group">
-                            <label>Server</label>
-                            <select name="serverConfigName">
-                                <option value="1">One</option>
-                                <option value="2">Two</option>
-                                <option value="3">Three</option>
-                            </select>
+                            <label>Server Number </label> <input type="number" name="serverNumber" min="1" max="3">
                         </div>
                     </div>
                     
@@ -146,3 +141,57 @@
         </form>
     </div>
 </div>
+
+<script type="text/javascript">
+    var iServers = 0;
+	require(['settings'], function(Settings) {
+		Settings.load('minecraft-essentials', $('.minecraftServers'), function(err, settings) {
+			var defaults = {
+                'serverUpdateDelay': '1',
+                'showDebugIcons': false,
+                'logErrors': false,
+                
+                'server1enableLookup': true,
+                'server1serverName': 'Server One',
+                'server1isLegacy': false,
+                'server1serverHost': '0.0.0.0',
+                'server1serverIP': '0.0.0.0',
+                'server1serverPort': '25565',
+                'server1queryPort': '25565',
+                'server1rconPort': '25575',
+                'server1rconPass': 'password',
+                
+                'server2enableLookup': true,
+                'server2serverName': 'Server Two',
+                'server2isLegacy': false,
+                'server2serverHost': '0.0.0.0',
+                'server2serverIP': '0.0.0.0',
+                'server2serverPort': '25565',
+                'server2queryPort': '25565',
+                'server2rconPort': '25575',
+                'server2rconPass': 'password',
+                
+                'server3enableLookup': true,
+                'server3serverName': 'Server Three',
+                'server3isLegacy': false,
+                'server3serverHost': '0.0.0.0',
+                'server3serverIP': '0.0.0.0',
+                'server3serverPort': '25565',
+                'server3queryPort': '25565',
+                'server3rconPort': '25575',
+                'server3rconPass': 'password'
+			};
+
+			// Set defaults
+			for(var setting in defaults) {
+				if (!settings.hasOwnProperty(setting)) {
+					if (typeof defaults[setting] === 'boolean') {
+						$('#' + setting).prop('checked', defaults[setting]);
+					} else {
+                        $( "input[name*='" + setting + "']").val(defaults[setting]);
+					}
+				}
+			}
+		});
+	});
+</script>

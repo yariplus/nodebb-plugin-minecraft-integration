@@ -41,7 +41,7 @@
 				MinecraftWidgets.init(params);
 				MinecraftWidgets.loadThemes();
                 //setTimeout(MinecraftWidgets.logServers, 20000);
-                setTimeout(MinecraftWidgets.updateServerStatusData, 1000);
+                setTimeout(MinecraftWidgets.updateServerStatusData, 90000);
 				callback();
 			},
 			init: function(params) {
@@ -55,7 +55,7 @@
                         'showDebugIcons': false,
                         'logErrors': false,
                     
-						'server1enableLookup': true,
+						'server1isDisabled': false,
                         'server1serverName': 'Server One',
                         'server1isLegacy': false,
                         'server1serverHost': '0.0.0.0',
@@ -65,7 +65,7 @@
                         'server1rconPort': '25575',
                         'server1rconPass': 'password',
                         
-                        'server2enableLookup': true,
+                        'server2isDisabled': false,
                         'server2serverName': 'Server Two',
                         'server2isLegacy': false,
                         'server2serverHost': '0.0.0.0',
@@ -75,7 +75,7 @@
                         'server2rconPort': '25575',
                         'server2rconPass': 'password',
                         
-                        'server3enableLookup': true,
+                        'server3isDisabled': false,
                         'server3serverName': 'Server Three',
                         'server3isLegacy': false,
                         'server3serverHost': '0.0.0.0',
@@ -94,7 +94,7 @@
 						if (!options.hasOwnProperty(field)) {
 							_self.config[field] = defaults[field];
 						} else {
-							if (field == 'server1isLegacy' || field == 'server2isLegacy' || field == 'server3isLegacy' || field == 'server1enableLookup' || field == 'server2enableLookup' || field == 'server3enableLookup') {
+							if (field == 'server1isLegacy' || field == 'server2isLegacy' || field == 'server3isLegacy' || field == 'server1isDisabled' || field == 'server2isDisabled' || field == 'server3isDisabled') {
 								_self.config[field] = options[field] === 'on' ? true : false;
 							} else {
 								_self.config[field] = options[field];
@@ -196,6 +196,7 @@
                 // Read from plugin config
                 var serverStatusData;
                 for (var serverNumber = 1; serverNumber <= 3; serverNumber++) {
+                    if (MinecraftWidgets.config['server' + serverNumber + 'isDisabled']) continue;
                     serverStatusData = {};
                     serverStatusData.serverName = MinecraftWidgets.config['server' + serverNumber + 'serverName'];
                     serverStatusData.serverHost = MinecraftWidgets.config['server' + serverNumber + 'serverHost'];
@@ -303,7 +304,11 @@
     }
 
 	MinecraftWidgets.renderMCServerStatus = function(widget, callback) {
-        var serverNumber = widget.data.serverConfigName;
+        var serverNumber = widget.data.serverNumber;
+        if(parseInt(serverNumber) < 1 || parseInt(serverNumber) > 3) {
+            callback(null, "");
+            return;
+        }
         MinecraftWidgets.getServerStatusData(serverNumber, MinecraftWidgets.renderMCServerStatusDataBack, widget, callback);
     };
     

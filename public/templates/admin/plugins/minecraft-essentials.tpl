@@ -41,8 +41,8 @@
                             </div>
                             <div class="col-sm-4 col-xs-12">
                                 <div class="checkbox">
-                                    <label for="server1isLegacy">
-                                        <input type="checkbox" name="server1isLegacy" id="server1isLegacy" /> Is legacy? (<1.7)
+                                    <label for="server1isDisabled">
+                                        <input type="checkbox" name="server1isDisabled" id="server1isDisabled" /> Disable?
                                     </label>
                                 </div>
                             </div>
@@ -52,7 +52,13 @@
                             <div class="col-sm-6 col-xs-12">
                                 <input type="text" class="form-control" name="server1serverName" id="server1serverName" placeholder="A Minecraft Server" />
                             </div>
-                            <div class="col-sm-4 col-xs-12"> </div>
+                            <div class="col-sm-4 col-xs-12">
+                                <div class="checkbox">
+                                    <label for="server1isLegacy">
+                                        <input type="checkbox" name="server1isLegacy" id="server1isLegacy" /> Is legacy? (<1.7)
+                                    </label>
+                                </div>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-2 col-xs-12 control-label" for="server1serverHost">Server Host</label>
@@ -94,8 +100,8 @@
                             </div>
                             <div class="col-sm-4 col-xs-12">
                                 <div class="checkbox">
-                                    <label for="server2isLegacy">
-                                        <input type="checkbox" name="server2isLegacy" id="server2isLegacy" /> Is legacy? (<1.7)
+                                    <label for="server2isDisabled">
+                                        <input type="checkbox" name="server2isDisabled" id="server2isDisabled" /> Disable?
                                     </label>
                                 </div>
                             </div>
@@ -105,7 +111,13 @@
                             <div class="col-sm-6 col-xs-12">
                                 <input type="text" class="form-control" name="server2serverName" id="server2serverName" placeholder="A Minecraft Server" />
                             </div>
-                            <div class="col-sm-4 col-xs-12"> </div>
+                            <div class="col-sm-4 col-xs-12">
+                                <div class="checkbox">
+                                    <label for="server2isLegacy">
+                                        <input type="checkbox" name="server2isLegacy" id="server2isLegacy" /> Is legacy? (<1.7)
+                                    </label>
+                                </div>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-2 col-xs-12 control-label" for="server2serverHost">Server Host</label>
@@ -147,8 +159,8 @@
                             </div>
                             <div class="col-sm-4 col-xs-12">
                                 <div class="checkbox">
-                                    <label for="server3isLegacy">
-                                        <input type="checkbox" name="server3isLegacy" id="server3isLegacy" /> Is legacy? (<1.7)
+                                    <label for="server3isDisabled">
+                                        <input type="checkbox" name="server3isDisabled" id="server3isDisabled" /> Disable?
                                     </label>
                                 </div>
                             </div>
@@ -158,7 +170,13 @@
                             <div class="col-sm-6 col-xs-12">
                                 <input type="text" class="form-control" name="server3serverName" id="server3serverName" placeholder="A Minecraft Server" />
                             </div>
-                            <div class="col-sm-4 col-xs-12"> </div>
+                            <div class="col-sm-4 col-xs-12">
+                                <div class="checkbox">
+                                    <label for="server3isLegacy">
+                                        <input type="checkbox" name="server3isLegacy" id="server3isLegacy" /> Is legacy? (<1.7)
+                                    </label>
+                                </div>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-2 col-xs-12 control-label" for="server3serverHost">Server Host</label>
@@ -213,7 +231,7 @@
                 'showDebugIcons': false,
                 'logErrors': false,
                 
-                'server1enableLookup': true,
+                'server1isDisabled': false,
                 'server1serverName': 'Server One',
                 'server1isLegacy': false,
                 'server1serverHost': '0.0.0.0',
@@ -223,7 +241,7 @@
                 'server1rconPort': '25575',
                 'server1rconPass': 'password',
                 
-                'server2enableLookup': true,
+                'server2isDisabled': false,
                 'server2serverName': 'Server Two',
                 'server2isLegacy': false,
                 'server2serverHost': '0.0.0.0',
@@ -233,7 +251,7 @@
                 'server2rconPort': '25575',
                 'server2rconPass': 'password',
                 
-                'server3enableLookup': true,
+                'server3isDisabled': false,
                 'server3serverName': 'Server Three',
                 'server3isLegacy': false,
                 'server3serverHost': '0.0.0.0',
