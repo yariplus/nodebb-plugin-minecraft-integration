@@ -236,16 +236,11 @@
                         if (MinecraftWidgets.config.logErrors) console.log("Using legacy ServerListPing for " + serverStatusData.serverHost); 
                         mcping(serverStatusData.serverIP, parseInt(serverStatusData.serverPort), function(err, resp) {
                             if (!err) {
-                                
                                 //console.log(resp);
                                 serverStatusData.onlinePlayers = resp.num_players;
                                 serverStatusData.maxPlayers = resp.max_players;
                                 serverStatusData.isServerOnline = true;
-                                if (serverStatusData.showNameAlways) {
-                                    serverStatusData.serverName = serverStatusData.serverName + " ~" + resp.server_name + "~";
-                                }else{
-                                    serverStatusData.serverName = resp.server_name;
-                                }
+                                serverStatusData.serverName = resp.server_name;
                               
                                 if(resp.modinfo) {
                                     templateData.modInfo = true;
@@ -731,7 +726,6 @@
     
     function parseStatusWidget ( templateData ) {
         //console.log("Original name: " + templateData.serverName);
-        //console.log(templateData.parseFormatCodes);
         if ( templateData.parseFormatCodes ) {
             var spancount = templateData.serverName.split("§").length - 1;
             templateData.serverName = templateData.serverName.replace(/§0/g, "<span style=\"color:#000000;\">");
