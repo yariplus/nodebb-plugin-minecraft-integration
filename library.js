@@ -94,7 +94,9 @@
 						if (!options.hasOwnProperty(field)) {
 							_self.config[field] = defaults[field];
 						} else {
-							if (field == 'server1isLegacy' || field == 'server2isLegacy' || field == 'server3isLegacy' || field == 'server1isDisabled' || field == 'server2isDisabled' || field == 'server3isDisabled') {
+							if (field == 'server1isLegacy' || field == 'server2isLegacy' || field == 'server3isLegacy' || 
+                                field == 'server1isDisabled' || field == 'server2isDisabled' || field == 'server3isDisabled' ||
+                                field == 'logErrors' || field == 'logDebug' || field == 'logInfo' || field == 'logTemplateData') {
 								_self.config[field] = options[field] === 'on' ? true : false;
 							} else {
 								_self.config[field] = options[field];
@@ -111,9 +113,11 @@
 
                 var templatesToLoad = [
                     "widgetMCServerStatus.tpl",
-                    "widgetMCCommand.tpl",
+                    "widgetMCTopPlayersList.tpl",
+                    "widgetMCOnlinePlayersGraph.tpl",
                     "admin/adminWidgetMCServerStatus.tpl",
-                    "admin/adminWidgetMCCommand.tpl"
+                    "admin/adminWidgetMCTopPlayersList.tpl",
+                    "admin/adminWidgetMCOnlinePlayersGraph.tpl"
                 ];
 
                 function loadTemplate(template, next) {
@@ -255,7 +259,7 @@
                                     }
                                 }
                             }else{
-                                if (MinecraftWidgets.config.logErrors) console.log(ServerListPing failed err);
+                                if (MinecraftWidgets.config.logErrors) console.log("ServerListPing failed" + err);
                             }
                             queryServer(serverStatusData, function(err, queryData) {
                                 serverStatusData = queryData;
@@ -283,9 +287,8 @@
             }            
         };
         
-    MinecraftWidgets.renderMCCommand = function(widget, callback) {
-        var html = MinecraftWidgets.templates['console.tpl'], cid;
-        
+    MinecraftWidgets.renderMCOnlinePlayersGraph = function(widget, callback) {
+        var html = MinecraftWidgets.templates['widgetMCOnlinePlayersGraph.tpl'], cid;
 		if (widget.data.cid) {
 			cid = widget.data.cid;
 		} else {
@@ -293,7 +296,7 @@
 			cid = match ? match[0] : 1;
 		}
         
-        //html = templates.parse(html, templateData);
+        html = templates.parse(html, {});
         callback(null, html);
     }
 
@@ -638,7 +641,7 @@
 
         function fullStatBack(err, stat) {
             if (err) {
-                if (MinecraftWidgets.config.logErrors) console.log("FullStats failed for " + ( templateData.serverIP || templateData.serverHost ) + ":" + templateData.queryPort + ", is the server blocking FullStats?";
+                if (MinecraftWidgets.config.logErrors) console.log("FullStats failed for " + ( templateData.serverIP || templateData.serverHost ) + ":" + templateData.queryPort + ", is the server blocking FullStats?");
             } else {
                 if (MinecraftWidgets.config.logTemplateDataChanges) console.log("Applying FullStats for " + ( templateData.serverIP || templateData.serverHost ) + ":" + templateData.queryPort);
                 templateData.isServerOnline = true;
@@ -660,6 +663,8 @@
                         templateData.players[templateData.players.length] = { name: stat.player_[index] };
                     }
                 }
+                
+                //console.log(templateData.players);
                 
                 // Use queried hostname if localhost.
                 if ( templateData.serverHost == "0.0.0.0" || templateData.serverHost == "127.0.0.1" || templateData.serverHost == "localhost" ) {
@@ -769,10 +774,16 @@
 				content: MinecraftWidgets.templates['admin/adminWidgetMCServerStatus.tpl']
 			},
             {
-				widget: "widgetMCCommand",
-				name: "Minecraft Server Command Widget",
-				description: "Send a console command to a Minecraft server.",
-				content: MinecraftWidgets.templates['admin/adminWidgetMCCommand.tpl']
+				widget: "widgetMCOnlinePlayersGraph",
+				name: "Minecraft Online Players Graph (Testing)",
+				description: "Shows a graph showing online players over time.",
+				content: MinecraftWidgets.templates['admin/adminWidgetMCOnlinePlayersGraph.tpl']
+			},
+            {
+				widget: "widgetMCTopPlayersList",
+				name: "Minecraft Top Players List (Testing)",
+				description: "Lists avatars of players sorted by their approximate play time.",
+				content: MinecraftWidgets.templates['admin/adminWidgetMCTopPlayersList.tpl']
 			}
 		]);
 

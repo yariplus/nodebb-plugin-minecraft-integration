@@ -78,11 +78,11 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-2 col-xs-12 control-label" for="server1rconPort">RCON Port</label>
+                            <label class="col-sm-2 col-xs-12 control-label" for="server1rconPort">RCON Port (Optional)</label>
                             <div class="col-sm-4 col-xs-12">
                                 <input type="text" class="form-control" name="server1rconPort" id="server1rconPort" placeholder="25575" />
                             </div>
-                            <label class="col-sm-2 col-xs-12 control-label" for="server1rconPass">RCON Pass</label>
+                            <label class="col-sm-2 col-xs-12 control-label" for="server1rconPass">RCON Pass (Optional)</label>
                             <div class="col-sm-4 col-xs-12">
                                 <input type="password" class="form-control" name="server1rconPass" id="server1rconPass" placeholder="password" />
                             </div>
@@ -137,11 +137,11 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-2 col-xs-12 control-label" for="server2rconPort">RCON Port</label>
+                            <label class="col-sm-2 col-xs-12 control-label" for="server2rconPort">RCON Port (Optional)</label>
                             <div class="col-sm-4 col-xs-12">
                                 <input type="text" class="form-control" name="server2rconPort" id="server2rconPort" placeholder="25575" />
                             </div>
-                            <label class="col-sm-2 col-xs-12 control-label" for="server2rconPass">RCON Pass</label>
+                            <label class="col-sm-2 col-xs-12 control-label" for="server2rconPass">RCON Pass (Optional)</label>
                             <div class="col-sm-4 col-xs-12">
                                 <input type="password" class="form-control" name="server2rconPass" id="server2rconPass" placeholder="password" />
                             </div>
@@ -196,11 +196,11 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-2 col-xs-12 control-label" for="server3rconPort">RCON Port</label>
+                            <label class="col-sm-2 col-xs-12 control-label" for="server3rconPort">RCON Port (Optional)</label>
                             <div class="col-sm-4 col-xs-12">
                                 <input type="text" class="form-control" name="server3rconPort" id="server3rconPort" placeholder="25575" />
                             </div>
-                            <label class="col-sm-2 col-xs-12 control-label" for="server3rconPass">RCON Pass</label>
+                            <label class="col-sm-2 col-xs-12 control-label" for="server3rconPass">RCON Pass (Optional)</label>
                             <div class="col-sm-4 col-xs-12">
                                 <input type="password" class="form-control" name="server3rconPass" id="server3rconPass" placeholder="password" />
                             </div>

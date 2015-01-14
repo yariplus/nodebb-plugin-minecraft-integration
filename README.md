@@ -1,6 +1,6 @@
 # Minecraft Essentials
 
-NodeBB widgets for Minecraft. Project aims to replicate and enhance widgets found on sites such as Enjin for use on a NodeBB forum.
+NodeBB widgets for Minecraft. Project aims to replicate and enhance widgets found on sites such as Enjin for use on a NodeBB forum. Widgets are designed to work without the use of server plugins or additional software whenever possible.
 
 ## Installation
 
@@ -28,13 +28,19 @@ Pulls MOTD, min/max players, version, and player avatars. Displays everything in
 
 #### Online Player Grid
 
+Displays avatars of the players who are currently online in a grid pattern.
+
 #### Players Graph
+
+Displays a graph showing online players over time.
 
 #### Top Players List
 
+Displays user avatars and related graphics in a list representing the players' approximate play time.
+
 #### Top Players Grid
 
-#### TPS Graph
+A graphical chart (Pie, Donut, or flat) representing the top players' approximate play time.
 
 #### Ping Graph
 
@@ -44,4 +50,4 @@ Pulls MOTD, min/max players, version, and player avatars. Displays everything in
 
 ## Contributing
 
-Contributing requires agreeing to the CLA declaring your contribution is CC0 licensed.
+Contributing requires agreeing to the CLA, making your contribution CC0 licensed.
