@@ -260,6 +260,7 @@
                                 }
                             }else{
                                 if (MinecraftWidgets.config.logErrors) console.log("ServerListPing failed" + err);
+                                serverStatusData.isServerOffline = true;
                             }
                             queryServer(serverStatusData, function(err, queryData) {
                                 serverStatusData = queryData;
@@ -420,7 +421,7 @@
                     }else{
                         getIP(theHost, function(err, theIP) {
                             if (err) {
-                                templateData.isServerOnline = false;
+                                templateData.isServerOffline = true;
                                 templateData.failHost = true;
                                 hostBack(err, templateData);
                             }else{
@@ -491,7 +492,7 @@
         socket.setTimeout(4000, function () {
             socket.destroy();
             if (MinecraftWidgets.config.logErrors) console.log("ServerListPing timed out when connecting to " + hostData.host + ":" + hostData.port);
-            templateData.isServerOnline = false;
+            templateData.isServerOffline = true;
             templateData.failPing = true;
             templateData.failTime = true;
         });
@@ -577,6 +578,7 @@
         socket.on('close', function(e) {
             if (e) {
                 if (MinecraftWidgets.config.logErrors) console.log("Connection was closed unexpectedly, was the packet malformed?");
+                templateData.isServerOffline = true;
             }
             dataBack(null, templateData);
         });
@@ -763,6 +765,19 @@
         if (templateData.pluginInfo && !(templateData.showPluginList)) templateData.failListPlugins = true;
         
         if (!templateData.onlinePlayers || !templateData.maxPlayers) templateData.showPlayerCount = false;
+        if (!templateData.version) {
+            templateData.showVersion = false;
+            if (templateData.isServerOnline) {
+                templateData.isServerOnline = false;
+                templateData.isServerRestarting = true;
+            }
+        }else{
+            templateData.showVersion = true;
+        }
+        
+        if (templateData.isServerOffline || templateData.isServerRestarting) {
+            templateData.failQuery = false;
+        }
         
         return templateData;
     }
