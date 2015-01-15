@@ -762,6 +762,8 @@
         
         if (templateData.pluginInfo && !(templateData.showPluginList)) templateData.failListPlugins = true;
         
+        if (!templateData.onlinePlayers || !templateData.maxPlayers) templateData.showPlayerCount = false;
+        
         return templateData;
     }
     
