@@ -281,7 +281,7 @@
 		$('#save').on('click', function() {
 			Settings.save('minecraft-essentials', $('.minecraftServers'), function() {
 				app.alert({
-					type: 'success',
+					type: 'danger',
 					alert_id: 'minecraft-essentials-saved',
 					title: 'Restart Required',
 					message: 'Please restart your NodeBB to have your changes take effect',
