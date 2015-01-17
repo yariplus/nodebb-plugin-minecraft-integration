@@ -215,8 +215,9 @@
 		<div class="panel panel-default">
 			<div class="panel-heading">Minecraft Essentials Configuration</div>
 			<div class="panel-body">
-				<button class="btn btn-primary" id="save">Save Settings</button><br />
-                <button class="btn btn-info" id="add-minecraft-server">Add a Server</button>
+				<button class="btn btn-primary" id="save">Save Settings</button><br /><br />
+                <button class="btn btn-info" id="add-minecraft-server">Add a Server</button><br /><br />
+                <button class="btn btn-danger" id="delete-minecraft-servers">Reset Server Data</button>
 			</div>
 		</div>
 	</div>
@@ -295,4 +296,35 @@
 			});
 		});
 	});
+    
+    require(['database'], function(Database) {
+        $('#delete-minecraft-servers').on('click', function() {
+			app.alert({
+                type: 'danger',
+                alert_id: 'alert-delete-minecraft-servers',
+                title: 'Reset all server data?',
+                message: 'Click to confirm.',
+                clickfn: function() {
+                    Database.delete("MCWES1", function(err) {
+                        if (err) alert("Error deleting MCWES1: " + err);
+                    });
+                    Database.delete("MCWES2", function(err) {
+                        if (err) alert("Error deleting MCWES2: " + err);
+                    });
+                    Database.delete("MCWES3", function(err) {
+                        if (err) alert("Error deleting MCWES3: " + err);
+                    });
+                    Database.delete("MCWES1onlinePlayers", function(err) {
+                        if (err) alert("Error deleting MCWES1onlinePlayers: " + err);
+                    });
+                    Database.delete("MCWES2onlinePlayers", function(err) {
+                        if (err) alert("Error deleting MCWES2onlinePlayers: " + err);
+                    });
+                    Database.delete("MCWES3onlinePlayers", function(err) {
+                        if (err) alert("Error deleting MCWES3onlinePlayers: " + err);
+                    });
+                }
+            });
+		});
+    });
 </script>

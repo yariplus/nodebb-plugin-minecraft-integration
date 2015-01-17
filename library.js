@@ -23,6 +23,27 @@
         MinecraftWidgets = {
             config: {},
 			onLoad: function(params, callback) {
+                if (MinecraftWidgets.resetServerData) {
+                    db.delete("MCWES1", function(err) {
+                        if (err) console.log("Error deleting MCWES1: " + err);
+                    });
+                    db.delete("MCWES2", function(err) {
+                        if (err) console.log("Error deleting MCWES2: " + err);
+                    });
+                    db.delete("MCWES3", function(err) {
+                        if (err) console.log("Error deleting MCWES3: " + err);
+                    });
+                    db.delete("MCWES1onlinePlayers", function(err) {
+                        if (err) console.log("Error deleting MCWES1onlinePlayers: " + err);
+                    });
+                    db.delete("MCWES2onlinePlayers", function(err) {
+                        if (err) console.log("Error deleting MCWES2onlinePlayers: " + err);
+                    });
+                    db.delete("MCWES3onlinePlayers", function(err) {
+                        if (err) console.log("Error deleting MCWES3onlinePlayers: " + err);
+                    });
+                }
+            
 				function render(req, res, next) {
 					res.render('admin/plugins/minecraft-essentials', {
 						themes: MinecraftWidgets.themes
@@ -192,10 +213,14 @@
                     if (err) {
                         if (MinecraftWidgets.config.logErrors) console.log("Database failed to find " + serverKey + ": " + err);
                     }
-                    if (!data) data = {};
-                    var serverStatusData = JSON.parse(data);
+                    if (!data) {
+                        data = {};
+                    }else{
+                        data = JSON.parse(data);
+                    }
+                    //console.log(data);
                     //if (MinecraftWidgets.config.logDebug) console.log("Server " + serverNumber + " has data: " + data );
-                    callback(err, serverStatusData, widget, widgetBack);
+                    callback(err, data, widget, widgetBack);
                 });
             },
             getOnlinePlayers: function(serverNumber, callback, widget, widgetBack) {
@@ -387,8 +412,10 @@
     };
     
     MinecraftWidgets.renderMCServerStatusDataBack = function(err, serverStatusData, widget, callback) {
-        if (err) {
+        if (err || !serverStatusData.serverName) {
             console.log(err);
+            callback(null, "");
+            return;
         }
         var html = MinecraftWidgets.templates['widgetMCServerStatus.tpl'], cid;
 		if (widget.data.cid) {
