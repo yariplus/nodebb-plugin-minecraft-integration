@@ -3,11 +3,13 @@
         <form class="form">
             <div class="row">
                 <fieldset>
-                    <h4 style="margin-top:0;">Server</h4>
-                    <div class="col-sm-12 col-xs-12">
-                        <div class="form-group">
-                            <label>Server Number </label> <input type="number" name="serverNumber" min="1" max="3">
-                        </div>
+                    <h4>Server</h4>
+                    <div>
+                        <select name="serverNumber">
+                            <!-- BEGIN serverConfigNames -->
+                            <option value="{serverConfigNames.serverNumber}">{serverConfigNames.configName}</option>
+                            <!-- END serverConfigNames -->
+                        </select>
                     </div>
                     
                     <div class="col-sm-12 col-md-12 col-xs-12">
@@ -56,19 +58,19 @@
                     <div class="col-sm-4 col-xs-12">
                         <div class="form-group">
                             <label>Color Server Name</label>
-                            <input id="colorSelector" class="form-control category_color" name="colorServerName" data-name="color" />
+                            <input class="form-control colorServerName" name="colorServerName" data-name="color" />
                         </div>
                     </div>
                     <div class="col-sm-4 col-xs-12">
                         <div class="form-group">
                             <label>Color Labels</label>
-                            <input id="colorLabels" class="form-control category_color" name="colorLabels" data-name="color" />
+                            <input class="form-control colorServerLabels" name="colorLabels" data-name="color" />
                         </div>
                     </div>
                     <div class="col-sm-4 col-xs-12">
                         <div class="form-group">
                             <label>Color Text</label>
-                            <input type="colorText" class="form-control category_color" name="colorText" data-name="color" />
+                            <input class="form-control colorServerText" name="colorText" data-name="color" />
                         </div>
                     </div>
                     <div class="col-sm-12 col-xs-12">
@@ -143,9 +145,9 @@
 </div>
 
 <script type="text/javascript">
-	require(['settings'], function(Settings) {
-		Settings.load('minecraft-essentials', $('.minecraftServers'), function(err, settings) {
-			
-		});
-	});
+
+$('.colorServerName').ColorPicker();
+$('.colorServerLabels').ColorPicker();
+$('.colorServerText').ColorPicker();
+
 </script>

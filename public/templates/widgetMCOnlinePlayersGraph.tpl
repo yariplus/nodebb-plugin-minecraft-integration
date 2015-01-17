@@ -29,7 +29,8 @@ var options = {
     datasetStroke : true,
     datasetStrokeWidth : 2,
     datasetFill : true,
-    legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<datasets.length; i++){%><li><span style=\"background-color:<%=datasets[i].lineColor%>\"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>"
+    scaleBeginAtZero: true,
+    tooltipTemplate: "<%if (label){%><%=label%>: <%}%><%= value %> Players Online"
 };
 
 var data = {

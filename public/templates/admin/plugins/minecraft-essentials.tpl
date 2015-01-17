@@ -232,6 +232,7 @@
                 'logErrors': false,
                 
                 'server1isDisabled': false,
+                'server1serverConfigName': 'Server One',
                 'server1serverName': 'Server One',
                 'server1isLegacy': false,
                 'server1serverHost': '0.0.0.0',
@@ -242,6 +243,7 @@
                 'server1rconPass': 'password',
                 
                 'server2isDisabled': false,
+                'server2serverConfigName': 'Server Two',
                 'server2serverName': 'Server Two',
                 'server2isLegacy': false,
                 'server2serverHost': '0.0.0.0',
@@ -252,6 +254,7 @@
                 'server2rconPass': 'password',
                 
                 'server3isDisabled': false,
+                'server3serverConfigName': 'Server Three',
                 'server3serverName': 'Server Three',
                 'server3isLegacy': false,
                 'server3serverHost': '0.0.0.0',

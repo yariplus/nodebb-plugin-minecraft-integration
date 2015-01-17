@@ -56,6 +56,7 @@
                         'logErrors': false,
                     
 						'server1isDisabled': false,
+                        'server1serverConfigName': 'Server One',
                         'server1serverName': 'Server One',
                         'server1isLegacy': false,
                         'server1serverHost': '0.0.0.0',
@@ -66,6 +67,7 @@
                         'server1rconPass': 'password',
                         
                         'server2isDisabled': false,
+                        'server2serverConfigName': 'Server Two',
                         'server2serverName': 'Server Two',
                         'server2isLegacy': false,
                         'server2serverHost': '0.0.0.0',
@@ -76,6 +78,7 @@
                         'server2rconPass': 'password',
                         
                         'server3isDisabled': false,
+                        'server3serverConfigName': 'Server Three',
                         'server3serverName': 'Server Three',
                         'server3isLegacy': false,
                         'server3serverHost': '0.0.0.0',
@@ -197,9 +200,9 @@
             },
             getOnlinePlayers: function(serverNumber, callback, widget, widgetBack) {
                 var serverKey = "MCWES" + serverNumber + "onlinePlayers";
-                console.log("Looking for key: " + serverKey);
+                //console.log("Looking for key: " + serverKey);
                 db.get(serverKey, function(err, data) {
-                    console.log(data);
+                    //console.log(data);
                     if (err) {
                         if (MinecraftWidgets.config.logErrors) console.log("Database failed to find " + serverKey + ": " + err);
                     }
@@ -302,18 +305,27 @@
                     if (serverStatusData.onlinePlayers) {
                         db.get("MCWES" + serverNumber + "onlinePlayers", function(err, data) {
                             if (err) {
-                                data = { 'onlinePlayers': [] };
+                                data = { 'onlinePlayers': [], 'time': [] };
                             }else{
                                 data = JSON.parse(data);
                             }
-                            if (!data || !data.onlinePlayers) data = { 'onlinePlayers': [] };
+                            if (!data) data = { 'onlinePlayers': [], 'time': []  };
+                            if (!data.onlinePlayers) data.onlinePlayers = [];
+                            if (!data.time) data.time = [];
+                            
+                            var time = new Date;
+                            time = time.toLocaleTimeString();
+                            time = time.slice(0,time.lastIndexOf(":"));
+                            if (data.time.push(time) > 30)
+                            {
+                                data.time.shift();
+                            }
                             if (data.onlinePlayers.push(serverStatusData.onlinePlayers) > 30)
                             {
                                 data.onlinePlayers.shift();
                             }
                             db.set("MCWES" + serverNumber + "onlinePlayers", JSON.stringify(data), function(err) {
                                 if (err) console.log(err);
-                                //console.log("MCWES" + serverNumber + "onlinePlayers is: " + data.onlinePlayers);
                             });
                         });
                     }
@@ -323,6 +335,7 @@
         
     MinecraftWidgets.renderMCOnlinePlayersGraph = function(widget, callback) {
         var serverNumber = widget.data.serverNumber;
+        
         if(isNaN(serverNumber) || parseInt(serverNumber) < 1 || parseInt(serverNumber) > 3) {
             serverNumber = "1";
         }
@@ -348,7 +361,11 @@
         
         data.labels = [];
         for (var i = 0; i < data.onlinePlayers.length; i++ ) {
-            data.labels.push("");
+            if (data.time && data.time[i]) {
+                data.labels.push(data.time[i]);
+            }else{
+                data.labels.unshift("");
+            }
         }
         
         data.onlinePlayers = JSON.stringify(data.onlinePlayers);
@@ -842,25 +859,36 @@
     }
     
     MinecraftWidgets.defineWidgets = function(widgets, callback) {
+        var data = { 'serverConfigNames': [] };
+        data.serverConfigNames.push({ 'configName': MinecraftWidgets.config["server1serverConfigName"], 'serverNumber': '1' });
+        data.serverConfigNames.push({ 'configName': MinecraftWidgets.config["server2serverConfigName"], 'serverNumber': '2' });
+        data.serverConfigNames.push({ 'configName': MinecraftWidgets.config["server3serverConfigName"], 'serverNumber': '3' });
+        
+        var html = MinecraftWidgets.templates['admin/adminWidgetMCOnlinePlayersGraph.tpl'];
+        var onlinePlayersGraphTemplate = templates.parse(html, data);
+        
+        html = MinecraftWidgets.templates['admin/adminWidgetMCServerStatus.tpl'];
+        var serverStatusTemplate = templates.parse(html, data);
+        
 		widgets = widgets.concat([
 			{
 				widget: "widgetMCServerStatus",
 				name: "Minecraft Server Status",
 				description: "Lists information on a Minecraft server.",
-				content: MinecraftWidgets.templates['admin/adminWidgetMCServerStatus.tpl']
+				content: serverStatusTemplate
 			},
             {
 				widget: "widgetMCOnlinePlayersGraph",
-				name: "Minecraft Online Players Graph (Testing)",
+				name: "Minecraft Online Players Graph",
 				description: "Shows a graph showing online players over time.",
-				content: MinecraftWidgets.templates['admin/adminWidgetMCOnlinePlayersGraph.tpl']
-			},
+				content: onlinePlayersGraphTemplate
+			}/*,
             {
 				widget: "widgetMCTopPlayersList",
 				name: "Minecraft Top Players List (Testing)",
 				description: "Lists avatars of players sorted by their approximate play time.",
-				content: MinecraftWidgets.templates['admin/adminWidgetMCTopPlayersList.tpl']
-			}
+				content: ""
+			}*/
 		]);
 
 		callback(null, widgets);
