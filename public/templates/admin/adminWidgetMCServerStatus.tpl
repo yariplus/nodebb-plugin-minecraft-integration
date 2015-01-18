@@ -10,130 +10,118 @@
             <input type="hidden" class="ajaxSelectSibling" name="serverNumber">
         </div>
     </div>
-    <div class="col-sm-12 col-md-12 col-xs-12">
-        <h4>Display Options</h4>
-        <div class="checkbox">
-            <label>
-                <input type="checkbox" name="showNameAlways"></input>
-                Always show server name?
-            </label>
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" name="showNameAlways">Always show server name?
+                </label>
+            </div>
         </div>
-        <div class="checkbox">
-            <label>
-                <input type="checkbox" name="parseFormatCodes" checked></input>
-                Parse format codes in Server Name and MOTD?
-            </label>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" name="parseFormatCodes" checked>Parse format codes in Server Name and MOTD?
+                </label>
+            </div>
         </div>
-        <div class="checkbox">
-            <label>
-                <input type="checkbox" name="showPlayerCount" checked></input>
-                Show (online/max) players?
-            </label>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" name="showIP">Show IP after Host? &nbsp; (&nbsp;e.g. "someserver.com (1.2.3.4)"&nbsp;)
+                </label>
+            </div>
         </div>
-        <div class="checkbox">
-            <label>
-                <input type="checkbox" name="showIP"></input>
-                Show IP after Host? &nbsp; (&nbsp;e.g. "someserver.com (1.2.3.4)"&nbsp;)
-            </label>
-        </div>
-        <div class="checkbox">
-            <label>
-                <input type="checkbox" name="showDebugIcons"></input>
-                Show debug icons?
-            </label>
-        </div>
-        <div class="checkbox">
-            <label>
-                <input type="checkbox" name="logDebug"></input>
-                Write everything to log?
-            </label>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" name="showDebugIcons">Show debug icons?
+                </label>
+            </div>
         </div>
     </div>
     
-    <div class="col-sm-12 col-xs-12">
-        <h4>Style Options</h4>
-    </div>
-    <div class="col-sm-4 col-xs-12">
-        <div class="form-group">
-            <label>Color Server Name</label>
-            <input type="text" class="form-control ajaxInputColorPicker" name="colorServerName"></input>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">Server Name Color</label>
+        <div class="col-sm-2">
+            <input type="text" class="form-control ajaxInputColorPicker" name="colorServerName">
         </div>
     </div>
-    <div class="col-sm-4 col-xs-12">
-        <div class="form-group">
-            <label>Color Labels</label>
-            <input type="text" class="form-control ajaxInputColorPicker" name="colorLabels"></input>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">Labels Color</label>
+        <div class="col-sm-2">
+            <input type="text" class="form-control ajaxInputColorPicker" name="colorLabels">
         </div>
     </div>
-    <div class="col-sm-4 col-xs-12">
-        <div class="form-group">
-            <label>Color Text</label>
-            <input type="text" class="form-control ajaxInputColorPicker" name="colorText"></input>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">Text Color</label>
+        <div class="col-sm-2">
+            <input type="text" class="form-control ajaxInputColorPicker" name="colorText">
         </div>
     </div>
     
-    <div class="col-sm-12 col-xs-12">
-        <h4>Custom Rows</h4>
-        <div class="form-inline">
+    <div class="form-group">
+        <label class="col-sm-2 control-label">Custom Row 1</label>
+        <div class="col-sm-2">
+            <input type="text" class="form-control" id="custom1orderafter" name="custom1orderafter" placeholder="Order After" />
+        </div>
+        <div class="col-sm-2">
+            <input type="text" class="form-control" id="custom1label" name="custom1label" placeholder="Label" />
+        </div>
+        <div class="col-sm-2">
+            <input type="text" class="form-control" id="custom1text" name="custom1text" placeholder="Text" />
+        </div>
+        <div class="col-sm-2">
             <div class="checkbox">
-            <label>
-                Enable
-                <input type="checkbox" name="usecustom1"></input>
-            </label>
-            </div>
-            <div class="form-group">
-                <label class="sr-only" for="custom1orderafter">Order after</label>
-                <input type="text" class="col-lg-1 form-control" id="custom1orderafter" name="custom1orderafter" placeholder="Order After" />
-            </div>
-            <div class="form-group">
-                <label class="sr-only" for="custom1label">Label</label>
-                <input type="text" class="col-lg-3 form-control" id="custom1label" name="custom1label" placeholder="Label" />
-            </div>
-            <div class="form-group">
-                <label class="sr-only" for="custom1text">Text</label>
-                <input type="text" class="col-lg-3 form-control" id="custom1text" name="custom1text" placeholder="Text" />
+                <label>
+                    <input type="checkbox" name="usecustom1">Enable
+                </label>
             </div>
         </div>
-
-        <div class="form-inline">
+    </div>
+    
+    <div class="form-group">
+        <label class="col-sm-2 control-label">Custom Row 2</label>
+        <div class="col-sm-2">
+            <input type="text" class="form-control" id="custom2orderafter" name="custom2orderafter" placeholder="Order After" />
+        </div>
+        <div class="col-sm-2">
+            <input type="text" class="form-control" id="custom2label" name="custom2label" placeholder="Label" />
+        </div>
+        <div class="col-sm-2">
+            <input type="text" class="form-control" id="custom2text" name="custom2text" placeholder="Text" />
+        </div>
+        <div class="col-sm-2">
             <div class="checkbox">
-            <label>
-                Enable
-                <input type="checkbox" name="usecustom2"></input>
-            </label>
-            </div>
-            <div class="form-group">
-                <label class="sr-only" for="custom2orderafter">Order after</label>
-                <input type="text" class="col-lg-1 form-control" id="custom2orderafter" name="custom2orderafter" placeholder="Order After" />
-            </div>
-            <div class="form-group">
-                <label class="sr-only" for="custom2label">Label</label>
-                <input type="text" class="col-lg-3 form-control" id="custom2label" name="custom2label" placeholder="Label" />
-            </div>
-            <div class="form-group">
-                <label class="sr-only" for="custom2text">Text</label>
-                <input type="text" class="col-lg-3 form-control" id="custom2text" name="custom2text" placeholder="Text" />
+                <label>
+                    <input type="checkbox" name="usecustom2">Enable
+                </label>
             </div>
         </div>
-
-        <div class="form-inline">
+    </div>
+    
+    <div class="form-group">
+        <label class="col-sm-2 control-label">Custom Row 3</label>
+        <div class="col-sm-2">
+            <input type="text" class="form-control" id="custom3orderafter" name="custom3orderafter" placeholder="Order After" />
+        </div>
+        <div class="col-sm-2">
+            <input type="text" class="form-control" id="custom3label" name="custom3label" placeholder="Label" />
+        </div>
+        <div class="col-sm-2">
+            <input type="text" class="form-control" id="custom3text" name="custom3text" placeholder="Text" />
+        </div>
+        <div class="col-sm-2">
             <div class="checkbox">
-            <label>
-                Enable
-                <input type="checkbox" name="usecustom3"></input>
-            </label>
-            </div>
-            <div class="form-group">
-                <label class="sr-only" for="custom3orderafter">Order after</label>
-                <input type="text" class="col-lg-1 form-control" id="custom3orderafter" name="custom3orderafter" placeholder="Order After" />
-            </div>
-            <div class="form-group">
-                <label class="sr-only" for="custom3label">Label</label>
-                <input type="text" class="col-lg-3 form-control" id="custom3label" name="custom3label" placeholder="Label" />
-            </div>
-            <div class="form-group">
-                <label class="sr-only" for="custom3text">Text</label>
-                <input type="text" class="col-lg-3 form-control" id="custom3text" name="custom3text" placeholder="Text" />
+                <label>
+                    <input type="checkbox" name="usecustom3">Enable
+                </label>
             </div>
         </div>
     </div>
