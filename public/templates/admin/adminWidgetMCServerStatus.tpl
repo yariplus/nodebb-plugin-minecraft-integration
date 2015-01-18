@@ -146,8 +146,6 @@
 
 <script type="text/javascript">
 
-$('.colorServerName').ColorPicker();
-$('.colorServerLabels').ColorPicker();
-$('.colorServerText').ColorPicker();
+$('.colorServerName, .colorServerLabels, .colorServerText').ColorPicker();
 
 </script>

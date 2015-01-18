@@ -207,6 +207,25 @@
                     }
                 });
             },
+            pushServerStatusData: function(data, callback) {
+                var serverKey = "MCWES" + ( data.serverNumber || "1");
+                db.get(serverKey, function(err, dbstring) {
+                    if (err) {
+                        if (MinecraftWidgets.config.logErrors) console.log("Database failed to find " + serverKey + ": " + err);
+                    }
+                    if (!data) data = {};
+                    if (!dbstring) {
+                        callback(true, null);
+                    }else{
+                        var serv = JSON.parse(dbstring);
+                        for (var prop in serv) {
+                            data[prop] = serv[prop];
+                        }
+                        //console.log(data);
+                        callback(null, data);
+                    }
+                });
+            },
             getServerStatusData: function(serverNumber, callback, widget, widgetBack) {
                 var serverKey = "MCWES" + serverNumber;
                 db.get(serverKey, function(err, data) {
@@ -365,6 +384,7 @@
             serverNumber = "1";
         }
         MinecraftWidgets.getOnlinePlayers(serverNumber, MinecraftWidgets.renderMCOnlinePlayersGraphDataBack, widget, callback);
+        
     };
     
     MinecraftWidgets.renderMCOnlinePlayersGraphDataBack = function(err, data, widget, callback) {
@@ -393,13 +413,17 @@
             }
         }
         
-        data.onlinePlayers = JSON.stringify(data.onlinePlayers);
+        var onlinePlayers = JSON.stringify(data.onlinePlayers);
         data.labels = JSON.stringify(data.labels);
         data.cid = widget.data.serverNumber;
-        data.title = "Online Players - " + MinecraftWidgets.config["server" + widget.data.serverNumber + "serverName"]
+        data.serverNumber = widget.data.serverNumber;
         
-        html = templates.parse(html, data);
-        callback(null, html);
+        MinecraftWidgets.pushServerStatusData(data, function(err, newdata) {
+            data.title = "Online Players - " + parseName( newdata.serverName || MinecraftWidgets.config["server" + widget.data.serverNumber + "serverName"] );
+            data.onlinePlayers = onlinePlayers;
+            html = templates.parse(html, data);
+            callback(null, html);
+        });
     };
 
 	MinecraftWidgets.renderMCServerStatus = function(widget, callback) {
@@ -408,26 +432,25 @@
             callback(null, "");
             return;
         }
-        MinecraftWidgets.getServerStatusData(serverNumber, MinecraftWidgets.renderMCServerStatusDataBack, widget, callback);
+        
+        MinecraftWidgets.pushServerStatusData(widget.data, function(err, serverStatusData){
+            if (err || !serverStatusData.serverName) {
+                console.log(err);
+                callback(null, "");
+                return;
+            }
+            var html = MinecraftWidgets.templates['widgetMCServerStatus.tpl'], cid;
+            if (widget.data.cid) {
+                cid = widget.data.cid;
+            } else {
+                var match = widget.area.url.match('[0-9]+');
+                cid = match ? match[0] : 1;
+            }
+            serverStatusData = readWidgetConfigMCServerStatus(widget, serverStatusData);
+            serverStatusData = parseStatusWidget(serverStatusData);
+            callback( null, templates.parse(html, serverStatusData) );
+        });
     };
-    
-    MinecraftWidgets.renderMCServerStatusDataBack = function(err, serverStatusData, widget, callback) {
-        if (err || !serverStatusData.serverName) {
-            console.log(err);
-            callback(null, "");
-            return;
-        }
-        var html = MinecraftWidgets.templates['widgetMCServerStatus.tpl'], cid;
-		if (widget.data.cid) {
-			cid = widget.data.cid;
-		} else {
-			var match = widget.area.url.match('[0-9]+');
-			cid = match ? match[0] : 1;
-		}
-        serverStatusData = readWidgetConfigMCServerStatus(widget, serverStatusData);
-        serverStatusData = parseStatusWidget(serverStatusData);
-        callback( null, templates.parse(html, serverStatusData) );
-    }
     
     function readWidgetConfigMCServerStatus(widget, templateData) {
         templateData.showIP = widget.data.showIP;
@@ -830,33 +853,8 @@
     
     function parseStatusWidget ( templateData ) {
         if (MinecraftWidgets.config.logTemplateDataChanges) console.log("Original name: " + templateData.serverName);
-        if ( templateData.parseFormatCodes ) {
-            var spancount = templateData.serverName.split("§").length - 1;
-            templateData.serverName = templateData.serverName.replace(/§0/g, "<span style=\"color:#000000;\">");
-            templateData.serverName = templateData.serverName.replace(/§1/g, "<span style=\"color:#0000AA;\">");
-            templateData.serverName = templateData.serverName.replace(/§2/g, "<span style=\"color:#00AA00;\">");
-            templateData.serverName = templateData.serverName.replace(/§3/g, "<span style=\"color:#00AAAA;\">");
-            templateData.serverName = templateData.serverName.replace(/§4/g, "<span style=\"color:#AA0000;\">");
-            templateData.serverName = templateData.serverName.replace(/§5/g, "<span style=\"color:#AA00AA;\">");
-            templateData.serverName = templateData.serverName.replace(/§6/g, "<span style=\"color:#FFAA00;\">");
-            templateData.serverName = templateData.serverName.replace(/§7/g, "<span style=\"color:#AAAAAA;\">");
-            templateData.serverName = templateData.serverName.replace(/§8/g, "<span style=\"color:#555555;\">");
-            templateData.serverName = templateData.serverName.replace(/§9/g, "<span style=\"color:#5555FF;\">");
-            templateData.serverName = templateData.serverName.replace(/§a/g, "<span style=\"color:#55FF55;\">");
-            templateData.serverName = templateData.serverName.replace(/§b/g, "<span style=\"color:#55FFFF;\">");
-            templateData.serverName = templateData.serverName.replace(/§c/g, "<span style=\"color:#FF5555;\">");
-            templateData.serverName = templateData.serverName.replace(/§d/g, "<span style=\"color:#FF55FF;\">");
-            templateData.serverName = templateData.serverName.replace(/§e/g, "<span style=\"color:#FFFF55;\">");
-            templateData.serverName = templateData.serverName.replace(/§f/g, "<span style=\"color:#FFFFFF;\">");
-            templateData.serverName = templateData.serverName.replace(/§k/g, "<span>");
-            templateData.serverName = templateData.serverName.replace(/§l/g, "<span style=\"font-weight: bold;\">");
-            templateData.serverName = templateData.serverName.replace(/§m/g, "<span style=\"text-decoration: line-through;\">");
-            templateData.serverName = templateData.serverName.replace(/§n/g, "<span style=\"text-decoration: underline;\">");
-            templateData.serverName = templateData.serverName.replace(/§o/g, "<span style=\"font-style: italic;\">");
-            templateData.serverName = templateData.serverName.replace(/§r/g, "<span style=\"font-style: normal; text-decoration: none; font-weight: normal; color:#000000;\">");
-            for ( var i = 0; i < spancount; i++ ) templateData.serverName = templateData.serverName + "</span>";
-            if (MinecraftWidgets.config.logTemplateDataChanges) console.log("New Name:" + templateData.serverName);
-        }
+        
+        if ( templateData.parseFormatCodes ) templateData.serverName = parseName(templateData.serverName);
         
         templateData.msgFailQuery = templateData.msgFailQuery.replace("{serverIP}", ( templateData.serverIP || templateData.serverHost ) );
         templateData.msgFailQuery = templateData.msgFailQuery.replace("{queryPort}", templateData.queryPort);
@@ -883,6 +881,35 @@
         }
         
         return templateData;
+    }
+    
+    function parseName ( name ) {
+        var spancount = name.split("§").length - 1;
+        name = name.replace(/§0/g, "<span style=\"color:#000000;\">");
+        name = name.replace(/§1/g, "<span style=\"color:#0000AA;\">");
+        name = name.replace(/§2/g, "<span style=\"color:#00AA00;\">");
+        name = name.replace(/§3/g, "<span style=\"color:#00AAAA;\">");
+        name = name.replace(/§4/g, "<span style=\"color:#AA0000;\">");
+        name = name.replace(/§5/g, "<span style=\"color:#AA00AA;\">");
+        name = name.replace(/§6/g, "<span style=\"color:#FFAA00;\">");
+        name = name.replace(/§7/g, "<span style=\"color:#AAAAAA;\">");
+        name = name.replace(/§8/g, "<span style=\"color:#555555;\">");
+        name = name.replace(/§9/g, "<span style=\"color:#5555FF;\">");
+        name = name.replace(/§a/g, "<span style=\"color:#55FF55;\">");
+        name = name.replace(/§b/g, "<span style=\"color:#55FFFF;\">");
+        name = name.replace(/§c/g, "<span style=\"color:#FF5555;\">");
+        name = name.replace(/§d/g, "<span style=\"color:#FF55FF;\">");
+        name = name.replace(/§e/g, "<span style=\"color:#FFFF55;\">");
+        name = name.replace(/§f/g, "<span style=\"color:#FFFFFF;\">");
+        name = name.replace(/§k/g, "<span>");
+        name = name.replace(/§l/g, "<span style=\"font-weight: bold;\">");
+        name = name.replace(/§m/g, "<span style=\"text-decoration: line-through;\">");
+        name = name.replace(/§n/g, "<span style=\"text-decoration: underline;\">");
+        name = name.replace(/§o/g, "<span style=\"font-style: italic;\">");
+        name = name.replace(/§r/g, "<span style=\"font-style: normal; text-decoration: none; font-weight: normal; color:#000000;\">");
+        for ( var i = 0; i < spancount; i++ ) name = name + "</span>";
+        if (MinecraftWidgets.config.logTemplateDataChanges) console.log("New Name:" + name);
+        return name;
     }
     
     MinecraftWidgets.defineWidgets = function(widgets, callback) {
