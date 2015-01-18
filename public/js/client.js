@@ -15,11 +15,11 @@ $(function () {
 
 $(document).ajaxComplete(function(event, response, settings) {
     if (settings.url == "/api/admin/extend/widgets") {
-        var i = 1;
-        $('input.mcweColorPicker').each(function(index){
+        $('input.ajaxInputColorPicker').each(function(index){
             var MCWECP = $(this);
-            MCWECP.attr('id','mcwecp-'+i);
-            $("#"+"mcwecp-"+i).ColorPicker({
+            var id = 'ajaxInputColorPicker' + index;
+            MCWECP.attr('id',id);
+            $('#'+id).ColorPicker({
                 color: MCWECP.val() || '#000',
                 onChange: function(hsb, hex) {
                     MCWECP.val(hex);
@@ -37,7 +37,14 @@ $(document).ajaxComplete(function(event, response, settings) {
             .bind('keyup', function(){
                 MCWECP.ColorPickerSetColor(MCWECP.val());
             });
-            i++;
+        });
+        
+        $('input.ajaxSelectSibling').each(function(index){
+            var MCWESN = $(this);
+            MCWESN.prev().val($(this).val());
+            MCWESN.prev().on('change', function(){
+                MCWESN.val($(this).val())
+            });
         });
     }
 });

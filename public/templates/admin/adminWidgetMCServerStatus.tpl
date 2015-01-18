@@ -1,11 +1,15 @@
-<div class="well horizontal-form" style="overflow: hidden;">
-    <label>Server</label>
-    <select class="form-control" name="serverNumber">
-        <!-- BEGIN serverConfigNames -->
-        <option value="{serverConfigNames.serverNumber}">{serverConfigNames.configName}</option>
-        <!-- END serverConfigNames -->
-    </select>
-    
+<div class="well form-horizontal" style="overflow:hidden;">
+    <div class="form-group">
+        <label class="col-sm-2 control-label">Server</label>
+        <div class="col-sm-8">
+            <select class="form-control">
+                <!-- BEGIN serverConfigNames -->
+                <option value="{serverConfigNames.serverNumber}">{serverConfigNames.configName}</option>
+                <!-- END serverConfigNames -->
+            </select>
+            <input type="hidden" class="ajaxSelectSibling" name="serverNumber">
+        </div>
+    </div>
     <div class="col-sm-12 col-md-12 col-xs-12">
         <h4>Display Options</h4>
         <div class="checkbox">
@@ -52,19 +56,19 @@
     <div class="col-sm-4 col-xs-12">
         <div class="form-group">
             <label>Color Server Name</label>
-            <input type="text" class="form-control mcweColorPicker" name="colorServerName"></input>
+            <input type="text" class="form-control ajaxInputColorPicker" name="colorServerName"></input>
         </div>
     </div>
     <div class="col-sm-4 col-xs-12">
         <div class="form-group">
             <label>Color Labels</label>
-            <input type="text" class="form-control mcweColorPicker" name="colorLabels"></input>
+            <input type="text" class="form-control ajaxInputColorPicker" name="colorLabels"></input>
         </div>
     </div>
     <div class="col-sm-4 col-xs-12">
         <div class="form-group">
             <label>Color Text</label>
-            <input type="text" class="form-control mcweColorPicker" name="colorText"></input>
+            <input type="text" class="form-control ajaxInputColorPicker" name="colorText"></input>
         </div>
     </div>
     
