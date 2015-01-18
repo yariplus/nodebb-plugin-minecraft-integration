@@ -24,18 +24,15 @@ $(document).ajaxComplete(function(event, response, settings) {
                 onChange: function(hsb, hex) {
                     MCWECP.val(hex);
                     MCWECP.css('color', '#' + hex);
-                    if(hsb.b > 75) {
-                        MCWECP.css('background', '#111111');
-                    }else{
-                        MCWECP.css('background', '#ffffff');
-                    }
                 },
                 onShow: function(colpkr) {
                     $(colpkr).css('z-index', 1051);
                 }
             })
+            .css('color', '#' + $(this).val())
             .bind('keyup', function(){
                 MCWECP.ColorPickerSetColor(MCWECP.val());
+                MCWECP.css('color', '#' + MCWECP.val());
             });
         });
         

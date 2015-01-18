@@ -48,19 +48,19 @@
     </div>
     
     <div class="form-group">
-        <label class="col-sm-2 control-label">Server Name Color</label>
-        <div class="col-sm-2">
+        <label class="col-md-12 col-lg-2 control-label">Name&nbsp;Color</label>
+        <div class="col-md-12 col-lg-2">
             <input type="text" class="form-control ajaxInputColorPicker" name="colorServerName">
         </div>
     </div>
     <div class="form-group">
-        <label class="col-sm-2 control-label">Labels Color</label>
+        <label class="col-sm-2 control-label">Labels&nbsp;Color</label>
         <div class="col-sm-2">
             <input type="text" class="form-control ajaxInputColorPicker" name="colorLabels">
         </div>
     </div>
     <div class="form-group">
-        <label class="col-sm-2 control-label">Text Color</label>
+        <label class="col-sm-2 control-label">Text&nbsp;Color</label>
         <div class="col-sm-2">
             <input type="text" class="form-control ajaxInputColorPicker" name="colorText">
         </div>

@@ -226,22 +226,6 @@
                     }
                 });
             },
-            getServerStatusData: function(serverNumber, callback, widget, widgetBack) {
-                var serverKey = "MCWES" + serverNumber;
-                db.get(serverKey, function(err, data) {
-                    if (err) {
-                        if (MinecraftWidgets.config.logErrors) console.log("Database failed to find " + serverKey + ": " + err);
-                    }
-                    if (!data) {
-                        data = {};
-                    }else{
-                        data = JSON.parse(data);
-                    }
-                    //console.log(data);
-                    //if (MinecraftWidgets.config.logDebug) console.log("Server " + serverNumber + " has data: " + data );
-                    callback(err, data, widget, widgetBack);
-                });
-            },
             getOnlinePlayers: function(serverNumber, callback, widget, widgetBack) {
                 var serverKey = "MCWES" + serverNumber + "onlinePlayers";
                 //console.log("Looking for key: " + serverKey);
@@ -647,13 +631,7 @@
                     var strLenOffset = varint.decode.bytes;
                     var resp = JSON.parse(data.toString("utf8", strLenOffset));
                     
-                    if (resp.description) {
-                        if (templateData.showNameAlways) {
-                            templateData.serverName = templateData.serverName + " ~" + resp.description + "~";
-                        }else{
-                            templateData.serverName = resp.description;
-                        }
-                    }
+                    if (resp.description) templateData.serverName = resp.description;
                     
                     //templateData.protocolVersion = resp.version.protocolVersion;
                     
@@ -774,13 +752,7 @@
                 if (MinecraftWidgets.config.logTemplateDataChanges) console.log("Applying FullStats for " + ( templateData.serverIP || templateData.serverHost ) + ":" + templateData.queryPort);
                 templateData.isServerOnline = true;
                 
-                if (stat.MOTD) {
-                    if (templateData.showNameAlways) {
-                        templateData.serverName = templateData.serverName + " ~" + stat.MOTD + "~";
-                    }else{
-                        templateData.serverName = stat.MOTD;
-                    }
-                }
+                if (stat.MOTD) templateData.serverName = stat.MOTD;
                 
                 if ( !templateData.players ) {
                     // Convert player objects to the way NodeBB likes.
@@ -853,8 +825,9 @@
     
     function parseStatusWidget ( templateData ) {
         if (MinecraftWidgets.config.logTemplateDataChanges) console.log("Original name: " + templateData.serverName);
-        
+        if ( templateData.showNameAlways ) templateData.serverName = MinecraftWidgets.config['server' + templateData.serverNumber + 'serverName'] + " ~" + templateData.serverName + "~";
         if ( templateData.parseFormatCodes ) templateData.serverName = parseName(templateData.serverName);
+        if (MinecraftWidgets.config.logTemplateDataChanges) console.log("New Name:" + templateData.serverName);
         
         templateData.msgFailQuery = templateData.msgFailQuery.replace("{serverIP}", ( templateData.serverIP || templateData.serverHost ) );
         templateData.msgFailQuery = templateData.msgFailQuery.replace("{queryPort}", templateData.queryPort);
@@ -908,7 +881,6 @@
         name = name.replace(/§o/g, "<span style=\"font-style: italic;\">");
         name = name.replace(/§r/g, "<span style=\"font-style: normal; text-decoration: none; font-weight: normal; color:#000000;\">");
         for ( var i = 0; i < spancount; i++ ) name = name + "</span>";
-        if (MinecraftWidgets.config.logTemplateDataChanges) console.log("New Name:" + name);
         return name;
     }
     
