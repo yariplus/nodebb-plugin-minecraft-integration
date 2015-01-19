@@ -363,12 +363,10 @@
         
     MinecraftWidgets.renderMCOnlinePlayersGraph = function(widget, callback) {
         var serverNumber = widget.data.serverNumber;
-        
         if(isNaN(serverNumber) || parseInt(serverNumber) < 1 || parseInt(serverNumber) > 3) {
             serverNumber = "1";
         }
         MinecraftWidgets.getOnlinePlayers(serverNumber, MinecraftWidgets.renderMCOnlinePlayersGraphDataBack, widget, callback);
-        
     };
     
     MinecraftWidgets.renderMCOnlinePlayersGraphDataBack = function(err, data, widget, callback) {
@@ -471,7 +469,6 @@
         if ( widget.data.usecustom1 ) readCustomRow( widget.data.custom1label, widget.data.custom1text, widget.data.custom1orderafter );
         if ( widget.data.usecustom2 ) readCustomRow( widget.data.custom2label, widget.data.custom2text, widget.data.custom2orderafter );
         if ( widget.data.usecustom3 ) readCustomRow( widget.data.custom3label, widget.data.custom3text, widget.data.custom3orderafter );
-        
         
         templateData.hasInvalidHost  = false;
         templateData.hasInvalidPort  = false;
