@@ -1,7 +1,7 @@
 <div class="col-xs-6 col-sm-6 col-md-6 col-lg-12">
 <div class="panel panel-default">
     <div class="panel-heading">{title}</div>
-    <div class="panel-body widget-topplayerslist" style="height:130px">
+    <div class="status-widget">
         <canvas id="mcCanvas{cid}" style="border:1px solid #000000;margin-left:auto;margin-right:auto;display:block;" width="280" height="100">Your browser does not support the HTML5 canvas tag.</canvas>
     </div>
 </div>

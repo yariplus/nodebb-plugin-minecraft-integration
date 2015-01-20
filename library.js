@@ -75,6 +75,7 @@
                         'serverUpdateDelay': '1',
                         'showDebugIcons': false,
                         'logErrors': false,
+                        'logDebug': false,
                     
 						'server1isDisabled': false,
                         'server1serverConfigName': 'Server One',
@@ -207,15 +208,16 @@
                     }
                 });
             },
-            pushServerStatusData: function(data, callback) {
-                // Push information from the database into the data object.
-                // The passed object should be { serverNumber: STRING, requestStats: [STRING] }
-                
-                var serverKey = "MCWES" + ( data.serverNumber || "1");
+            pushData: function(data, callback) {
+                // Get information from the database and push it into the data object.
+                // The passed object should be { serverNumber: STRING, requestData: [STRING] }
+                var requestData = data.requestData ? data.requestData[0] : "";
+                delete data.requestData;
+                var serverKey = "MCWES" + ( data.serverNumber || "1") + requestData;
+                // if (MinecraftWidgets.config.logDebug) 
+                if (MinecraftWidgets.config.logDebug) console.log("Looking for db key: " + serverKey);
                 db.get(serverKey, function(err, dbstring) {
-                    if (err) {
-                        if (MinecraftWidgets.config.logErrors) console.log("Database failed to find " + serverKey + ": " + err);
-                    }
+                    if (err) { if (MinecraftWidgets.config.logDebug) console.log("Database failed to find " + serverKey + ": " + err); }
                     if (!data) data = {};
                     if (!dbstring) {
                         callback(true, null);
@@ -224,24 +226,8 @@
                         for (var prop in serv) {
                             data[prop] = serv[prop];
                         }
-                        //console.log(data);
                         callback(null, data);
                     }
-                });
-            },
-            getOnlinePlayers: function(serverNumber, callback, widget, widgetBack) {
-                var serverKey = "MCWES" + serverNumber + "onlinePlayers";
-                //console.log("Looking for key: " + serverKey);
-                db.get(serverKey, function(err, data) {
-                    //console.log(data);
-                    if (err) {
-                        if (MinecraftWidgets.config.logErrors) console.log("Database failed to find " + serverKey + ": " + err);
-                    }
-                    //if (!data || !data.onlinePlayers) data = { 'onlinePlayers': [] };
-                    
-                    data = JSON.parse(data);
-                    //if (MinecraftWidgets.config.logErrors) console.log("Server " + serverNumber + " has data: " + data );
-                    callback(err, data, widget, widgetBack);
                 });
             },
             updateServerStatusData: function() {
@@ -385,47 +371,48 @@
                         
                         // Store playerStats
                         if (serverStatusData.players && serverStatusData.players.length > 0) {
-                            db.get("MCWES" + serverNumber + "playerStats", function(err, playerStats) {
+                            db.get("MCWES" + serverNumber + "playerStats", function(err, dbdata) {
                                 if (err) {
                                     // Populate the playerStatsData Object.
                                     // { PLAYER: { minutes: INT } }
-                                    playerStats = {};
+                                    dbdata = { playerStats: {} };
                                 }else{
                                     // Read the onlinePlayers Object.
                                     try {
-                                        playerStats = JSON.parse(playerStats);
+                                        //console.log("MCWES" + serverNumber + "playerStats = " + dbdata);
+                                        dbdata = JSON.parse(dbdata);
                                     }catch(err){
                                         console.log("MCWES" + serverNumber + "onlinePlayers JSON was malformed. Resetting.");
-                                        playerStats = {};
+                                        dbdata = { playerStats: {} };
                                     }
                                 }
                                 
                                 // Check for undefined data.
-                                if (!playerStats) playerStats = {};
+                                if (!dbdata) dbdata = { playerStats: {} };
                                 
                                 // Add minutes
                                 for (var i = 0; i < serverStatusData.players.length; i++) {
                                     //console.log("Storing: ");
                                     //console.log(serverStatusData.players[i].name);
-                                    if (playerStats.hasOwnProperty(serverStatusData.players[i].name)) {
-                                        if (playerStats[serverStatusData.players[i].name].minutes) {
+                                    if (dbdata.playerStats.hasOwnProperty(serverStatusData.players[i].name)) {
+                                        if (dbdata.playerStats[serverStatusData.players[i].name].minutes) {
                                             //console.log("Adding minutes.");
-                                            playerStats[serverStatusData.players[i].name].minutes++;
+                                            dbdata.playerStats[serverStatusData.players[i].name].minutes++;
                                         }else{
                                             //console.log("Couldn't find minutes.");
-                                            playerStats[serverStatusData.players[i].name].minutes = 1;
+                                            dbdata.playerStats[serverStatusData.players[i].name].minutes = 1;
                                         }
                                     }else{
                                         //console.log("It's a new player.");
-                                        playerStats[serverStatusData.players[i].name] = { minutes: 1 };
+                                        dbdata.playerStats[serverStatusData.players[i].name] = { minutes: 1 };
                                     }
                                 }
                                 
                                 //
-                                var playerStats = JSON.stringify(playerStats);
-                                console.log("Storing playerStats: " + playerStats);
+                                dbdata = JSON.stringify(dbdata);
+                                //console.log("Storing playerStats: " + playerStats);
                                 
-                                db.set("MCWES" + serverNumber + "playerStats", playerStats, function(err) {
+                                db.set("MCWES" + serverNumber + "playerStats", dbdata, function(err) {
                                     if (err) console.log(err);
                                 });
                             });
@@ -434,51 +421,97 @@
                 }
             }
         };
-        
-    MinecraftWidgets.renderMCOnlinePlayersGraph = function(widget, callback) {
-        var serverNumber = widget.data.serverNumber;
-        if(isNaN(serverNumber) || parseInt(serverNumber) < 1 || parseInt(serverNumber) > 3) {
-            serverNumber = "1";
-        }
-        MinecraftWidgets.getOnlinePlayers(serverNumber, MinecraftWidgets.renderMCOnlinePlayersGraphDataBack, widget, callback);
-    };
     
-    MinecraftWidgets.renderMCOnlinePlayersGraphDataBack = function(err, data, widget, callback) {
-        if (err) {
-            console.log(err);
-        }
-        if (!data) {
-            console.log("onlinePlayers data was null, skipping widget render.");
-            callback(null, "");
-            return;
-        }
-        var html = MinecraftWidgets.templates['widgetMCOnlinePlayersGraph.tpl'], cid;
-		if (widget.data.cid) {
-			cid = widget.data.cid;
-		} else {
-			var match = widget.area.url.match('[0-9]+');
-			cid = match ? match[0] : 1;
-		}
-        
-        data.labels = [];
-        for (var i = 0; i < data.onlinePlayers.length; i++ ) {
-            if (data.time && data.time[i]) {
-                data.labels.push(data.time[i]);
+    MinecraftWidgets.renderMCTopPlayersList = function(widget, callback) {
+        if(widget.data) {
+            if (parseInt(widget.data.serverNumber) < 1 || parseInt(widget.data.serverNumber) > 3) {
+                callback(null, "");
+                return;
+            }
+            if (!widget.data.showTopPlayers) {
+                widget.data.showTopPlayers = 5;
             }else{
-                data.labels.unshift("");
+                if (parseInt(widget.data.showTopPlayers) < 1 || parseInt(widget.data.showTopPlayers) > 30) widget.data.showTopPlayers = 5;
             }
         }
+        var html = MinecraftWidgets.templates['widgetMCTopPlayersList.tpl'], cid;
+        if (widget.data.cid) {
+            cid = widget.data.cid;
+        } else {
+            var match = widget.area.url.match('[0-9]+');
+            cid = match ? match[0] : 1;
+        }
         
-        var onlinePlayers = JSON.stringify(data.onlinePlayers);
-        data.labels = JSON.stringify(data.labels);
-        data.cid = widget.data.serverNumber;
-        data.serverNumber = widget.data.serverNumber;
+        MinecraftWidgets.pushData(widget.data, function(err, data) {
+            if (err || !data.serverName) {
+                console.log("status data error");
+                callback(null, "");
+                return;
+            }
+            data.requestData = ["playerStats"];
+            MinecraftWidgets.pushData(data, function(err, data) {
+                if (err || !data.serverName) {
+                    console.log("players data error");
+                    callback(null, "");
+                    return;
+                }
+                
+                data.topPlayers = [];
+                for (var player in data.playerStats) { data.topPlayers.push({ 'player': player, 'minutes': data.playerStats[player].minutes }); }
+                data.topPlayers.sort(function(a, b) { return b.minutes - a.minutes; });
+                while (data.topPlayers.length > data.showTopPlayers) data.topPlayers.pop();
+                
+                data.title = "Top Players - " + parseName( data.serverName || MinecraftWidgets.config["server" + widget.data.serverNumber + "serverName"] );
+                html = templates.parse(html, data);
+                callback(null, html);
+            });
+        });
+    }
         
-        MinecraftWidgets.pushServerStatusData(data, function(err, newdata) {
-            data.title = "Online Players - " + parseName( newdata.serverName || MinecraftWidgets.config["server" + widget.data.serverNumber + "serverName"] );
-            data.onlinePlayers = onlinePlayers;
-            html = templates.parse(html, data);
-            callback(null, html);
+    MinecraftWidgets.renderMCOnlinePlayersGraph = function(widget, callback) {
+        //widget.data.serverNumber = (isNaN(widget.data.serverNumber) || parseInt(widget.data.serverNumber) < 1 || parseInt(widget.data.serverNumber) > 3) ? widget.data.serverNumber : "1";
+        widget.data.requestData = [ "onlinePlayers" ];
+        MinecraftWidgets.pushData(widget.data, function(err, data){
+            if (err) {
+                console.log(err);
+            }
+            if (!data) {
+                console.log("onlinePlayers data was null, skipping widget render.");
+                callback(null, "");
+                return;
+            }
+            var html = MinecraftWidgets.templates['widgetMCOnlinePlayersGraph.tpl'], cid;
+            if (widget.data.cid) {
+                cid = widget.data.cid;
+            } else {
+                var match = widget.area.url.match('[0-9]+');
+                cid = match ? match[0] : 1;
+            }
+            
+            data.labels = [];
+            for (var i = 0; i < data.onlinePlayers.length; i++ ) {
+                if (data.time && data.time[i]) {
+                    data.labels.push(data.time[i]);
+                }else{
+                    data.labels.unshift("");
+                }
+            }
+            
+            var onlinePlayers = JSON.stringify(data.onlinePlayers);
+            data.labels = JSON.stringify(data.labels);
+            data.cid = widget.data.serverNumber;
+            data.serverNumber = widget.data.serverNumber;
+            
+            MinecraftWidgets.pushData(data, function(err, data) {
+                if (err || !data.serverName) {
+                    callback(null, "");
+                    return;
+                }
+                data.title = "Online Players - " + parseName( data.serverName || MinecraftWidgets.config["server" + widget.data.serverNumber + "serverName"] );
+                data.onlinePlayers = onlinePlayers;
+                html = templates.parse(html, data);
+                callback(null, html);
+            });
         });
     };
 
@@ -489,7 +522,7 @@
             return;
         }
         
-        MinecraftWidgets.pushServerStatusData(widget.data, function(err, serverStatusData){
+        MinecraftWidgets.pushData(widget.data, function(err, serverStatusData){
             if (err || !serverStatusData.serverName) {
                 callback(null, "");
                 return;
@@ -960,11 +993,9 @@
         data.serverConfigNames.push({ 'configName': MinecraftWidgets.config["server2serverConfigName"], 'serverNumber': '2' });
         data.serverConfigNames.push({ 'configName': MinecraftWidgets.config["server3serverConfigName"], 'serverNumber': '3' });
         
-        var html = MinecraftWidgets.templates['admin/adminWidgetMCOnlinePlayersGraph.tpl'];
-        var onlinePlayersGraphTemplate = templates.parse(html, data);
-        
-        html = MinecraftWidgets.templates['admin/adminWidgetMCServerStatus.tpl'];
-        var serverStatusTemplate = templates.parse(html, data);
+        var onlinePlayersGraphTemplate = templates.parse( MinecraftWidgets.templates['admin/adminWidgetMCOnlinePlayersGraph.tpl'], data);
+        var serverStatusTemplate = templates.parse( MinecraftWidgets.templates['admin/adminWidgetMCServerStatus.tpl'], data);
+        var templateTopPlayersList = templates.parse( MinecraftWidgets.templates['admin/adminWidgetMCTopPlayersList.tpl'], data);
         
 		widgets = widgets.concat([
 			{
@@ -978,13 +1009,13 @@
 				name: "Minecraft Online Players Graph",
 				description: "Shows a graph showing online players over time.",
 				content: onlinePlayersGraphTemplate
-			}/*,
+			},
             {
 				widget: "widgetMCTopPlayersList",
 				name: "Minecraft Top Players List (Testing)",
 				description: "Lists avatars of players sorted by their approximate play time.",
-				content: ""
-			}*/
+				content: templateTopPlayersList
+			}
 		]);
 
 		callback(null, widgets);

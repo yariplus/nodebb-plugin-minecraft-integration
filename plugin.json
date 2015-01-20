@@ -15,6 +15,7 @@
 		{ "hook": "filter:widgets.getWidgets", "method": "defineWidgets" },
         { "hook": "filter:widget.render:widgetMCOnlinePlayersGraph", "method": "renderMCOnlinePlayersGraph" },
 		{ "hook": "filter:widget.render:widgetMCServerStatus", "method": "renderMCServerStatus" },
+        { "hook": "filter:widget.render:widgetMCTopPlayersList", "method": "renderMCTopPlayersList" },
         { "hook": "filter:admin.header.build", "method": "admin.menu" }
 	],
 	"templates": "./public/templates",
