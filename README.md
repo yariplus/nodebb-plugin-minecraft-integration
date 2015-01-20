@@ -1,11 +1,16 @@
-**A Wiki is currently in development. For detailed information on the project and setting up your widgets, visit the project's topic on the NodeBB Forums.
-[https://community.nodebb.org/topic/3559/nodebb-widget-minecraft-essentials-minecraft-widgets](http://example.com/ "The NodeBB Forums")**
+**A Wiki is currently in development. For detailed information on the project and setting up your widgets, visit the project's topic on the NodeBB Forums.**
+
+**[https://community.nodebb.org/topic/3559](https://community.nodebb.org/topic/3559 "The NodeBB Forums")**
 
 # Minecraft Essentials
 
 NodeBB widgets and extensions for Minecraft. Project aims to reproduce and enhance widgets found on sites such as Enjin (XenForo) for use on a NodeBB forum. Widgets are designed to work without the use of server plugins or additional software whenever possible.
 
 ## Installation
+
+The recommended installation method is using the **Extend->Plugins** page on your Admin Control Panel by typing the name "nodebb-widget-minecraft-essentials" into the search box and clicking install.
+
+Alternatively, you can use the following command in your NodeBB base directory.
 
     npm install nodebb-widget-minecraft-essentials
 
@@ -17,7 +22,7 @@ NodeBB widgets and extensions for Minecraft. Project aims to reproduce and enhan
 
 ## Configuration
 
-[https://community.nodebb.org/topic/3559/nodebb-widget-minecraft-essentials-minecraft-widgets](http://example.com/ "The NodeBB Forums")
+[https://community.nodebb.org/topic/3559](https://community.nodebb.org/topic/3559 "The NodeBB Forums")
 
 ## Widgets
 
