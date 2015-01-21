@@ -23,7 +23,14 @@
                             <div class="col-sm-3 col-xs-12">
                                 <div class="checkbox">
                                     <label for="logErrors">
-                                        <input type="checkbox" name="logErrors" id="logErrors" /> Log Debug Messages?
+                                        <input type="checkbox" name="logErrors" id="logErrors" /> Log Errors?
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-sm-3 col-xs-12">
+                                <div class="checkbox">
+                                    <label for="logDebug">
+                                        <input type="checkbox" name="logDebug" id="logDebug" /> Log Debug Messages?
                                     </label>
                                 </div>
                             </div>
@@ -231,6 +238,7 @@
                 'serverUpdateDelay': '1',
                 'showDebugIcons': false,
                 'logErrors': false,
+                'logDebug': false,
                 
                 'server1isDisabled': false,
                 'server1serverConfigName': 'Server One',

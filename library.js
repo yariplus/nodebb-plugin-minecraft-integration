@@ -62,7 +62,7 @@
 				MinecraftWidgets.init(params);
 				MinecraftWidgets.loadThemes();
                 //setTimeout(MinecraftWidgets.logServers, 20000);
-                setTimeout(MinecraftWidgets.updateServerStatusData, 60000);
+                setTimeout(MinecraftWidgets.updateServers, 60000);
 				callback();
 			},
 			init: function(params) {
@@ -124,13 +124,13 @@
                                 field == 'logErrors' || field == 'logDebug' || field == 'logInfo' || field == 'logTemplateData') {
 								_self.config[field] = options[field] === 'on' ? true : false;
 							} else {
-								_self.config[field] = options[field];
+								_self.config[field] = options[field] || defaults[field];
 							}
 						}
 					}
                     
-                    for (var property in options) {
-                        console.log(property + ": " + options[property]);
+                    for (var property in _self.config) {
+                        console.log(property + ": " + _self.config[property]);
                     }
 				});
             
@@ -230,55 +230,55 @@
                     }
                 });
             },
-            updateServerStatusData: function() {
+            updateServers: function() {
                 // Read from plugin config
-                var serverStatusData;
+                var data;
                 for (var serverNumber = 1; serverNumber <= 3; serverNumber++) {
                     if (MinecraftWidgets.config['server' + serverNumber + 'isDisabled']) continue;
-                    serverStatusData = {};
-                    // 
-                    serverStatusData.serverName = MinecraftWidgets.config['server' + serverNumber + 'serverName'];
-                    serverStatusData.serverHost = MinecraftWidgets.config['server' + serverNumber + 'serverHost'];
-                    serverStatusData.serverPort = MinecraftWidgets.config['server' + serverNumber + 'serverPort'];
-                    serverStatusData.queryPort  = MinecraftWidgets.config['server' + serverNumber + 'queryPort'];
-                    serverStatusData.rconPort   = MinecraftWidgets.config['server' + serverNumber + 'rconPort'];
-                    serverStatusData.rconPass   = MinecraftWidgets.config['server' + serverNumber + 'rconPass'];
+                    data = {};
+                    data.serverNumber = serverNumber;
+                    data.serverName = MinecraftWidgets.config['server' + serverNumber + 'serverName'] || "Server " + serverNumber;
+                    data.serverHost = MinecraftWidgets.config['server' + serverNumber + 'serverHost'] || "0.0.0.0";
+                    data.serverPort = MinecraftWidgets.config['server' + serverNumber + 'serverPort'] || "25565";
+                    data.queryPort  = MinecraftWidgets.config['server' + serverNumber + 'queryPort']  || "25565";
+                    data.rconPort   = MinecraftWidgets.config['server' + serverNumber + 'rconPort']   || "25575";
+                    data.rconPass   = MinecraftWidgets.config['server' + serverNumber + 'rconPass']   || "password";
                     
                     // See if there is a port in the host input
-                    var hostarray = serverStatusData.serverHost.split(/:/g);
+                    var hostarray = data.serverHost.split(/:/g);
                     if ( hostarray.length > 1 ) {
                         if ( hostarray.length == 2 ) {
-                            if ( !serverStatusData.serverPort ) {
-                                if (MinecraftWidgets.config.logErrors) console.log("Configuration error: Two ports entered. Using (" + hostarray[1] + ") and ignoring (" + serverStatusData.serverPort + ").");
-                                serverStatusData.hasInvalidPort = true;
+                            if ( !data.serverPort ) {
+                                if (MinecraftWidgets.config.logErrors) console.log("Configuration error: Two ports entered. Using (" + hostarray[1] + ") and ignoring (" + data.serverPort + ").");
+                                data.hasInvalidPort = true;
                             }
-                            serverStatusData.serverHost = hostarray[0];
-                            serverStatusData.serverPort = hostarray[1];
+                            data.serverHost = hostarray[0];
+                            data.serverPort = hostarray[1];
                         } else {
-                            if (MinecraftWidgets.config.logErrors) console.log("Configuration error: Invalid host (" + serverStatusData.serverHost + "). Too many \":\", using default \"0.0.0.0\". ");
-                            serverStatusData.serverHost = "0.0.0.0";
-                            serverStatusData.hasInvalidHost = true;
+                            if (MinecraftWidgets.config.logErrors) console.log("Configuration error: Invalid host (" + data.serverHost + "). Too many \":\", using default \"0.0.0.0\". ");
+                            data.serverHost = "0.0.0.0";
+                            data.hasInvalidHost = true;
                         }
                     }
                     
-                    if (MinecraftWidgets.config.logErrors) console.log("Updating server status for " + ( serverStatusData.serverName || "Unnamed Server" ) + " (Server " + serverNumber + ")\nConfigured Host: " + ( serverStatusData.serverHost || "default" ) + "   Port: " + ( serverStatusData.serverPort || "default" ) + "   Query: " + ( serverStatusData.queryPort || "default" ));
+                    if (MinecraftWidgets.config.logDebug) console.log("Updating server status for " + ( data.serverName || "Unnamed Server" ) + " (Server " + serverNumber + ")\nConfigured Host: " + ( data.serverHost || "default" ) + "   Port: " + ( data.serverPort || "default" ) + "   Query: " + ( data.queryPort || "default" ));
                     
-                    MinecraftWidgets.remoteServerStatusData(serverStatusData, serverNumber, MinecraftWidgets.storeServerStatusData);
+                    MinecraftWidgets.pushServerStatusPing(data, MinecraftWidgets.updateDatabase);
+                    
                 }
                 setTimeout(MinecraftWidgets.updateServerStatusData, 60000);
             },
-            remoteServerStatusData: function(serverStatusData, serverNumber, callback) {
-                verifyHost(serverStatusData, function(err, pingData) {
-                    serverStatusData = pingData;
-                    if (MinecraftWidgets.config.logErrors) console.log("Resolved host " + ( serverStatusData.serverHost || "localhost" ) + " to " + serverStatusData.serverIP + ":" + serverStatusData.serverPort + " query at port " + serverStatusData.queryPort);
-                    if (MinecraftWidgets.config['server'+serverNumber+'isLegacy']) {
-                        if (MinecraftWidgets.config.logDebug) console.log("Using legacy ServerListPing for " + serverStatusData.serverHost); 
-                        mcping(serverStatusData.serverIP, parseInt(serverStatusData.serverPort), function(err, resp) {
+            pushServerStatusPing: function(data, callback) {
+                verifyHost(data, function(err, data) {
+                    if (MinecraftWidgets.config.logErrors) console.log("Resolved host " + ( data.serverHost || "localhost" ) + " to " + data.serverIP + ":" + data.serverPort + " query at port " + data.queryPort);
+                    if (MinecraftWidgets.config['server'+data.serverNumber+'isLegacy']) {
+                        if (MinecraftWidgets.config.logDebug) console.log("Using legacy ServerListPing for " + data.serverHost); 
+                        mcping(data.serverIP, parseInt(data.serverPort), function(err, resp) {
                             if (!err) {
-                                serverStatusData.onlinePlayers = resp.num_players;
-                                serverStatusData.maxPlayers = resp.max_players;
-                                serverStatusData.isServerOnline = true;
-                                serverStatusData.serverName = resp.server_name;
+                                data.onlinePlayers = resp.num_players;
+                                data.maxPlayers = resp.max_players;
+                                data.isServerOnline = true;
+                                data.serverName = resp.server_name;
                               
                                 if(resp.modinfo) {
                                     templateData.modInfo = true;
@@ -295,56 +295,54 @@
                                 }
                             }else{
                                 if (MinecraftWidgets.config.logErrors) console.log("ServerListPing failed" + err);
-                                serverStatusData.isServerOffline = true;
+                                data.isServerOnline = false;
                             }
-                            queryServer(serverStatusData, function(err, queryData) {
-                                serverStatusData = queryData;
-                                callback( serverStatusData, serverNumber );
+                            queryServer(data, function(err, queryData) {
+                                data = queryData;
+                                callback( data );
                             });
                         });
                     }else{
-                        readServerListPing(serverStatusData, modernRequestBack, null, function(err, responseData) {
-                            serverStatusData = responseData;
-                            queryServer(serverStatusData, function(err, queryData) {
-                                serverStatusData = queryData;
-                                callback( serverStatusData, serverNumber );
+                        readServerListPing(data, function(err, data) {
+                            queryServer(data, function(err, data) {
+                                callback( data );
                             });
                         });
                     }
                 });
             },
-            storeServerStatusData: function(serverStatusData, serverNumber) {
-                if ( serverStatusData && serverNumber ) {
+            updateDatabase: function( data ) {
+                if ( data && data.serverNumber ) {
                     //console.log("Writing server " + serverNumber + " to db...");
                     //
-                    // JSON serverStatusData {
+                    // JSON data {
                     // 
                     // }
                 
-                    db.set("MCWES" + serverNumber, JSON.stringify(serverStatusData), function(err){
+                    db.set("MCWES" + data.serverNumber, JSON.stringify(data), function(err){
                             if (err) console.log(err);
                     });
                     
-                    if (serverStatusData.onlinePlayers) {
-                        db.get("MCWES" + serverNumber + "onlinePlayers", function(err, data) {
+                    if (data.onlinePlayers) {
+                        db.get("MCWES" + data.serverNumber + "onlinePlayers", function(err, onlinePlayersData) {
                             if (err) {
                                 // Populate the onlinePlayers Object.
-                                data = { 'onlinePlayers': [], 'time': [], 'players': [] };
+                                onlinePlayersData = { 'onlinePlayers': [], 'time': [], 'players': [] };
                             }else{
-                                // Read the onlinePlayers Object.
+                                // Read the onlinePlayersData Object.
                                 try {
-                                    data = JSON.parse(data);
+                                    onlinePlayersData = JSON.parse(onlinePlayersData);
                                 }catch(err){
-                                    console.log("MCWES" + serverNumber + "onlinePlayers JSON was malformed. Resetting.");
-                                    data = { 'onlinePlayers': [], 'time': [], 'players': [] };
+                                    console.log("MCWES" + data.serverNumber + "onlinePlayersData JSON was malformed. Resetting.");
+                                    onlinePlayersData = { 'onlinePlayers': [], 'time': [], 'players': [] };
                                 }
                             }
                             
-                            // Check for undefined data.
-                            if (!data) data = { 'onlinePlayers': [], 'time': [], 'players': [] };
-                            if (!data.onlinePlayers) data.onlinePlayers = [];
-                            if (!data.time) data.time = [];
-                            if (!data.players) data.players = [];
+                            // Check for undefined onlinePlayersData.
+                            if (!onlinePlayersData) onlinePlayersData = { 'onlinePlayers': [], 'time': [], 'players': [] };
+                            if (!onlinePlayersData.onlinePlayers) onlinePlayersData.onlinePlayers = [];
+                            if (!onlinePlayersData.time) onlinePlayersData.time = [];
+                            if (!onlinePlayersData.players) onlinePlayersData.players = [];
                             
                             // TODO: Fix this to be locale independent.
                             var time = new Date;
@@ -352,26 +350,26 @@
                             time = time.slice(0,time.lastIndexOf(":"));
                             
                             // TODO: Add configurable limit.
-                            if (data.time.push(time) > 30)
+                            if (onlinePlayersData.time.push(time) > 30)
                             {
-                                data.time.shift();
+                                onlinePlayersData.time.shift();
                             }
-                            if (data.onlinePlayers.push(serverStatusData.onlinePlayers) > 30)
+                            if (onlinePlayersData.onlinePlayers.push(data.onlinePlayers) > 30)
                             {
-                                data.onlinePlayers.shift();
+                                onlinePlayersData.onlinePlayers.shift();
                             }
-                            if (data.players.push(serverStatusData.players || []) > 30) {
-                                data.players.shift();
+                            if (onlinePlayersData.players.push(data.players || []) > 30) {
+                                onlinePlayersData.players.shift();
                             }
                             
-                            db.set("MCWES" + serverNumber + "onlinePlayers", JSON.stringify(data), function(err) {
+                            db.set("MCWES" + data.serverNumber + "onlinePlayers", JSON.stringify(onlinePlayersData), function(err) {
                                 if (err) console.log(err);
                             });
                         });
                         
                         // Store playerStats
-                        if (serverStatusData.players && serverStatusData.players.length > 0) {
-                            db.get("MCWES" + serverNumber + "playerStats", function(err, dbdata) {
+                        if (data.players && data.players.length > 0) {
+                            db.get("MCWES" + data.serverNumber + "playerStats", function(err, dbdata) {
                                 if (err) {
                                     // Populate the playerStatsData Object.
                                     // { PLAYER: { minutes: INT } }
@@ -379,10 +377,10 @@
                                 }else{
                                     // Read the onlinePlayers Object.
                                     try {
-                                        //console.log("MCWES" + serverNumber + "playerStats = " + dbdata);
+                                        //console.log("MCWES" + data.serverNumber + "playerStats = " + dbdata);
                                         dbdata = JSON.parse(dbdata);
                                     }catch(err){
-                                        console.log("MCWES" + serverNumber + "onlinePlayers JSON was malformed. Resetting.");
+                                        console.log("MCWES" + data.serverNumber + "onlinePlayers JSON was malformed. Resetting.");
                                         dbdata = { playerStats: {} };
                                     }
                                 }
@@ -391,20 +389,20 @@
                                 if (!dbdata) dbdata = { playerStats: {} };
                                 
                                 // Add minutes
-                                for (var i = 0; i < serverStatusData.players.length; i++) {
+                                for (var i = 0; i < data.players.length; i++) {
                                     //console.log("Storing: ");
-                                    //console.log(serverStatusData.players[i].name);
-                                    if (dbdata.playerStats.hasOwnProperty(serverStatusData.players[i].name)) {
-                                        if (dbdata.playerStats[serverStatusData.players[i].name].minutes) {
+                                    //console.log(data.players[i].name);
+                                    if (dbdata.playerStats.hasOwnProperty(data.players[i].name)) {
+                                        if (dbdata.playerStats[data.players[i].name].minutes) {
                                             //console.log("Adding minutes.");
-                                            dbdata.playerStats[serverStatusData.players[i].name].minutes++;
+                                            dbdata.playerStats[data.players[i].name].minutes++;
                                         }else{
                                             //console.log("Couldn't find minutes.");
-                                            dbdata.playerStats[serverStatusData.players[i].name].minutes = 1;
+                                            dbdata.playerStats[data.players[i].name].minutes = 1;
                                         }
                                     }else{
                                         //console.log("It's a new player.");
-                                        dbdata.playerStats[serverStatusData.players[i].name] = { minutes: 1 };
+                                        dbdata.playerStats[data.players[i].name] = { minutes: 1 };
                                     }
                                 }
                                 
@@ -412,7 +410,7 @@
                                 dbdata = JSON.stringify(dbdata);
                                 //console.log("Storing playerStats: " + playerStats);
                                 
-                                db.set("MCWES" + serverNumber + "playerStats", dbdata, function(err) {
+                                db.set("MCWES" + data.serverNumber + "playerStats", dbdata, function(err) {
                                     if (err) console.log(err);
                                 });
                             });
@@ -634,7 +632,7 @@
                     }else{
                         getIP(theHost, function(err, theIP) {
                             if (err) {
-                                templateData.isServerOffline = true;
+                                templateData.isServerOnline = false;
                                 templateData.failHost = true;
                                 hostBack(err, templateData);
                             }else{
@@ -694,78 +692,78 @@
         }
     };
     
-    function readServerListPing(templateData, requestBack, responseBack, dataBack) {
-        var hostData = { 'host':( templateData.serverIP || templateData.serverHost ), 'port':templateData.serverPort };
-        if (MinecraftWidgets.config.logErrors) console.log("Sending ServerListPing to " + hostData.host + ":" + hostData.port);
+    function readServerListPing(data, callback) {
+        var hostData = { 'host':( data.serverIP || data.serverHost ), 'port':data.serverPort };
+        if (MinecraftWidgets.config.logDebug) console.log("Sending ServerListPing to " + hostData.host + ":" + hostData.port);
         var dataLength = -1, currentLength = 0, chunks = [];
         var socket = net.connect( hostData, function() {
-            requestBack(socket, hostData);
+            modernRequestBack(socket, hostData);
         });
         
         socket.setTimeout(4000, function () {
             socket.destroy();
             if (MinecraftWidgets.config.logErrors) console.log("ServerListPing timed out when connecting to " + hostData.host + ":" + hostData.port);
-            templateData.isServerOffline = true;
-            templateData.failPing = true;
-            templateData.failTime = true;
+            data.isServerOnline = false;
+            data.failPing = true;
+            data.failTime = true;
         });
         
-        socket.on('data', function(data) {
+        socket.on('data', function(serverStatusPingData) {
             if (MinecraftWidgets.config.logErrors) console.log("ServerListPing packet received from " + hostData.host + ":" + hostData.port);
-            templateData.isServerOnline = true;
+            data.isServerOnline = true;
             
             try {
                 if(dataLength < 0) {
-                    dataLength = varint.decode(data);
-                    data = data.slice(varint.decode.bytes);
-                    if(data[0] != 0x00) {
+                    dataLength = varint.decode(serverStatusPingData);
+                    serverStatusPingData = serverStatusPingData.slice(varint.decode.bytes);
+                    if(serverStatusPingData[0] != 0x00) {
                         console.log("Bad handshake.");
                         socket.destroy();
                     }
-                    data = data.slice(1);
+                    serverStatusPingData = serverStatusPingData.slice(1);
                     currentLength++;
                 }
-                currentLength += data.length;
-                chunks.push(data);
+                currentLength += serverStatusPingData.length;
+                chunks.push(serverStatusPingData);
 
                 if(currentLength >= dataLength) {
-                    data = Buffer.concat(chunks);
-                    var strLen = varint.decode(data);
+                    serverStatusPingData = Buffer.concat(chunks);
+                    var strLen = varint.decode(serverStatusPingData);
                     var strLenOffset = varint.decode.bytes;
-                    var resp = JSON.parse(data.toString("utf8", strLenOffset));
+                    var resp = JSON.parse(serverStatusPingData.toString("utf8", strLenOffset));
                     
-                    if (resp.description) templateData.serverName = resp.description;
+                    if (resp.description) data.serverName = resp.description;
                     
-                    //templateData.protocolVersion = resp.version.protocolVersion;
+                    //data.protocolVersion = resp.version.protocolVersion;
                     
                     var versionSplit = resp.version.name.split(/ /g);
                     if (versionSplit.length > 1) {
-                        templateData.version = versionSplit.pop();
+                        data.version = versionSplit.pop();
                         if (versionSplit[0].search("Bukkit") >= 0 || versionSplit[0].search("MCPC") >= 0 || versionSplit[0].search("Cauldron") >= 0) {
-                            templateData.pluginInfo = true;
+                            data.pluginInfo = true;
                         }
                     }else{
-                        templateData.version = versionSplit[0];
+                        data.version = versionSplit[0];
                     }
                   
-                    templateData.onlinePlayers = resp.players.online;
-                    templateData.maxPlayers = resp.players.max;
+                    data.onlinePlayers = resp.players.online;
+                    data.maxPlayers = resp.players.max;
                     
                     if(resp.players.sample) {
-                        //templateData.players = resp.players.sample;
+                        //data.players = resp.players.sample;
                     }
-                    if(resp.favicon) templateData.icon = resp.favicon;
+                    if(resp.favicon) data.icon = resp.favicon;
                   
                     if(resp.modinfo) {
-                        templateData.modInfo = true;
+                        data.modInfo = true;
                         var fullModList = resp.modinfo.modList.slice(2);
                         var modNames = [];
-                        templateData.modList = [];
+                        data.modList = [];
                         for (var i = 0; i < fullModList.length; i++) {
                             var pipedMod = fullModList[i].modid.split("|")[0];
                             if (modNames.indexOf(pipedMod) == -1) {
                                 modNames.push(pipedMod);
-                                templateData.modList.push({modid: pipedMod});
+                                data.modList.push({modid: pipedMod});
                             }
                         }
                     }
@@ -785,9 +783,9 @@
         socket.on('close', function(e) {
             if (e) {
                 if (MinecraftWidgets.config.logErrors) console.log("Connection was closed unexpectedly, was the packet malformed?");
-                templateData.isServerOffline = true;
+                data.isServerOnline = false;
             }
-            dataBack(null, templateData);
+            callback(null, data);
         });
     };
     
@@ -952,7 +950,7 @@
             templateData.showVersion = true;
         }
         
-        if (templateData.isServerOffline || templateData.isServerRestarting) {
+        if (!templateData.isServerOnline || templateData.isServerRestarting) {
             templateData.failQuery = false;
         }
         
