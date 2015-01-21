@@ -247,7 +247,7 @@
                 'server1serverHost': '0.0.0.0',
                 'server1serverIP': '0.0.0.0',
                 'server1serverPort': '25565',
-                'server1queryPort': '25565',
+                'server1queryPort': '',
                 'server1rconPort': '25575',
                 'server1rconPass': 'password',
                 
@@ -258,7 +258,7 @@
                 'server2serverHost': '0.0.0.0',
                 'server2serverIP': '0.0.0.0',
                 'server2serverPort': '25565',
-                'server2queryPort': '25565',
+                'server2queryPort': '',
                 'server2rconPort': '25575',
                 'server2rconPass': 'password',
                 
@@ -269,7 +269,7 @@
                 'server3serverHost': '0.0.0.0',
                 'server3serverIP': '0.0.0.0',
                 'server3serverPort': '25565',
-                'server3queryPort': '25565',
+                'server3queryPort': '',
                 'server3rconPort': '25575',
                 'server3rconPass': 'password'
 			};

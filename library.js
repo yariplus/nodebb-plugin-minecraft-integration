@@ -84,7 +84,7 @@
                         'server1serverHost': '0.0.0.0',
                         'server1serverIP': '0.0.0.0',
                         'server1serverPort': '25565',
-                        'server1queryPort': '25565',
+                        'server1queryPort': '',
                         'server1rconPort': '25575',
                         'server1rconPass': 'password',
                         
@@ -95,7 +95,7 @@
                         'server2serverHost': '0.0.0.0',
                         'server2serverIP': '0.0.0.0',
                         'server2serverPort': '25565',
-                        'server2queryPort': '25565',
+                        'server2queryPort': '',
                         'server2rconPort': '25575',
                         'server2rconPass': 'password',
                         
@@ -106,7 +106,7 @@
                         'server3serverHost': '0.0.0.0',
                         'server3serverIP': '0.0.0.0',
                         'server3serverPort': '25565',
-                        'server3queryPort': '25565',
+                        'server3queryPort': '',
                         'server3rconPort': '25575',
                         'server3rconPass': 'password'
 					};
@@ -240,7 +240,7 @@
                     data.serverName = MinecraftWidgets.config['server' + serverNumber + 'serverName'] || "Server " + serverNumber;
                     data.serverHost = MinecraftWidgets.config['server' + serverNumber + 'serverHost'] || "0.0.0.0";
                     data.serverPort = MinecraftWidgets.config['server' + serverNumber + 'serverPort'] || "25565";
-                    data.queryPort  = MinecraftWidgets.config['server' + serverNumber + 'queryPort']  || "25565";
+                    data.queryPort  = MinecraftWidgets.config['server' + serverNumber + 'queryPort'];
                     data.rconPort   = MinecraftWidgets.config['server' + serverNumber + 'rconPort']   || "25575";
                     data.rconPass   = MinecraftWidgets.config['server' + serverNumber + 'rconPass']   || "password";
                     
@@ -304,9 +304,13 @@
                         });
                     }else{
                         readServerListPing(data, function(err, data) {
-                            queryServer(data, function(err, data) {
+                            if (err || data.isServerOnline === false) {
                                 callback( data );
-                            });
+                            }else{
+                                queryServer(data, function(err, data) {
+                                    callback( data );
+                                });
+                            }
                         });
                     }
                 });
@@ -534,6 +538,10 @@
             }
             serverStatusData = readWidgetConfigMCServerStatus(widget, serverStatusData);
             serverStatusData = parseStatusWidget(serverStatusData);
+            
+            // Needs to be defined or will display incorrectly.
+            if (!serverStatusData.players) serverStatusData.players = [];
+            
             callback( null, templates.parse(html, serverStatusData) );
         });
     };
@@ -606,7 +614,7 @@
     
     function verifyHost(templateData, hostBack) {
         if ( isIP(templateData.serverHost) ) {
-            if (MinecraftWidgets.config.logErrors) console.log("Host is IP, not looking up DNS or SRV.");
+            if (MinecraftWidgets.config.logDebug) console.log("Host is IP, not looking up DNS or SRV.");
             templateData.serverIP = templateData.serverHost;
             templateData.showPortDomain = true;
             templateData.showIP = false;
@@ -619,10 +627,11 @@
                             templateData.isServerOnline = false;
                             templateData.failHost = true;
                             hostBack(err, templateData);
+                        }else{
+                            templateData.serverIP = theIP;
+                            if (templateData.serverPort !== "25565") templateData.showPortDomain = true;
+                            hostBack(null, templateData);
                         }
-                        templateData.serverIP = theIP;
-                        if (templateData.serverPort !== "25565") templateData.showPortDomain = true;
-                        hostBack(null, templateData);
                     });
                 }else{
                     templateData.serverPort = thePort;
@@ -750,7 +759,7 @@
                     data.maxPlayers = resp.players.max;
                     
                     if(resp.players.sample) {
-                        //data.players = resp.players.sample;
+                        data.players = resp.players.sample;
                     }
                     if(resp.favicon) data.icon = resp.favicon;
                   
@@ -812,7 +821,7 @@
     };
     
     function queryServer(templateData, queryBack) {
-        if ( !templateData.queryPort ) templateData.queryPort = templateData.serverPort;
+        if ( !templateData.queryPort || templateData.queryPort === '' ) templateData.queryPort = templateData.serverPort;
         var queryData;
         if ( templateData.uselocalhost ) {
             queryData = { host: "0.0.0.0", port: templateData.queryPort };
@@ -820,7 +829,7 @@
             queryData = { host: templateData.serverIP || templateData.serverHost, port: templateData.queryPort };
         }
         
-        if (MinecraftWidgets.config.logErrors) console.log("Querying " + queryData.host + ":" + queryData.port);
+        if (MinecraftWidgets.config.logDebug) console.log("Querying " + queryData.host + ":" + queryData.port);
         
         var query = new mcquery( queryData.host, queryData.port, {timeout: 10000} );
         
@@ -828,7 +837,6 @@
             if (err) {
                 if (MinecraftWidgets.config.logErrors) console.log("Query failed for " + ( templateData.serverIP || templateData.serverHost ) + ":" + templateData.queryPort + ", is query-enabled set to true in server.properties?" );
                 templateData.failQuery = true;
-                if(!templateData.players) templateData.players = [];
                 if(!templateData.pluginList) templateData.pluginList = [];
                 queryBack(null, templateData);
             } else {
@@ -950,9 +958,7 @@
             templateData.showVersion = true;
         }
         
-        if (!templateData.isServerOnline || templateData.isServerRestarting) {
-            templateData.failQuery = false;
-        }
+        if (!templateData.isServerOnline && !templateData.isServerRestarting) templateData.isServerOffline = true;
         
         return templateData;
     }

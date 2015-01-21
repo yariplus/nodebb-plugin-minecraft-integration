@@ -29,14 +29,14 @@
             <td>
                 <span<!-- IF colorText --> style="color:#{colorText}"<!-- ENDIF colorText -->>
                 <!-- IF isServerOnline -->
-                    <a class="fa fa-check-circle text-success has-tooltip" data-placement="top" data-title="Online"></a>&nbsp;<strong><span class="text-success">Online</span></strong><!-- IF showPlayerCount -->&nbsp;({onlinePlayers}/{maxPlayers})<!-- ENDIF showPlayerCount -->
+                    <a class="fa fa-check-circle text-success has-tooltip" data-placement="top" data-title="Pinged server at {serverIP}:{serverPort}"></a>&nbsp;<strong><span class="text-success">Online</span></strong><!-- IF showPlayerCount -->&nbsp;({onlinePlayers}/{maxPlayers})<!-- ENDIF showPlayerCount -->
                 <!-- ENDIF isServerOnline -->
                 <!-- IF isServerOffline -->
-                    <a class="fa fa-exclamation-circle text-danger has-tooltip" data-placement="top" data-title="Offline"></a>&nbsp;<strong><span class="text-danger">Offline</span></strong>
+                    <a class="fa fa-exclamation-circle text-danger has-tooltip" data-placement="top" data-title="Pinged server at {serverIP}:{serverPort}"></a>&nbsp;<strong><span class="text-danger">Offline</span></strong>
                 <!-- ENDIF isServerOffline -->
                 <!-- IF isServerRestarting -->
-                    <a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-title="Restarting"></a>&nbsp;<strong><span class="text-info">Restarting</span></strong>
-                    <!-- ENDIF isServerRestarting -->
+                    <a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-title="Pinged server at {serverIP}:{serverPort}"></a>&nbsp;<strong><span class="text-info">Restarting</span></strong>
+                <!-- ENDIF isServerRestarting -->
                     <!-- IF failHost -->{msgFailHost}<!-- ENDIF failHost -->
                     <!-- IF failPort -->{msgFailPort}<!-- ENDIF failPort -->
                     <!-- IF failQuery -->{msgFailQuery}<!-- ENDIF failQuery -->
