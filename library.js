@@ -266,7 +266,7 @@
                     MinecraftWidgets.pushServerStatusPing(data, MinecraftWidgets.updateDatabase);
                     
                 }
-                setTimeout(MinecraftWidgets.updateServerStatusData, 60000);
+                setTimeout(MinecraftWidgets.updateServers, 60000);
             },
             pushServerStatusPing: function(data, callback) {
                 verifyHost(data, function(err, data) {
@@ -462,6 +462,23 @@
                 for (var player in data.playerStats) { data.topPlayers.push({ 'player': player, 'minutes': data.playerStats[player].minutes }); }
                 data.topPlayers.sort(function(a, b) { return b.minutes - a.minutes; });
                 while (data.topPlayers.length > data.showTopPlayers) data.topPlayers.pop();
+                
+                if (data.showGlory) {
+                    if (!data.gloryStart) data.gloryStart = "000000";
+                    if (!data.gloryEnd) data.gloryEnd = "000000";
+                    var gloryStart = [ parseInt(data.gloryStart.substring(0,2),16), parseInt(data.gloryStart.substring(2,4),16), parseInt(data.gloryStart.substring(4,6),16) ];
+                    var gloryEnd = [ parseInt(data.gloryEnd.substring(0,2),16), parseInt(data.gloryEnd.substring(2,4),16), parseInt(data.gloryEnd.substring(4,6),16) ];
+                    var gloryStep =  [ Math.round( (gloryEnd[0]-gloryStart[0]) / data.showTopPlayers ), Math.round( (gloryEnd[1]-gloryStart[1]) / data.showTopPlayers ), Math.round( (gloryEnd[2]-gloryStart[2]) / data.showTopPlayers ) ];
+                }
+                
+                for (var i = 0; i < data.topPlayers.length; i++) {
+                    if (data.showGlory) data.topPlayers[i].glory = "#" + ("00" + (gloryStart[0] + gloryStep[0] * i).toString(16)).substr(-2) + ("00" + (gloryStart[1] + gloryStep[1] * i).toString(16)).substr(-2) + ("00" + (gloryStart[2] + gloryStep[2] * i).toString(16)).substr(-2);
+                    if (data.topPlayers[i].minutes > 60) {
+                        data.topPlayers[i].minutes = Math.floor(data.topPlayers[i].minutes / 60).toString() + " Hours, " + (data.topPlayers[i].minutes % 60).toString() + " Minutes";
+                    }else{
+                        data.topPlayers[i].minutes = data.topPlayers[i].minutes + " Minutes";
+                    }
+                }
                 
                 data.title = "Top Players - " + parseName( data.serverName || MinecraftWidgets.config["server" + widget.data.serverNumber + "serverName"] );
                 html = templates.parse(html, data);
