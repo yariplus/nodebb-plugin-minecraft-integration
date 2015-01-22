@@ -27,8 +27,6 @@
   },
   "readme": "",
   "readmeFilename": "README.md",
-  "_id": "nodebb-widget-minecraft-essentials@0.2.7",
-  "_from": "/home/yari/nodepackages/nodebb-widget-minecraft-essentials",
   "dependencies": {
     "async": "^0.9.0",
     "mcquery": "^0.2.5",
@@ -39,7 +37,7 @@
     "mc-ping": "^0.0.3"
   },
   "nbbpm": {
-    "compatibility": "^0.6.0"
+    "compatibility": "^0.5.0"
   },
   "homepage": "https://github.com/yariplus/nodebb-widget-minecraft-essentials",
   "_shasum": "43da99337567178a6cdf7218c20c2e0b8996a730"
