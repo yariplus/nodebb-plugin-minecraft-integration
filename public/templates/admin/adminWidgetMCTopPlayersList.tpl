@@ -52,7 +52,7 @@
         </div>
     </div>
     <div class="form-group">
-        <label>Glory&nbsp;Style</label>
+        <label>Glory&nbsp;Border&nbsp;Style</label>
         <select class="form-control">
             <option value="double" selected="selected">Double</option>
             <option value="ridge">Ridge</option>

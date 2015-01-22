@@ -69,7 +69,14 @@
     <div class="form-group">
         <label class="col-sm-2 control-label">Custom Row 1</label>
         <div class="col-sm-2">
-            <input type="text" class="form-control" id="custom1orderafter" name="custom1orderafter" placeholder="Order After" />
+            <select class="form-control">
+                <option value="name" selected="selected">After Title</option>
+                <option value="status">After Status</option>
+                <option value="address">After Address</option>
+                <option value="version">After Version</option>
+                <option value="players">After Players</option>
+            </select>
+            <input type="hidden" class="ajaxSelectSibling" name="custom1orderafter">
         </div>
         <div class="col-sm-2">
             <input type="text" class="form-control" id="custom1label" name="custom1label" placeholder="Label" />
@@ -89,7 +96,14 @@
     <div class="form-group">
         <label class="col-sm-2 control-label">Custom Row 2</label>
         <div class="col-sm-2">
-            <input type="text" class="form-control" id="custom2orderafter" name="custom2orderafter" placeholder="Order After" />
+            <select class="form-control">
+                <option value="name" selected="selected">After Title</option>
+                <option value="status">After Status</option>
+                <option value="address">After Address</option>
+                <option value="version">After Version</option>
+                <option value="players">After Players</option>
+            </select>
+            <input type="hidden" class="ajaxSelectSibling" name="custom2orderafter">
         </div>
         <div class="col-sm-2">
             <input type="text" class="form-control" id="custom2label" name="custom2label" placeholder="Label" />
@@ -109,7 +123,14 @@
     <div class="form-group">
         <label class="col-sm-2 control-label">Custom Row 3</label>
         <div class="col-sm-2">
-            <input type="text" class="form-control" id="custom3orderafter" name="custom3orderafter" placeholder="Order After" />
+            <select class="form-control">
+                <option value="name" selected="selected">After Title</option>
+                <option value="status">After Status</option>
+                <option value="address">After Address</option>
+                <option value="version">After Version</option>
+                <option value="players">After Players</option>
+            </select>
+            <input type="hidden" class="ajaxSelectSibling" name="custom3orderafter">
         </div>
         <div class="col-sm-2">
             <input type="text" class="form-control" id="custom3label" name="custom3label" placeholder="Label" />

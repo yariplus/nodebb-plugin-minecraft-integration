@@ -61,7 +61,6 @@
 
 				MinecraftWidgets.init(params);
 				MinecraftWidgets.loadThemes();
-                //setTimeout(MinecraftWidgets.logServers, 20000);
                 setTimeout(MinecraftWidgets.updateServers, 60000);
 				callback();
 			},
@@ -110,8 +109,6 @@
                         'server3rconPort': '25575',
                         'server3rconPass': 'password'
 					};
-                
-                //_self.servers = [];
 
 				meta.settings.get('minecraft-essentials', function(err, options) {
 					for(var field in defaults) {
@@ -121,7 +118,8 @@
 						} else {
 							if (field == 'server1isLegacy' || field == 'server2isLegacy' || field == 'server3isLegacy' || 
                                 field == 'server1isDisabled' || field == 'server2isDisabled' || field == 'server3isDisabled' ||
-                                field == 'logErrors' || field == 'logDebug' || field == 'logInfo' || field == 'logTemplateData') {
+                                field == 'logErrors' || field == 'logDebug' || field == 'logInfo' || field == 'logTemplateData' ||
+                                field == 'showDebugIcons') {
 								_self.config[field] = options[field] === 'on' ? true : false;
 							} else {
 								_self.config[field] = options[field] || defaults[field];
@@ -293,14 +291,16 @@
                                         }
                                     }
                                 }
+                                
+                                queryServer(data, function(err, queryData) {
+                                    data = queryData;
+                                    callback( data );
+                                });
                             }else{
-                                if (MinecraftWidgets.config.logErrors) console.log("ServerListPing failed" + err);
+                                if (MinecraftWidgets.config.logErrors) console.log("ServerListPing failed: " + err);
                                 data.isServerOnline = false;
-                            }
-                            queryServer(data, function(err, queryData) {
-                                data = queryData;
                                 callback( data );
-                            });
+                            }
                         });
                     }else{
                         readServerListPing(data, function(err, data) {
@@ -318,10 +318,6 @@
             updateDatabase: function( data ) {
                 if ( data && data.serverNumber ) {
                     //console.log("Writing server " + serverNumber + " to db...");
-                    //
-                    // JSON data {
-                    // 
-                    // }
                 
                     db.set("MCWES" + data.serverNumber, JSON.stringify(data), function(err){
                             if (err) console.log(err);
@@ -410,7 +406,6 @@
                                     }
                                 }
                                 
-                                //
                                 dbdata = JSON.stringify(dbdata);
                                 //console.log("Storing playerStats: " + playerStats);
                                 
@@ -889,8 +884,6 @@
                         templateData.players[templateData.players.length] = { name: stat.player_[index] };
                     }
                 }
-                
-                //console.log(templateData.players);
                 
                 // Use queried hostname if localhost.
                 if ( templateData.serverHost == "0.0.0.0" || templateData.serverHost == "127.0.0.1" || templateData.serverHost == "localhost" ) {
