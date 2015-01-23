@@ -38,8 +38,11 @@ function resizeend() {
 
 function resizeCanvases() {
 	$('.canvasResizable').each(function(index){
+		var heightRatio = $(this).attr('height-ratio');
+		heightRatio = typeof heightRatio == 'undefined' ? 3 : parseInt(heightRatio);
+		heightRatio = isNaN(heightRatio) ? 3 : heightRatio < 1 ? 3 : heightRatio;
 		$(this).attr('width', $(this).parent().width());
-		$(this).attr('height', $(this).parent().width() / 3);
+		$(this).attr('height', $(this).parent().width() / heightRatio);
 		var data = window[$(this).attr('id') + 'Data'];
 		var options = window[$(this).attr('id') + 'Options'];
 		var chart = new Chart($(this)[index].getContext('2d')).Line(data, options);

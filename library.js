@@ -420,33 +420,28 @@
 		};
 	
 	MinecraftWidgets.renderMCTopPlayersList = function(widget, callback) {
-		if(widget.data) {
-			if (parseInt(widget.data.serverNumber) < 1 || parseInt(widget.data.serverNumber) > 3) {
-				callback(null, "");
-				return;
-			}
-			if (!widget.data.showTopPlayers) {
-				widget.data.showTopPlayers = 5;
-			}else{
-				if (parseInt(widget.data.showTopPlayers) < 1 || parseInt(widget.data.showTopPlayers) > 30) widget.data.showTopPlayers = 5;
-			}
-		}
-		var html = MinecraftWidgets.templates['widgetMCTopPlayersList.tpl'], cid;
-		if (widget.data.cid) {
-			cid = widget.data.cid;
+		var html = MinecraftWidgets.templates['widgetMCTopPlayersList.tpl'],
+			cid,
+			data = widget.data;
+		if (data.cid) {
+			cid = data.cid;
 		} else {
 			var match = widget.area.url.match('[0-9]+');
 			cid = match ? match[0] : 1;
 		}
+		data.serverNumber = isNaN(parseInt(data.serverNumber)) || parseInt(data.serverNumber) < 1 ? "1" : data.serverNumber;
 		
-		MinecraftWidgets.pushData(widget.data, function(err, data) {
+		data.showTopPlayers = parseInt(data.showTopPlayers);
+		data.showTopPlayers = isNaN(data.showTopPlayers) ? 5 : data.showTopPlayers < 1 ? 5 : data.showTopPlayers;
+		
+		MinecraftWidgets.pushData(data, function(err) {
 			if (err || !data.serverName) {
 				console.log("status data error");
 				callback(null, "");
 				return;
 			}
 			data.requestData = ["playerStats"];
-			MinecraftWidgets.pushData(data, function(err, data) {
+			MinecraftWidgets.pushData(data, function(err) {
 				if (err || !data.serverName) {
 					console.log("players data error");
 					callback(null, "");
@@ -475,7 +470,7 @@
 					}
 				}
 				
-				data.title = "Top Players - " + parseName( data.serverName || MinecraftWidgets.config["server" + widget.data.serverNumber + "serverName"] );
+				data.title = "Top Players - " + parseName( data.serverName || MinecraftWidgets.config["server" + data.serverNumber + "serverName"] );
 				delete data.serverName;
 				html = templates.parse(html, data);
 				callback(null, html);
@@ -484,9 +479,19 @@
 	}
 		
 	MinecraftWidgets.renderMCOnlinePlayersGraph = function(widget, callback) {
-		//widget.data.serverNumber = (isNaN(widget.data.serverNumber) || parseInt(widget.data.serverNumber) < 1 || parseInt(widget.data.serverNumber) > 3) ? widget.data.serverNumber : "1";
-		widget.data.requestData = [ "onlinePlayers" ];
-		MinecraftWidgets.pushData(widget.data, function(err, data){
+		var html = MinecraftWidgets.templates['widgetMCOnlinePlayersGraph.tpl'],
+			cid,
+			data = widget.data;
+		if (data.cid) {
+			cid = data.cid;
+		} else {
+			var match = widget.area.url.match('[0-9]+');
+			cid = match ? match[0] : 1;
+		}
+		data.serverNumber = isNaN(parseInt(data.serverNumber)) || parseInt(data.serverNumber) < 1 ? "1" : data.serverNumber;
+		
+		data.requestData = [ "onlinePlayers" ];
+		MinecraftWidgets.pushData(data, function(err){
 			if (err) {
 				console.log(err);
 			}
@@ -494,13 +499,6 @@
 				console.log("onlinePlayers data was null, skipping widget render.");
 				callback(null, "");
 				return;
-			}
-			var html = MinecraftWidgets.templates['widgetMCOnlinePlayersGraph.tpl'], cid;
-			if (widget.data.cid) {
-				cid = widget.data.cid;
-			} else {
-				var match = widget.area.url.match('[0-9]+');
-				cid = match ? match[0] : 1;
 			}
 			
 			data.labels = [];
@@ -517,7 +515,7 @@
 			data.cid = widget.data.serverNumber;
 			data.serverNumber = widget.data.serverNumber;
 			
-			MinecraftWidgets.pushData(data, function(err, data) {
+			MinecraftWidgets.pushData(data, function(err) {
 				if (err || !data.serverName) {
 					console.log("serverStatus data was null, skipping widget render.");
 					callback(null, "");
@@ -533,40 +531,39 @@
 	};
 
 	MinecraftWidgets.renderMCServerStatus = function(widget, callback) {
-		var serverNumber = widget.data.serverNumber;
-		if(parseInt(serverNumber) < 1 || parseInt(serverNumber) > 3) {
-			callback(null, "");
-			return;
+		var html = MinecraftWidgets.templates['widgetMCServerStatus.tpl'],
+		cid,
+			data = widget.data;
+		if (data.cid) {
+			cid = data.cid;
+		} else {
+			var match = widget.area.url.match('[0-9]+');
+			cid = match ? match[0] : 1;
 		}
+		data.serverNumber = isNaN(parseInt(data.serverNumber)) || parseInt(data.serverNumber) < 1 ? "1" : data.serverNumber;
 		
-		MinecraftWidgets.pushData(widget.data, function(err, serverStatusData){
-			if (err || !serverStatusData.serverName) {
+		MinecraftWidgets.pushData(data, function(err){
+			if (err || !data.serverName) {
 				callback(null, "");
 				return;
 			}
-			var html = MinecraftWidgets.templates['widgetMCServerStatus.tpl'], cid;
-			if (widget.data.cid) {
-				cid = widget.data.cid;
-			} else {
-				var match = widget.area.url.match('[0-9]+');
-				cid = match ? match[0] : 1;
-			}
-			serverStatusData = readWidgetConfigMCServerStatus(widget, serverStatusData);
-			serverStatusData = parseStatusWidget(serverStatusData);
+		
+			data = readWidgetConfigMCServerStatus(widget, data);
+			data = parseStatusWidget(data);
 			
 			// Needs to be defined or will display incorrectly.
-			if (!serverStatusData.players) serverStatusData.players = [];
+			if (!data.players) data.players = [];
 			
-			serverStatusData.title = parseName( serverStatusData.serverName || MinecraftWidgets.config["server" + serverStatusData.serverNumber + "serverName"] );
-			delete serverStatusData.serverName;
-			callback( null, templates.parse(html, serverStatusData) );
+			data.title = parseName( data.serverName || MinecraftWidgets.config["server" + data.serverNumber + "serverName"] );
+			delete data.serverName;
+			callback( null, templates.parse(html, data) );
 		});
 	};
 	
 	function readWidgetConfigMCServerStatus(widget, templateData) {
-		templateData.showIP = widget.data.showIP;
-		templateData.showPlayerCount = widget.data.showPlayerCount;
-		templateData.showNameAlways = widget.data.showNameAlways;
+		templateData.showIP = widget.data.showIP == "on" ? true : false;
+		templateData.showPlayerCount = widget.data.showPlayerCount == "on" ? true : false;
+		templateData.showNameAlways = widget.data.showNameAlways == "on" ? true : false;
 		templateData.parseFormatCodes = widget.data.parseFormatCodes == "on" ? true : false;
 		
 		var readCustomRow = function ( label, text, after ) {
