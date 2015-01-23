@@ -3,7 +3,7 @@
 // I've seen the other side of rainbow
 // And it was black and white
 
-if (!Chart) {
+if (typeof Chart == 'undefined') {
 	$.getScript("/vendor/chart.js/chart.min.js?v=v0.6.0");
 }
 
