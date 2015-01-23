@@ -476,6 +476,7 @@
 				}
 				
 				data.title = "Top Players - " + parseName( data.serverName || MinecraftWidgets.config["server" + widget.data.serverNumber + "serverName"] );
+				delete data.serverName;
 				html = templates.parse(html, data);
 				callback(null, html);
 			});
@@ -483,6 +484,10 @@
 	}
 		
 	MinecraftWidgets.renderMCOnlinePlayersGraph = function(widget, callback) {
+		for (var i in widget.area) {
+			console.log(i + ": " + widget.area[i]);
+		}
+		
 		//widget.data.serverNumber = (isNaN(widget.data.serverNumber) || parseInt(widget.data.serverNumber) < 1 || parseInt(widget.data.serverNumber) > 3) ? widget.data.serverNumber : "1";
 		widget.data.requestData = [ "onlinePlayers" ];
 		MinecraftWidgets.pushData(widget.data, function(err, data){
@@ -518,10 +523,12 @@
 			
 			MinecraftWidgets.pushData(data, function(err, data) {
 				if (err || !data.serverName) {
+					console.log("serverStatus data was null, skipping widget render.");
 					callback(null, "");
 					return;
 				}
 				data.title = "Online Players - " + parseName( data.serverName || MinecraftWidgets.config["server" + widget.data.serverNumber + "serverName"] );
+				delete data.serverName;
 				data.onlinePlayers = onlinePlayers;
 				html = templates.parse(html, data);
 				callback(null, html);
@@ -554,6 +561,8 @@
 			// Needs to be defined or will display incorrectly.
 			if (!serverStatusData.players) serverStatusData.players = [];
 			
+			serverStatusData.title = parseName( serverStatusData.serverName || MinecraftWidgets.config["server" + serverStatusData.serverNumber + "serverName"] );
+			delete serverStatusData.serverName;
 			callback( null, templates.parse(html, serverStatusData) );
 		});
 	};

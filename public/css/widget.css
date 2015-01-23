@@ -1,7 +1,15 @@
-.status-widget .td-label {
+.widgetTable .td-label {
     padding-left: 16px;
     max-width: 90px;
     width: 90px;
+}
+
+.widgetTable  .td-padded {
+    padding-left: 16px;
+}
+
+.widgetTable {
+    margin-bottom: 0px;
 }
 
 .recent-replies {
