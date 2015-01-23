@@ -33,7 +33,7 @@ function resizeend() {
         timeout = false;
 		resizeCanvases();
     }               
-};
+}
 
 function resizeCanvases() {
 	$('.canvasResizable').each(function(index){
@@ -43,16 +43,17 @@ function resizeCanvases() {
 		var options = window[$(this).attr('id') + 'Options'];
 		var chart = new Chart($(this)[index].getContext('2d')).Line(data, options);
 	});
-};
+}
 
 $(document).ajaxComplete(function(event, response, settings) {
-	if (settings.url.contains("/api/widgets/render")) {
+	if (!!~settings.url.indexOf("/api/widgets/render")) {
 		$('.widgetFillContainer').each(function(index){
 			var parent = $(this).parent();
 			if (!$(parent).prop('widget-area')) $(parent).css('padding-top', '0').css('padding-left', '0').css('padding-right', '0').css('padding-bottom', '0');
 		});
 		resizeCanvases();
 	}
+	
     if (settings.url == "/api/admin/extend/widgets") {
         $('input.ajaxSelectSibling').each(function(index){
             var MCWESN = $(this);

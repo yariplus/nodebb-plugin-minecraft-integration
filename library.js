@@ -484,10 +484,6 @@
 	}
 		
 	MinecraftWidgets.renderMCOnlinePlayersGraph = function(widget, callback) {
-		for (var i in widget.area) {
-			console.log(i + ": " + widget.area[i]);
-		}
-		
 		//widget.data.serverNumber = (isNaN(widget.data.serverNumber) || parseInt(widget.data.serverNumber) < 1 || parseInt(widget.data.serverNumber) > 3) ? widget.data.serverNumber : "1";
 		widget.data.requestData = [ "onlinePlayers" ];
 		MinecraftWidgets.pushData(widget.data, function(err, data){
