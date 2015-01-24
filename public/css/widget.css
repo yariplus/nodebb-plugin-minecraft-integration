@@ -1,3 +1,14 @@
+.canvasResizable {
+    width: 100% !important
+    max-width: 800px
+    height: auto !important
+}
+
+.widgetFillContainer {
+    position: relative;
+    
+}
+
 .widgetTable .td-label {
     padding-left: 16px;
     max-width: 90px;

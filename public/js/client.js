@@ -1,13 +1,10 @@
+"use strict";
 /*global ajaxify*/
 
 // I've seen the other side of rainbow
 // And it was black and white
 
-if (typeof Chart == 'undefined') {
-	$.getScript("/vendor/chart.js/chart.min.js?v=v0.6.0");
-}
-
-$(function () {
+$(document).ready(function() {
     $('body').tooltip({
         selector: '.has-tooltip'
     });
@@ -34,20 +31,41 @@ function resizeend() {
         timeout = false;
 		resizeCanvases();
     }               
-};
+}
 
 function resizeCanvases() {
-	$('.canvasResizable').each(function(index){
-		var heightRatio = $(this).attr('height-ratio');
-		heightRatio = typeof heightRatio == 'undefined' ? 3 : parseInt(heightRatio);
-		heightRatio = isNaN(heightRatio) ? 3 : heightRatio < 1 ? 3 : heightRatio;
-		$(this).attr('width', $(this).parent().width());
-		$(this).attr('height', $(this).parent().width() / heightRatio);
-		var data = window[$(this).attr('id') + 'Data'];
-		var options = window[$(this).attr('id') + 'Options'];
-		var chart = new Chart($(this)[index].getContext('2d')).Line(data, options);
-	});
-};
+	// Find better solution, so that we can draw on widget config pages.
+	if (typeof Chart == 'undefined') {
+		require(['vendor/chart.js/chart.min.js'], function(Chart){
+			$('.canvasResizable').each(function(i, e){
+				var heightRatio = $(e).attr('height-ratio');
+				heightRatio = typeof heightRatio == 'undefined' ? 3 : parseInt(heightRatio);
+				heightRatio = isNaN(heightRatio) ? 3 : heightRatio < 1 ? 3 : heightRatio;
+				$(e).attr('width', $(e).parent().width());
+				$(e).attr('height', $(e).parent().width() / heightRatio);
+				$(e).css('width', $(e).parent().width());
+				$(e).css('height', $(e).parent().width() / heightRatio);
+				var data = window[$(e).attr('id') + 'Data'];
+				var options = window[$(e).attr('id') + 'Options'];			
+				switch ($(e).attr('chart-type')) {
+					case "Pie":
+					case "pie":
+						new Chart($(e)[0].getContext('2d')).Pie(data, options);
+						break;
+					case "Donut":
+						new Chart($(e)[0].getContext('2d')).Pie(data, options);
+						break;
+					case "Line":
+					case "line":
+					default:
+						new Chart($(e)[0].getContext('2d')).Line(data, options);
+						break;
+				}
+			});
+			var Chartjs = Chart.noConflict();
+		});
+	}
+}
 
 $(document).ajaxComplete(function(event, response, settings) {
 	if (!!~settings.url.indexOf("/api/widgets/render")) {
@@ -65,7 +83,7 @@ $(document).ajaxComplete(function(event, response, settings) {
             var MCWESN = $(this);
             MCWESN.prev().val($(this).val());
             MCWESN.prev().on('change', function(){
-                MCWESN.val($(this).val())
+                MCWESN.val($(this).val());
             });
         });
         
@@ -86,9 +104,7 @@ $(document).ajaxComplete(function(event, response, settings) {
                         onShow: function(colpkr) {
                             $(colpkr).css('z-index', 1051);
                         }
-                    })
-                    .css('color', '#' + $(this).val())
-                    .bind('keyup', function(){
+                    }).css('color', '#' + $(this).val()).bind('keyup', function(){
                         $(this).ColorPickerSetColor($(this).val());
                         $(this).css('color', '#' + $(this).val());
                     });

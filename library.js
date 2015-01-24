@@ -138,9 +138,11 @@
 					"widgetMCServerStatus.tpl",
 					"widgetMCTopPlayersList.tpl",
 					"widgetMCOnlinePlayersGraph.tpl",
+					"widgetMCTopPlayersGraph.tpl",
 					"admin/adminWidgetMCServerStatus.tpl",
 					"admin/adminWidgetMCTopPlayersList.tpl",
-					"admin/adminWidgetMCOnlinePlayersGraph.tpl"
+					"admin/adminWidgetMCOnlinePlayersGraph.tpl",
+					"admin/adminWidgetMCTopPlayersGraph.tpl"
 				];
 
 				function loadTemplate(template, next) {
@@ -421,14 +423,7 @@
 	
 	MinecraftWidgets.renderMCTopPlayersList = function(widget, callback) {
 		var html = MinecraftWidgets.templates['widgetMCTopPlayersList.tpl'],
-			cid,
 			data = widget.data;
-		if (data.cid) {
-			cid = data.cid;
-		} else {
-			var match = widget.area.url.match('[0-9]+');
-			cid = match ? match[0] : 1;
-		}
 		data.serverNumber = isNaN(parseInt(data.serverNumber)) || parseInt(data.serverNumber) < 1 ? "1" : data.serverNumber;
 		
 		data.showTopPlayers = parseInt(data.showTopPlayers);
@@ -480,14 +475,7 @@
 		
 	MinecraftWidgets.renderMCOnlinePlayersGraph = function(widget, callback) {
 		var html = MinecraftWidgets.templates['widgetMCOnlinePlayersGraph.tpl'],
-			cid,
 			data = widget.data;
-		if (data.cid) {
-			cid = data.cid;
-		} else {
-			var match = widget.area.url.match('[0-9]+');
-			cid = match ? match[0] : 1;
-		}
 		data.serverNumber = isNaN(parseInt(data.serverNumber)) || parseInt(data.serverNumber) < 1 ? "1" : data.serverNumber;
 		
 		data.requestData = [ "onlinePlayers" ];
@@ -512,8 +500,6 @@
 			
 			var onlinePlayers = JSON.stringify(data.onlinePlayers);
 			data.labels = JSON.stringify(data.labels);
-			data.cid = widget.data.serverNumber;
-			data.serverNumber = widget.data.serverNumber;
 			
 			MinecraftWidgets.pushData(data, function(err) {
 				if (err || !data.serverName) {
@@ -529,17 +515,58 @@
 			});
 		});
 	};
+	
+	MinecraftWidgets.renderMCTopPlayersGraph = function(widget, callback) {
+		var html = MinecraftWidgets.templates['widgetMCTopPlayersGraph.tpl'],
+			data = widget.data;
+		data.serverNumber = isNaN(parseInt(data.serverNumber)) || parseInt(data.serverNumber) < 1 ? "1" : data.serverNumber;
+		
+		data.requestData = [ "playerStats" ];
+		MinecraftWidgets.pushData(data, function(err){
+			if (err) {
+				console.log("status data error");
+				callback(null, "");
+				return;
+			}
+			MinecraftWidgets.pushData(data, function(err) {
+				if (err || !data.serverName) {
+					console.log("server data error");
+					callback(null, "");
+					return;
+				}
+				
+				data.showTopPlayers = parseInt(data.showTopPlayers);
+				data.showTopPlayers = isNaN(data.showTopPlayers) ? 5 : data.showTopPlayers < 1 ? 5 : data.showTopPlayers;
+				
+				data.topPlayers = [];
+				for (var player in data.playerStats) {
+					data.topPlayers.push({ 'player': player, 'minutes': data.playerStats[player].minutes });
+				}
+				data.topPlayers.sort(function(a, b) { return b.minutes - a.minutes; });
+				while (data.topPlayers.length > data.showTopPlayers) {
+					data.topPlayers.pop();
+				}
+				
+				data.chartOptions = "{ responsive: true, tooltipTemplate: \"<%if (label){%><%=label%>: <%}%><%= value %> Minutes\" }";
+				data.chartData = [];
+				for (var i = 0; i < data.topPlayers.length; i++) {
+					var newdata = { 'value': data.topPlayers[i].minutes, 'color': '','highlight': '', 'label': data.topPlayers[i].player };
+					var hue = Math.random() * 720;
+					newdata.color = 'hsl(' + hue + ','+'100%,40%)';
+					newdata.highlight = 'hsl(' + hue + ','+'100%,70%)';
+					data.chartData.push(newdata);
+				}
+				data.chartData = JSON.stringify(data.chartData);
+			
+				data.title = "Top Players - " + parseName( data.serverName || MinecraftWidgets.config["server" + data.serverNumber + "serverName"] );
+				callback(null, templates.parse(html, data));
+			});
+		});
+	};
 
 	MinecraftWidgets.renderMCServerStatus = function(widget, callback) {
 		var html = MinecraftWidgets.templates['widgetMCServerStatus.tpl'],
-		cid,
 			data = widget.data;
-		if (data.cid) {
-			cid = data.cid;
-		} else {
-			var match = widget.area.url.match('[0-9]+');
-			cid = match ? match[0] : 1;
-		}
 		data.serverNumber = isNaN(parseInt(data.serverNumber)) || parseInt(data.serverNumber) < 1 ? "1" : data.serverNumber;
 		
 		MinecraftWidgets.pushData(data, function(err){
@@ -1012,6 +1039,7 @@
 		var onlinePlayersGraphTemplate = templates.parse( MinecraftWidgets.templates['admin/adminWidgetMCOnlinePlayersGraph.tpl'], data);
 		var serverStatusTemplate = templates.parse( MinecraftWidgets.templates['admin/adminWidgetMCServerStatus.tpl'], data);
 		var templateTopPlayersList = templates.parse( MinecraftWidgets.templates['admin/adminWidgetMCTopPlayersList.tpl'], data);
+		var widgetMCTopPlayersGraph = templates.parse( MinecraftWidgets.templates['admin/adminWidgetMCTopPlayersGraph.tpl'], data);
 		
 		widgets = widgets.concat([
 			{
@@ -1028,9 +1056,15 @@
 			},
 			{
 				widget: "widgetMCTopPlayersList",
-				name: "Minecraft Top Players List (Testing)",
+				name: "Minecraft Top Players List",
 				description: "Lists avatars of players sorted by their approximate play time.",
 				content: templateTopPlayersList
+			},
+			{
+				widget: "widgetMCTopPlayersGraph",
+				name: "Minecraft Top Players Graph",
+				description: "A graphic chart (Pie, Donut, or Bar) representing the top players' approximate play time.",
+				content: widgetMCTopPlayersGraph
 			}
 		]);
 

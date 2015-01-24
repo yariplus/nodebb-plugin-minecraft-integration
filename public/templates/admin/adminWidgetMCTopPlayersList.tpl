@@ -1,7 +1,7 @@
 <div class="well" style="overflow:hidden;">
     <div class="form-group">
-        <label for="serverName">Server</label>
-        <select id="serverName" class="form-control">
+        <label>Server</label>
+        <select class="form-control">
             <!-- BEGIN serverConfigNames -->
             <option value="{serverConfigNames.serverNumber}">{serverConfigNames.configName}</option>
             <!-- END serverConfigNames -->

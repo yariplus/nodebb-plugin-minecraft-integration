@@ -1,18 +1,37 @@
-<div class="well form-horizontal">
-<h4>Widget Config</h4>
-<fieldset>
-<div class="form-group">
-    <label class="col-sm-2 col-xs-12 control-label" for="">Setting</label>
-    <div class="col-sm-6 col-xs-12">
-        <input type="text" class="form-control" name="" id="" placeholder="" />
+<div class="well" style="overflow:hidden;">
+    <div class="form-group">
+        <label>Server</label>
+        <select class="form-control">
+            <!-- BEGIN serverConfigNames -->
+            <option value="{serverConfigNames.serverNumber}">{serverConfigNames.configName}</option>
+            <!-- END serverConfigNames -->
+        </select>
+        <input type="hidden" class="ajaxSelectSibling" name="serverNumber">
     </div>
-    <div class="col-sm-4 col-xs-12">
-        <div class="checkbox">
-            <label for="">
-                <input type="checkbox" name="" id="" /> Check
-            </label>
-        </div>
+    <div class="form-group">
+        <label>Max&nbsp;Players</label>
+        <select class="form-control">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10" selected="selected">10</option>
+        </select>
+        <input type="hidden" class="ajaxSelectSibling" name="showTopPlayers">
     </div>
-</div>
-</fieldset>
+    <div class="form-group">
+        <label>Graph&nbsp;Style</label>
+        <select class="form-control">
+            <option value="pie" selected="selected">Pie</option>
+            <option value="donut">Donut</option>
+            <option value="bar">Bar</option>
+            <option value="polar">Polar</option>
+        </select>
+        <input type="hidden" class="ajaxSelectSibling" name="styleChart">
+    </div>
 </div>

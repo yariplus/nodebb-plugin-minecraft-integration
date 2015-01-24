@@ -1,10 +1,10 @@
 <div class="widgetFillContainer">
-    <canvas id="mcCanvas{cid}" class="canvasResizable" style="border:1px solid #000000;margin-left:auto;margin-right:auto;display:block;">Your browser does not support the HTML5 canvas tag.</canvas>
+    <canvas id="canvasOnlinePlayers{serverNumber}" height-ratio="3" class="canvasResizable" style="border:1px solid #000000;">Your browser does not support the HTML5 canvas tag.</canvas>
 </div>
 
 <script>
 
-var mcCanvas{cid}Options = {
+var canvasOnlinePlayers{serverNumber}Options = {
     showScale: false,
     scaleShowGridLines : true,
     scaleGridLineColor : "rgba(0,0,0,.05)",
@@ -16,7 +16,7 @@ var mcCanvas{cid}Options = {
     pointDot : true,
     pointDotRadius : 2,
     pointDotStrokeWidth : 1,
-    pointHitDetectionRadius : 2,
+    pointHitDetectionRadius : 4,
     datasetStroke : true,
     datasetStrokeWidth : 2,
     datasetFill : true,
@@ -25,7 +25,7 @@ var mcCanvas{cid}Options = {
     tooltipTemplate: "<%if (label){%><%=label%>: <%}%><%= value %> Players Online"
 };
 
-var mcCanvas{cid}Data = {
+var canvasOnlinePlayers{serverNumber}Data = {
     labels: {labels},
     datasets: [
         {
