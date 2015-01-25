@@ -251,7 +251,7 @@
                 'server1rconPort': '',
                 'server1rconPass': '',
                 
-                'server2isDisabled': false,
+                'server2isDisabled': true,
                 'server2serverConfigName': 'Server Two',
                 'server2serverName': 'Server Two',
                 'server2isLegacy': false,
@@ -262,7 +262,7 @@
                 'server2rconPort': '',
                 'server2rconPass': '',
                 
-                'server3isDisabled': false,
+                'server3isDisabled': true,
                 'server3serverConfigName': 'Server Three',
                 'server3serverName': 'Server Three',
                 'server3isLegacy': false,

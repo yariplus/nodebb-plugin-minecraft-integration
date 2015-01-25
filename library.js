@@ -1,3 +1,4 @@
+// Your sanity and wits will all vanish, I promise.
 (function() {
 	"use strict";
 	
@@ -26,27 +27,6 @@
 				var middleware = params.middleware || callback;
 				app = params.app || params;
 				callback = legacyback || callback;
-				
-				if (MinecraftWidgets.resetServerData) {
-					db.delete("MCWES1", function(err) {
-						if (err) console.log("Error deleting MCWES1: " + err);
-					});
-					db.delete("MCWES2", function(err) {
-						if (err) console.log("Error deleting MCWES2: " + err);
-					});
-					db.delete("MCWES3", function(err) {
-						if (err) console.log("Error deleting MCWES3: " + err);
-					});
-					db.delete("MCWES1onlinePlayers", function(err) {
-						if (err) console.log("Error deleting MCWES1onlinePlayers: " + err);
-					});
-					db.delete("MCWES2onlinePlayers", function(err) {
-						if (err) console.log("Error deleting MCWES2onlinePlayers: " + err);
-					});
-					db.delete("MCWES3onlinePlayers", function(err) {
-						if (err) console.log("Error deleting MCWES3onlinePlayers: " + err);
-					});
-				}
 			
 				function render(req, res, next) {
 					res.render('admin/plugins/minecraft-essentials', { });
@@ -59,7 +39,6 @@
 				});
 
 				MinecraftWidgets.init();
-				setTimeout(MinecraftWidgets.updateServers, 60000);
 				callback();
 			},
 			init: function (params) {
@@ -69,6 +48,7 @@
 						'testData'
 					],
 					defaults = {
+						'resetDatabase': false,
 						'serverUpdateDelay': '1',
 						'showDebugIcons': false,
 						'logErrors': false,
@@ -110,14 +90,13 @@
 
 				meta.settings.get('minecraft-essentials', function(err, options) {
 					for(var field in defaults) {
-						// If not set in config (nil)
 						if (!options.hasOwnProperty(field)) {
 							_self.config[field] = defaults[field];
 						} else {
 							if (field == 'server1isLegacy' || field == 'server2isLegacy' || field == 'server3isLegacy' || 
 								field == 'server1isDisabled' || field == 'server2isDisabled' || field == 'server3isDisabled' ||
 								field == 'logErrors' || field == 'logDebug' || field == 'logInfo' || field == 'logTemplateData' ||
-								field == 'showDebugIcons') {
+								field == 'showDebugIcons' || field == 'resetDatabase') {
 								_self.config[field] = options[field] === 'on' ? true : false;
 							} else {
 								_self.config[field] = options[field] || defaults[field];
@@ -125,9 +104,36 @@
 						}
 					}
 					
-					for (var property in _self.config) {
-						console.log(property + ": " + _self.config[property]);
+					if (options.logDebug) {
+						for (var property in MinecraftWidgets.config) {
+							console.log(property + ": " + MinecraftWidgets.config[property]);
+						}
 					}
+					
+					if (options.resetDatabase) {
+						db.delete("MCWES1", function(err) {
+							if (err) console.log("Error deleting MCWES1: " + err);
+						});
+						db.delete("MCWES2", function(err) {
+							if (err) console.log("Error deleting MCWES2: " + err);
+						});
+						db.delete("MCWES3", function(err) {
+							if (err) console.log("Error deleting MCWES3: " + err);
+						});
+						db.delete("MCWES1onlinePlayers", function(err) {
+							if (err) console.log("Error deleting MCWES1onlinePlayers: " + err);
+						});
+						db.delete("MCWES2onlinePlayers", function(err) {
+							if (err) console.log("Error deleting MCWES2onlinePlayers: " + err);
+						});
+						db.delete("MCWES3onlinePlayers", function(err) {
+							if (err) console.log("Error deleting MCWES3onlinePlayers: " + err);
+						});
+						options.resetDatabase = false;
+						meta.settings.set('minecraft-essentials', options, function () {});
+					}
+					
+					setTimeout(MinecraftWidgets.updateServers, MinecraftWidgets.config.logDebug ? 60000 : 5000);
 				});
 
 				var templatesToLoad = [
@@ -195,23 +201,24 @@
 			pushData: function(data, callback) {
 				// Get information from the database and push it into the data object.
 				// The passed object should be { serverNumber: STRING, requestData: [STRING] }
-				var requestData = data.requestData ? data.requestData[0] : "";
+				var requestData = data.requestData ? data.requestData[0] : "S";
 				delete data.requestData;
-				var serverKey = "MCWES" + ( data.serverNumber || "1") + requestData;
-				// if (MinecraftWidgets.config.logDebug) 
+				var serverKey = ( data.serverNumber || "1") + requestData;
 				if (MinecraftWidgets.config.logDebug) console.log("Looking for db key: " + serverKey);
 				db.get(serverKey, function(err, dbstring) {
-					if (err) { if (MinecraftWidgets.config.logDebug) console.log("Database failed to find " + serverKey + ": " + err); }
-					if (!data) data = {};
-					if (!dbstring) {
-						callback(true, null);
-					}else{
-						var serv = JSON.parse(dbstring);
-						for (var prop in serv) {
-							data[prop] = serv[prop];
-						}
-						callback(null, data);
+					if (err) {
+						if (MinecraftWidgets.config.logErrors) console.log("Database failed to find " + serverKey + ": " + err);
 					}
+					if (typeof dbstring === 'string') {
+						try {
+							var dbo = JSON.parse(dbstring);
+							for (var prop in dbo) data[prop] = dbo[prop];
+						}catch(e){
+							err = e;
+							if (MinecraftWidgets.config.logErrors) console.log("Error parsing database key " + serverKey + ": " + e);
+						}
+					}
+					callback(err, data);
 				});
 			},
 			updateServers: function() {
@@ -302,100 +309,81 @@
 				});
 			},
 			updateDatabase: function( data ) {
+				// Keys: { Status: S, PingedData: PD, PlayerStats: PS, }
 				if ( data && data.serverNumber ) {
-					//console.log("Writing server " + serverNumber + " to db...");
-				
-					db.set("MCWES" + data.serverNumber, JSON.stringify(data), function(err){
-							if (err) console.log(err);
+					if (MinecraftWidgets.config.logDebug) console.log("Setting status key " + data.serverNumber + "S.");
+					db.set(data.serverNumber + "S", JSON.stringify(data), function (err){
+						if (err) console.log(err);
 					});
 					
 					if (data.onlinePlayers) {
-						db.get("MCWES" + data.serverNumber + "onlinePlayers", function(err, onlinePlayersData) {
-							if (err) {
-								// Populate the onlinePlayers Object.
-								onlinePlayersData = { 'onlinePlayers': [], 'time': [], 'players': [] };
+						db.get(data.serverNumber + "PD", function(err, dbo) {
+							if (err || !dbo) {
+								dbo = { 'onlinePlayers': [], 'time': [], 'players': [] };
 							}else{
-								// Read the onlinePlayersData Object.
 								try {
-									onlinePlayersData = JSON.parse(onlinePlayersData);
-								}catch(err){
-									console.log("MCWES" + data.serverNumber + "onlinePlayersData JSON was malformed. Resetting.");
-									onlinePlayersData = { 'onlinePlayers': [], 'time': [], 'players': [] };
+									dbo = JSON.parse(dbo);
+								} catch (err) {
+									if (MinecraftWidgets.config.logError) console.log(data.serverNumber + "PD JSON was malformed. Resetting.");
+									dbo = { 'onlinePlayers': [], 'time': [], 'players': [] };
 								}
 							}
-							
-							// Check for undefined onlinePlayersData.
-							if (!onlinePlayersData) onlinePlayersData = { 'onlinePlayers': [], 'time': [], 'players': [] };
-							if (!onlinePlayersData.onlinePlayers) onlinePlayersData.onlinePlayers = [];
-							if (!onlinePlayersData.time) onlinePlayersData.time = [];
-							if (!onlinePlayersData.players) onlinePlayersData.players = [];
+							if (!dbo.onlinePlayers) dbo.onlinePlayers = [];
+							if (!dbo.time) dbo.time = [];
+							if (!dbo.players) dbo.players = [];
 							
 							// TODO: Fix this to be locale independent.
-							var time = new Date;
-							time = time.toLocaleTimeString();
+							var time = (new Date()).toLocaleTimeString();
 							time = time.slice(0,time.lastIndexOf(":"));
 							
 							// TODO: Add configurable limit.
-							if (onlinePlayersData.time.push(time) > 30)
+							if (dbo.time.push(time) > 30)
 							{
-								onlinePlayersData.time.shift();
+								dbo.time.shift();
 							}
-							if (onlinePlayersData.onlinePlayers.push(data.onlinePlayers) > 30)
+							if (dbo.onlinePlayers.push(data.onlinePlayers) > 30)
 							{
-								onlinePlayersData.onlinePlayers.shift();
+								dbo.onlinePlayers.shift();
 							}
-							if (onlinePlayersData.players.push(data.players || []) > 30) {
-								onlinePlayersData.players.shift();
+							if (dbo.players.push(data.players || []) > 30) {
+								dbo.players.shift();
 							}
 							
-							db.set("MCWES" + data.serverNumber + "onlinePlayers", JSON.stringify(onlinePlayersData), function(err) {
+							if (MinecraftWidgets.config.logDebug) console.log("Setting ping data key " + data.serverNumber + "PD.");
+							db.set(data.serverNumber + "PD", JSON.stringify(dbo), function (err) {
 								if (err) console.log(err);
 							});
 						});
 						
-						// Store playerStats
 						if (data.players && data.players.length > 0) {
-							db.get("MCWES" + data.serverNumber + "playerStats", function(err, dbdata) {
-								if (err) {
-									// Populate the playerStatsData Object.
+							db.get(data.serverNumber + "PS", function(err, dbo) {
+								if (err || !dbo) {
 									// { PLAYER: { minutes: INT } }
-									dbdata = { playerStats: {} };
+									dbo = { playerStats: {} };
 								}else{
-									// Read the onlinePlayers Object.
 									try {
-										//console.log("MCWES" + data.serverNumber + "playerStats = " + dbdata);
-										dbdata = JSON.parse(dbdata);
+										dbo = JSON.parse(dbo);
 									}catch(err){
-										console.log("MCWES" + data.serverNumber + "onlinePlayers JSON was malformed. Resetting.");
-										dbdata = { playerStats: {} };
+										if (MinecraftWidgets.config.logError) console.log(data.serverNumber + "PS JSON was malformed. Resetting.");
+										dbo = { playerStats: {} };
 									}
 								}
-								
-								// Check for undefined data.
-								if (!dbdata) dbdata = { playerStats: {} };
 								
 								// Add minutes
 								for (var i = 0; i < data.players.length; i++) {
-									//console.log("Storing: ");
-									//console.log(data.players[i].name);
-									if (dbdata.playerStats.hasOwnProperty(data.players[i].name)) {
-										if (dbdata.playerStats[data.players[i].name].minutes) {
-											//console.log("Adding minutes.");
-											dbdata.playerStats[data.players[i].name].minutes++;
+									if (dbo.playerStats.hasOwnProperty(data.players[i].name)) {
+										if (dbo.playerStats[data.players[i].name].minutes) {
+											dbo.playerStats[data.players[i].name].minutes++;
 										}else{
-											//console.log("Couldn't find minutes.");
-											dbdata.playerStats[data.players[i].name].minutes = 1;
+											dbo.playerStats[data.players[i].name].minutes = 1;
 										}
 									}else{
-										//console.log("It's a new player.");
-										dbdata.playerStats[data.players[i].name] = { minutes: 1 };
+										dbo.playerStats[data.players[i].name] = { minutes: 1 };
 									}
 								}
 								
-								dbdata = JSON.stringify(dbdata);
-								//console.log("Storing playerStats: " + playerStats);
-								
-								db.set("MCWES" + data.serverNumber + "playerStats", dbdata, function(err) {
+								if (MinecraftWidgets.config.logDebug) console.log("Setting players statistics key " + data.serverNumber + "PS.");
+								db.set(data.serverNumber + "PS", JSON.stringify(dbo), function (err) {
 									if (err) console.log(err);
 								});
 							});
@@ -419,7 +407,7 @@
 				callback(null, "");
 				return;
 			}
-			data.requestData = ["playerStats"];
+			data.requestData = ["PS"];
 			MinecraftWidgets.pushData(data, function(err) {
 				if (err || !data.serverName) {
 					console.log("players data error");
@@ -462,7 +450,7 @@
 			data = widget.data;
 		data.serverNumber = isNaN(parseInt(data.serverNumber)) || parseInt(data.serverNumber) < 1 ? "1" : data.serverNumber;
 		
-		data.requestData = [ "onlinePlayers" ];
+		data.requestData = [ "PD" ];
 		MinecraftWidgets.pushData(data, function(err){
 			if (err) {
 				console.log(err);
@@ -501,11 +489,28 @@
 	};
 	
 	MinecraftWidgets.renderMCTopPlayersGraph = function(widget, callback) {
+		var html = MinecraftWidgets.templates['widgetMCOnlinePlayersGrid.tpl'],
+			data = widget.data;
+		data.serverNumber = isNaN(parseInt(data.serverNumber)) || parseInt(data.serverNumber) < 1 ? "1" : data.serverNumber;
+		
+		MinecraftWidgets.pushData(data, function(err) {
+			if (err || !data.serverName) {
+				console.log("server data error");
+				callback(null, "");
+				return;
+			}
+			
+			data.title = "Online Players - " + parseName( data.serverName || MinecraftWidgets.config["server" + data.serverNumber + "serverName"] );
+			callback(null, templates.parse(html, data));
+		});
+	};
+	
+	MinecraftWidgets.renderMCTopPlayersGraph = function(widget, callback) {
 		var html = MinecraftWidgets.templates['widgetMCTopPlayersGraph.tpl'],
 			data = widget.data;
 		data.serverNumber = isNaN(parseInt(data.serverNumber)) || parseInt(data.serverNumber) < 1 ? "1" : data.serverNumber;
 		
-		data.requestData = [ "playerStats" ];
+		data.requestData = [ "PS" ];
 		MinecraftWidgets.pushData(data, function(err){
 			if (err) {
 				console.log("status data error");
