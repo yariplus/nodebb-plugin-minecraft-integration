@@ -6,7 +6,6 @@
 		path = require('path'),
 		db = module.parent.require('./database'),
 		meta = module.parent.require('./meta'),
-		categories = module.parent.require('./categories'),
 		user = module.parent.require('./user'),
 		plugins = module.parent.require('./plugins'),
 		templates = module.parent.require('templates.js'),
@@ -22,7 +21,7 @@
 		app,
 		MinecraftWidgets = {
 			config: {},
-			onLoad: function(params, callback, controllers, legacyback) {
+			onLoad: function (params, callback, controllers, legacyback) {
 				var router = params.router || params;
 				var middleware = params.middleware || callback;
 				app = params.app || params;
@@ -50,23 +49,20 @@
 				}
 			
 				function render(req, res, next) {
-					res.render('admin/plugins/minecraft-essentials', {
-						themes: MinecraftWidgets.themes
-					});
+					res.render('admin/plugins/minecraft-essentials', { });
 				}
 
 				router.get('/admin/plugins/minecraft-essentials', middleware.admin.buildHeader, render);
 				router.get('/api/admin/plugins/minecraft-essentials', render);
-				router.get('/minecraft-essentials/config', function(req, res) {
+				router.get('/minecraft-essentials/config', function (req, res) {
 					res.status(200);
 				});
 
 				MinecraftWidgets.init();
-				MinecraftWidgets.loadThemes();
 				setTimeout(MinecraftWidgets.updateServers, 60000);
 				callback();
 			},
-			init: function(params) {
+			init: function (params) {
 				// Load saved config
 				var	_self = this,
 					fields = [
@@ -157,18 +153,6 @@
 				}
 				
 				async.each(templatesToLoad, loadTemplate);
-			},
-			loadThemes: function() {
-				fs.readdir(path.join(__dirname, 'public/css'), function(err, files) {
-					var isStylesheet = /\.css$/;
-					MinecraftWidgets.themes = files.filter(function(file) {
-						return isStylesheet.test(file);
-					}).map(function(file) {
-						return {
-							name: file
-						}
-					});
-				});
 			},
 			admin: {
 				menu: function(custom_header, callback) {
