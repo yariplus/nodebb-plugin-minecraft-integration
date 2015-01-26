@@ -7,10 +7,12 @@
 		path = require('path'),
 		db = module.parent.require('./database'),
 		meta = module.parent.require('./meta'),
+		Settings = module.parent.require('./settings'),
 		user = module.parent.require('./user'),
 		plugins = module.parent.require('./plugins'),
 		templates = module.parent.require('templates.js'),
 		websockets = module.parent.require('./socket.io'),
+		SocketAdmin = module.parent.require('./socket.io/admin'),
 		mcquery = require('mcquery'),
 		rcon = require('simple-rcon'),
 		net = require('net'),
@@ -21,7 +23,6 @@
 		mcping = require("mc-ping"),
 		app,
 		MinecraftWidgets = {
-			config: {},
 			onLoad: function (params, callback, controllers, legacyback) {
 				var router = params.router || params;
 				var middleware = params.middleware || callback;
@@ -43,98 +44,85 @@
 			},
 			init: function (params) {
 				// Load saved config
-				var	_self = this,
-					fields = [
-						'testData'
-					],
-					defaults = {
+				var	defaultSettings = {
 						'resetDatabase': false,
 						'serverUpdateDelay': '1',
-						'showDebugIcons': false,
-						'logErrors': false,
+						'showDebugIcons': true,
+						'logErrors': true,
 						'logDebug': false,
+						
+						'avatarCDN': "minotar",
+						'avatarSize': "40",
+						'avatarStyle': "flat",
 					
 						'server1isDisabled': false,
 						'server1serverConfigName': 'Server One',
 						'server1serverName': 'Server One',
 						'server1isLegacy': false,
-						'server1serverHost': '0.0.0.0',
-						'server1serverIP': '0.0.0.0',
-						'server1serverPort': '25565',
+						'server1serverHost': '',
+						'server1serverIP': '',
+						'server1serverPort': '',
 						'server1queryPort': '',
-						'server1rconPort': '25575',
-						'server1rconPass': 'password',
+						'server1rconPort': '',
+						'server1rconPass': '',
 						
-						'server2isDisabled': false,
+						'server2isDisabled': true,
 						'server2serverConfigName': 'Server Two',
 						'server2serverName': 'Server Two',
 						'server2isLegacy': false,
-						'server2serverHost': '0.0.0.0',
-						'server2serverIP': '0.0.0.0',
-						'server2serverPort': '25565',
+						'server2serverHost': '',
+						'server2serverIP': '',
+						'server2serverPort': '',
 						'server2queryPort': '',
-						'server2rconPort': '25575',
-						'server2rconPass': 'password',
+						'server2rconPort': '',
+						'server2rconPass': '',
 						
-						'server3isDisabled': false,
+						'server3isDisabled': true,
 						'server3serverConfigName': 'Server Three',
 						'server3serverName': 'Server Three',
 						'server3isLegacy': false,
-						'server3serverHost': '0.0.0.0',
-						'server3serverIP': '0.0.0.0',
-						'server3serverPort': '25565',
+						'server3serverHost': '',
+						'server3serverIP': '',
+						'server3serverPort': '',
 						'server3queryPort': '',
-						'server3rconPort': '25575',
-						'server3rconPass': 'password'
+						'server3rconPort': '',
+						'server3rconPass': ''
 					};
-
-				meta.settings.get('minecraft-essentials', function(err, options) {
-					for(var field in defaults) {
-						if (!options.hasOwnProperty(field)) {
-							_self.config[field] = defaults[field];
-						} else {
-							if (field == 'server1isLegacy' || field == 'server2isLegacy' || field == 'server3isLegacy' || 
-								field == 'server1isDisabled' || field == 'server2isDisabled' || field == 'server3isDisabled' ||
-								field == 'logErrors' || field == 'logDebug' || field == 'logInfo' || field == 'logTemplateData' ||
-								field == 'showDebugIcons' || field == 'resetDatabase') {
-								_self.config[field] = options[field] === 'on' ? true : false;
-							} else {
-								_self.config[field] = options[field] || defaults[field];
-							}
+				
+				MinecraftWidgets.settings = new Settings('minecraft-essentials', '0.2.11.2', defaultSettings, function() {
+					var config = MinecraftWidgets.settings.get();
+					if (config.logDebug) {
+						for ( var p in config ) {
+							console.log(p + ": " + config[p]);
 						}
 					}
-					
-					if (options.logDebug) {
-						for (var property in MinecraftWidgets.config) {
-							console.log(property + ": " + MinecraftWidgets.config[property]);
-						}
-					}
-					
-					if (options.resetDatabase) {
-						db.delete("MCWES1", function(err) {
-							if (err) console.log("Error deleting MCWES1: " + err);
-						});
-						db.delete("MCWES2", function(err) {
-							if (err) console.log("Error deleting MCWES2: " + err);
-						});
-						db.delete("MCWES3", function(err) {
-							if (err) console.log("Error deleting MCWES3: " + err);
-						});
-						db.delete("MCWES1onlinePlayers", function(err) {
-							if (err) console.log("Error deleting MCWES1onlinePlayers: " + err);
-						});
-						db.delete("MCWES2onlinePlayers", function(err) {
-							if (err) console.log("Error deleting MCWES2onlinePlayers: " + err);
-						});
-						db.delete("MCWES3onlinePlayers", function(err) {
-							if (err) console.log("Error deleting MCWES3onlinePlayers: " + err);
-						});
-						options.resetDatabase = false;
-						meta.settings.set('minecraft-essentials', options, function () {});
-					}
-					
-					setTimeout(MinecraftWidgets.updateServers, MinecraftWidgets.config.logDebug ? 60000 : 5000);
+					setTimeout(MinecraftWidgets.updateServers, MinecraftWidgets.settings.get().logDebug ? 60000 : 5000);
 				});
+				
+				SocketAdmin.settings.syncMinecraftEssentials = function () {
+					MinecraftWidgets.settings.sync();
+				};
+					
+				if (MinecraftWidgets.settings.get().resetDatabase) {
+					db.delete("MCWES1", function(err) {
+						if (err) console.log("Error deleting MCWES1: " + err);
+					});
+					db.delete("MCWES2", function(err) {
+						if (err) console.log("Error deleting MCWES2: " + err);
+					});
+					db.delete("MCWES3", function(err) {
+						if (err) console.log("Error deleting MCWES3: " + err);
+					});
+					db.delete("MCWES1onlinePlayers", function(err) {
+						if (err) console.log("Error deleting MCWES1onlinePlayers: " + err);
+					});
+					db.delete("MCWES2onlinePlayers", function(err) {
+						if (err) console.log("Error deleting MCWES2onlinePlayers: " + err);
+					});
+					db.delete("MCWES3onlinePlayers", function(err) {
+						if (err) console.log("Error deleting MCWES3onlinePlayers: " + err);
+					});
+				}
 
 				var templatesToLoad = [
 					"widgetMCServerStatus.tpl",
@@ -171,6 +159,8 @@
 					callback(null, custom_header);
 				}
 			},
+			settingsChange: function ( hash, data ) {
+			},
 			templates: {},
 			logServers: function() {
 				for (var serverNumber = 1; serverNumber <= 3; serverNumber++) {
@@ -204,10 +194,10 @@
 				var requestData = data.requestData ? data.requestData[0] : "S";
 				delete data.requestData;
 				var serverKey = ( data.serverNumber || "1") + requestData;
-				if (MinecraftWidgets.config.logDebug) console.log("Looking for db key: " + serverKey);
+				if (MinecraftWidgets.settings.get().logDebug) console.log("Looking for db key: " + serverKey);
 				db.get(serverKey, function(err, dbstring) {
 					if (err) {
-						if (MinecraftWidgets.config.logErrors) console.log("Database failed to find " + serverKey + ": " + err);
+						if (MinecraftWidgets.settings.get().logErrors) console.log("Database failed to find " + serverKey + ": " + err);
 					}
 					if (typeof dbstring === 'string') {
 						try {
@@ -215,7 +205,7 @@
 							for (var prop in dbo) data[prop] = dbo[prop];
 						}catch(e){
 							err = e;
-							if (MinecraftWidgets.config.logErrors) console.log("Error parsing database key " + serverKey + ": " + e);
+							if (MinecraftWidgets.settings.get().logErrors) console.log("Error parsing database key " + serverKey + ": " + e);
 						}
 					}
 					callback(err, data);
@@ -225,34 +215,34 @@
 				// Read from plugin config
 				var data;
 				for (var serverNumber = 1; serverNumber <= 3; serverNumber++) {
-					if (MinecraftWidgets.config['server' + serverNumber + 'isDisabled']) continue;
+					if (MinecraftWidgets.settings.get()['server' + serverNumber + 'isDisabled']) continue;
 					data = {};
 					data.serverNumber = serverNumber;
-					data.serverName = MinecraftWidgets.config['server' + serverNumber + 'serverName'] || "Server " + serverNumber;
-					data.serverHost = MinecraftWidgets.config['server' + serverNumber + 'serverHost'] || "0.0.0.0";
-					data.serverPort = MinecraftWidgets.config['server' + serverNumber + 'serverPort'] || "25565";
-					data.queryPort  = MinecraftWidgets.config['server' + serverNumber + 'queryPort'];
-					data.rconPort   = MinecraftWidgets.config['server' + serverNumber + 'rconPort']   || "25575";
-					data.rconPass   = MinecraftWidgets.config['server' + serverNumber + 'rconPass']   || "password";
+					data.serverName = MinecraftWidgets.settings.get()['server' + serverNumber + 'serverName'] || "Server " + serverNumber;
+					data.serverHost = MinecraftWidgets.settings.get()['server' + serverNumber + 'serverHost'] || "0.0.0.0";
+					data.serverPort = MinecraftWidgets.settings.get()['server' + serverNumber + 'serverPort'] || "25565";
+					data.queryPort  = MinecraftWidgets.settings.get()['server' + serverNumber + 'queryPort'];
+					data.rconPort   = MinecraftWidgets.settings.get()['server' + serverNumber + 'rconPort']   || "25575";
+					data.rconPass   = MinecraftWidgets.settings.get()['server' + serverNumber + 'rconPass']   || "password";
 					
 					// See if there is a port in the host input
 					var hostarray = data.serverHost.split(/:/g);
 					if ( hostarray.length > 1 ) {
 						if ( hostarray.length == 2 ) {
 							if ( !data.serverPort ) {
-								if (MinecraftWidgets.config.logErrors) console.log("Configuration error: Two ports entered. Using (" + hostarray[1] + ") and ignoring (" + data.serverPort + ").");
+								if (MinecraftWidgets.settings.get().logErrors) console.log("Configuration error: Two ports entered. Using (" + hostarray[1] + ") and ignoring (" + data.serverPort + ").");
 								data.hasInvalidPort = true;
 							}
 							data.serverHost = hostarray[0];
 							data.serverPort = hostarray[1];
 						} else {
-							if (MinecraftWidgets.config.logErrors) console.log("Configuration error: Invalid host (" + data.serverHost + "). Too many \":\", using default \"0.0.0.0\". ");
+							if (MinecraftWidgets.settings.get().logErrors) console.log("Configuration error: Invalid host (" + data.serverHost + "). Too many \":\", using default \"0.0.0.0\". ");
 							data.serverHost = "0.0.0.0";
 							data.hasInvalidHost = true;
 						}
 					}
 					
-					if (MinecraftWidgets.config.logDebug) console.log("Updating server status for " + ( data.serverName || "Unnamed Server" ) + " (Server " + serverNumber + ")\nConfigured Host: " + ( data.serverHost || "default" ) + "   Port: " + ( data.serverPort || "default" ) + "   Query: " + ( data.queryPort || "default" ));
+					if (MinecraftWidgets.settings.get().logDebug) console.log("Updating server status for " + ( data.serverName || "Unnamed Server" ) + " (Server " + serverNumber + ")\nConfigured Host: " + ( data.serverHost || "default" ) + "   Port: " + ( data.serverPort || "default" ) + "   Query: " + ( data.queryPort || "default" ));
 					
 					MinecraftWidgets.pushServerStatusPing(data, MinecraftWidgets.updateDatabase);
 					
@@ -261,9 +251,9 @@
 			},
 			pushServerStatusPing: function(data, callback) {
 				verifyHost(data, function(err, data) {
-					if (MinecraftWidgets.config.logErrors) console.log("Resolved host " + ( data.serverHost || "localhost" ) + " to " + data.serverIP + ":" + data.serverPort + " query at port " + data.queryPort);
-					if (MinecraftWidgets.config['server'+data.serverNumber+'isLegacy']) {
-						if (MinecraftWidgets.config.logDebug) console.log("Using legacy ServerListPing for " + data.serverHost); 
+					if (MinecraftWidgets.settings.get().logErrors) console.log("Resolved host " + ( data.serverHost || "localhost" ) + " to " + data.serverIP + ":" + data.serverPort + " query at port " + data.queryPort);
+					if (MinecraftWidgets.settings.get()['server'+data.serverNumber+'isLegacy']) {
+						if (MinecraftWidgets.settings.get().logDebug) console.log("Using legacy ServerListPing for " + data.serverHost); 
 						mcping(data.serverIP, parseInt(data.serverPort), function(err, resp) {
 							if (!err) {
 								data.onlinePlayers = resp.num_players;
@@ -290,7 +280,7 @@
 									callback( data );
 								});
 							}else{
-								if (MinecraftWidgets.config.logErrors) console.log("ServerListPing failed: " + err);
+								if (MinecraftWidgets.settings.get().logErrors) console.log("ServerListPing failed: " + err);
 								data.isServerOnline = false;
 								callback( data );
 							}
@@ -311,7 +301,7 @@
 			updateDatabase: function( data ) {
 				// Keys: { Status: S, PingedData: PD, PlayerStats: PS, }
 				if ( data && data.serverNumber ) {
-					if (MinecraftWidgets.config.logDebug) console.log("Setting status key " + data.serverNumber + "S.");
+					if (MinecraftWidgets.settings.get().logDebug) console.log("Setting status key " + data.serverNumber + "S.");
 					db.set(data.serverNumber + "S", JSON.stringify(data), function (err){
 						if (err) console.log(err);
 					});
@@ -324,7 +314,7 @@
 								try {
 									dbo = JSON.parse(dbo);
 								} catch (err) {
-									if (MinecraftWidgets.config.logError) console.log(data.serverNumber + "PD JSON was malformed. Resetting.");
+									if (MinecraftWidgets.settings.get().logError) console.log(data.serverNumber + "PD JSON was malformed. Resetting.");
 									dbo = { 'onlinePlayers': [], 'time': [], 'players': [] };
 								}
 							}
@@ -349,7 +339,7 @@
 								dbo.players.shift();
 							}
 							
-							if (MinecraftWidgets.config.logDebug) console.log("Setting ping data key " + data.serverNumber + "PD.");
+							if (MinecraftWidgets.settings.get().logDebug) console.log("Setting ping data key " + data.serverNumber + "PD.");
 							db.set(data.serverNumber + "PD", JSON.stringify(dbo), function (err) {
 								if (err) console.log(err);
 							});
@@ -364,7 +354,7 @@
 									try {
 										dbo = JSON.parse(dbo);
 									}catch(err){
-										if (MinecraftWidgets.config.logError) console.log(data.serverNumber + "PS JSON was malformed. Resetting.");
+										if (MinecraftWidgets.settings.get().logError) console.log(data.serverNumber + "PS JSON was malformed. Resetting.");
 										dbo = { playerStats: {} };
 									}
 								}
@@ -382,7 +372,7 @@
 									}
 								}
 								
-								if (MinecraftWidgets.config.logDebug) console.log("Setting players statistics key " + data.serverNumber + "PS.");
+								if (MinecraftWidgets.settings.get().logDebug) console.log("Setting players statistics key " + data.serverNumber + "PS.");
 								db.set(data.serverNumber + "PS", JSON.stringify(dbo), function (err) {
 									if (err) console.log(err);
 								});
@@ -437,7 +427,7 @@
 					}
 				}
 				
-				data.title = "Top Players - " + parseName( data.serverName || MinecraftWidgets.config["server" + data.serverNumber + "serverName"] );
+				data.title = "Top Players - " + parseName( data.serverName || MinecraftWidgets.settings.get()["server" + data.serverNumber + "serverName"] );
 				delete data.serverName;
 				html = templates.parse(html, data);
 				callback(null, html);
@@ -479,7 +469,7 @@
 					callback(null, "");
 					return;
 				}
-				data.title = "Online Players - " + parseName( data.serverName || MinecraftWidgets.config["server" + widget.data.serverNumber + "serverName"] );
+				data.title = "Online Players - " + parseName( data.serverName || MinecraftWidgets.settings.get()["server" + widget.data.serverNumber + "serverName"] );
 				delete data.serverName;
 				data.onlinePlayers = onlinePlayers;
 				html = templates.parse(html, data);
@@ -500,7 +490,7 @@
 				return;
 			}
 			
-			data.title = "Online Players - " + parseName( data.serverName || MinecraftWidgets.config["server" + data.serverNumber + "serverName"] );
+			data.title = "Online Players - " + parseName( data.serverName || MinecraftWidgets.settings.get()["server" + data.serverNumber + "serverName"] );
 			callback(null, templates.parse(html, data));
 		});
 	};
@@ -547,7 +537,7 @@
 				}
 				data.chartData = JSON.stringify(data.chartData);
 			
-				data.title = "Top Players - " + parseName( data.serverName || MinecraftWidgets.config["server" + data.serverNumber + "serverName"] );
+				data.title = "Top Players - " + parseName( data.serverName || MinecraftWidgets.settings.get()["server" + data.serverNumber + "serverName"] );
 				callback(null, templates.parse(html, data));
 			});
 		});
@@ -568,11 +558,31 @@
 			data = parseStatusWidget(data);
 			
 			// Needs to be defined or will display incorrectly.
-			if (!data.players) data.players = [];
+			if (!data.players)
+			{
+				data.players = [];
+			}else{
+				var avatarCDN = MinecraftWidgets.settings.get().avatarCDN ? MinecraftWidgets.settings.get().avatarCDN : "minotar";
+				data.avatarSize = MinecraftWidgets.settings.get().avatarSize ? MinecraftWidgets.settings.get().avatarSize : "40";
+				data.avatarSize = MinecraftWidgets.settings.get().avatarCDN === 'signaturecraft' ? data.avatarSize / 8 : data.avatarSize;
+				data.avatarStyle = MinecraftWidgets.settings.get().avatarStyle ? MinecraftWidgets.settings.get().avatarStyle : "flat";
+				switch (avatarCDN) {
+					default:
+					case "minotar":
+						data.avatarCDNminotar = true;
+						break;
+					case "signaturecraft":
+						data.avatarCDNsignaturecraft = true;
+						break;
+					case "cravatar":
+						data.avatarCDNcravatar = true;
+						break;
+				}
+			}
 			
-			data.title = parseName( data.serverName || MinecraftWidgets.config["server" + data.serverNumber + "serverName"] );
+			data.title = parseName( data.serverName || MinecraftWidgets.settings.get()["server" + data.serverNumber + "serverName"] );
 			delete data.serverName;
-			callback( null, templates.parse(html, data) );
+			callback( null, templates.parse(templates.parse(html, data),data) );
 		});
 	};
 	
@@ -644,7 +654,7 @@
 	
 	function verifyHost(templateData, hostBack) {
 		if ( isIP(templateData.serverHost) ) {
-			if (MinecraftWidgets.config.logDebug) console.log("Host is IP, not looking up DNS or SRV.");
+			if (MinecraftWidgets.settings.get().logDebug) console.log("Host is IP, not looking up DNS or SRV.");
 			templateData.serverIP = templateData.serverHost;
 			templateData.showPortDomain = true;
 			templateData.showIP = false;
@@ -733,7 +743,7 @@
 	
 	function readServerListPing(data, callback) {
 		var hostData = { 'host':( data.serverIP || data.serverHost ), 'port':data.serverPort };
-		if (MinecraftWidgets.config.logDebug) console.log("Sending ServerListPing to " + hostData.host + ":" + hostData.port);
+		if (MinecraftWidgets.settings.get().logDebug) console.log("Sending ServerListPing to " + hostData.host + ":" + hostData.port);
 		var dataLength = -1, currentLength = 0, chunks = [];
 		var socket = net.connect( hostData, function() {
 			modernRequestBack(socket, hostData);
@@ -741,14 +751,14 @@
 		
 		socket.setTimeout(4000, function () {
 			socket.destroy();
-			if (MinecraftWidgets.config.logErrors) console.log("ServerListPing timed out when connecting to " + hostData.host + ":" + hostData.port);
+			if (MinecraftWidgets.settings.get().logErrors) console.log("ServerListPing timed out when connecting to " + hostData.host + ":" + hostData.port);
 			data.isServerOnline = false;
 			data.failPing = true;
 			data.failTime = true;
 		});
 		
 		socket.on('data', function(serverStatusPingData) {
-			if (MinecraftWidgets.config.logErrors) console.log("ServerListPing packet received from " + hostData.host + ":" + hostData.port);
+			if (MinecraftWidgets.settings.get().logErrors) console.log("ServerListPing packet received from " + hostData.host + ":" + hostData.port);
 			data.isServerOnline = true;
 			
 			try {
@@ -816,12 +826,12 @@
 		});
 
 		socket.on('error', function(e) {            
-			if (MinecraftWidgets.config.logErrors) console.log(e);
+			if (MinecraftWidgets.settings.get().logErrors) console.log(e);
 		});
 		
 		socket.on('close', function(e) {
 			if (e) {
-				if (MinecraftWidgets.config.logErrors) console.log("Connection was closed unexpectedly, was the packet malformed?");
+				if (MinecraftWidgets.settings.get().logErrors) console.log("Connection was closed unexpectedly, was the packet malformed?");
 				data.isServerOnline = false;
 			}
 			callback(null, data);
@@ -859,13 +869,13 @@
 			queryData = { host: templateData.serverIP || templateData.serverHost, port: templateData.queryPort };
 		}
 		
-		if (MinecraftWidgets.config.logDebug) console.log("Querying " + queryData.host + ":" + queryData.port);
+		if (MinecraftWidgets.settings.get().logDebug) console.log("Querying " + queryData.host + ":" + queryData.port);
 		
 		var query = new mcquery( queryData.host, queryData.port, {timeout: 10000} );
 		
 		query.connect(function (err) {
 			if (err) {
-				if (MinecraftWidgets.config.logErrors) console.log("Query failed for " + ( templateData.serverIP || templateData.serverHost ) + ":" + templateData.queryPort + ", is query-enabled set to true in server.properties?" );
+				if (MinecraftWidgets.settings.get().logErrors) console.log("Query failed for " + ( templateData.serverIP || templateData.serverHost ) + ":" + templateData.queryPort + ", is query-enabled set to true in server.properties?" );
 				templateData.failQuery = true;
 				if(!templateData.pluginList) templateData.pluginList = [];
 				queryBack(null, templateData);
@@ -886,9 +896,9 @@
 
 		function fullStatBack(err, stat) {
 			if (err) {
-				if (MinecraftWidgets.config.logErrors) console.log("FullStats failed for " + ( templateData.serverIP || templateData.serverHost ) + ":" + templateData.queryPort + ", is the server blocking FullStats?");
+				if (MinecraftWidgets.settings.get().logErrors) console.log("FullStats failed for " + ( templateData.serverIP || templateData.serverHost ) + ":" + templateData.queryPort + ", is the server blocking FullStats?");
 			} else {
-				if (MinecraftWidgets.config.logTemplateDataChanges) console.log("Applying FullStats for " + ( templateData.serverIP || templateData.serverHost ) + ":" + templateData.queryPort);
+				if (MinecraftWidgets.settings.get().logTemplateDataChanges) console.log("Applying FullStats for " + ( templateData.serverIP || templateData.serverHost ) + ":" + templateData.queryPort);
 				templateData.isServerOnline = true;
 				
 				if (stat.MOTD) templateData.serverName = stat.MOTD;
@@ -946,7 +956,7 @@
 		if ( templateData.players && templateData.players.length != index ) {
 			user.exists(templateData.players[index].name, function(err, exists) {
 				if ( err ) {
-					if (MinecraftWidgets.config.logErrors) console.log("Error finding user: " + err);
+					if (MinecraftWidgets.settings.get().logErrors) console.log("Error finding user: " + err);
 				} else if ( exists ) {
 					templateData.players[index].linkprofile = true;
 				} else {
@@ -961,10 +971,10 @@
 	}
 	
 	function parseStatusWidget ( templateData ) {
-		if (MinecraftWidgets.config.logTemplateDataChanges) console.log("Original name: " + templateData.serverName);
-		if ( templateData.showNameAlways ) templateData.serverName = MinecraftWidgets.config['server' + templateData.serverNumber + 'serverName'] + " ~" + templateData.serverName + "~";
+		if (MinecraftWidgets.settings.get().logTemplateDataChanges) console.log("Original name: " + templateData.serverName);
+		if ( templateData.showNameAlways ) templateData.serverName = MinecraftWidgets.settings.get()['server' + templateData.serverNumber + 'serverName'] + " ~" + templateData.serverName + "~";
 		if ( templateData.parseFormatCodes ) templateData.serverName = parseName(templateData.serverName);
-		if (MinecraftWidgets.config.logTemplateDataChanges) console.log("New Name:" + templateData.serverName);
+		if (MinecraftWidgets.settings.get().logTemplateDataChanges) console.log("New Name:" + templateData.serverName);
 		
 		templateData.msgFailQuery = templateData.msgFailQuery.replace("{serverIP}", ( templateData.serverIP || templateData.serverHost ) );
 		templateData.msgFailQuery = templateData.msgFailQuery.replace("{queryPort}", templateData.queryPort);
@@ -1021,9 +1031,9 @@
 	
 	MinecraftWidgets.defineWidgets = function(widgets, callback) {
 		var data = { 'serverConfigNames': [] };
-		data.serverConfigNames.push({ 'configName': MinecraftWidgets.config["server1serverConfigName"], 'serverNumber': '1' });
-		data.serverConfigNames.push({ 'configName': MinecraftWidgets.config["server2serverConfigName"], 'serverNumber': '2' });
-		data.serverConfigNames.push({ 'configName': MinecraftWidgets.config["server3serverConfigName"], 'serverNumber': '3' });
+		data.serverConfigNames.push({ 'configName': MinecraftWidgets.settings.get()["server1serverConfigName"], 'serverNumber': '1' });
+		data.serverConfigNames.push({ 'configName': MinecraftWidgets.settings.get()["server2serverConfigName"], 'serverNumber': '2' });
+		data.serverConfigNames.push({ 'configName': MinecraftWidgets.settings.get()["server3serverConfigName"], 'serverNumber': '3' });
 		
 		var onlinePlayersGraphTemplate = templates.parse( MinecraftWidgets.templates['admin/adminWidgetMCOnlinePlayersGraph.tpl'], data);
 		var serverStatusTemplate = templates.parse( MinecraftWidgets.templates['admin/adminWidgetMCServerStatus.tpl'], data);
