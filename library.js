@@ -38,12 +38,7 @@
 				router.get('/minecraft-essentials/config', function (req, res) {
 					res.status(200);
 				});
-
-				MinecraftWidgets.init();
-				callback();
-			},
-			init: function (params) {
-				// Load saved config
+				
 				var	defaultSettings = {
 						'resetDatabase': false,
 						'serverUpdateDelay': '1',
@@ -147,6 +142,8 @@
 				}
 				
 				async.each(templatesToLoad, loadTemplate);
+				
+				callback();
 			},
 			admin: {
 				menu: function(custom_header, callback) {
