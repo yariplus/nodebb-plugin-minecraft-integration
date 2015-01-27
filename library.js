@@ -14,7 +14,7 @@
 		websockets = module.parent.require('./socket.io'),
 		SocketAdmin = module.parent.require('./socket.io/admin'),
 		mcquery = require('mcquery'),
-		rcon = require('simple-rcon'),
+		rcon = require('rcon'),
 		net = require('net'),
 		dns = require('dns'),
 		bufferpack = require("bufferpack"),
@@ -277,28 +277,52 @@
 								
 								queryServer(data, function(err, queryData) {
 									data = queryData;
-									callback( data );
+									MinecraftWidgets.doFetchRCON( data );
 								});
 							}else{
 								if (MinecraftWidgets.settings.get().logErrors) console.log("ServerListPing failed: " + err);
 								data.isServerOnline = false;
-								callback( data );
+								MinecraftWidgets.doFetchRCON( data );
 							}
 						});
 					}else{
 						readServerListPing(data, function(err, data) {
 							if (err || data.isServerOnline === false) {
-								callback( data );
+								MinecraftWidgets.doFetchRCON( data );
 							}else{
 								queryServer(data, function(err, data) {
-									callback( data );
+									MinecraftWidgets.doFetchRCON( data );
 								});
 							}
 						});
 					}
 				});
 			},
+			doFetchRCON: function( data ) {
+				if (!data.rconPort || !data.rconPass) {
+					MinecraftWidgets.updateDatabase( data );
+				}else{
+					if (MinecraftWidgets.settings.get().logDebug) console.log("Connecting to RCON at " + data.serverIP + ":" + data.rconPort);
+					var conn = new rcon(data.serverIP, data.rconPort, data.rconPass);
+					
+					conn.on('auth', function() {
+						if (MinecraftWidgets.settings.get().logDebug) console.log("Successfully connected to RCON at " + data.serverIP + ":" + data.rconPort);
+						conn.send('time');
+					}).on('response', function(str) {
+						console.log("Got response: " + str);
+						conn.disconnect();
+					}).on('end', function() {
+						if (MinecraftWidgets.settings.get().logDebug) console.log("RCON connection closed at " + data.serverIP + ":" + data.rconPort);
+						MinecraftWidgets.updateDatabase( data );
+					}).on('error', function() {
+						if (MinecraftWidgets.settings.get().logErrors) console.log("RCON connection failed at " + data.serverIP + ":" + data.rconPort);
+						MinecraftWidgets.updateDatabase( data );
+					});
+					conn.connect();
+				}
+			},
 			updateDatabase: function( data ) {
+				// console.log("Saving server data.");
 				// Keys: { Status: S, PingedData: PD, PlayerStats: PS, }
 				if ( data && data.serverNumber ) {
 					if (MinecraftWidgets.settings.get().logDebug) console.log("Setting status key " + data.serverNumber + "S.");

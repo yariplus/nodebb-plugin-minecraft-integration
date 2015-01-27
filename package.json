@@ -30,7 +30,7 @@
   "dependencies": {
     "async": "^0.9.0",
     "mcquery": "^0.2.5",
-    "simple-rcon": "^0.2.1",
+    "rcon": "^0.2.1",
     "encoding": "^0.1.11",
     "bufferpack": "^0.0.6",
     "varint": "^3.0.1",

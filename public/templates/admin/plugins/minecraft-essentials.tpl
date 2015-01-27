@@ -6,6 +6,12 @@
             <div class="panel-heading">Minecraft Essentials Configuration</div>
             <div class="panel-body">
             
+            <select data-key="selectMultiple" data-type="selectMultiple" size="3" multiple>
+                <option value="one">First</option>
+                <option value="two">Second</option>
+                <option value="three">Third</option>
+            </select>
+            
                 <h4>General Settings</h4>
                 <div class="form-group">
                     <label class="control-label" for="serverUpdateDelay">
@@ -285,6 +291,28 @@ require(['settings'], function(settings) {
         },
         get: function (element, trim, empty) {
             return element.prop('checked');
+        }
+    });
+    
+    settings.registerPlugin({
+        Settings: {},
+		types: ['selectMultiple'],
+        use: function () {
+            Settings = this;
+        },
+        set: function (element, value) {
+            if (value.constructor === Array) {
+                for (var val in value) {
+                    element.find('option[value=val]').attr("selected",true);
+                }
+            }
+        },
+        get: function (element, trim, empty) {
+            var value = [];
+            element.find('option:selected').each(function () {
+                value.push($(this).val());
+            });
+            return value;
         }
     });
 
