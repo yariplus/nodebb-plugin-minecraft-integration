@@ -1,16 +1,26 @@
 <div class="widgetFillContainer">
     <table class="table table-striped widgetTable">
         <tbody>
-        <!-- BEGIN topPlayers -->
+        <!-- BEGIN players -->
         <tr>
             <td width="20px">
-                <img src="http://cravatar.eu/helmavatar/{topPlayers.player}/40" data-placement="top" data-toggle="tooltip" rel="tooltip" class="user-img" title="{topPlayers.player}" size="40" width="40" height="40" style="width: 40px; height: 40px; border-style:{styleGlory}; border-width: 6px; border-radius: 4px; border-color:{topPlayers.glory};" />
+                <!-- IF players.linkprofile --><a href="user/{players.name}"><!-- ENDIF players.linkprofile --><img src="
+                <!-- IF avatarCDNminotar -->
+                https://minotar.net/avatar/{players.name}/{avatarSize}
+                <!-- ENDIF avatarCDNminotar -->
+                <!-- IF avatarCDNsignaturecraft -->
+                http://signaturecraft.us/avatars/{avatarSize}/face/{players.name}.png
+                <!-- ENDIF avatarCDNsignaturecraft -->
+                <!-- IF avatarCDNcravatar -->
+                http://cravatar.eu/avatar/{players.name}/{avatarSize}"
+                <!-- ENDIF avatarCDNcravatar -->
+                " data-placement="top" data-toggle="tooltip" rel="tooltip" class="user-img" title="{players.name}" style="border-style:{styleGlory}; border-width: 6px; border-radius: 4px; border-color:{players.glory};" /><!-- IF players.linkprofile --></a><!-- ENDIF players.linkprofile -->
             </td>
             <td style="vertical-align:middle">
-                <span style="<!-- IF topPlayers.glory -->color:{topPlayers.glory}<!-- ENDIF topPlayers.glory -->"><strong>{topPlayers.player}</strong></span><span style="<!-- IF colorText -->color:#{colorText}<!-- ENDIF colorText -->"> ~ {topPlayers.minutes}</span>
+                <span style="<!-- IF players.glory -->color:{players.glory}<!-- ENDIF players.glory -->"><strong>{players.player}</strong></span><span style="<!-- IF colorText -->color:#{colorText}<!-- ENDIF colorText -->"> ~ {players.minutes}</span>
             </td>
         </tr>
-        <!-- END topPlayers -->
+        <!-- END players -->
         </tbody>
     </table>
 </div>

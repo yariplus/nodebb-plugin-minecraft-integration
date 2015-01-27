@@ -152,7 +152,7 @@
                 <!-- IF avatarCDNcravatar -->
                 http://cravatar.eu/avatar/{players.name}/{avatarSize}"
                 <!-- ENDIF avatarCDNcravatar -->
-                " data-placement="top" data-toggle="tooltip" rel="tooltip" class="user-img" title="{players.name}" style="margin-bottom: 5px; margin-right: 5px; border-radius: 3px;" /><!-- IF players.linkprofile --></a><!-- ENDIF players.linkprofile --><!-- END players -->
+                " data-placement="top" data-toggle="tooltip" rel="tooltip" class="user-img" title="{players.name}" style="margin-bottom: 5px; margin-right: 5px; border-style:{styleGlory}; border-width: 6px; border-radius: 4px; border-color:{players.glory};" /><!-- IF players.linkprofile --></a><!-- ENDIF players.linkprofile --><!-- END players -->
             </span>
         </td>
     </tr>
