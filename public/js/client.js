@@ -79,18 +79,23 @@ $(document).ajaxComplete(function(event, response, settings) {
 	}
 	
     if (settings.url == "/api/admin/extend/widgets") {
-        $('input.ajaxSelectSibling').each(function(index){
-            var MCWESN = $(this);
-            MCWESN.prev().val($(this).val());
-            MCWESN.prev().on('change', function(){
-                MCWESN.val($(this).val());
-            });
-        });
-        
         var IDcounter = 1;
         $('#widgets .widget-area').on('click', '.toggle-widget', function() {
             var jWidgetPanel = $(this).parents('.widget-panel').children('.panel-body');
             if ( !jWidgetPanel.hasClass('hidden') ) {
+				jWidgetPanel.find('input.ajaxSelectSibling').each(function(index){
+					var MCWESN = $(this);
+					if (MCWESN.val()) {
+						MCWESN.prev().val($(this).val());
+					}else{
+						if (!MCWESN.prev().find('option:selected')) {
+							if (MCWESN.prev().find('option:first')) MCWESN.prev().val( MCWESN.prev().find('option:first').val() );
+						}
+					}
+					MCWESN.prev().on('change', function(){
+						MCWESN.val($(this).val());
+					});
+				});				
                 jWidgetPanel.find('input.ajaxInputColorPicker').each(function(index){
                     var MCWECP = $(this);
                     var id = 'ajaxInputColorPicker' + IDcounter;
