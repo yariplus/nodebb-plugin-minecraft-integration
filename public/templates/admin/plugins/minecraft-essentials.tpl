@@ -45,9 +45,10 @@
                         Primary Avatar CDN
                         <a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-title="The Avatar CDN is where avatars are downloaded from."></a>
                         <select class="form-control" data-key="avatarCDN">
-                            <option value="minotar" selected="selected">Minotar</option>
+                            <!--<option value="mojang">Mojang</option>-->
+                            <option value="cravatar" selected="selected">Cravatar.eu</option>
+                            <option value="minotar">Minotar</option>
                             <option value="signaturecraft">Signaturecraft</option>
-                            <option value="cravatar">Cravatar.eu</option>
                         </select>
                     </label>
                 </div>
