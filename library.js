@@ -1,6 +1,7 @@
-// Your sanity and wits will all vanish, I promise.
 (function() {
 	"use strict";
+	
+	// All your sanity and wits they will all vanish, I promise.
 	
 	var async = require('async'),
 		fs = require('fs'),
@@ -13,6 +14,7 @@
 		templates = module.parent.require('templates.js'),
 		websockets = module.parent.require('./socket.io'),
 		SocketAdmin = module.parent.require('./socket.io/admin'),
+		translator = module.parent.require('../public/src/translator'),
 		mcquery = require('mcquery'),
 		rcon = require('rcon'),
 		net = require('net'),
@@ -407,8 +409,7 @@
 		};
 	
 	MinecraftWidgets.renderMCTopPlayersList = function(widget, callback) {
-		var html = MinecraftWidgets.templates['widgetMCTopPlayersList.tpl'],
-			data = widget.data;
+		var data = widget.data;
 		data.serverNumber = isNaN(parseInt(data.serverNumber)) || parseInt(data.serverNumber) < 1 ? "1" : data.serverNumber;
 		
 		data.showTopPlayers = parseInt(data.showTopPlayers);
@@ -469,8 +470,12 @@
 				
 				data.title = "Top Players - " + parseName( data.serverName || MinecraftWidgets.settings.get()["server" + data.serverNumber + "serverName"] );
 				delete data.serverName;
-				html = templates.parse(html, data);
-				callback(null, html);
+				
+				app.render('widgetMCTopPlayersList', data, function(err, html) {
+					translator.translate(html, function(translatedHTML) {
+						callback(err, translatedHTML);
+					});
+				});
 			});
 		});
 	}
@@ -519,8 +524,7 @@
 	};
 	
 	MinecraftWidgets.renderMCOnlinePlayersGrid = function(widget, callback) {
-		var html = MinecraftWidgets.templates['widgetMCOnlinePlayersGrid.tpl'],
-			data = widget.data;
+		var data = widget.data;
 		data.serverNumber = isNaN(parseInt(data.serverNumber)) || parseInt(data.serverNumber) < 1 ? "1" : data.serverNumber;
 		
 		data.requestData = [ "PD" ];
@@ -577,8 +581,14 @@
 				
 				data.title = "Online Players - " + parseName( data.serverName || MinecraftWidgets.settings.get()["server" + widget.data.serverNumber + "serverName"] );
 				delete data.serverName;
-				html = templates.parse(html, data);
-				callback(null, html);
+				
+				data.avatarMargin = 5;
+				
+				app.render('widgetMCOnlinePlayersGrid', data, function(err, html) {
+					translator.translate(html, function(translatedHTML) {
+						callback(err, translatedHTML);
+					});
+				});
 			});
 		});
 	};
@@ -632,8 +642,7 @@
 	};
 
 	MinecraftWidgets.renderMCServerStatus = function(widget, callback) {
-		var html = MinecraftWidgets.templates['widgetMCServerStatus.tpl'],
-			data = widget.data;
+		var data = widget.data;
 		data.serverNumber = isNaN(parseInt(data.serverNumber)) || parseInt(data.serverNumber) < 1 ? "1" : data.serverNumber;
 		
 		MinecraftWidgets.pushData(data, function(err){
@@ -683,7 +692,14 @@
 			
 			data.title = parseName( data.serverName || MinecraftWidgets.settings.get()["server" + data.serverNumber + "serverName"] );
 			delete data.serverName;
-			callback( null, templates.parse(templates.parse(html, data),data) );
+			
+			data.avatarMargin = 5;
+			
+			app.render('widgetMCServerStatus', data, function(err, html) {
+				translator.translate(html, function(translatedHTML) {
+					callback(err, translatedHTML);
+				});
+			});
 		});
 	};
 	
@@ -872,6 +888,15 @@
 					}
 					serverStatusPingData = serverStatusPingData.slice(1);
 					currentLength++;
+				}else if (dataLength === 99){
+					if(serverStatusPingData[0] == 0x01) {
+						var ping = Date.now() - bufferpack.unpack(L, serverStatusPingData, 1);
+						console.log("GOT PING " + ping + "ms");
+						socket.destroy();
+					}else{
+						console.log("Bad handshake.");
+						socket.destroy();
+					}
 				}
 				currentLength += serverStatusPingData.length;
 				chunks.push(serverStatusPingData);
@@ -918,7 +943,8 @@
 						}
 					}
 				  
-					socket.destroy();
+					dataLength = 99;
+					modernPingBack(socket, hostData);
 				}
 			} catch(err) {
 				console.log(err);
@@ -954,6 +980,17 @@
 		
 		socket.write(buf[0]);
 		socket.write(buf[1]);
+	};
+	
+	function modernPingBack(socket, hostData) {
+		var buf = [
+			packData([
+				new Buffer([0x01]),
+				bufferpack.pack("L", Date.now())
+			])
+		];
+		
+		socket.write(buf[0]);
 	};
 	
 	function packData(raw) {
