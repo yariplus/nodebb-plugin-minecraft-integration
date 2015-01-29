@@ -2,16 +2,6 @@
     <table class="table table-striped widgetTable">
     <tbody>
     
-    <!-- IF serverName -->
-    <tr>
-        <td class="td-padded" colspan="2">
-            <span style="color:#{colorName}">
-                <strong>{serverName}</strong>
-            </span>
-        </td>
-    </tr>
-    <!-- ENDIF serverName -->
-    
     <!-- BEGIN customaftername -->
     <tr>
         <td class="td-label">

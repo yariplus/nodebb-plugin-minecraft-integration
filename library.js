@@ -434,8 +434,7 @@
 						break;
 				}
 				
-				widget.data.title = "Top Players - " + parseMCFormatCodes( widget.data.serverName || MinecraftWidgets.settings.get()["server" + widget.data.serverNumber + "serverName"] );
-				delete widget.data.serverName;
+				formatWidgetData(widget.data, "Top Players - ");
 				
 				app.render('widgetMCTopPlayersList', widget.data, function(err, html) {
 					translator.translate(html, function(translatedHTML) {
@@ -450,16 +449,12 @@
 		widget.data.serverNumber = isNaN(parseInt(widget.data.serverNumber)) || parseInt(widget.data.serverNumber) < 1 ? "1" : widget.data.serverNumber;
 		
 		widget.data.requestData = [ "PD" ];
-		MinecraftWidgets.pushData(data, function(err){
+		MinecraftWidgets.pushData(widget.data, function(err){
 			if (err) {
 				console.log(err);
 			}
-			if (!data) {
-				console.log("onlinePlayers data was null, skipping widget render.");
-				callback(null, "");
-				return;
-			}
 			
+			// TODO: This unshift should probably go in the lookup function.
 			widget.data.labels = [];
 			for (var i = 0; i < widget.data.onlinePlayers.length; i++ ) {
 				if (widget.data.time && widget.data.time[i]) {
@@ -472,15 +467,14 @@
 			var onlinePlayers = JSON.stringify(widget.data.onlinePlayers);
 			widget.data.labels = JSON.stringify(widget.data.labels);
 			
-			MinecraftWidgets.pushData(data, function(err) {
-				if (err || !widget.data.serverName) {
-					console.log("serverStatus data was null, skipping widget render.");
-					callback(null, "");
-					return;
+			MinecraftWidgets.pushData(widget.data, function(err) {
+				if (err) {
+					console.log(err);
 				}
-				widget.data.title = "Online Players - " + parseMCFormatCodes( widget.data.serverName || MinecraftWidgets.settings.get()["server" + widget.widget.data.serverNumber + "serverName"] );
-				delete widget.data.serverName;
+				
 				widget.data.onlinePlayers = onlinePlayers;
+				
+				formatWidgetData(widget.data, "Online Players - ");
 				
 				app.render('widgetMCOnlinePlayersGraph', widget.data, function(err, html) {
 					translator.translate(html, function(translatedHTML) {
@@ -546,10 +540,9 @@
 					}
 				}
 				
-				widget.data.title = "Online Players - " + parseMCFormatCodes( widget.data.serverName || MinecraftWidgets.settings.get()["server" + widget.widget.data.serverNumber + "serverName"] );
-				delete widget.data.serverName;
-				
 				widget.data.avatarMargin = 5;
+				
+				formatWidgetData(widget.data, "Online Players - ");
 				
 				app.render('widgetMCOnlinePlayersGrid', data, function(err, html) {
 					translator.translate(html, function(translatedHTML) {
@@ -600,8 +593,7 @@
 				}
 				widget.data.chartData = JSON.stringify(widget.data.chartData);
 				
-				widget.data.title = "Top Players - " + parseMCFormatCodes( widget.data.serverName || MinecraftWidgets.settings.get()["server" + widget.data.serverNumber + "serverName"] );
-				
+				formatWidgetData(widget.data, "Top Players - ");
 				
 				app.render('widgetMCTopPlayersGraph', widget.data, function(err, html) {
 					translator.translate(html, function(translatedHTML) {
@@ -622,11 +614,6 @@
 			}
 		
 			widget.data = readWidgetConfigMCServerStatus(widget, widget.data);
-			
-			if (MinecraftWidgets.settings.get().logTemplateDataChanges) console.log("Original name: " + widget.data.serverName);
-			if ( widget.data.showNameAlways ) widget.data.serverName = MinecraftWidgets.settings.get()['server' + widget.data.serverNumber + 'serverName'] + " ~" + widget.data.serverName + "~";
-			if ( widget.data.parseFormatCodes ) widget.data.serverName = parseMCFormatCodes(widget.data.serverName);
-			if (MinecraftWidgets.settings.get().logTemplateDataChanges) console.log("New Name:" + widget.data.serverName);
 			
 			widget.data.msgFailQuery = widget.data.msgFailQuery.replace("{serverIP}", ( widget.data.serverIP || widget.data.serverHost ) );
 			widget.data.msgFailQuery = widget.data.msgFailQuery.replace("{queryPort}", widget.data.queryPort);
@@ -685,10 +672,9 @@
 				}
 			}
 			
-			widget.data.title = parseMCFormatCodes( widget.data.serverName || MinecraftWidgets.settings.get()["server" + widget.data.serverNumber + "serverName"] );
-			delete widget.data.serverName;
-			
 			widget.data.avatarMargin = 5;
+			
+			formatWidgetData(widget.data);
 			
 			app.render('widgetMCServerStatus', widget.data, function(err, html) {
 				translator.translate(html, function(translatedHTML) {
@@ -697,6 +683,12 @@
 			});
 		});
 	};
+	
+	function formatWidgetData ( data, titlePrefix ) {
+		if(!titlePrefix) titlePrefix = "";
+		data.title = !data.title && !useEmptyContainer ? parseMCFormatCodes(titlePrefix + MinecraftWidgets.settings.get()["server" + data.serverNumber + "serverName"] ) : parseMCFormatCodes(titlePrefix + data.title);
+		if (!data.container && !useEmptyContainer) data.container = '<div class="panel panel-default"><div class="panel-heading">{title}</div><div class="panel-body">{body}</div></div>';
+	}
 	
 	function readWidgetConfigMCServerStatus(widget, templateData) {
 		templateData.showIP = widget.data.showIP == "on" ? true : false;
