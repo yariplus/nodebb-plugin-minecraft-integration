@@ -454,6 +454,9 @@
 				console.log(err);
 			}
 			
+			//
+			if (!widget.data.onlinePlayers) widget.data.onlinePlayers = [];
+			
 			// TODO: This unshift should probably go in the lookup function.
 			widget.data.labels = [];
 			for (var i = 0; i < widget.data.onlinePlayers.length; i++ ) {
@@ -489,17 +492,17 @@
 		widget.data.serverNumber = isNaN(parseInt(widget.data.serverNumber)) || parseInt(widget.data.serverNumber) < 1 ? "1" : widget.data.serverNumber;
 		
 		widget.data.requestData = [ "PD" ];
-		MinecraftWidgets.pushData(data, function(err){
+		MinecraftWidgets.pushData(widget.data, function(err){
 			if (err) {
 				console.log(err);
 			}
-			if (!data) {
+			if (!widget.data) {
 				console.log("onlinePlayers data was null, skipping widget render.");
 				callback(null, "");
 				return;
 			}
 			
-			MinecraftWidgets.pushData(data, function(err) {
+			MinecraftWidgets.pushData(widget.data, function(err) {
 				if (err || !widget.data.serverName) {
 					console.log("serverStatus data was null, skipping widget render.");
 					callback(null, "");
@@ -544,7 +547,7 @@
 				
 				formatWidgetData(widget.data, "Online Players - ");
 				
-				app.render('widgetMCOnlinePlayersGrid', data, function(err, html) {
+				app.render('widgetMCOnlinePlayersGrid', widget.data, function(err, html) {
 					translator.translate(html, function(translatedHTML) {
 						callback(err, translatedHTML);
 					});
@@ -686,8 +689,8 @@
 	
 	function formatWidgetData ( data, titlePrefix ) {
 		if(!titlePrefix) titlePrefix = "";
-		data.title = !data.title && !useEmptyContainer ? parseMCFormatCodes(titlePrefix + MinecraftWidgets.settings.get()["server" + data.serverNumber + "serverName"] ) : parseMCFormatCodes(titlePrefix + data.title);
-		if (!data.container && !useEmptyContainer) data.container = '<div class="panel panel-default"><div class="panel-heading">{title}</div><div class="panel-body">{body}</div></div>';
+		data.title = !data.title && !data.useEmptyContainer ? parseMCFormatCodes(titlePrefix + MinecraftWidgets.settings.get()["server" + data.serverNumber + "serverName"] ) : parseMCFormatCodes(titlePrefix + data.title);
+		if (!data.container && !data.useEmptyContainer) data.container = '<div class="panel panel-default"><div class="panel-heading">{title}</div><div class="panel-body">{body}</div></div>';
 	}
 	
 	function readWidgetConfigMCServerStatus(widget, templateData) {
