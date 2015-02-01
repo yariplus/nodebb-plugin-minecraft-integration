@@ -163,19 +163,12 @@
 				delete data.requestData;
 				var serverKey = ( data.serverNumber || "1") + requestData;
 				if (MinecraftWidgets.settings.get().logDebug) console.log("Looking for db key: " + serverKey);
-				db.get(serverKey, function(err, dbstring) {
+				db.getObject(serverKey, function(err, dbo) {
 					if (err) {
 						if (MinecraftWidgets.settings.get().logErrors) console.log("Database failed to find " + serverKey + ": " + err);
 					}
-					if (typeof dbstring === 'string') {
-						try {
-							var dbo = JSON.parse(dbstring);
-							for (var prop in dbo) data[prop] = dbo[prop];
-						}catch(e){
-							err = e;
-							if (MinecraftWidgets.settings.get().logErrors) console.log("Error parsing database key " + serverKey + ": " + e);
-						}
-					}
+					//console.log(JSON.stringify(dbo));
+					for (var prop in dbo) data[prop] = dbo[prop];
 					callback(err, data);
 				});
 			},
@@ -290,25 +283,17 @@
 				}
 			},
 			updateDatabase: function( data ) {
-				// console.log("Saving server data.");
-				// Keys: { Status: S, PingedData: PD, PlayerStats: PS, }
+				// Keys: { Status: #S, PingedData: #PD, PlayerStats: #PS, }
 				if ( data && data.serverNumber ) {
 					if (MinecraftWidgets.settings.get().logDebug) console.log("Setting status key " + data.serverNumber + "S.");
-					db.set(data.serverNumber + "S", JSON.stringify(data), function (err){
+					db.setObject(data.serverNumber + "S", data, function (err){
 						if (err) console.log(err);
 					});
 					
 					if (data.onlinePlayers) {
-						db.get(data.serverNumber + "PD", function(err, dbo) {
+						db.getObject(data.serverNumber + "PD", function(err, dbo) {
 							if (err || !dbo) {
 								dbo = { 'onlinePlayers': [], 'time': [], 'players': [] };
-							}else{
-								try {
-									dbo = JSON.parse(dbo);
-								} catch (err) {
-									if (MinecraftWidgets.settings.get().logError) console.log(data.serverNumber + "PD JSON was malformed. Resetting.");
-									dbo = { 'onlinePlayers': [], 'time': [], 'players': [] };
-								}
 							}
 							if (!dbo.onlinePlayers) dbo.onlinePlayers = [];
 							if (!dbo.time) dbo.time = [];
@@ -332,23 +317,16 @@
 							}
 							
 							if (MinecraftWidgets.settings.get().logDebug) console.log("Setting ping data key " + data.serverNumber + "PD.");
-							db.set(data.serverNumber + "PD", JSON.stringify(dbo), function (err) {
+							db.setObject(data.serverNumber + "PD", dbo, function (err) {
 								if (err) console.log(err);
 							});
 						});
 						
 						if (data.players && data.players.length > 0) {
-							db.get(data.serverNumber + "PS", function(err, dbo) {
+							db.getObject(data.serverNumber + "PS", function(err, dbo) {
 								if (err || !dbo) {
 									// { PLAYER: { minutes: INT } }
 									dbo = { playerStats: {} };
-								}else{
-									try {
-										dbo = JSON.parse(dbo);
-									}catch(err){
-										if (MinecraftWidgets.settings.get().logError) console.log(data.serverNumber + "PS JSON was malformed. Resetting.");
-										dbo = { playerStats: {} };
-									}
 								}
 								
 								// Add minutes
@@ -365,7 +343,7 @@
 								}
 								
 								if (MinecraftWidgets.settings.get().logDebug) console.log("Setting players statistics key " + data.serverNumber + "PS.");
-								db.set(data.serverNumber + "PS", JSON.stringify(dbo), function (err) {
+								db.setObject(data.serverNumber + "PS", dbo, function (err) {
 									if (err) console.log(err);
 								});
 							});
