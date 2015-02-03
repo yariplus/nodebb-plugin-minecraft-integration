@@ -36,7 +36,7 @@
             <!-- ENDIF isServerRestarting -->
                 <!-- IF failHost -->{msgFailHost}<!-- ENDIF failHost -->
                 <!-- IF failPort -->{msgFailPort}<!-- ENDIF failPort -->
-                <!-- IF failQuery -->{msgFailQuery}<!-- ENDIF failQuery -->
+                <!-- IF msgFailQuery -->{msgFailQuery}<!-- ENDIF msgFailQuery -->
                 <!-- IF failListPlayers -->{msgFailListPlayers}<!-- ENDIF failListPlayers -->
                 <!-- IF failListMods -->{msgFailListMods}<!-- ENDIF failListMods -->
                 <!-- IF failListPlugins -->{msgFailListPlugins}<!-- ENDIF failListPlugins -->
@@ -101,8 +101,8 @@
         <td>
             <span<!-- IF colorText --> style="color:#{colorText}"<!-- ENDIF colorText -->>
                 {version}
-                <!-- IF modInfo -->&nbsp;<a class="fa fa-cog text-info<!-- IF showModList --> has-popover<!-- ENDIF showModList -->" data-html="true" data-title="<h6><b>Mod List</b></h6>"    data-placement="bottom"<!-- ENDIF modInfo --><!-- BEGIN modList -->{modList.modid}<!-- IF @first -->   data-content="&lt;h6&gt;<!-- ENDIF @first --><!-- IF @last -->&lt;/h6&gt;"<!-- ELSE --><!-- IF !@first -->, <!-- ENDIF !@first --><!-- ENDIF @last --><!-- END modList --><!-- IF modInfo -->></a><!-- ENDIF modInfo -->
-                <!-- IF pluginInfo -->&nbsp;<a class="fa fa-plug text-info<!-- ENDIF pluginInfo --><!-- IF showPluginList --> has-popover<!-- ENDIF showPluginList --><!-- IF pluginInfo -->" data-html="true" data-title="<h6><b>Plugin List</b></h6>" data-placement="bottom"<!-- ENDIF pluginInfo --><!-- BEGIN pluginList -->{pluginList.name}<!-- IF @first --> data-content="&lt;h6&gt;<!-- ENDIF @first --><!-- IF @last -->&lt;/h6&gt;"<!-- ELSE --><!-- IF !@first -->, <!-- ENDIF !@first --><!-- ENDIF @last --><!-- END pluginList --><!-- IF pluginInfo -->></a><!-- ENDIF pluginInfo -->
+                <!-- IF hasMods -->&nbsp;<a class="fa fa-cog text-info has-popover" data-html="true" data-title="<h6><b>Mod List</b></h6>" data-placement="bottom"<!-- ENDIF hasMods --><!-- BEGIN modList -->{modList.modid}<!-- IF @first -->   data-content="&lt;h6&gt;<!-- ENDIF @first --><!-- IF @last -->&lt;/h6&gt;"<!-- ELSE --><!-- IF !@first -->, <!-- ENDIF !@first --><!-- ENDIF @last --><!-- END modList --><!-- IF hasMods -->></a><!-- ENDIF hasMods -->
+                <!-- IF hasPlugins -->&nbsp;<a class="fa fa-plug text-info has-popover" data-html="true" data-title="<h6><b>Plugin List</b></h6>" data-placement="bottom"<!-- ENDIF hasPlugins --><!-- BEGIN pluginList -->{pluginList.name}<!-- IF @first --> data-content="&lt;h6&gt;<!-- ENDIF @first --><!-- IF @last -->&lt;/h6&gt;"<!-- ELSE --><!-- IF !@first -->, <!-- ENDIF !@first --><!-- ENDIF @last --><!-- END pluginList --><!-- IF hasPlugins -->></a><!-- ENDIF hasPlugins -->
             </span>
         </td>
     </tr>
@@ -123,7 +123,7 @@
     </tr>
     <!-- END customafterversion -->
     
-    <!-- IF hasPlayers -->
+    <!-- IF showPlayers -->
     <tr>
         <td class="td-label">
             <span<!-- IF colorLabels --> style="color:#{colorLabels}"<!-- ENDIF colorLabels -->>
@@ -138,7 +138,7 @@
             </span>
         </td>
     </tr>
-    <!-- ENDIF hasPlayers -->
+    <!-- ENDIF showPlayers -->
     
     <!-- BEGIN customafterplayers -->
     <tr>

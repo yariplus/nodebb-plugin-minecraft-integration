@@ -16,15 +16,6 @@
                 <div class="form-group">
                     <div class="checkbox">
                         <label>
-                            <input data-type="check" type="checkbox" data-key="showDebugIcons" data-new="true"></input>
-                            Show Debug Icons?
-                            <a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-title="This adds icons with useful info to the server status widget whenever something goes wrong."></a>
-                        </label>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="checkbox">
-                        <label>
                             <input type="checkbox" data-type="check" data-key="logErrors"></input>
                             Log Errors?
                             <a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-title="This logs all non-critical errors."></a>
