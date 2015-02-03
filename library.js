@@ -140,6 +140,9 @@
 				
 				async.each(templatesToLoad, loadTemplate);
 				
+				
+				
+				
 				callback();
 			},
 			admin: {
@@ -167,7 +170,6 @@
 					if (err) {
 						if (MinecraftWidgets.settings.get().logErrors) console.log("Database failed to find " + serverKey + ": " + err);
 					}
-					//console.log(JSON.stringify(dbo));
 					for (var prop in dbo) data[prop] = dbo[prop];
 					callback(err, data);
 				});
@@ -238,21 +240,25 @@
 								
 								queryServer(data, function(err, queryData) {
 									data = queryData;
-									MinecraftWidgets.doFetchRCON( data );
+									//MinecraftWidgets.doFetchRCON( data );
+									MinecraftWidgets.updateDatabase( data );
 								});
 							}else{
 								if (MinecraftWidgets.settings.get().logErrors) console.log("ServerListPing failed: " + err);
 								data.isServerOnline = false;
-								MinecraftWidgets.doFetchRCON( data );
+								//MinecraftWidgets.doFetchRCON( data );
+								MinecraftWidgets.updateDatabase( data );
 							}
 						});
 					}else{
 						readServerListPing(data, function(err, data) {
 							if (err || data.isServerOnline === false) {
-								MinecraftWidgets.doFetchRCON( data );
+								//MinecraftWidgets.doFetchRCON( data );
+								MinecraftWidgets.updateDatabase( data );
 							}else{
 								queryServer(data, function(err, data) {
-									MinecraftWidgets.doFetchRCON( data );
+									//MinecraftWidgets.doFetchRCON( data );
+									MinecraftWidgets.updateDatabase( data );
 								});
 							}
 						});
@@ -288,67 +294,68 @@
 					if (MinecraftWidgets.settings.get().logDebug) console.log("Setting status key " + data.serverNumber + "S.");
 					db.setObject(data.serverNumber + "S", data, function (err){
 						if (err) console.log(err);
-					});
-					
-					if (data.onlinePlayers) {
-						db.getObject(data.serverNumber + "PD", function(err, dbo) {
-							if (err || !dbo) {
-								dbo = { 'onlinePlayers': [], 'time': [], 'players': [] };
-							}
-							if (!dbo.onlinePlayers) dbo.onlinePlayers = [];
-							if (!dbo.time) dbo.time = [];
-							if (!dbo.players) dbo.players = [];
-							
-							// TODO: Fix this to be locale independent.
-							var time = (new Date()).toLocaleTimeString();
-							time = time.slice(0,time.lastIndexOf(":"));
-							
-							// TODO: Add configurable limit.
-							if (dbo.time.push(time) > 30)
-							{
-								dbo.time.shift();
-							}
-							if (dbo.onlinePlayers.push(data.onlinePlayers) > 30)
-							{
-								dbo.onlinePlayers.shift();
-							}
-							if (dbo.players.push(data.players || []) > 30) {
-								dbo.players.shift();
-							}
-							
-							if (MinecraftWidgets.settings.get().logDebug) console.log("Setting ping data key " + data.serverNumber + "PD.");
-							db.setObject(data.serverNumber + "PD", dbo, function (err) {
-								if (err) console.log(err);
-							});
-						});
 						
-						if (data.players && data.players.length > 0) {
-							db.getObject(data.serverNumber + "PS", function(err, dbo) {
+						if (data.onlinePlayers) {
+							db.getObject(data.serverNumber + "PD", function(err, dbo) {
 								if (err || !dbo) {
-									// { PLAYER: { minutes: INT } }
-									dbo = { playerStats: {} };
+									dbo = { 'onlinePlayers': [], 'time': [], 'players': [] };
 								}
 								
-								// Add minutes
-								for (var i = 0; i < data.players.length; i++) {
-									if (dbo.playerStats.hasOwnProperty(data.players[i].name)) {
-										if (dbo.playerStats[data.players[i].name].minutes) {
-											dbo.playerStats[data.players[i].name].minutes++;
-										}else{
-											dbo.playerStats[data.players[i].name].minutes = 1;
-										}
-									}else{
-										dbo.playerStats[data.players[i].name] = { minutes: 1 };
-									}
+								if (!dbo.onlinePlayers) dbo.onlinePlayers = [];
+								if (!dbo.time) dbo.time = [];
+								if (!dbo.players) dbo.players = [];
+								
+								// TODO: Fix this to be locale independent.
+								var time = (new Date()).toLocaleTimeString();
+								time = time.slice(0,time.lastIndexOf(":"));
+								
+								// TODO: Add configurable limit.
+								if (dbo.time.push(time) > 30)
+								{
+									dbo.time.shift();
+								}
+								if (dbo.onlinePlayers.push(data.onlinePlayers) > 30)
+								{
+									dbo.onlinePlayers.shift();
+								}
+								if (dbo.players.push(data.players || []) > 30) {
+									dbo.players.shift();
 								}
 								
-								if (MinecraftWidgets.settings.get().logDebug) console.log("Setting players statistics key " + data.serverNumber + "PS.");
-								db.setObject(data.serverNumber + "PS", dbo, function (err) {
+								if (MinecraftWidgets.settings.get().logDebug) console.log("Setting ping data key " + data.serverNumber + "PD.");
+								db.setObject(data.serverNumber + "PD", dbo, function (err) {
 									if (err) console.log(err);
+									
+									if (data.players && data.players.length > 0) {
+										db.getObject(data.serverNumber + "PS", function(err, dbo) {
+											if (err || !dbo) {
+												// { PLAYER: { minutes: INT } }
+												dbo = { playerStats: {} };
+											}
+											
+											// Add minutes
+											for (var i = 0; i < data.players.length; i++) {
+												if (dbo.playerStats.hasOwnProperty(data.players[i].name)) {
+													if (dbo.playerStats[data.players[i].name].minutes) {
+														dbo.playerStats[data.players[i].name].minutes++;
+													}else{
+														dbo.playerStats[data.players[i].name].minutes = 1;
+													}
+												}else{
+													dbo.playerStats[data.players[i].name] = { minutes: 1 };
+												}
+											}
+											
+											if (MinecraftWidgets.settings.get().logDebug) console.log("Setting players statistics key " + data.serverNumber + "PS.");
+											db.setObject(data.serverNumber + "PS", dbo, function (err) {
+												if (err) console.log(err);
+											});
+										});
+									}
 								});
-							});
+							});							
 						}
-					}
+					});					
 				}
 			}
 		};
@@ -432,7 +439,6 @@
 				console.log(err);
 			}
 			
-			//
 			if (!widget.data.onlinePlayers) widget.data.onlinePlayers = [];
 			
 			// TODO: This unshift should probably go in the lookup function.
