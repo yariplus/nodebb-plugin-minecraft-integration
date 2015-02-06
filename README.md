@@ -8,9 +8,7 @@ NodeBB widgets and extensions for Minecraft. Project aims to reproduce and enhan
 
 ## Installation
 
-The recommended installation method is using the **Extend->Plugins** page on your Admin Control Panel by typing the name "nodebb-widget-minecraft-essentials" into the search box and clicking install.
-
-Alternatively, you can use the following command in your NodeBB base directory.
+Use the following command in your NodeBB base directory.
 
     npm install nodebb-widget-minecraft-essentials
 

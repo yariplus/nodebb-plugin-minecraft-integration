@@ -113,6 +113,10 @@
 						});
 					}
 				}
+				
+				// db.delete("mcserver1", function(err) {
+					// if (err) console.log("Error deleting " + i + "PS" + err);
+				// });
 
 				var templatesToLoad = [
 					"widgetMCOnlinePlayersGraph.tpl",
@@ -156,17 +160,30 @@
 			settingsChange: function ( hash, data ) {
 			},
 			templates: {},
-			pushData: function(data, callback) {
+			pushData: function(data, fields, callback) {
+				if (!callback) {
+					callback = fields;
+					fields = ['status'];
+				}
+				
 				// Get information from the database and push it into the data object.
-				var requestData = data.requestData ? data.requestData[0] : "S";
-				delete data.requestData;
-				var serverKey = ( data.serverNumber || "1") + requestData;
+				var serverKey = "mcserver" + data.serverNumber;
 				if (MinecraftWidgets.settings.get().logDebug) console.log("Looking for db key: " + serverKey);
 				db.getObject(serverKey, function(err, dbo) {
-					if (err) {
+					if (err || !dbo) {
 						if (MinecraftWidgets.settings.get().logErrors) console.log("Database failed to find " + serverKey + ": " + err);
+					}else{
+						for (var i = 0; i < fields.length; i++) {
+							data[fields[i]] = {};
+							if (dbo[fields[i]]) {
+								try {
+									var o = JSON.parse(dbo[fields[i]]);
+									for (var prop in o) data[fields[i]][prop] = o[prop];
+								}catch(err){
+								}
+							}
+						}
 					}
-					for (var prop in dbo) data[prop] = dbo[prop];
 					callback(err, data);
 				});
 			},
@@ -296,73 +313,67 @@
 				}
 			},
 			updateDatabase: function( data ) {
-				// Keys: { Status: #S, PingedData: #PD, PlayerStats: #PS, }
 				if ( data && data.serverNumber ) {
-					if (MinecraftWidgets.settings.get().logDebug) console.log("Setting status key " + data.serverNumber + "S.");
-					db.setObject(data.serverNumber + "S", data, function (err){
+					if (MinecraftWidgets.settings.get().logDebug) console.log("Setting status key mcserver" + data.serverNumber);
+					
+					var serverKey = "mcserver" + data.serverNumber;
+					
+					db.setObjectField(serverKey, 'status', JSON.stringify(data), function (err){
 						if (err) console.log(err);
-						
-						if (data.onlinePlayers) {
-							db.getObject(data.serverNumber + "PD", function(err, dbo) {
-								if (err || !dbo) {
-									dbo = { 'onlinePlayers': [], 'time': [], 'players': [] };
-								}
+					});
+					
+					if (data.players.length > 0) {
+						db.getObjectField(serverKey, 'pings', function (err, dbo) {
+							if (err || !dbo) dbo = '{"pingArr":[]}';
+							
+							try {
+								dbo = JSON.parse(dbo);
 								
-								if (!dbo.onlinePlayers) dbo.onlinePlayers = [];
-								if (!dbo.time) dbo.time = [];
-								if (!dbo.players) dbo.players = [];
+								//var time = (new Date()).toLocaleTimeString();
+								//time = time.slice(0,time.lastIndexOf(":"));
 								
-								// TODO: Fix this to be locale independent.
-								var time = (new Date()).toLocaleTimeString();
-								time = time.slice(0,time.lastIndexOf(":"));
+								dbo.pingArr.push( {time: Date.now().toString(), players: data.players} );
+								while (dbo.pingArr.length > 15) dbo.pingArr.shift();
 								
-								// TODO: Add configurable limit.
-								if (dbo.time.push(time) > 30)
-								{
-									dbo.time.shift();
-								}
-								if (dbo.onlinePlayers.push(data.onlinePlayers) > 30)
-								{
-									dbo.onlinePlayers.shift();
-								}
-								if (dbo.players.push(data.players || []) > 30) {
-									dbo.players.shift();
-								}
-								
-								if (MinecraftWidgets.settings.get().logDebug) console.log("Setting ping data key " + data.serverNumber + "PD.");
-								db.setObject(data.serverNumber + "PD", dbo, function (err) {
+								db.setObjectField(serverKey, 'pings', JSON.stringify(dbo), function (err) {
 									if (err) console.log(err);
-									
-									if (data.players && data.players.length > 0) {
-										db.getObject(data.serverNumber + "PS", function(err, dbo) {
-											if (err || !dbo) {
-												// { PLAYER: { minutes: INT } }
-												dbo = { playerStats: {} };
-											}
-											
-											// Add minutes
-											for (var i = 0; i < data.players.length; i++) {
-												if (dbo.playerStats.hasOwnProperty(data.players[i].name)) {
-													if (dbo.playerStats[data.players[i].name].minutes) {
-														dbo.playerStats[data.players[i].name].minutes++;
-													}else{
-														dbo.playerStats[data.players[i].name].minutes = 1;
-													}
-												}else{
-													dbo.playerStats[data.players[i].name] = { minutes: 1 };
-												}
-											}
-											
-											if (MinecraftWidgets.settings.get().logDebug) console.log("Setting players statistics key " + data.serverNumber + "PS.");
-											db.setObject(data.serverNumber + "PS", dbo, function (err) {
-												if (err) console.log(err);
-											});
-										});
-									}
 								});
-							});							
-						}
-					});					
+							}catch(err){
+								console.log(err);
+								console.log(dbo);
+							}
+						});
+						
+						db.getObjectField(serverKey, 'players', function (err, dbo){
+							if (err || !dbo) dbo = '{}';
+							
+							try {
+								dbo = JSON.parse(dbo);
+								//console.log(dbo);
+								
+								// Add minutes
+								for (var i = 0; i < data.players.length; i++) {
+									if (dbo.hasOwnProperty(data.players[i].name)) {
+										if (dbo[data.players[i].name].minutes) {
+											dbo[data.players[i].name].minutes++;
+										}else{
+											dbo[data.players[i].name].minutes = 1;
+										}
+									}else{
+										dbo[data.players[i].name] = {};
+										dbo[data.players[i].name].minutes = 1;
+									}
+								}
+								
+								db.setObjectField(serverKey, 'players', JSON.stringify(dbo), function (err) {
+									if (err) console.log(err);
+								});
+							}catch(err){
+								console.log(err);
+								console.log(dbo);
+							}
+						});
+					}
 				}
 			}
 		};
@@ -370,45 +381,124 @@
 	MinecraftWidgets.renderMCTopPlayersList = function(widget, callback) {
 		widget.data.serverNumber = isNaN(parseInt(widget.data.serverNumber)) || parseInt(widget.data.serverNumber) < 1 ? "1" : widget.data.serverNumber;
 		
-		widget.data.showTopPlayers = parseInt(widget.data.showTopPlayers);
-		widget.data.showTopPlayers = isNaN(widget.data.showTopPlayers) ? 5 : widget.data.showTopPlayers < 1 ? 5 : widget.data.showTopPlayers;
+		MinecraftWidgets.pushData(widget.data, ['status', 'players'], function(err) {
+			widget.data.showTopPlayers = parseInt(widget.data.showTopPlayers);
+			widget.data.showTopPlayers = isNaN(widget.data.showTopPlayers) ? 5 : widget.data.showTopPlayers < 1 ? 5 : widget.data.showTopPlayers;
+			
+			widget.data.topPlayers = [];
+			for (var player in widget.data.players) {
+				widget.data.topPlayers.push({ 'player': player, 'minutes': widget.data.players[player].minutes });
+			}
+			widget.data.topPlayers.sort(function(a, b) { return b.minutes - a.minutes; });
+			while (widget.data.topPlayers.length > widget.data.showTopPlayers) {
+				widget.data.topPlayers.pop();
+			}
+			
+			widget.data.players = widget.data.topPlayers;
+			
+			if (widget.data.showGlory) {
+				if (!widget.data.gloryStart) widget.data.gloryStart = "000000";
+				if (!widget.data.gloryEnd) widget.data.gloryEnd = "000000";
+				var gloryStart = [ parseInt(widget.data.gloryStart.substring(0,2),16), parseInt(widget.data.gloryStart.substring(2,4),16), parseInt(widget.data.gloryStart.substring(4,6),16) ];
+				var gloryEnd = [ parseInt(widget.data.gloryEnd.substring(0,2),16), parseInt(widget.data.gloryEnd.substring(2,4),16), parseInt(widget.data.gloryEnd.substring(4,6),16) ];
+				var gloryStep =  [ Math.round( (gloryEnd[0]-gloryStart[0]) / widget.data.showTopPlayers ), Math.round( (gloryEnd[1]-gloryStart[1]) / widget.data.showTopPlayers ), Math.round( (gloryEnd[2]-gloryStart[2]) / widget.data.showTopPlayers ) ];
+			}
+			
+			for (var i = 0; i < widget.data.players.length; i++) {
+				if (widget.data.showGlory) widget.data.players[i].glory = "#" + ("00" + (gloryStart[0] + gloryStep[0] * i).toString(16)).substr(-2) + ("00" + (gloryStart[1] + gloryStep[1] * i).toString(16)).substr(-2) + ("00" + (gloryStart[2] + gloryStep[2] * i).toString(16)).substr(-2);
+				if (widget.data.players[i].minutes > 60) {
+					widget.data.players[i].minutes = Math.floor(widget.data.players[i].minutes / 60).toString() + " Hours, " + (widget.data.players[i].minutes % 60).toString() + " Minutes";
+				}else{
+					widget.data.players[i].minutes = widget.data.players[i].minutes + " Minutes";
+				}
+			}
+			
+			var avatarCDN = MinecraftWidgets.settings.get().avatarCDN ? MinecraftWidgets.settings.get().avatarCDN : "minotar";
+			widget.data.avatarSize = MinecraftWidgets.settings.get().avatarSize ? MinecraftWidgets.settings.get().avatarSize : "40";
+			widget.data.avatarSize = MinecraftWidgets.settings.get().avatarCDN === 'signaturecraft' ? widget.data.avatarSize / 8 : widget.data.avatarSize;
+			widget.data.avatarStyle = MinecraftWidgets.settings.get().avatarStyle ? MinecraftWidgets.settings.get().avatarStyle : "flat";
+			switch (avatarCDN) {
+				default:
+				case "minotar":
+					widget.data.avatarCDNminotar = true;
+					break;
+				case "signaturecraft":
+					widget.data.avatarCDNsignaturecraft = true;
+					break;
+				case "cravatar":
+					widget.data.avatarCDNcravatar = true;
+					break;
+			}
+			
+			formatWidgetData(widget.data, "Top Players - ");
+			
+			app.render('widgetMCTopPlayersList', widget.data, function(err, html) {
+				translator.translate(html, function(translatedHTML) {
+					callback(err, translatedHTML);
+				});
+			});
+		});
+	}
 		
-		MinecraftWidgets.pushData(widget.data, function(err) {
-			if (err || !widget.data.serverName) {
-				console.log("status data error");
-				callback(null, "");
+	MinecraftWidgets.renderMCOnlinePlayersGraph = function(widget, callback) {
+		widget.data.serverNumber = isNaN(parseInt(widget.data.serverNumber)) || parseInt(widget.data.serverNumber) < 1 ? "1" : widget.data.serverNumber;
+		
+		MinecraftWidgets.pushData(widget.data, ['pings', 'status'], function(err){
+		
+			if (!widget.data.status || widget.data.status.players.length < 1) {
+				widget.data.title = '';
+				widget.data.container = '';
+				callback(null, '');
 				return;
 			}
-			widget.data.requestData = ["PS"];
-			MinecraftWidgets.pushData(widget.data, function(err) {
-				if (err || !widget.data.serverName) {
-					console.log("players data error");
-					callback(null, "");
-					return;
-				}
+		
+			for (var p in widget.data.status) {
+				widget.data[p] = widget.data.status[p];
+			}
+			delete widget.data.status;
+			
+			widget.data.onlinePlayers = [];
+			widget.data.labels = [];
+			
+			for (var i = 0; i < widget.data.pings.pingArr.length; i++) {
+				widget.data.onlinePlayers.push( widget.data.pings.pingArr[i].players ? widget.data.pings.pingArr[i].players.length : 0 );
+				widget.data.labels.push( widget.data.pings.pingArr[i].time ? widget.data.pings.pingArr[i].time : '0' );
+			}
+			
+			widget.data.onlinePlayers = JSON.stringify(widget.data.onlinePlayers);
+			widget.data.labels = JSON.stringify(widget.data.labels);
 				
-				widget.data.players = [];
-				for (var player in widget.data.playerStats) { widget.data.players.push({ 'name': player, 'minutes': widget.data.playerStats[player].minutes }); }
-				widget.data.players.sort(function(a, b) { return b.minutes - a.minutes; });
-				while (widget.data.players.length > widget.data.showTopPlayers) widget.data.players.pop();
+			formatWidgetData(widget.data, "Online Players - ");
+			
+			app.render('widgetMCOnlinePlayersGraph', widget.data, function(err, html) {
+				translator.translate(html, function(translatedHTML) {
+					callback(err, translatedHTML);
+				});
+			});
+		});
+	};
+	
+	MinecraftWidgets.renderMCOnlinePlayersGrid = function(widget, callback) {
+		widget.data.serverNumber = isNaN(parseInt(widget.data.serverNumber)) || parseInt(widget.data.serverNumber) < 1 ? "1" : widget.data.serverNumber;
+		
+		MinecraftWidgets.pushData(widget.data, ['status'], function(err){
+		
+			if (!widget.data.status || widget.data.status.players.length < 1) {
+				widget.data.title = '';
+				widget.data.container = '';
+				callback(null, '');
+				return;
+			}
+			
+			for (var p in widget.data.status) {
+				widget.data[p] = widget.data.status[p];
+			}
+			delete widget.data.status;
 				
-				if (widget.data.showGlory) {
-					if (!widget.data.gloryStart) widget.data.gloryStart = "000000";
-					if (!widget.data.gloryEnd) widget.data.gloryEnd = "000000";
-					var gloryStart = [ parseInt(widget.data.gloryStart.substring(0,2),16), parseInt(widget.data.gloryStart.substring(2,4),16), parseInt(widget.data.gloryStart.substring(4,6),16) ];
-					var gloryEnd = [ parseInt(widget.data.gloryEnd.substring(0,2),16), parseInt(widget.data.gloryEnd.substring(2,4),16), parseInt(widget.data.gloryEnd.substring(4,6),16) ];
-					var gloryStep =  [ Math.round( (gloryEnd[0]-gloryStart[0]) / widget.data.showTopPlayers ), Math.round( (gloryEnd[1]-gloryStart[1]) / widget.data.showTopPlayers ), Math.round( (gloryEnd[2]-gloryStart[2]) / widget.data.showTopPlayers ) ];
-				}
-				
-				for (var i = 0; i < widget.data.players.length; i++) {
-					if (widget.data.showGlory) widget.data.players[i].glory = "#" + ("00" + (gloryStart[0] + gloryStep[0] * i).toString(16)).substr(-2) + ("00" + (gloryStart[1] + gloryStep[1] * i).toString(16)).substr(-2) + ("00" + (gloryStart[2] + gloryStep[2] * i).toString(16)).substr(-2);
-					if (widget.data.players[i].minutes > 60) {
-						widget.data.players[i].minutes = Math.floor(widget.data.players[i].minutes / 60).toString() + " Hours, " + (widget.data.players[i].minutes % 60).toString() + " Minutes";
-					}else{
-						widget.data.players[i].minutes = widget.data.players[i].minutes + " Minutes";
-					}
-				}
-				
+			
+			
+			widget.data.showPlayers = widget.data.isServerOnline ? true : false;
+			if (widget.data.showPlayers) {
 				var avatarCDN = MinecraftWidgets.settings.get().avatarCDN ? MinecraftWidgets.settings.get().avatarCDN : "minotar";
 				widget.data.avatarSize = MinecraftWidgets.settings.get().avatarSize ? MinecraftWidgets.settings.get().avatarSize : "40";
 				widget.data.avatarSize = MinecraftWidgets.settings.get().avatarCDN === 'signaturecraft' ? widget.data.avatarSize / 8 : widget.data.avatarSize;
@@ -426,127 +516,26 @@
 						break;
 				}
 				
-				formatWidgetData(widget.data, "Top Players - ");
+				if (widget.data.showGlory) {
+					if (!widget.data.gloryStart) widget.data.gloryStart = "000000";
+					if (!widget.data.gloryEnd) widget.data.gloryEnd = "000000";
+					var gloryStart = [ parseInt(widget.data.gloryStart.substring(0,2),16), parseInt(widget.data.gloryStart.substring(2,4),16), parseInt(widget.data.gloryStart.substring(4,6),16) ];
+					var gloryEnd = [ parseInt(widget.data.gloryEnd.substring(0,2),16), parseInt(widget.data.gloryEnd.substring(2,4),16), parseInt(widget.data.gloryEnd.substring(4,6),16) ];
+					var gloryStep =  [ Math.round( (gloryEnd[0]-gloryStart[0]) / widget.data.onlinePlayers ), Math.round( (gloryEnd[1]-gloryStart[1]) / widget.data.onlinePlayers ), Math.round( (gloryEnd[2]-gloryStart[2]) / widget.data.onlinePlayers ) ];
+				}
 				
-				app.render('widgetMCTopPlayersList', widget.data, function(err, html) {
-					translator.translate(html, function(translatedHTML) {
-						callback(err, translatedHTML);
-					});
-				});
-			});
-		});
-	}
-		
-	MinecraftWidgets.renderMCOnlinePlayersGraph = function(widget, callback) {
-		widget.data.serverNumber = isNaN(parseInt(widget.data.serverNumber)) || parseInt(widget.data.serverNumber) < 1 ? "1" : widget.data.serverNumber;
-		
-		widget.data.requestData = [ "PD" ];
-		MinecraftWidgets.pushData(widget.data, function(err){
-			if (err) {
-				console.log(err);
+				for (var i = 0; i < widget.data.players.length; i++) {
+					if (widget.data.showGlory) widget.data.players[i].glory = "#" + ("00" + (gloryStart[0] + gloryStep[0] * i).toString(16)).substr(-2) + ("00" + (gloryStart[1] + gloryStep[1] * i).toString(16)).substr(-2) + ("00" + (gloryStart[2] + gloryStep[2] * i).toString(16)).substr(-2);
+				}
+				
+				widget.data.avatarMargin = 5;
 			}
 			
-			if (!widget.data.onlinePlayers) widget.data.onlinePlayers = [];
+			formatWidgetData(widget.data, "Online Players - ");
 			
-			// TODO: This unshift should probably go in the lookup function.
-			widget.data.labels = [];
-			for (var i = 0; i < widget.data.onlinePlayers.length; i++ ) {
-				if (widget.data.time && widget.data.time[i]) {
-					widget.data.labels.push(widget.data.time[i]);
-				}else{
-					widget.data.labels.unshift("");
-				}
-			}
-			
-			var onlinePlayers = JSON.stringify(widget.data.onlinePlayers);
-			widget.data.labels = JSON.stringify(widget.data.labels);
-			
-			MinecraftWidgets.pushData(widget.data, function(err) {
-				if (err) {
-					console.log(err);
-				}
-				
-				widget.data.onlinePlayers = onlinePlayers;
-				
-				formatWidgetData(widget.data, "Online Players - ");
-				
-				app.render('widgetMCOnlinePlayersGraph', widget.data, function(err, html) {
-					translator.translate(html, function(translatedHTML) {
-						callback(err, translatedHTML);
-					});
-				});
-			});
-		});
-	};
-	
-	MinecraftWidgets.renderMCOnlinePlayersGrid = function(widget, callback) {
-		widget.data.serverNumber = isNaN(parseInt(widget.data.serverNumber)) || parseInt(widget.data.serverNumber) < 1 ? "1" : widget.data.serverNumber;
-		
-		widget.data.requestData = [ "PD" ];
-		MinecraftWidgets.pushData(widget.data, function(err){
-			if (err) {
-				console.log(err);
-			}
-			if (!widget.data) {
-				console.log("onlinePlayers data was null, skipping widget render.");
-				callback(null, "");
-				return;
-			}
-			
-			MinecraftWidgets.pushData(widget.data, function(err) {
-				if (err || !widget.data.serverName) {
-					console.log("serverStatus data was null, skipping widget render.");
-					callback(null, "");
-					return;
-				}
-				
-				if (widget.data.players.length < 1) {
-					widget.data.title = '';
-					widget.data.container = '';
-					callback(null, '');
-					return;
-				}
-				
-				widget.data.showPlayers = widget.data.isServerOnline ? true : false;
-				if (widget.data.showPlayers) {
-					var avatarCDN = MinecraftWidgets.settings.get().avatarCDN ? MinecraftWidgets.settings.get().avatarCDN : "minotar";
-					widget.data.avatarSize = MinecraftWidgets.settings.get().avatarSize ? MinecraftWidgets.settings.get().avatarSize : "40";
-					widget.data.avatarSize = MinecraftWidgets.settings.get().avatarCDN === 'signaturecraft' ? widget.data.avatarSize / 8 : widget.data.avatarSize;
-					widget.data.avatarStyle = MinecraftWidgets.settings.get().avatarStyle ? MinecraftWidgets.settings.get().avatarStyle : "flat";
-					switch (avatarCDN) {
-						default:
-						case "minotar":
-							widget.data.avatarCDNminotar = true;
-							break;
-						case "signaturecraft":
-							widget.data.avatarCDNsignaturecraft = true;
-							break;
-						case "cravatar":
-							widget.data.avatarCDNcravatar = true;
-							break;
-					}
-					
-					if (widget.data.showGlory) {
-						if (!widget.data.gloryStart) widget.data.gloryStart = "000000";
-						if (!widget.data.gloryEnd) widget.data.gloryEnd = "000000";
-						var gloryStart = [ parseInt(widget.data.gloryStart.substring(0,2),16), parseInt(widget.data.gloryStart.substring(2,4),16), parseInt(widget.data.gloryStart.substring(4,6),16) ];
-						var gloryEnd = [ parseInt(widget.data.gloryEnd.substring(0,2),16), parseInt(widget.data.gloryEnd.substring(2,4),16), parseInt(widget.data.gloryEnd.substring(4,6),16) ];
-						var gloryStep =  [ Math.round( (gloryEnd[0]-gloryStart[0]) / widget.data.onlinePlayers ), Math.round( (gloryEnd[1]-gloryStart[1]) / widget.data.onlinePlayers ), Math.round( (gloryEnd[2]-gloryStart[2]) / widget.data.onlinePlayers ) ];
-					}
-					
-					for (var i = 0; i < widget.data.players.length; i++) {
-						if (widget.data.showGlory) widget.data.players[i].glory = "#" + ("00" + (gloryStart[0] + gloryStep[0] * i).toString(16)).substr(-2) + ("00" + (gloryStart[1] + gloryStep[1] * i).toString(16)).substr(-2) + ("00" + (gloryStart[2] + gloryStep[2] * i).toString(16)).substr(-2);
-					}
-					
-					widget.data.avatarMargin = 5;
-				}
-				
-				formatWidgetData(widget.data, "Online Players - ");
-				
-				app.render('widgetMCOnlinePlayersGrid', widget.data, function(err, html) {
-					translator.translate(html, function(translatedHTML) {
-						callback(err, translatedHTML);
-					});
+			app.render('widgetMCOnlinePlayersGrid', widget.data, function(err, html) {
+				translator.translate(html, function(translatedHTML) {
+					callback(err, translatedHTML);
 				});
 			});
 		});
@@ -555,49 +544,35 @@
 	MinecraftWidgets.renderMCTopPlayersGraph = function(widget, callback) {
 		widget.data.serverNumber = isNaN(parseInt(widget.data.serverNumber)) || parseInt(widget.data.serverNumber) < 1 ? "1" : widget.data.serverNumber;
 		
-		widget.data.requestData = [ "PS" ];
-		MinecraftWidgets.pushData(widget.data, function(err){
-			if (err) {
-				console.log("status data error");
-				callback(null, "");
-				return;
+		MinecraftWidgets.pushData(widget.data, ['status', 'players'], function (err) {
+			widget.data.showTopPlayers = parseInt(widget.data.showTopPlayers);
+			widget.data.showTopPlayers = isNaN(widget.data.showTopPlayers) ? 5 : widget.data.showTopPlayers < 1 ? 5 : widget.data.showTopPlayers;
+			
+			widget.data.topPlayers = [];
+			for (var player in widget.data.players) {
+				widget.data.topPlayers.push({ 'player': player, 'minutes': widget.data.players[player].minutes });
 			}
-			MinecraftWidgets.pushData(widget.data, function(err) {
-				if (err || !widget.data.serverName) {
-					console.log("server data error");
-					callback(null, "");
-					return;
-				}
-				
-				widget.data.showTopPlayers = parseInt(widget.data.showTopPlayers);
-				widget.data.showTopPlayers = isNaN(widget.data.showTopPlayers) ? 5 : widget.data.showTopPlayers < 1 ? 5 : widget.data.showTopPlayers;
-				
-				widget.data.topPlayers = [];
-				for (var player in widget.data.playerStats) {
-					widget.data.topPlayers.push({ 'player': player, 'minutes': widget.data.playerStats[player].minutes });
-				}
-				widget.data.topPlayers.sort(function(a, b) { return b.minutes - a.minutes; });
-				while (widget.data.topPlayers.length > widget.data.showTopPlayers) {
-					widget.data.topPlayers.pop();
-				}
-				
-				widget.data.chartOptions = "{ responsive: true, tooltipTemplate: \"<%if (label){%><%=label%>: <%}%><%= value %> Minutes\" }";
-				widget.data.chartData = [];
-				for (var i = 0; i < widget.data.topPlayers.length; i++) {
-					var newdata = { 'value': widget.data.topPlayers[i].minutes, 'color': '','highlight': '', 'label': widget.data.topPlayers[i].player };
-					var hue = Math.random() * 720;
-					newdata.color = 'hsl(' + hue + ','+'100%,40%)';
-					newdata.highlight = 'hsl(' + hue + ','+'100%,70%)';
-					widget.data.chartData.push(newdata);
-				}
-				widget.data.chartData = JSON.stringify(widget.data.chartData);
-				
-				formatWidgetData(widget.data, "Top Players - ");
-				
-				app.render('widgetMCTopPlayersGraph', widget.data, function(err, html) {
-					translator.translate(html, function(translatedHTML) {
-						callback(err, translatedHTML);
-					});
+			widget.data.topPlayers.sort(function(a, b) { return b.minutes - a.minutes; });
+			while (widget.data.topPlayers.length > widget.data.showTopPlayers) {
+				widget.data.topPlayers.pop();
+			}
+			
+			widget.data.chartOptions = "{ responsive: true, tooltipTemplate: \"<%if (label){%><%=label%>: <%}%><%= value %> Minutes\" }";
+			widget.data.chartData = [];
+			for (var i = 0; i < widget.data.topPlayers.length; i++) {
+				var newdata = { 'value': widget.data.topPlayers[i].minutes, 'color': '','highlight': '', 'label': widget.data.topPlayers[i].player };
+				var hue = Math.random() * 720;
+				newdata.color = 'hsl(' + hue + ','+'100%,40%)';
+				newdata.highlight = 'hsl(' + hue + ','+'100%,70%)';
+				widget.data.chartData.push(newdata);
+			}
+			widget.data.chartData = JSON.stringify(widget.data.chartData);
+			
+			formatWidgetData(widget.data, "Top Players - ");
+			
+			app.render('widgetMCTopPlayersGraph', widget.data, function(err, html) {
+				translator.translate(html, function(translatedHTML) {
+					callback(err, translatedHTML);
 				});
 			});
 		});
@@ -606,12 +581,13 @@
 	MinecraftWidgets.renderMCServerStatus = function(widget, callback) {
 		widget.data.serverNumber = isNaN(parseInt(widget.data.serverNumber)) || parseInt(widget.data.serverNumber) < 1 ? "1" : widget.data.serverNumber;
 		
-		MinecraftWidgets.pushData(widget.data, function(err){
-			if (err || !widget.data.serverName) {
-				callback(null, "");
-				return;
+		MinecraftWidgets.pushData(widget.data, ['status'], function(err) {
+
+			for (var p in widget.data.status) {
+				widget.data[p] = widget.data.status[p];
 			}
-			
+			delete widget.data.status;
+		
 			widget.data.parseFormatCodes = widget.data.parseFormatCodes == "on" ? true : false;
 			widget.data.showPlayerCount = widget.data.showPlayerCount == "on" ? true : false;
 			widget.data.showDebugIcons = widget.data.showDebugIcons == "on" ? true : false;
@@ -672,8 +648,10 @@
 			widget.data.showPlayerCount = widget.data.isServerOnline && widget.data.showPlayerCount ? true : false;
 			widget.data.showVersion = widget.data.isServerOnline && widget.data.version ? true : false;
 			
-			if (widget.data.modList.length > 0) widget.data.hasMods = true;
-			if (widget.data.pluginList.length > 0) widget.data.hasPlugins = true;
+			if (widget.data.isServerOnline) {
+				if (widget.data.modList.length > 0) widget.data.hasMods = true;
+				if (widget.data.pluginList.length > 0) widget.data.hasPlugins = true;
+			}
 			
 			if (widget.data.showIP && widget.data.serverPort != "25565") widget.data.showPortIP = true;
 			
