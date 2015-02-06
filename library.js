@@ -385,15 +385,20 @@
 			widget.data.showTopPlayers = parseInt(widget.data.showTopPlayers);
 			widget.data.showTopPlayers = isNaN(widget.data.showTopPlayers) ? 5 : widget.data.showTopPlayers < 1 ? 5 : widget.data.showTopPlayers;
 			
+			for (var p in widget.data.status) {
+				if (p == 'players') continue;
+				widget.data[p] = widget.data.status[p];
+			}
+			delete widget.data.status;
+			
 			widget.data.topPlayers = [];
 			for (var player in widget.data.players) {
-				widget.data.topPlayers.push({ 'player': player, 'minutes': widget.data.players[player].minutes });
+				widget.data.topPlayers.push({ 'name': player, 'minutes': widget.data.players[player].minutes });
 			}
 			widget.data.topPlayers.sort(function(a, b) { return b.minutes - a.minutes; });
 			while (widget.data.topPlayers.length > widget.data.showTopPlayers) {
 				widget.data.topPlayers.pop();
 			}
-			
 			widget.data.players = widget.data.topPlayers;
 			
 			if (widget.data.showGlory) {
