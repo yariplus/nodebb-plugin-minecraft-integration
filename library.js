@@ -6,13 +6,11 @@
 	var async = require('async'),
 		fs = require('fs'),
 		path = require('path'),
-		db = module.parent.require('./database'),
 		meta = module.parent.require('./meta'),
 		Settings = module.parent.require('./settings'),
 		user = module.parent.require('./user'),
 		plugins = module.parent.require('./plugins'),
 		templates = module.parent.require('templates.js'),
-		websockets = module.parent.require('./socket.io'),
 		SocketAdmin = module.parent.require('./socket.io/admin'),
 		translator = module.parent.require('../public/src/translator'),
 		mcquery = require('mcquery'),
@@ -42,55 +40,41 @@
 				});
 				
 				var	defaultSettings = {
-						'resetDatabase': false,
-						'serverUpdateDelay': '1',
-						'showDebugIcons': true,
-						'logErrors': true,
-						'logDebug': false,
-						
-						'avatarCDN': "cravatar",
-						'avatarSize': "40",
-						'avatarStyle': "flat",
+					'resetDatabase': false,
+					'serverUpdateDelay': '1',
+					'showDebugIcons': true,
+					'logErrors': true,
+					'logDebug': false,
 					
-						'server1isDisabled': false,
-						'server1serverConfigName': 'Server One',
-						'server1serverName': 'Server One',
-						'server1isLegacy': false,
-						'server1serverHost': '',
-						'server1serverIP': '',
-						'server1serverPort': '',
-						'server1queryPort': '',
-						'server1rconPort': '',
-						'server1rconPass': '',
-						
-						'server2isDisabled': true,
-						'server2serverConfigName': 'Server Two',
-						'server2serverName': 'Server Two',
-						'server2isLegacy': false,
-						'server2serverHost': '',
-						'server2serverIP': '',
-						'server2serverPort': '',
-						'server2queryPort': '',
-						'server2rconPort': '',
-						'server2rconPass': '',
-						
-						'server3isDisabled': true,
-						'server3serverConfigName': 'Server Three',
-						'server3serverName': 'Server Three',
-						'server3isLegacy': false,
-						'server3serverHost': '',
-						'server3serverIP': '',
-						'server3serverPort': '',
-						'server3queryPort': '',
-						'server3rconPort': '',
-						'server3rconPass': ''
-					};
+					'servers': [],
+					
+					'avatarCDN': "cravatar",
+					'avatarSize': "40",
+					'avatarStyle': "flat",
 				
-				MinecraftWidgets.settings = new Settings('minecraft-essentials', '0.2.11.2', defaultSettings, function() {
+					'server0isDisabled': false,
+					'server0serverConfigName': 'Server One',
+					'server0serverName': 'A Minecraft Server',
+					'server0isLegacy': false,
+					'server0serverHost': '',
+					'server0serverPort': '',
+					'server0queryPort': '',
+					'server0rconPort': '',
+					'server0rconPass': ''
+				};
+				
+				MinecraftWidgets.settings = new Settings('minecraft-essentials', '0.2.14', defaultSettings, function() {
 					var config = MinecraftWidgets.settings.get();
+					
 					if (config.logDebug) {
 						for ( var p in config ) {
 							console.log(p + ": " + config[p]);
+						}
+						for (var serverNumber = 0; serverNumber < 10; serverNumber++) {
+							if ( config['server' + serverNumber + 'isDisabled'] || typeof config['server' + serverNumber + 'isDisabled'] === 'undefined' ) continue;
+							console.log(config.servers[serverNumber].status);
+							console.log(config.servers[serverNumber].pings);
+							console.log(config.servers[serverNumber].players);
 						}
 					}
 					setTimeout(MinecraftWidgets.updateServers, MinecraftWidgets.settings.get().logDebug ? 60000 : 5000);
@@ -99,24 +83,6 @@
 				SocketAdmin.settings.syncMinecraftEssentials = function () {
 					MinecraftWidgets.settings.sync();
 				};
-					
-				if (MinecraftWidgets.settings.get().resetDatabase) {
-					for (var i = 1; i <= 3; i++) {
-						db.delete(i + "S", function(err) {
-							if (err) console.log("Error deleting " + i + "S" + err);
-						});
-						db.delete(i + "PD", function(err) {
-							if (err) console.log("Error deleting " + i + "PD" + err);
-						});
-						db.delete(i + "PS", function(err) {
-							if (err) console.log("Error deleting " + i + "PS" + err);
-						});
-					}
-				}
-				
-				// db.delete("mcserver1", function(err) {
-					// if (err) console.log("Error deleting " + i + "PS" + err);
-				// });
 
 				var templatesToLoad = [
 					"widgetMCOnlinePlayersGraph.tpl",
@@ -167,104 +133,95 @@
 				}
 				
 				// Get information from the database and push it into the data object.
-				var serverKey = "mcserver" + data.serverNumber;
-				if (MinecraftWidgets.settings.get().logDebug) console.log("Looking for db key: " + serverKey);
-				db.getObject(serverKey, function(err, dbo) {
-					if (err || !dbo) {
-						if (MinecraftWidgets.settings.get().logErrors) console.log("Database failed to find " + serverKey + ": " + err);
-					}else{
-						for (var i = 0; i < fields.length; i++) {
-							data[fields[i]] = {};
-							if (dbo[fields[i]]) {
-								try {
-									var o = JSON.parse(dbo[fields[i]]);
-									for (var prop in o) data[fields[i]][prop] = o[prop];
-								}catch(err){
-								}
-							}
-						}
-					}
-					callback(err, data);
-				});
+				var config = MinecraftWidgets.settings.get();
+				if ( config['server' + data.serverNumber + 'isDisabled'] || typeof config['server' + data.serverNumber + 'isDisabled'] === 'undefined' ) { callback(null, data); console.log("Couldn't find server " + data.serverNumber); return; }
+				for (var i = 0; i < fields.length; i++) {
+					var o = config.servers[data.serverNumber][fields[i]];
+					data[fields[i]] = {};
+					for (var prop in o) data[fields[i]][prop] = o[prop];
+				}
+				callback(null, data);
 			},
 			updateServers: function() {
 				// Read from plugin config
-				var data;
-				for (var serverNumber = 1; serverNumber <= 3; serverNumber++) {
-					if (MinecraftWidgets.settings.get()['server' + serverNumber + 'isDisabled']) continue;
+				var data,
+					config = MinecraftWidgets.settings.get();
+				for (var serverNumber = 0; serverNumber < 10; serverNumber++) {
+					if ( config['server' + serverNumber + 'isDisabled'] || typeof config['server' + serverNumber + 'isDisabled'] === 'undefined' ) continue;
 					data = {};
 					data.serverNumber = serverNumber;
-					data.serverName = MinecraftWidgets.settings.get()['server' + serverNumber + 'serverName'] || "Server " + serverNumber;
-					data.serverHost = MinecraftWidgets.settings.get()['server' + serverNumber + 'serverHost'] || "0.0.0.0";
-					data.serverPort = MinecraftWidgets.settings.get()['server' + serverNumber + 'serverPort'] || "25565";
-					data.queryPort  = MinecraftWidgets.settings.get()['server' + serverNumber + 'queryPort'];
-					data.rconPort   = MinecraftWidgets.settings.get()['server' + serverNumber + 'rconPort']   || "25575";
-					data.rconPass   = MinecraftWidgets.settings.get()['server' + serverNumber + 'rconPass']   || "password";
+					data.serverName   = config['server' + serverNumber + 'serverName'] || "Server " + serverNumber;
+					data.serverHost   = config['server' + serverNumber + 'serverHost'] || "0.0.0.0";
+					data.serverPort   = config['server' + serverNumber + 'serverPort'] || "25565";
+					data.queryPort    = config['server' + serverNumber + 'queryPort'];
+					data.rconPort     = config['server' + serverNumber + 'rconPort']   || "25575";
+					data.rconPass     = config['server' + serverNumber + 'rconPass']   || "password";
 					
 					// Set all fields to false/empty.
-					data.isServerOnline = false;
-					data.version = '';
-					data.serverMOTD = '';
-					data.failPing = false;
-					data.failQuery = false;
-					data.failTime = false;
-					data.onlinePlayers = '0';
-					data.icon = '';
-					data.players = [];
-					data.modList = [];
-					data.pluginList = [];
+					data.status = {};
+					data.status.serverIP = "0.0.0.0";
+					data.status.isServerOnline = false;
+					data.status.version = '';
+					data.status.serverMOTD = '';
+					data.status.failPing = false;
+					data.status.failQuery = false;
+					data.status.failTime = false;
+					data.status.onlinePlayers = '0';
+					data.status.icon = '';
+					data.status.players = [];
+					data.status.modList = [];
+					data.status.pluginList = [];
 					
 					// See if there is a port in the host input
 					var hostarray = data.serverHost.split(/:/g);
 					if ( hostarray.length > 1 ) {
 						if ( hostarray.length == 2 ) {
 							if ( !data.serverPort ) {
-								if (MinecraftWidgets.settings.get().logErrors) console.log("Configuration error: Two ports entered. Using (" + hostarray[1] + ") and ignoring (" + data.serverPort + ").");
+								if (config.logErrors) console.log("Configuration error: Two ports entered. Using (" + hostarray[1] + ") and ignoring (" + data.serverPort + ").");
 								data.hasInvalidPort = true;
 							}
 							data.serverHost = hostarray[0];
 							data.serverPort = hostarray[1];
 						} else {
-							if (MinecraftWidgets.settings.get().logErrors) console.log("Configuration error: Invalid host (" + data.serverHost + "). Too many \":\", using default \"0.0.0.0\". ");
+							if (config.logErrors) console.log("Configuration error: Invalid host (" + data.serverHost + "). Too many \":\", using default \"0.0.0.0\". ");
 							data.serverHost = "0.0.0.0";
 							data.hasInvalidHost = true;
 						}
 					}
 					
-					if (MinecraftWidgets.settings.get().logDebug) console.log("Updating server status for " + ( data.serverName || "Unnamed Server" ) + " (Server " + serverNumber + ")\nConfigured Host: " + ( data.serverHost || "default" ) + "   Port: " + ( data.serverPort || "default" ) + "   Query: " + ( data.queryPort || "default" ));
+					if (config.logDebug) console.log("Updating server status for " + ( data.serverName || "Unnamed Server" ) + " (Server " + serverNumber + ")\nConfigured Host: " + ( data.serverHost || "default" ) + "   Port: " + ( data.serverPort || "default" ) + "   Query: " + ( data.queryPort || "default" ));
 					
-					MinecraftWidgets.pushServerStatusPing(data, MinecraftWidgets.updateDatabase);
+					MinecraftWidgets.pushServerStatusPing(data);
 				}
 				setTimeout(MinecraftWidgets.updateServers, 60000);
 			},
-			pushServerStatusPing: function(data, callback) {
-				verifyHost(data, function(err, data) {
-					if (MinecraftWidgets.settings.get().logErrors) console.log("Resolved host " + ( data.serverHost || "localhost" ) + " to " + data.serverIP + ":" + data.serverPort + " query at port " + data.queryPort);
+			pushServerStatusPing: function(data) {
+				verifyHost(data, function(err) {
+					if (MinecraftWidgets.settings.get().logErrors) console.log("Resolved host " + ( data.serverHost || "localhost" ) + " to " + data.status.serverIP + ":" + data.serverPort + " query at port " + data.queryPort);
 					if (MinecraftWidgets.settings.get()['server'+data.serverNumber+'isLegacy']) {
 						if (MinecraftWidgets.settings.get().logDebug) console.log("Using legacy ServerListPing for " + data.serverHost); 
-						mcping(data.serverIP, parseInt(data.serverPort), function(err, resp) {
+						mcping(data.status.serverIP, parseInt(data.serverPort), function(err, resp) {
 							if (!err) {
-								data.isServerOnline = true;
-								data.onlinePlayers = resp.num_players;
-								data.maxPlayers = resp.max_players;
-								data.serverName = resp.server_name;
-								if (resp.version) data.version = resp.version;
+								data.status.isServerOnline = true;
+								data.status.onlinePlayers = resp.num_players;
+								data.status.maxPlayers = resp.max_players;
+								data.status.serverName = resp.server_name;
+								if (resp.version) data.status.version = resp.version;
 							  
 								if(resp.modinfo) {
 									var fullModList = resp.modinfo.modList.slice(2);
 									var modNames = [];
-									data.modList = [];
+									data.status.modList = [];
 									for (var i = 0; i < fullModList.length; i++) {
 										var pipedMod = fullModList[i].modid.split("|")[0];
 										if (modNames.indexOf(pipedMod) == -1) {
 											modNames.push(pipedMod);
-											data.modList.push({modid: pipedMod});
+											data.status.modList.push({modid: pipedMod});
 										}
 									}
 								}
 								
-								queryServer(data, function(err, queryData) {
-									data = queryData;
+								queryServer(data, function(err) {
 									//MinecraftWidgets.doFetchRCON( data );
 									MinecraftWidgets.updateDatabase( data );
 								});
@@ -275,12 +232,12 @@
 							}
 						});
 					}else{
-						readServerListPing(data, function(err, data) {
+						readServerListPing(data, function(err) {
 							if (err) {
 								//MinecraftWidgets.doFetchRCON( data );
 								MinecraftWidgets.updateDatabase( data );
 							}else{
-								queryServer(data, function(err, data) {
+								queryServer(data, function(err) {
 									//MinecraftWidgets.doFetchRCON( data );
 									MinecraftWidgets.updateDatabase( data );
 								});
@@ -293,95 +250,90 @@
 				if (!data.rconPort || !data.rconPass) {
 					MinecraftWidgets.updateDatabase( data );
 				}else{
-					if (MinecraftWidgets.settings.get().logDebug) console.log("Connecting to RCON at " + data.serverIP + ":" + data.rconPort);
-					var conn = new rcon(data.serverIP, data.rconPort, data.rconPass);
+					if (MinecraftWidgets.settings.get().logDebug) console.log("Connecting to RCON at " + data.status.serverIP + ":" + data.rconPort);
+					var conn = new rcon(data.status.serverIP, data.rconPort, data.rconPass);
 					
 					conn.on('auth', function() {
-						if (MinecraftWidgets.settings.get().logDebug) console.log("Successfully connected to RCON at " + data.serverIP + ":" + data.rconPort);
+						if (MinecraftWidgets.settings.get().logDebug) console.log("Successfully connected to RCON at " + data.status.serverIP + ":" + data.rconPort);
 						conn.send('time');
 					}).on('response', function(str) {
 						console.log("Got response: " + str);
 						conn.disconnect();
 					}).on('end', function() {
-						if (MinecraftWidgets.settings.get().logDebug) console.log("RCON connection closed at " + data.serverIP + ":" + data.rconPort);
+						if (MinecraftWidgets.settings.get().logDebug) console.log("RCON connection closed at " + data.status.serverIP + ":" + data.rconPort);
 						MinecraftWidgets.updateDatabase( data );
 					}).on('error', function() {
-						if (MinecraftWidgets.settings.get().logErrors) console.log("RCON connection failed at " + data.serverIP + ":" + data.rconPort);
+						if (MinecraftWidgets.settings.get().logErrors) console.log("RCON connection failed at " + data.status.serverIP + ":" + data.rconPort);
 						MinecraftWidgets.updateDatabase( data );
 					});
 					conn.connect();
 				}
 			},
 			updateDatabase: function( data ) {
-				if ( data && data.serverNumber ) {
-					if (MinecraftWidgets.settings.get().logDebug) console.log("Setting status key mcserver" + data.serverNumber);
+				if ( data && typeof data.serverNumber !== 'undefined' ) {
+					var servers = MinecraftWidgets.settings.get('servers'),
+						config = MinecraftWidgets.settings.get();
 					
-					var serverKey = "mcserver" + data.serverNumber;
+					if (config.logDebug) console.log("Saving settings for server " + data.serverNumber + ": " + data.serverConfigName);
 					
-					db.setObjectField(serverKey, 'status', JSON.stringify(data), function (err){
-						if (err) console.log(err);
-					});
-					
-					if (data.players.length > 0) {
-						db.getObjectField(serverKey, 'pings', function (err, dbo) {
-							if (err || !dbo) dbo = '{"pingArr":[]}';
-							
-							try {
-								dbo = JSON.parse(dbo);
-								
-								//var time = (new Date()).toLocaleTimeString();
-								//time = time.slice(0,time.lastIndexOf(":"));
-								
-								dbo.pingArr.push( {time: Date.now().toString(), players: data.players} );
-								while (dbo.pingArr.length > 15) dbo.pingArr.shift();
-								
-								db.setObjectField(serverKey, 'pings', JSON.stringify(dbo), function (err) {
-									if (err) console.log(err);
-								});
-							}catch(err){
-								console.log(err);
-								console.log(dbo);
-							}
-						});
-						
-						db.getObjectField(serverKey, 'players', function (err, dbo){
-							if (err || !dbo) dbo = '{}';
-							
-							try {
-								dbo = JSON.parse(dbo);
-								//console.log(dbo);
-								
-								// Add minutes
-								for (var i = 0; i < data.players.length; i++) {
-									if (dbo.hasOwnProperty(data.players[i].name)) {
-										if (dbo[data.players[i].name].minutes) {
-											dbo[data.players[i].name].minutes++;
-										}else{
-											dbo[data.players[i].name].minutes = 1;
-										}
-									}else{
-										dbo[data.players[i].name] = {};
-										dbo[data.players[i].name].minutes = 1;
-									}
-								}
-								
-								db.setObjectField(serverKey, 'players', JSON.stringify(dbo), function (err) {
-									if (err) console.log(err);
-								});
-							}catch(err){
-								console.log(err);
-								console.log(dbo);
-							}
-						});
+					for (var p in data.status) {
+						servers[data.serverNumber].status[p] = data.status[p];
 					}
+					
+					if (data.status.players.length > 0) {
+						if (!servers[data.serverNumber].pings) servers[data.serverNumber].pings = {};
+						if (!servers[data.serverNumber].pings.pingArr) servers[data.serverNumber].pings.pingArr = [];
+						
+						servers[data.serverNumber].pings.pingArr.push( {time: Date.now().toString(), players: data.status.players} );
+						while (servers[data.serverNumber].pings.pingArr.length > 30) servers[data.serverNumber].pings.pingArr.shift();
+						
+						if (!servers[data.serverNumber].players) servers[data.serverNumber].players = {};
+						
+						// Add minutes
+						for (var i = 0; i < data.status.players.length; i++) {
+							if (servers[data.serverNumber].players.hasOwnProperty(data.status.players[i].name)) {
+								if (servers[data.serverNumber].players[data.status.players[i].name].minutes) {
+									servers[data.serverNumber].players[data.status.players[i].name].minutes++;
+								}else{
+									servers[data.serverNumber].players[data.status.players[i].name].minutes = 1;
+								}
+							}else{
+								servers[data.serverNumber].players[data.status.players[i].name] = {};
+								servers[data.serverNumber].players[data.status.players[i].name].minutes = 1;
+							}
+						}
+					}
+					
+					MinecraftWidgets.settings.set('servers', servers);
+					MinecraftWidgets.settings.persist();
 				}
 			}
 		};
 	
 	MinecraftWidgets.renderMCTopPlayersList = function(widget, callback) {
-		widget.data.serverNumber = isNaN(parseInt(widget.data.serverNumber)) || parseInt(widget.data.serverNumber) < 1 ? "1" : widget.data.serverNumber;
+		widget.data.serverNumber = isNaN(parseInt(widget.data.serverNumber)) || parseInt(widget.data.serverNumber) < 0 ? "0" : widget.data.serverNumber;
 		
 		MinecraftWidgets.pushData(widget.data, ['status', 'players'], function(err) {
+		
+			if (!widget.data.players) {
+				widget.data.title = '';
+				widget.data.container = '';
+				callback(null, '');
+				return;
+			}else{
+				var empty = true;
+				for(var prop in widget.data.players) {
+					empty = false;
+					break;
+				}
+				if (empty) {
+					widget.data.title = '';
+					widget.data.container = '';
+					callback(null, '');
+					return;
+				}
+			}
+		
 			widget.data.showTopPlayers = parseInt(widget.data.showTopPlayers);
 			widget.data.showTopPlayers = isNaN(widget.data.showTopPlayers) ? 5 : widget.data.showTopPlayers < 1 ? 5 : widget.data.showTopPlayers;
 			
@@ -446,7 +398,7 @@
 	}
 		
 	MinecraftWidgets.renderMCOnlinePlayersGraph = function(widget, callback) {
-		widget.data.serverNumber = isNaN(parseInt(widget.data.serverNumber)) || parseInt(widget.data.serverNumber) < 1 ? "1" : widget.data.serverNumber;
+		widget.data.serverNumber = isNaN(parseInt(widget.data.serverNumber)) || parseInt(widget.data.serverNumber) < 0 ? "0" : widget.data.serverNumber;
 		
 		MinecraftWidgets.pushData(widget.data, ['pings', 'status'], function(err){
 		
@@ -484,7 +436,7 @@
 	};
 	
 	MinecraftWidgets.renderMCOnlinePlayersGrid = function(widget, callback) {
-		widget.data.serverNumber = isNaN(parseInt(widget.data.serverNumber)) || parseInt(widget.data.serverNumber) < 1 ? "1" : widget.data.serverNumber;
+		widget.data.serverNumber = isNaN(parseInt(widget.data.serverNumber)) || parseInt(widget.data.serverNumber) < 0 ? "0" : widget.data.serverNumber;
 		
 		MinecraftWidgets.pushData(widget.data, ['status'], function(err){
 		
@@ -547,9 +499,29 @@
 	};
 	
 	MinecraftWidgets.renderMCTopPlayersGraph = function(widget, callback) {
-		widget.data.serverNumber = isNaN(parseInt(widget.data.serverNumber)) || parseInt(widget.data.serverNumber) < 1 ? "1" : widget.data.serverNumber;
+		widget.data.serverNumber = isNaN(parseInt(widget.data.serverNumber)) || parseInt(widget.data.serverNumber) < 0 ? "0" : widget.data.serverNumber;
 		
 		MinecraftWidgets.pushData(widget.data, ['status', 'players'], function (err) {
+		
+			if (!widget.data.players) {
+				widget.data.title = '';
+				widget.data.container = '';
+				callback(null, '');
+				return;
+			}else{
+				var empty = true;
+				for(var prop in widget.data.players) {
+					empty = false;
+					break;
+				}
+				if (empty) {
+					widget.data.title = '';
+					widget.data.container = '';
+					callback(null, '');
+					return;
+				}
+			}
+		
 			widget.data.showTopPlayers = parseInt(widget.data.showTopPlayers);
 			widget.data.showTopPlayers = isNaN(widget.data.showTopPlayers) ? 5 : widget.data.showTopPlayers < 1 ? 5 : widget.data.showTopPlayers;
 			
@@ -584,7 +556,8 @@
 	};
 
 	MinecraftWidgets.renderMCServerStatus = function(widget, callback) {
-		widget.data.serverNumber = isNaN(parseInt(widget.data.serverNumber)) || parseInt(widget.data.serverNumber) < 1 ? "1" : widget.data.serverNumber;
+		widget.data.serverNumber = isNaN(parseInt(widget.data.serverNumber)) || parseInt(widget.data.serverNumber) < 0 ? "0" : widget.data.serverNumber;
+		var config = MinecraftWidgets.settings.get();
 		
 		MinecraftWidgets.pushData(widget.data, ['status'], function(err) {
 
@@ -594,9 +567,23 @@
 			delete widget.data.status;
 		
 			widget.data.parseFormatCodes = widget.data.parseFormatCodes == "on" ? true : false;
-			widget.data.showPlayerCount = widget.data.showPlayerCount == "on" ? true : false;
+			widget.data.showPlayerCount = widget.data.isServerOnline && widget.data.showPlayerCount == "on" ? true : false;
 			widget.data.showDebugIcons = widget.data.showDebugIcons == "on" ? true : false;
 			widget.data.showIP = widget.data.showIP == "on" ? true : false;
+			
+			widget.data.showPlayers = widget.data.isServerOnline && widget.data.players.length > 0 ? true : false;
+			widget.data.showVersion = widget.data.isServerOnline && widget.data.version ? true : false;
+			
+			widget.data.serverHost = config["server" + widget.data.serverNumber + "serverHost"];
+			widget.data.serverPort = config["server" + widget.data.serverNumber + "serverPort"];
+			
+			if ( isIP( widget.data.serverHost ) ) {
+				widget.data.showIP = false;
+				widget.data.showPortIP = false;
+				if ( widget.data.serverPort !== '25565' ) widget.data.showPortDomain = true;
+			}else{
+				if ( widget.data.showIP && widget.data.serverPort !== '25565' ) widget.data.showPortDomain = true;
+			}
 			
 			var readCustomRow = function ( label, text, after ) {
 				switch ( after ) {
@@ -644,21 +631,15 @@
 				// widget.data.msgFailListMods    = "<a class=\"fa fa-question-circle text-info has-tooltip\" data-html=\"true\" data-title=\"Server may be blocking its mod list.\"></a>";
 				// widget.data.msgFailListPlugins = "<a class=\"fa fa-question-circle text-info has-tooltip\" data-html=\"true\" data-title=\"Server may be blocking its plugin list.\"></a>";
 				
-				widget.data.msgFailQuery = "<a class=\"fa fa-question-circle text-warning has-tooltip\" data-html=\"true\" data-title=\"Server Query Failed<br>Tried to query the server at {serverIP}:{queryPort}<br>Is enable-query true in server.properties?\"></a>";
-				widget.data.msgFailQuery = widget.data.msgFailQuery.replace("{serverIP}", ( widget.data.serverIP || widget.data.serverHost ) );
-				widget.data.msgFailQuery = widget.data.msgFailQuery.replace("{queryPort}", widget.data.queryPort);
+				//widget.data.msgFailQuery = "<a class=\"fa fa-question-circle text-warning has-tooltip\" data-html=\"true\" data-title=\"Server Query Failed<br>Tried to query the server at {serverIP}:{queryPort}<br>Is enable-query true in server.properties?\"></a>";
+				//widget.data.msgFailQuery = widget.data.msgFailQuery.replace("{serverIP}", ( widget.data.serverIP || widget.data.serverHost ) );
+				//widget.data.msgFailQuery = widget.data.msgFailQuery.replace("{queryPort}", widget.data.queryPort);
 			}
-			
-			widget.data.showPlayers = widget.data.isServerOnline && widget.data.players.length > 0 ? true : false;
-			widget.data.showPlayerCount = widget.data.isServerOnline && widget.data.showPlayerCount ? true : false;
-			widget.data.showVersion = widget.data.isServerOnline && widget.data.version ? true : false;
 			
 			if (widget.data.isServerOnline) {
 				if (widget.data.modList.length > 0) widget.data.hasMods = true;
 				if (widget.data.pluginList.length > 0) widget.data.hasPlugins = true;
 			}
-			
-			if (widget.data.showIP && widget.data.serverPort != "25565") widget.data.showPortIP = true;
 			
 			if (!widget.data.version && widget.data.isServerOnline) {
 				widget.data.isServerOnline = false;
@@ -711,43 +692,47 @@
 	
 	function formatWidgetData ( data, titlePrefix ) {
 		if(!titlePrefix) titlePrefix = "";
-		data.title = !data.title && !data.useEmptyContainer ? parseMCFormatCodes(titlePrefix + MinecraftWidgets.settings.get()["server" + data.serverNumber + "serverName"] ) : parseMCFormatCodes(titlePrefix + data.title);
+		var titleSuffix = "";
+		if (!data.title) {
+			if ( MinecraftWidgets.settings.get()["server" + data.serverNumber + "serverName"] ) {
+				data.title = parseMCFormatCodes( titlePrefix + MinecraftWidgets.settings.get()["server" + data.serverNumber + "serverName"] + titleSuffix );
+			}else{
+				data.title = titlePrefix + "Server " + data.serverNumber;
+			}
+		}else{
+			data.title = parseMCFormatCodes(titlePrefix + data.title + titleSuffix);
+		}
 		if (!data.container && !data.useEmptyContainer) data.container = '<div class="panel panel-default"><div class="panel-heading">{title}</div><div class="panel-body">{body}</div></div>';
 	}
 	
-	function verifyHost(templateData, hostBack) {
-		if ( isIP(templateData.serverHost) ) {
+	function verifyHost(data, hostBack) {
+		if ( isIP(data.serverHost) ) {
 			if (MinecraftWidgets.settings.get().logDebug) console.log("Host is IP, not looking up DNS or SRV.");
-			templateData.serverIP = templateData.serverHost;
-			templateData.showPortDomain = true;
-			templateData.showIP = false;
-			hostBack(null, templateData);
+			data.status.serverIP = data.serverHost;
+			hostBack(null, data);
 		}else{
-			getSRV(templateData.serverHost, function(err, theHost, thePort) {
+			getSRV(data.serverHost, function(err, theHost, thePort) {
 				if ( err ) {
-					getIP(templateData.serverHost, function(err, theIP) {
+					getIP(data.serverHost, function(err, theIP) {
 						if (err) {
-							templateData.failHost = true;
-							hostBack(err, templateData);
+							hostBack(err, data);
 						}else{
-							templateData.serverIP = theIP;
-							if (templateData.serverPort !== "25565") templateData.showPortDomain = true;
-							hostBack(null, templateData);
+							data.status.serverIP = theIP;
+							hostBack(null, data);
 						}
 					});
 				}else{
-					templateData.serverPort = thePort;
+					data.serverPort = thePort;
 					if ( isIP(theHost) ) {
-						templateData.serverIP = theHost;
-						hostBack(null, templateData);
+						data.status.serverIP = theHost;
+						hostBack(null, data);
 					}else{
 						getIP(theHost, function(err, theIP) {
 							if (err) {
-								templateData.failHost = true;
-								hostBack(err, templateData);
+								hostBack(err, data);
 							}else{
-								templateData.serverIP = theIP;
-								hostBack(null, templateData);
+								data.status.serverIP = theIP;
+								hostBack(null, data);
 							}
 						});
 					}
@@ -803,7 +788,7 @@
 	};
 	
 	function readServerListPing(data, callback) {
-		var hostData = { 'host':( data.serverIP || data.serverHost ), 'port':data.serverPort };
+		var hostData = { 'host':( data.status.serverIP || data.serverHost ), 'port':data.serverPort };
 		if (MinecraftWidgets.settings.get().logDebug) console.log("Sending ServerListPing to " + hostData.host + ":" + hostData.port);
 		var dataLength = -1, currentLength = 0, chunks = [];
 		var socket = net.connect( hostData, function() {
@@ -818,7 +803,7 @@
 		});
 		
 		socket.on('data', function(serverStatusPingData) {
-			data.isServerOnline = true;
+			data.status.isServerOnline = true;
 			
 			try {
 				if(dataLength < 0) {
@@ -851,37 +836,37 @@
 					var strLenOffset = varint.decode.bytes;
 					var resp = JSON.parse(serverStatusPingData.toString("utf8", strLenOffset));
 					
-					if (resp.description) data.serverName = resp.description;
+					if (resp.description) data.status.serverMOTD = resp.description;
 					
-					//data.protocolVersion = resp.version.protocolVersion;
+					//data.status.protocolVersion = resp.version.protocolVersion;
 					
 					var versionSplit = resp.version.name.split(/ /g);
 					if (versionSplit.length > 1) {
-						data.version = versionSplit.pop();
+						data.status.version = versionSplit.pop();
 						if (versionSplit[0].search("Bukkit") >= 0 || versionSplit[0].search("MCPC") >= 0 || versionSplit[0].search("Cauldron") >= 0) {
-							data.pluginInfo = true;
+							data.status.pluginInfo = true;
 						}
 					}else{
-						data.version = versionSplit[0];
+						data.status.version = versionSplit[0];
 					}
 				  
-					data.onlinePlayers = resp.players.online;
-					data.maxPlayers = resp.players.max;
+					data.status.onlinePlayers = resp.players.online;
+					data.status.maxPlayers = resp.players.max;
 					
 					if(resp.players.sample) {
-						data.players = resp.players.sample;
+						data.status.players = resp.players.sample;
 					}
-					if(resp.favicon) data.icon = resp.favicon;
+					if(resp.favicon) data.status.icon = resp.favicon;
 				  
 					if(resp.modinfo) {
 						var fullModList = resp.modinfo.modList.slice(2);
 						var modNames = [];
-						data.modList = [];
+						data.status.modList = [];
 						for (var i = 0; i < fullModList.length; i++) {
 							var pipedMod = fullModList[i].modid.split("|")[0];
 							if (modNames.indexOf(pipedMod) == -1) {
 								modNames.push(pipedMod);
-								data.modList.push({modid: pipedMod});
+								data.status.modList.push({modid: pipedMod});
 							}
 						}
 					}
@@ -940,13 +925,13 @@
 		return Buffer.concat( [ new Buffer(varint.encode(raw.length)), raw ] );
 	};
 	
-	function queryServer(templateData, queryBack) {
-		if ( !templateData.queryPort || templateData.queryPort === '' ) templateData.queryPort = templateData.serverPort;
+	function queryServer(data, queryBack) {
+		if ( !data.queryPort || data.queryPort === '' ) data.queryPort = data.serverPort;
 		var queryData;
-		if ( templateData.uselocalhost ) {
-			queryData = { host: "0.0.0.0", port: templateData.queryPort };
+		if ( data.uselocalhost ) {
+			queryData = { host: "0.0.0.0", port: data.queryPort };
 		}else{
-			queryData = { host: templateData.serverIP || templateData.serverHost, port: templateData.queryPort };
+			queryData = { host: data.status.serverIP || data.serverHost, port: data.queryPort };
 		}
 		
 		if (MinecraftWidgets.settings.get().logDebug) console.log("Querying " + queryData.host + ":" + queryData.port);
@@ -955,12 +940,12 @@
 		
 		query.connect(function (err) {
 			if (err) {
-				if (MinecraftWidgets.settings.get().logErrors) console.log("Query failed for " + ( templateData.serverIP || templateData.serverHost ) + ":" + templateData.queryPort + ", is query-enabled set to true in server.properties?" );
-				templateData.failQuery = true;
-				if(!templateData.pluginList) templateData.pluginList = [];
-				queryBack(null, templateData);
+				if (MinecraftWidgets.settings.get().logErrors) console.log("Query failed for " + ( data.status.serverIP || data.serverHost ) + ":" + data.queryPort + ", is query-enabled set to true in server.properties?" );
+				data.failQuery = true;
+				if(!data.status.pluginList) data.status.pluginList = [];
+				queryBack(null, data);
 			} else {
-				templateData.queryonline = true;
+				data.queryonline = true;
 				query.full_stat(fullStatBack);
 				//query.basic_stat(basicStatBack);
 			}
@@ -976,47 +961,47 @@
 
 		function fullStatBack(err, stat) {
 			if (err) {
-				if (MinecraftWidgets.settings.get().logErrors) console.log("FullStats Query request failed for " + ( templateData.serverIP || templateData.serverHost ) + ":" + templateData.queryPort + ", is the server blocking FullStats?");
+				if (MinecraftWidgets.settings.get().logErrors) console.log("FullStats Query request failed for " + ( data.status.serverIP || data.serverHost ) + ":" + data.queryPort + ", is the server blocking FullStats?");
 			} else {
-				if (MinecraftWidgets.settings.get().logDebug) console.log("Received FullStats Query response for " + ( templateData.serverIP || templateData.serverHost ) + ":" + templateData.queryPort);
-				templateData.isServerOnline = true;
+				if (MinecraftWidgets.settings.get().logDebug) console.log("Received FullStats Query response for " + ( data.status.serverIP || data.serverHost ) + ":" + data.queryPort);
+				data.status.isServerOnline = true;
 				
-				if (stat.MOTD) templateData.serverName = stat.MOTD;
+				if (stat.MOTD) data.status.serverMOTD = stat.MOTD;
 				
-				if ( stat.player_ && templateData.players.length === 0 ) {
+				if ( stat.player_ && data.status.players.length === 0 ) {
 					for (var index = 0; index < stat.player_.length; ++index) {
-						templateData.players[templateData.players.length] = { name: stat.player_[index] };
+						data.status.players[data.status.players.length] = { name: stat.player_[index] };
 					}
 				}
 				
 				// Use queried hostname if localhost.
-				if ( templateData.serverHost == "0.0.0.0" || templateData.serverHost == "127.0.0.1" || templateData.serverHost == "localhost" ) {
-					templateData.serverHost = stat.hostip;
+				if ( data.serverHost == "0.0.0.0" || data.serverHost == "127.0.0.1" || data.serverHost == "localhost" ) {
+					data.serverHost = stat.hostip;
 					if ( stat.hostport != "25565" ) {
-						templateData.showPortDomain = true;
-						templateData.serverPort = stat.hostport;
+						data.status.showPortDomain = true;
+						data.serverPort = stat.hostport;
 					}
 				}
 				
 				if (stat.plugins) {
-					templateData.pluginInfo = true;
+					data.status.pluginInfo = true;
 					var pluginString = stat.plugins.split(": ")[1].split("; ");
-					templateData.pluginList = [];
+					data.status.pluginList = [];
 					var index;
 					for (index = 0; index < pluginString.length; ++index) {
-						templateData.pluginList[templateData.pluginList.length] = { name: pluginString[index] };
+						data.status.pluginList[data.status.pluginList.length] = { name: pluginString[index] };
 					}
-					if (templateData.pluginList.length > 1) templateData.showPluginList = true;
+					if (data.status.pluginList.length > 1) data.status.showPluginList = true;
 				}
 				
-				templateData.onlinePlayers = stat.numplayers;
-				templateData.maxPlayers = stat.maxplayers;
-				templateData.version = stat.version;
+				data.status.onlinePlayers = stat.numplayers;
+				data.status.maxPlayers = stat.maxplayers;
+				data.status.version = stat.version;
 							   
 				shouldWeClose();
 			}
 			
-			queryBack(null, templateData);
+			queryBack(null, data);
 		}
 
 		function shouldWeClose() {
@@ -1057,9 +1042,11 @@
 	
 	MinecraftWidgets.defineWidgets = function(widgets, callback) {
 		var data = { 'serverConfigNames': [] };
-		data.serverConfigNames.push({ 'configName': MinecraftWidgets.settings.get()["server1serverConfigName"], 'serverNumber': '1' });
-		data.serverConfigNames.push({ 'configName': MinecraftWidgets.settings.get()["server2serverConfigName"], 'serverNumber': '2' });
-		data.serverConfigNames.push({ 'configName': MinecraftWidgets.settings.get()["server3serverConfigName"], 'serverNumber': '3' });
+		var config = MinecraftWidgets.settings.get();
+		for (var serverNumber = 0; serverNumber < 10; serverNumber++) {
+			if ( config['server' + serverNumber + 'isDisabled'] || typeof config['server' + serverNumber + 'isDisabled'] === 'undefined' ) continue;
+			data.serverConfigNames.push({ 'configName': MinecraftWidgets.settings.get()["server" + serverNumber + "serverConfigName"] || "Server " + serverNumber , 'serverNumber': serverNumber.toString() });
+		}
 		
 		var contentMCOnlinePlayersGraph = templates.parse( MinecraftWidgets.templates['admin/adminWidgetMCOnlinePlayersGraph.tpl'], data);
 		var contentMCOnlinePlayersGrid  = templates.parse( MinecraftWidgets.templates['admin/adminWidgetMCOnlinePlayersGrid.tpl'], data);

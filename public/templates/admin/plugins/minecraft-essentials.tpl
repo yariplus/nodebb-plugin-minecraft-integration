@@ -61,6 +61,68 @@
                 <div class="well">
                     <h3>Server One</h3>
                     <div class="checkbox">
+                        <label for="server0isDisabled">
+                            <input type="checkbox" data-type="check" data-key="server0isDisabled" id="server0isDisabled"></input>
+                            Disable Server
+                            <a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-html="true" data-title="<strong>Disabling the server stops node from regularly pinging the server. It will not delete already acquired ping data.</strong>"></a>
+                        </label>
+                    </div>
+                    <div class="checkbox">
+                        <label for="server0isLegacy">
+                            <input type="checkbox" data-type="check" data-key="server0isLegacy" id="server0isLegacy"></input>
+                            Legacy Server (<1.7)
+                            <a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-html="true" data-title="<strong>This option is required for servers below version 1.7.</strong>"></a>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="server0serverConfigName">
+                            Server Name
+                            <a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-title="This is the name used in the widget settings to identify the server."></a>
+                            <input type="text" class="form-control" data-key="server0serverConfigName" id="server0serverConfigName" placeholder="Minecraft Server One"></input>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="server0serverName">
+                            Display Name
+                            <a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-title="This is the text displayed on widgets to identify the server. Minecraft formatting codes are accepted here."></a>
+                            <input type="text" class="form-control" data-key="server0serverName" id="server0serverName" placeholder="A Minecraft Server"></input>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="server0serverHost">
+                            Server Host
+                            <a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-title="This is the address users can use to connect to the server, you can enter a port here or in the Server Port box. Supports SRV records and DNS addresses. Defaults to localhost."></a>
+                            <input type="text" class="form-control" data-key="server0serverHost" id="server0serverHost" placeholder="0.0.0.0"></input>
+                        </label>
+                        <label class="control-label" for="server0serverPort">
+                            Server Port
+                            <a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-title="The server port. Defaults to 25565."></a>
+                            <input type="text" class="form-control" data-key="server0serverPort" id="server0serverPort" placeholder="25565"></input>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="server0queryPort">
+                            Query Port
+                            <a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-title="The server query port. Defaults to the server port. Query must be enabled in the server's server.properties file. Older servers will provide only limited information without an open query port."></a>
+                            <input type="text" class="form-control" data-key="server0queryPort" id="server0queryPort" placeholder=""></input>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="server0rconPort">
+                            RCON Port (Optional)
+                            <a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-title="Allows the plugin to send commands to the server. Not currently used. When implemented, additional configuration is needed to secure the connection to the server."></a>
+                            <input type="text" class="form-control" data-key="server0rconPort" id="server0rconPort" placeholder="25575"></input>
+                        </label>
+                        <label class="control-label" for="server0rconPass">
+                            RCON Pass (Optional)
+                            <input type="password" class="form-control" data-key="server0rconPass" id="server0rconPass" placeholder=""></input>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="well">
+                    <h3>Server Two</h3>
+                    <div class="checkbox">
                         <label for="server1isDisabled">
                             <input type="checkbox" data-type="check" data-key="server1isDisabled" id="server1isDisabled"></input>
                             Disable Server
@@ -78,7 +140,7 @@
                         <label class="control-label" for="server1serverConfigName">
                             Server Name
                             <a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-title="This is the name used in the widget settings to identify the server."></a>
-                            <input type="text" class="form-control" data-key="server1serverConfigName" id="server1serverConfigName" placeholder="Minecraft Server One"></input>
+                            <input type="text" class="form-control" data-key="server1serverConfigName" id="server1serverConfigName" placeholder="Minecraft Server Two"></input>
                         </label>
                     </div>
                     <div class="form-group">
@@ -121,7 +183,7 @@
                 </div>
                 
                 <div class="well">
-                    <h3>Server Two</h3>
+                    <h3>Server Three</h3>
                     <div class="checkbox">
                         <label for="server2isDisabled">
                             <input type="checkbox" data-type="check" data-key="server2isDisabled" id="server2isDisabled"></input>
@@ -140,7 +202,7 @@
                         <label class="control-label" for="server2serverConfigName">
                             Server Name
                             <a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-title="This is the name used in the widget settings to identify the server."></a>
-                            <input type="text" class="form-control" data-key="server2serverConfigName" id="server2serverConfigName" placeholder="Minecraft Server Two"></input>
+                            <input type="text" class="form-control" data-key="server2serverConfigName" id="server2serverConfigName" placeholder="Minecraft Server Three"></input>
                         </label>
                     </div>
                     <div class="form-group">
@@ -178,68 +240,6 @@
                         <label class="control-label" for="server2rconPass">
                             RCON Pass (Optional)
                             <input type="password" class="form-control" data-key="server2rconPass" id="server2rconPass" placeholder=""></input>
-                        </label>
-                    </div>
-                </div>
-                
-                <div class="well">
-                    <h3>Server Three</h3>
-                    <div class="checkbox">
-                        <label for="server3isDisabled">
-                            <input type="checkbox" data-type="check" data-key="server3isDisabled" id="server3isDisabled"></input>
-                            Disable Server
-                            <a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-html="true" data-title="<strong>Disabling the server stops node from regularly pinging the server. It will not delete already acquired ping data.</strong>"></a>
-                        </label>
-                    </div>
-                    <div class="checkbox">
-                        <label for="server3isLegacy">
-                            <input type="checkbox" data-type="check" data-key="server3isLegacy" id="server3isLegacy"></input>
-                            Legacy Server (<1.7)
-                            <a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-html="true" data-title="<strong>This option is required for servers below version 1.7.</strong>"></a>
-                        </label>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label" for="server3serverConfigName">
-                            Server Name
-                            <a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-title="This is the name used in the widget settings to identify the server."></a>
-                            <input type="text" class="form-control" data-key="server3serverConfigName" id="server3serverConfigName" placeholder="Minecraft Server Three"></input>
-                        </label>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label" for="server3serverName">
-                            Display Name
-                            <a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-title="This is the text displayed on widgets to identify the server. Minecraft formatting codes are accepted here."></a>
-                            <input type="text" class="form-control" data-key="server3serverName" id="server3serverName" placeholder="A Minecraft Server"></input>
-                        </label>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label" for="server3serverHost">
-                            Server Host
-                            <a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-title="This is the address users can use to connect to the server, you can enter a port here or in the Server Port box. Supports SRV records and DNS addresses. Defaults to localhost."></a>
-                            <input type="text" class="form-control" data-key="server3serverHost" id="server3serverHost" placeholder="0.0.0.0"></input>
-                        </label>
-                        <label class="control-label" for="server3serverPort">
-                            Server Port
-                            <a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-title="The server port. Defaults to 25565."></a>
-                            <input type="text" class="form-control" data-key="server3serverPort" id="server3serverPort" placeholder="25565"></input>
-                        </label>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label" for="server3queryPort">
-                            Query Port
-                            <a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-title="The server query port. Defaults to the server port. Query must be enabled in the server's server.properties file. Older servers will provide only limited information without an open query port."></a>
-                            <input type="text" class="form-control" data-key="server3queryPort" id="server3queryPort" placeholder=""></input>
-                        </label>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label" for="server3rconPort">
-                            RCON Port (Optional)
-                            <a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-title="Allows the plugin to send commands to the server. Not currently used. When implemented, additional configuration is needed to secure the connection to the server."></a>
-                            <input type="text" class="form-control" data-key="server3rconPort" id="server3rconPort" placeholder="25575"></input>
-                        </label>
-                        <label class="control-label" for="server3rconPass">
-                            RCON Pass (Optional)
-                            <input type="password" class="form-control" data-key="server3rconPass" id="server3rconPass" placeholder=""></input>
                         </label>
                     </div>
                 </div>
@@ -301,7 +301,6 @@ require(['settings'], function(settings) {
     });
 
     $('#save').click( function (event) {
-        //event.preventDefault();
         settings.persist('minecraft-essentials', $('#minecraftServers'), function(){
             socket.emit('admin.settings.syncMinecraftEssentials');
         });
