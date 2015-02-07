@@ -105,6 +105,10 @@ $(document).ajaxComplete(function(event, response, settings) {
                         onChange: function(hsb, hex) {
                             MCWECP.val(hex);
                             MCWECP.css('color', '#' + hex);
+							
+							if(MCWECP.is('[preview]')) {
+								MCWECP.parent().parent().find('.mcWidgetPreview').find(MCWECP.attr('preview')).each(function(){$(this).css('color', '#' + MCWECP.val())});
+							}
                         },
                         onShow: function(colpkr) {
                             $(colpkr).css('z-index', 1051);
