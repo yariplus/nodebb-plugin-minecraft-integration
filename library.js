@@ -40,7 +40,8 @@
 				});
 				
 				var	defaultSettings = {
-					'resetDatabase': false,
+					'resetSettings': false,
+					
 					'serverUpdateDelay': '1',
 					'showDebugIcons': true,
 					'logErrors': true,
@@ -53,6 +54,7 @@
 					'avatarStyle': "flat",
 				
 					'server0isDisabled': false,
+					'server0isEnabled': true,
 					'server0serverConfigName': 'Server One',
 					'server0serverName': 'A Minecraft Server',
 					'server0isLegacy': false,
@@ -60,10 +62,34 @@
 					'server0serverPort': '',
 					'server0queryPort': '',
 					'server0rconPort': '',
-					'server0rconPass': ''
+					'server0rconPass': '',
+					
+					'server1isDisabled': true,
+					'server2isDisabled': true,
+					'server3isDisabled': true,
+					'server4isDisabled': true,
+					'server5isDisabled': true,
+					'server6isDisabled': true,
+					'server7isDisabled': true,
+					'server8isDisabled': true,
+					'server9isDisabled': true,
+					
+					'server1isEnabled': false,
+					'server2isEnabled': false,
+					'server3isEnabled': false,
+					'server4isEnabled': false,
+					'server5isEnabled': false,
+					'server6isEnabled': false,
+					'server7isEnabled': false,
+					'server8isEnabled': false,
+					'server9isEnabled': false
 				};
 				
 				MinecraftWidgets.settings = new Settings('minecraft-essentials', '0.2.14', defaultSettings, function() {
+					// MinecraftWidgets.settings.reset(function(){
+						// console.log("SETTINGS RESET");
+					// });
+					
 					var config = MinecraftWidgets.settings.get();
 					
 					if (config.logDebug) {
@@ -72,9 +98,11 @@
 						}
 						for (var serverNumber = 0; serverNumber < 10; serverNumber++) {
 							if ( config['server' + serverNumber + 'isDisabled'] || typeof config['server' + serverNumber + 'isDisabled'] === 'undefined' ) continue;
-							console.log(config.servers[serverNumber].status);
-							console.log(config.servers[serverNumber].pings);
-							console.log(config.servers[serverNumber].players);
+							if (config.servers[serverNumber]) {
+								if (config.servers[serverNumber].status) console.log(config.servers[serverNumber].status);
+								if (config.servers[serverNumber].pings) console.log(config.servers[serverNumber].pings);
+								if (config.servers[serverNumber].players) console.log(config.servers[serverNumber].players);
+							}
 						}
 					}
 					setTimeout(MinecraftWidgets.updateServers, MinecraftWidgets.settings.get().logDebug ? 60000 : 5000);
@@ -270,12 +298,15 @@
 				}
 			},
 			updateDatabase: function( data ) {
-				if ( data && typeof data.serverNumber !== 'undefined' ) {
+				if ( data && typeof data.serverNumber !== 'undefined') {
 					var servers = MinecraftWidgets.settings.get('servers'),
 						config = MinecraftWidgets.settings.get();
 					
+					if (typeof servers[data.serverNumber] === 'undefined') servers[data.serverNumber] = { status: {}, pings: { pingArr: [] }, players: {} };
+					
 					if (config.logDebug) console.log("Saving settings for server " + data.serverNumber + ": " + data.serverConfigName);
 					
+					if (!servers[data.serverNumber].status) servers[data.serverNumber].status = {};
 					for (var p in data.status) {
 						servers[data.serverNumber].status[p] = data.status[p];
 					}

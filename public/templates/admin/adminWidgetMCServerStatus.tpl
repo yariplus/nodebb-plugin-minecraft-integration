@@ -90,14 +90,14 @@
 <div class="form-group">
     <div class="checkbox">
         <label>
-            <input type="checkbox" name="showPlayerCount">Show Player count after server status?
+            <input type="checkbox" name="showPlayerCount" checked>Show Player count after server status?
         </label>
     </div>
 </div>
 <div class="form-group">
     <div class="checkbox">
         <label>
-            <input type="checkbox" name="showIP">Show IP after Host? &nbsp; (&nbsp;e.g. "someserver.com (1.2.3.4)"&nbsp;)
+            <input type="checkbox" name="showIP" checked>Show IP after Host? &nbsp; (&nbsp;e.g. "someserver.com (1.2.3.4)"&nbsp;)
         </label>
     </div>
 </div>

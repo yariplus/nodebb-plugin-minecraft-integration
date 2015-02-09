@@ -88,8 +88,15 @@ $(document).ajaxComplete(function(event, response, settings) {
 					if (MCWESN.val()) {
 						MCWESN.prev().val($(this).val());
 					}else{
-						if (!MCWESN.prev().find('option:selected')) {
-							if (MCWESN.prev().find('option:first')) MCWESN.prev().val( MCWESN.prev().find('option:first').val() );
+						var first = MCWESN.prev().find('option:first'),
+							selected = MCWESN.prev().find('option:selected');
+						if (selected) {
+							MCWESN.val( selected.val() );
+						}else{
+							if (first) {
+								MCWESN.val( first.val() );
+								MCWESN.prev().val( first.val() );
+							}
 						}
 					}
 					MCWESN.prev().on('change', function(){
@@ -97,11 +104,12 @@ $(document).ajaxComplete(function(event, response, settings) {
 					});
 				});				
                 jWidgetPanel.find('input.ajaxInputColorPicker').each(function(index){
+					if ($(this).val() === '') $(this).val('000000');
                     var MCWECP = $(this);
                     var id = 'ajaxInputColorPicker' + IDcounter;
                     MCWECP.attr('id',id);
                     $('#'+id).ColorPicker({
-                        color: MCWECP.val() || '#000',
+                        color: MCWECP.val() || '#000000',
                         onChange: function(hsb, hex) {
                             MCWECP.val(hex);
                             MCWECP.css('color', '#' + hex);
