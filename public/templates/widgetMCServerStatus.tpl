@@ -2,6 +2,16 @@
     <table class="table table-striped widgetTable">
     <tbody>
     
+    <!-- IF showRowMOTD -->
+    <tr>
+        <td class="td-label" colspan="2">
+            <span<!-- IF colorMOTD --> style="color:#{colorMOTD}"<!-- ENDIF colorMOTD -->>
+                {serverMOTD}
+            </span>
+        </td>
+    </tr>
+    <!-- ENDIF showRowMOTD -->
+    
     <!-- BEGIN customaftername -->
     <tr>
         <td class="td-label">

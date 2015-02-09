@@ -48,9 +48,9 @@
         </td>
         <td>
             <span class="mcWidgetText">
-                <img class="has-tooltip" data-original-title="yariplus" src="http://cravatar.eu/avatar/yariplus/40" data-placement="top" data-toggle="tooltip" rel="tooltip" title="yariplus" style="margin-right:5px; margin-bottom:5px; border-style:; border-width: 6px; border-radius: 4px; border-color:;">
-                <img class="has-tooltip" data-original-title="rikkyyxd" src="http://cravatar.eu/avatar/rikkyyxd/40" data-placement="top" data-toggle="tooltip" rel="tooltip" title="rikkyyxd" style="margin-right:5px; margin-bottom:5px; border-style:; border-width: 6px; border-radius: 4px; border-color:;">
-                <img class="has-tooltip" data-original-title="jazma1503" src="http://cravatar.eu/avatar/jazma1503/40" data-placement="top" data-toggle="tooltip" rel="tooltip" title="jazma1503" style="margin-right:5px; margin-bottom:5px; border-style:; border-width: 6px; border-radius: 4px; border-color:;">
+                <img class="has-tooltip mcAvatar" data-original-title="yariplus" src="http://cravatar.eu/avatar/yariplus/40" data-placement="top" data-toggle="tooltip" rel="tooltip" title="yariplus" style="margin-right:5px; margin-bottom:5px; border-style:; border-width: 6px; border-radius: 4px; border-color:;">
+                <img class="has-tooltip mcAvatar" data-original-title="rikkyyxd" src="http://cravatar.eu/avatar/rikkyyxd/40" data-placement="top" data-toggle="tooltip" rel="tooltip" title="rikkyyxd" style="margin-right:5px; margin-bottom:5px; border-style:; border-width: 6px; border-radius: 4px; border-color:;">
+                <img class="has-tooltip mcAvatar" data-original-title="jazma1503" src="http://cravatar.eu/avatar/jazma1503/40" data-placement="top" data-toggle="tooltip" rel="tooltip" title="jazma1503" style="margin-right:5px; margin-bottom:5px; border-style:; border-width: 6px; border-radius: 4px; border-color:;">
             </span>
         </td>
     </tr>
@@ -111,7 +111,7 @@
 
 <div class="form-group">
     <label class="control-label">Title&nbsp;Color</label>
-    <input type="text" class="form-control ajaxInputColorPicker" name="colorServerName" preview=".panel-heading">
+    <input type="text" class="form-control ajaxInputColorPicker" name="colorTitle" preview=".panel-heading">
 </div>
 <div class="form-group">
     <label class="control-label">MOTD Color</label>

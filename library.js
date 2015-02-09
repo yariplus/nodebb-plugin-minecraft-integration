@@ -682,6 +682,27 @@
 			
 			formatWidgetData(widget.data);
 			
+			if (widget.data.serverMOTD) {
+				widget.data.serverMOTD = parseMCFormatCodes( widget.data.serverMOTD );
+				switch (widget.data.showMOTD) {
+					case "afterTitle":
+						widget.data.serverMOTD = " ~" + widget.data.serverMOTD + "~";
+						if(typeof widget.data.colorMOTD !== 'undefined') widget.data.serverMOTD = "<span style=\"color:#" + widget.data.colorMOTD + ";\">" + widget.data.serverMOTD + "</span>";
+						widget.data.title = widget.data.title + widget.data.serverMOTD;
+						break;
+					case "replaceTitle":
+						if(typeof widget.data.colorMOTD !== 'undefined') widget.data.serverMOTD = "<span style=\"color:#" + widget.data.colorMOTD + ";\">" + widget.data.serverMOTD + "</span>";
+						widget.data.title = widget.data.serverMOTD;
+						break;
+					case "asRow":
+						widget.data.showRowMOTD = true;
+						break;
+					case "nowhere":
+					default:
+						break;
+				}
+			}
+			
 			app.render('widgetMCServerStatus', widget.data, function(err, html) {
 				translator.translate(html, function(translatedHTML) {
 					callback(err, translatedHTML);
@@ -693,11 +714,15 @@
 	function formatWidgetData ( data, titlePrefix ) {
 		if(!titlePrefix) titlePrefix = "";
 		var titleSuffix = "";
+		if(typeof data.colorTitle !== 'undefined') {
+			titlePrefix = "<span style=\"color:#" + data.colorTitle + ";\">" + titlePrefix;
+			titleSuffix = titleSuffix + "</span>";
+		}
 		if (!data.title) {
 			if ( MinecraftWidgets.settings.get()["server" + data.serverNumber + "serverName"] ) {
 				data.title = parseMCFormatCodes( titlePrefix + MinecraftWidgets.settings.get()["server" + data.serverNumber + "serverName"] + titleSuffix );
 			}else{
-				data.title = titlePrefix + "Server " + data.serverNumber;
+				data.title = titlePrefix + "Server " + data.serverNumber + titleSuffix;
 			}
 		}else{
 			data.title = parseMCFormatCodes(titlePrefix + data.title + titleSuffix);
