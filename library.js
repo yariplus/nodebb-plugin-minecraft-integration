@@ -221,7 +221,14 @@
 					
 					MinecraftWidgets.pushServerStatusPing(data);
 				}
-				setTimeout(MinecraftWidgets.updateServers, 60000);
+				
+				var timeout = MinecraftWidgets.settings.get('serverUpdateDelay');
+				if (!timeout) {
+					timeout = 1;
+				}else{
+					if (isNaN(timeout) || timeout < 1) timeout = 1;
+				}
+				setTimeout(MinecraftWidgets.updateServers, 60000 * timeout);
 			},
 			pushServerStatusPing: function(data) {
 				verifyHost(data, function(err) {
