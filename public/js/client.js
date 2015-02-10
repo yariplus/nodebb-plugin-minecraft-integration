@@ -46,13 +46,15 @@ function resizeCanvases() {
 				$(e).css('width', $(e).parent().width());
 				$(e).css('height', $(e).parent().width() / heightRatio);
 				var data = window[$(e).attr('id') + 'Data'];
-				var options = window[$(e).attr('id') + 'Options'];			
+				var options = window[$(e).attr('id') + 'Options'];
 				switch ($(e).attr('chart-type')) {
 					case "Pie":
 					case "pie":
 						new Chart($(e)[0].getContext('2d')).Pie(data, options);
 						break;
 					case "Donut":
+					case "donut":
+						console.log("Drawing donut ");
 						new Chart($(e)[0].getContext('2d')).Pie(data, options);
 						break;
 					case "Line":

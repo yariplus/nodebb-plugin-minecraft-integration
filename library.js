@@ -232,7 +232,7 @@
 			},
 			pushServerStatusPing: function(data) {
 				verifyHost(data, function(err) {
-					if (MinecraftWidgets.settings.get().logErrors) console.log("Resolved host " + ( data.serverHost || "localhost" ) + " to " + data.status.serverIP + ":" + data.serverPort + " query at port " + data.queryPort);
+					if (MinecraftWidgets.settings.get().logDebug) console.log("Resolved host " + ( data.serverHost || "localhost" ) + " to " + data.status.serverIP + ":" + data.serverPort + " query at port " + data.queryPort);
 					if (MinecraftWidgets.settings.get()['server'+data.serverNumber+'isLegacy']) {
 						if (MinecraftWidgets.settings.get().logDebug) console.log("Using legacy ServerListPing for " + data.serverHost); 
 						mcping(data.status.serverIP, parseInt(data.serverPort), function(err, resp) {
@@ -572,15 +572,39 @@
 				widget.data.topPlayers.pop();
 			}
 			
-			widget.data.chartOptions = "{ responsive: true, tooltipTemplate: \"<%if (label){%><%=label%>: <%}%><%= value %> Minutes\" }";
+			widget.data.chartOptions = '{ responsive: true, tooltipTemplate: "<%=label%>" }';
 			widget.data.chartData = [];
+			
+			widget.data.gloryEnd = widget.data.gloryEnd ? widget.data.gloryEnd : widget.data.gloryStart ? widget.data.gloryStart : "ff5555";
+			widget.data.gloryStart = widget.data.gloryStart ? widget.data.gloryStart : widget.data.gloryEnd ? widget.data.gloryEnd : "ff5555";
+			if (widget.data.gloryStart === '000000') widget.data.gloryStart = 'ff5555';
+			if (widget.data.gloryEnd === '000000') widget.data.gloryEnd = 'ff5555';
+			//if (!(widget.data.gloryEnd === widget.data.gloryStart)) {
+				var gloryStart = [ parseInt(widget.data.gloryStart.substring(0,2),16), parseInt(widget.data.gloryStart.substring(2,4),16), parseInt(widget.data.gloryStart.substring(4,6),16) ];
+				var gloryEnd = [ parseInt(widget.data.gloryEnd.substring(0,2),16), parseInt(widget.data.gloryEnd.substring(2,4),16), parseInt(widget.data.gloryEnd.substring(4,6),16) ];
+				var gloryStep =  [ Math.round( (gloryEnd[0]-gloryStart[0]) / widget.data.showTopPlayers ), Math.round( (gloryEnd[1]-gloryStart[1]) / widget.data.showTopPlayers ), Math.round( (gloryEnd[2]-gloryStart[2]) / widget.data.showTopPlayers ) ];
+			//}
+			
 			for (var i = 0; i < widget.data.topPlayers.length; i++) {
-				var newdata = { 'value': widget.data.topPlayers[i].minutes, 'color': '','highlight': '', 'label': widget.data.topPlayers[i].player };
-				var hue = Math.random() * 720;
-				newdata.color = 'hsl(' + hue + ','+'100%,40%)';
-				newdata.highlight = 'hsl(' + hue + ','+'100%,70%)';
-				widget.data.chartData.push(newdata);
+				if (widget.data.topPlayers[i].minutes > 60) {
+					widget.data.topPlayers[i].label = Math.floor(widget.data.topPlayers[i].minutes / 60).toString() + " Hours, " + (widget.data.topPlayers[i].minutes % 60).toString() + " Minutes";
+				}else{
+					widget.data.topPlayers[i].label = widget.data.topPlayers[i].minutes + " Minutes";
+				}
+				widget.data.topPlayers[i].label = widget.data.topPlayers[i].player + ": " + widget.data.topPlayers[i].label;
+				
+				if (widget.data.useSuperFunMode) {
+					var hue = Math.random() * 720;
+					var color = 'hsl(' + hue + ','+'100%,40%)';
+					var highlight = 'hsl(' + hue + ','+'100%,70%)';
+				}else{
+					var color = "#" + ("00" + (gloryStart[0] + gloryStep[0] * i).toString(16)).substr(-2) + ("00" + (gloryStart[1] + gloryStep[1] * i).toString(16)).substr(-2) + ("00" + (gloryStart[2] + gloryStep[2] * i).toString(16)).substr(-2);
+					var highlight = color;
+				}
+				
+				widget.data.chartData.push({ value: widget.data.topPlayers[i].minutes, color: color, highlight: highlight, label: widget.data.topPlayers[i].label });
 			}
+			
 			widget.data.chartData = JSON.stringify(widget.data.chartData);
 			
 			formatWidgetData(widget.data, "Top Players - ");
@@ -892,7 +916,7 @@
 				chunks.push(serverStatusPingData);
 
 				if(currentLength >= dataLength) {
-					if (MinecraftWidgets.settings.get().logErrors) console.log("ServerListPing packet received from " + hostData.host + ":" + hostData.port);
+					if (MinecraftWidgets.settings.get().logDebug) console.log("ServerListPing packet received from " + hostData.host + ":" + hostData.port);
 					
 					serverStatusPingData = Buffer.concat(chunks);
 					var strLen = varint.decode(serverStatusPingData);
