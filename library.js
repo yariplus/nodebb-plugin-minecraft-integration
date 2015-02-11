@@ -86,7 +86,7 @@
 					'server9isEnabled': false
 				};
 				
-				MinecraftWidgets.settings = new Settings('minecraft-essentials', '0.2.14', defaultSettings, function() {
+				MinecraftWidgets.settings = new Settings('minecraft-essentials', '0.3.0', defaultSettings, function() {
 					// MinecraftWidgets.settings.reset(function(){
 						// console.log("SETTINGS RESET");
 					// });
