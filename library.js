@@ -3,7 +3,8 @@
 	
 	// All your sanity and wits they will all vanish, I promise.
 	
-	var async = require('async'),
+	var Rainbow = require('./lib/rainbowvis.js'),
+		async = require('async'),
 		fs = require('fs'),
 		path = require('path'),
 		meta = module.parent.require('./meta'),
@@ -162,7 +163,6 @@
 				
 				// Get information from the database and push it into the data object.
 				var config = MinecraftWidgets.settings.get();
-				if ( config['server' + data.serverNumber + 'isDisabled'] || typeof config['server' + data.serverNumber + 'isDisabled'] === 'undefined' ) { callback(null, data); console.log("Couldn't find server " + data.serverNumber); return; }
 				for (var i = 0; i < fields.length; i++) {
 					var o = config.servers[data.serverNumber][fields[i]];
 					data[fields[i]] = {};
@@ -489,8 +489,6 @@
 				widget.data[p] = widget.data.status[p];
 			}
 			delete widget.data.status;
-				
-			
 			
 			widget.data.showPlayers = widget.data.isServerOnline ? true : false;
 			if (widget.data.showPlayers) {
@@ -579,11 +577,9 @@
 			widget.data.gloryStart = widget.data.gloryStart ? widget.data.gloryStart : widget.data.gloryEnd ? widget.data.gloryEnd : "ff5555";
 			if (widget.data.gloryStart === '000000') widget.data.gloryStart = 'ff5555';
 			if (widget.data.gloryEnd === '000000') widget.data.gloryEnd = 'ff5555';
-			//if (!(widget.data.gloryEnd === widget.data.gloryStart)) {
-				var gloryStart = [ parseInt(widget.data.gloryStart.substring(0,2),16), parseInt(widget.data.gloryStart.substring(2,4),16), parseInt(widget.data.gloryStart.substring(4,6),16) ];
-				var gloryEnd = [ parseInt(widget.data.gloryEnd.substring(0,2),16), parseInt(widget.data.gloryEnd.substring(2,4),16), parseInt(widget.data.gloryEnd.substring(4,6),16) ];
-				var gloryStep =  [ Math.round( (gloryEnd[0]-gloryStart[0]) / widget.data.showTopPlayers ), Math.round( (gloryEnd[1]-gloryStart[1]) / widget.data.showTopPlayers ), Math.round( (gloryEnd[2]-gloryStart[2]) / widget.data.showTopPlayers ) ];
-			//}
+			var rainbow = new Rainbow();
+			rainbow.setSpectrum(widget.data.gloryStart, widget.data.gloryEnd);
+			rainbow.setNumberRange(0, widget.data.topPlayers.length);
 			
 			for (var i = 0; i < widget.data.topPlayers.length; i++) {
 				if (widget.data.topPlayers[i].minutes > 60) {
@@ -598,7 +594,7 @@
 					var color = 'hsl(' + hue + ','+'100%,40%)';
 					var highlight = 'hsl(' + hue + ','+'100%,70%)';
 				}else{
-					var color = "#" + ("00" + (gloryStart[0] + gloryStep[0] * i).toString(16)).substr(-2) + ("00" + (gloryStart[1] + gloryStep[1] * i).toString(16)).substr(-2) + ("00" + (gloryStart[2] + gloryStep[2] * i).toString(16)).substr(-2);
+					var color = '#' + rainbow.colourAt(i);
 					var highlight = color;
 				}
 				
