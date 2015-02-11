@@ -2,15 +2,21 @@
 
 **[https://community.nodebb.org/topic/3559](https://community.nodebb.org/topic/3559 "The NodeBB Forums")**
 
-# Minecraft Essentials
+# NodeBB Minecraft Widget Essentials
 
-NodeBB widgets and extensions for Minecraft. Project aims to reproduce and enhance widgets found on sites such as Enjin (XenForo) for use on a NodeBB forum. Widgets are designed to work without the use of server plugins or additional software whenever possible.
+NodeBB widgets for Minecraft. Project aims to reproduce and enhance widgets found on sites such as Enjin (XenForo) for use on a NodeBB forum. Widgets are designed to work without the use of server plugins or additional software whenever possible.
+
+Compatible with NodeBB v0.5.7 and up.
 
 ## Installation
 
-Use the following command in your NodeBB base directory.
+Use npm from the command line in your NodeBB base directory:
 
     npm install nodebb-widget-minecraft-essentials
+
+Or for bleeding edge builds, you can pull from github:
+
+    npm install git://github.com/yariplus/nodebb-widget-minecraft-essentials.git
 
 ## Usage
 
@@ -24,21 +30,45 @@ Use the following command in your NodeBB base directory.
 
 ## Widgets
 
-* Minecraft Server Status - Pulls MOTD, min/max players, version, and player avatars. Displays everything in a pretty table.
-* Online Players Graph - A graph showing the number of player on the server recently. (Last 30 pings)
-* Top Players List- Displays user avatars and related graphics in a list representing the players' approximate play time.
-* Online Players Grid - A grid of avatars of players currently on the server.
-* Top Players Graph - A graphic chart (Pie, Donut, or Bar) representing the top players' approximate play time.
+### Server Status Widget
+
+Shows MOTD, min/max players, version, online player avatars, and other information about the Minecraft server. Displays everything in a pretty table. Custom rows can be added for things such as Mod Pack downloads, donation links, or any other html you wish to add.
+
+![Server Status Widget Sample Image](http://yariplus.x10.mx/images/sample2.png "Server Status Widget Sample Image")
+
+### Online Players Graph Widget
+
+A graph showing the number of player on the server recently. (Last 30 pings)
+
+![Online Players Graph Sample Image](http://yariplus.x10.mx/images/sampleop1.png "Online Players Graph Sample Image")
+
+### Online Players Grid Widget
+
+A grid of avatars of players currently on the server.
+
+![Online Players Grid Sample Image](http://yariplus.x10.mx/images/widgetOnlinePlayersGrid.png "Online Players Grid Sample Image")
+
+### Top Players List Widget
+
+Displays user avatars in a list representing the top players' approximate play time.
+
+![Top Players List Sample Image](http://yariplus.x10.mx/images/widgetTopPlayersList.png "Top Players List Sample Image")
+
+### Top Players Graph Widget
+
+A graphic chart (Pie) representing the top players' approximate play time.
+
+![Top Players Graph Sample Image](http://yariplus.x10.mx/images/widgetTopPlayersGraph.png "Top Players Graph Sample Image")
+
+## Widgets in Development
+
 * Ping Graph - A graph showing the servers' recent ping times. (Last 30 pings)
 * TPS Graph - A graph showing the servers' recent Ticks per Second. (Last 30 pings, requires Bukkit)
+* MiniMap Widget - A widget that displays a Dynmap page inline with the widget container and expandable to full page size.
 * Donators List - Displays user avatars and related graphics in a list representing the players' total donations.
 * Store Items - Displays graphics for and links to items in the server store. (Buycraft etc..)
-
-## Sample Images
-
-![Status Sample Image 2](http://yariplus.x10.mx/images/sample2.png "Status Sample Image 2")
-
-![Top Players List Sample Image 1](http://yariplus.x10.mx/images/sampleTopPlayers1.png "Top Players List Sample Image 1")
+* Daylight Cycle - Alters page colors based on the server time. (PlanetMinecraft.com uses a widget like this, requires RCON, and requires bukkit or 1.7+)
+* Stat Grabber - Use regular expressions to grab statistics from plugins such as McMMO or Vault and display them in a list or graph.
 
 ## Contributing
 
