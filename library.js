@@ -93,19 +93,19 @@
 					
 					var config = MinecraftWidgets.settings.get();
 					
-					if (config.logDebug) {
-						for ( var p in config ) {
-							console.log(p + ": " + config[p]);
-						}
+					if (typeof config.servers === 'undefined' || config.servers === null) {
+						config.servers = [{},{},{},{},{},{},{},{},{},{}];
+						MinecraftWidgets.settings.set(config);
+						MinecraftWidgets.settings.persist();
+					}else{
 						for (var serverNumber = 0; serverNumber < 10; serverNumber++) {
-							if ( config['server' + serverNumber + 'isDisabled'] || typeof config['server' + serverNumber + 'isDisabled'] === 'undefined' ) continue;
-							if (config.servers[serverNumber]) {
-								if (config.servers[serverNumber].status) console.log(config.servers[serverNumber].status);
-								if (config.servers[serverNumber].pings) console.log(config.servers[serverNumber].pings);
-								if (config.servers[serverNumber].players) console.log(config.servers[serverNumber].players);
-							}
+							if (typeof config.servers[serverNumber] === 'undefined' || config.servers[serverNumber] === null) config.servers[serverNumber] = {};
 						}
+						MinecraftWidgets.settings.set(config);
+						MinecraftWidgets.settings.persist();
 					}
+					
+					setTimeout(MinecraftWidgets.logSettings, 4000);
 					setTimeout(MinecraftWidgets.updateServers, MinecraftWidgets.settings.get().logDebug ? 60000 : 5000);
 				});
 				
@@ -141,6 +141,20 @@
 				
 				callback();
 			},
+			logSettings: function () {
+				var config = MinecraftWidgets.settings.get();
+				if (config.logDebug) {
+					for (var p in config) console.log(p + ": " + config[p]);
+				}
+				for (var serverNumber = 0; serverNumber < 10; serverNumber++) {
+					if (config['server' + serverNumber + 'isDisabled'] || typeof config['server' + serverNumber + 'isDisabled'] === 'undefined' ) continue;
+					if (config.servers[serverNumber]) {
+						if (config.servers[serverNumber].status) console.log(config.servers[serverNumber].status);
+						if (config.servers[serverNumber].pings) console.log(config.servers[serverNumber].pings);
+						if (config.servers[serverNumber].players) console.log(config.servers[serverNumber].players);
+					}
+				}
+			},
 			admin: {
 				menu: function(custom_header, callback) {
 					custom_header.plugins.push({
@@ -164,9 +178,20 @@
 				// Get information from the database and push it into the data object.
 				var config = MinecraftWidgets.settings.get();
 				for (var i = 0; i < fields.length; i++) {
-					var o = config.servers[data.serverNumber][fields[i]];
-					data[fields[i]] = {};
-					for (var prop in o) data[fields[i]][prop] = o[prop];
+					var o = config.servers[data.serverNumber];
+					if (typeof o === 'undefined' || o === null) {
+						callback("Server not found.", data);
+						return;
+					}else{
+						o = o[fields[i]];
+						if (typeof o === 'undefined' || o === null) {
+							callback("Server not found.", data);
+							return;
+						}else{
+							data[fields[i]] = {};
+							for (var prop in o) data[fields[i]][prop] = o[prop];
+						}
+					}
 				}
 				callback(null, data);
 			},
@@ -352,7 +377,14 @@
 		widget.data.serverNumber = isNaN(parseInt(widget.data.serverNumber)) || parseInt(widget.data.serverNumber) < 0 ? "0" : widget.data.serverNumber;
 		
 		MinecraftWidgets.pushData(widget.data, ['status', 'players'], function(err) {
-		
+			
+			if (err) {
+				widget.data.title = '';
+				widget.data.container = '';
+				callback(null, '');
+				return;
+			}
+			
 			if (!widget.data.players) {
 				widget.data.title = '';
 				widget.data.container = '';
@@ -439,7 +471,14 @@
 		widget.data.serverNumber = isNaN(parseInt(widget.data.serverNumber)) || parseInt(widget.data.serverNumber) < 0 ? "0" : widget.data.serverNumber;
 		
 		MinecraftWidgets.pushData(widget.data, ['pings', 'status'], function(err){
-		
+			
+			if (err) {
+				widget.data.title = '';
+				widget.data.container = '';
+				callback(null, '');
+				return;
+			}
+			
 			if (!widget.data.status || widget.data.status.players.length < 1) {
 				widget.data.title = '';
 				widget.data.container = '';
@@ -483,7 +522,14 @@
 		widget.data.serverNumber = isNaN(parseInt(widget.data.serverNumber)) || parseInt(widget.data.serverNumber) < 0 ? "0" : widget.data.serverNumber;
 		
 		MinecraftWidgets.pushData(widget.data, ['status'], function(err){
-		
+			
+			if (err) {
+				widget.data.title = '';
+				widget.data.container = '';
+				callback(null, '');
+				return;
+			}
+			
 			if (!widget.data.status || widget.data.status.players.length < 1) {
 				widget.data.title = '';
 				widget.data.container = '';
@@ -544,7 +590,14 @@
 		widget.data.serverNumber = isNaN(parseInt(widget.data.serverNumber)) || parseInt(widget.data.serverNumber) < 0 ? "0" : widget.data.serverNumber;
 		
 		MinecraftWidgets.pushData(widget.data, ['status', 'players'], function (err) {
-		
+			
+			if (err) {
+				widget.data.title = '';
+				widget.data.container = '';
+				callback(null, '');
+				return;
+			}
+			
 			if (!widget.data.players) {
 				widget.data.title = '';
 				widget.data.container = '';
@@ -624,6 +677,13 @@
 		var config = MinecraftWidgets.settings.get();
 		
 		MinecraftWidgets.pushData(widget.data, ['status'], function(err) {
+			
+			if (err) {
+				widget.data.title = '';
+				widget.data.container = '';
+				callback(null, '');
+				return;
+			}
 
 			for (var p in widget.data.status) {
 				widget.data[p] = widget.data.status[p];
