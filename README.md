@@ -34,13 +34,13 @@ Or for bleeding edge builds, you can pull from github:
 
 Shows MOTD, min/max players, version, online player avatars, and other information about the Minecraft server. Displays everything in a pretty table. Custom rows can be added for things such as Mod Pack downloads, donation links, or any other html you wish to add.
 
-![Server Status Widget Sample Image](http://yariplus.x10.mx/images/sample2.png "Server Status Widget Sample Image")
+![Server Status Widget Sample Image](http://yariplus.x10.mx/images/widgetServerStatus.png "Server Status Widget Sample Image")
 
 ### Online Players Graph Widget
 
 A graph showing the number of player on the server recently. (Last 30 pings)
 
-![Online Players Graph Sample Image](http://yariplus.x10.mx/images/sampleop1.png "Online Players Graph Sample Image")
+![Online Players Graph Sample Image](http://yariplus.x10.mx/images/widgetOnlinePlayersGraph.png "Online Players Graph Sample Image")
 
 ### Online Players Grid Widget
 
