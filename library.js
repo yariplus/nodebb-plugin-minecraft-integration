@@ -457,7 +457,13 @@
 			
 			for (var i = 0; i < widget.data.pings.pingArr.length; i++) {
 				widget.data.onlinePlayers.push( widget.data.pings.pingArr[i].players ? widget.data.pings.pingArr[i].players.length : 0 );
-				widget.data.labels.push( widget.data.pings.pingArr[i].time ? widget.data.pings.pingArr[i].time : '0' );
+				if (widget.data.pings.pingArr[i].time) {
+					var time = parseInt(widget.data.pings.pingArr[i].time);
+					var date = new Date( time - time % 60000 ).toLocaleTimeString();
+					widget.data.labels.push( date );
+				}else{
+					widget.data.labels.push( '0' );
+				}
 			}
 			
 			widget.data.onlinePlayers = JSON.stringify(widget.data.onlinePlayers);
