@@ -104,7 +104,7 @@
 <div class="form-group">
     <div class="checkbox">
         <label>
-            <input type="checkbox" name="showDebugIcons">Show debug icons?
+            <input type="checkbox" name="hidePluginList">Hide plugin list?
         </label>
     </div>
 </div>

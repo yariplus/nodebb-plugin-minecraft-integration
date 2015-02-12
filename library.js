@@ -692,7 +692,7 @@
 		
 			widget.data.parseFormatCodes = widget.data.parseFormatCodes == "on" ? true : false;
 			widget.data.showPlayerCount = widget.data.isServerOnline && widget.data.showPlayerCount == "on" ? true : false;
-			widget.data.showDebugIcons = widget.data.showDebugIcons == "on" ? true : false;
+			widget.data.hidePluginList = widget.data.hidePluginList == "on" ? true : false;
 			widget.data.showIP = widget.data.showIP == "on" ? true : false;
 			
 			widget.data.showPlayers = widget.data.isServerOnline && widget.data.players.length > 0 ? true : false;
@@ -764,6 +764,8 @@
 				if (widget.data.modList.length > 0) widget.data.hasMods = true;
 				if (widget.data.pluginList.length > 0) widget.data.hasPlugins = true;
 			}
+			
+			if (widget.data.hidePluginList) widget.data.pluginList = [];
 			
 			if (!widget.data.version && widget.data.isServerOnline) {
 				widget.data.isServerOnline = false;
