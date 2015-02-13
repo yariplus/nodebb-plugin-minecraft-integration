@@ -164,6 +164,15 @@
 
 <br></br>
 
+<div class="form-group">
+    <label class="control-label">Dynmap URI</label>
+    <div>
+        <input type="text" class="form-control" name="mapURI">
+    </div>
+</div>
+
+<br></br>
+
 <div class="form-group row well">
     <label class="col-md-2 control-label">Custom Row 1</label>
     <div class="col-md-2">

@@ -844,6 +844,7 @@
 			titlePrefix = "<span style=\"color:#" + data.colorTitle + ";\">" + titlePrefix;
 			titleSuffix = titleSuffix + "</span>";
 		}
+		if ( MinecraftWidgets.settings.get()["server" + data.serverNumber + "serverName"] ) data.serverTitle = parseMCFormatCodes( titlePrefix + MinecraftWidgets.settings.get()["server" + data.serverNumber + "serverName"] + titleSuffix );
 		if (!data.title) {
 			if ( MinecraftWidgets.settings.get()["server" + data.serverNumber + "serverName"] ) {
 				data.title = parseMCFormatCodes( titlePrefix + MinecraftWidgets.settings.get()["server" + data.serverNumber + "serverName"] + titleSuffix );

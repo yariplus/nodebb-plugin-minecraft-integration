@@ -54,6 +54,25 @@
                 <!-- IF hasInvalidPort -->{msgInvalidPort}<!-- ENDIF hasInvalidPort -->
                 <!-- IF hasInvalidQuery -->{msgInvalidQuery}<!-- ENDIF hasInvalidQuery -->
             </span>
+            <!-- IF mapURI -->
+            <span class="mcwe-modal"></span>
+            <span class="pointer pull-right" data-toggle="modal" data-target="#mcwe-modal">
+                Live Map
+            </span>
+            <div class="modal mcwe-modal fade" id="mcwe-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" width="90%">
+                <div class="modal-dialog mcwe-modal-dialog">
+                    <div class="modal-content mcwe-modal-content">
+                        <div class="modal-header mcwe-modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title mcwe-modal-title" id="myModalLabel">{serverTitle} — Live Map</h4>
+                        </div>
+                        <div class="modal-body mcwe-modal-body">
+                            <iframe src="{mapURI}" width="100%" height="100%"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- ENDIF mapURI -->
         </td>
     </tr>
     
