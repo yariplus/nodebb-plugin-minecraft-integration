@@ -92,7 +92,7 @@
                         <label class="control-label" for="server0serverHost">
                             Server Host
                             <a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-title="This is the address users can use to connect to the server, you can enter a port here or in the Server Port box. Supports SRV records and DNS addresses. Defaults to localhost."></a>
-                            <input type="text" class="form-control" data-key="server0serverHost" id="server0serverHost" placeholder="0.0.0.0"></input>
+                            <input type="text" class="form-control" data-key="server0serverHost" id="server0serverHost" placeholder="localhost"></input>
                         </label>
                         <label class="control-label" for="server0serverPort">
                             Server Port
@@ -104,7 +104,7 @@
                         <label class="control-label" for="server0queryPort">
                             Query Port
                             <a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-title="The server query port. Defaults to the server port. Query must be enabled in the server's server.properties file. Older servers will provide only limited information without an open query port."></a>
-                            <input type="text" class="form-control" data-key="server0queryPort" id="server0queryPort" placeholder=""></input>
+                            <input type="text" class="form-control" data-key="server0queryPort" id="server0queryPort" placeholder="Server Port"></input>
                         </label>
                     </div>
                     <div class="form-group">
@@ -116,6 +116,13 @@
                         <label class="control-label" for="server0rconPass">
                             RCON Pass (Optional)
                             <input type="password" class="form-control" data-key="server0rconPass" id="server0rconPass" placeholder=""></input>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="server0requestIP">
+                            Request IP (Optional)
+                            <a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-title="Enter an IP address here (without port) to send requests to it instead of the server address above. Useful if the address above routes through a proxy (such as BungeeCord), but you want query requests to go directly to the server IP."></a>
+                            <input type="text" class="form-control" data-key="server0requestIP" id="server0requestIP" placeholder=""></input>
                         </label>
                     </div>
                 </div>
@@ -154,7 +161,7 @@
                         <label class="control-label" for="server1serverHost">
                             Server Host
                             <a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-title="This is the address users can use to connect to the server, you can enter a port here or in the Server Port box. Supports SRV records and DNS addresses. Defaults to localhost."></a>
-                            <input type="text" class="form-control" data-key="server1serverHost" id="server1serverHost" placeholder="0.0.0.0"></input>
+                            <input type="text" class="form-control" data-key="server1serverHost" id="server1serverHost" placeholder="localhost"></input>
                         </label>
                         <label class="control-label" for="server1serverPort">
                             Server Port
@@ -166,7 +173,7 @@
                         <label class="control-label" for="server1queryPort">
                             Query Port
                             <a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-title="The server query port. Defaults to the server port. Query must be enabled in the server's server.properties file. Older servers will provide only limited information without an open query port."></a>
-                            <input type="text" class="form-control" data-key="server1queryPort" id="server1queryPort" placeholder=""></input>
+                            <input type="text" class="form-control" data-key="server1queryPort" id="server1queryPort" placeholder="Server Port"></input>
                         </label>
                     </div>
                     <div class="form-group">
@@ -178,6 +185,13 @@
                         <label class="control-label" for="server1rconPass">
                             RCON Pass (Optional)
                             <input type="password" class="form-control" data-key="server1rconPass" id="server1rconPass" placeholder=""></input>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="server1requestIP">
+                            Request IP (Optional)
+                            <a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-title="Enter an IP address here (without port) to send requests to it instead of the server address above. Useful if the address above routes through a proxy (such as BungeeCord), but you want query requests to go directly to the server IP."></a>
+                            <input type="text" class="form-control" data-key="server1requestIP" id="server1requestIP" placeholder=""></input>
                         </label>
                     </div>
                 </div>
@@ -216,7 +230,7 @@
                         <label class="control-label" for="server2serverHost">
                             Server Host
                             <a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-title="This is the address users can use to connect to the server, you can enter a port here or in the Server Port box. Supports SRV records and DNS addresses. Defaults to localhost."></a>
-                            <input type="text" class="form-control" data-key="server2serverHost" id="server2serverHost" placeholder="0.0.0.0"></input>
+                            <input type="text" class="form-control" data-key="server2serverHost" id="server2serverHost" placeholder="localhost"></input>
                         </label>
                         <label class="control-label" for="server2serverPort">
                             Server Port
@@ -228,7 +242,7 @@
                         <label class="control-label" for="server2queryPort">
                             Query Port
                             <a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-title="The server query port. Defaults to the server port. Query must be enabled in the server's server.properties file. Older servers will provide only limited information without an open query port."></a>
-                            <input type="text" class="form-control" data-key="server2queryPort" id="server2queryPort" placeholder=""></input>
+                            <input type="text" class="form-control" data-key="server2queryPort" id="server2queryPort" placeholder="Server Port"></input>
                         </label>
                     </div>
                     <div class="form-group">
@@ -240,6 +254,13 @@
                         <label class="control-label" for="server2rconPass">
                             RCON Pass (Optional)
                             <input type="password" class="form-control" data-key="server2rconPass" id="server2rconPass" placeholder=""></input>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="server2requestIP">
+                            Request IP (Optional)
+                            <a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-title="Enter an IP address here (without port) to send requests to it instead of the server address above. Useful if the address above routes through a proxy (such as BungeeCord), but you want query requests to go directly to the server IP."></a>
+                            <input type="text" class="form-control" data-key="server2requestIP" id="server2requestIP" placeholder=""></input>
                         </label>
                     </div>
                 </div>
