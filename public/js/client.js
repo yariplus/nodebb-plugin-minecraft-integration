@@ -82,9 +82,10 @@ $(document).ajaxComplete(function(event, response, settings) {
 	
     if (settings.url == "/api/admin/extend/widgets") {
         var IDcounter = 1;
-        $('#widgets .widget-area').on('click', '.toggle-widget', function() {
-            var jWidgetPanel = $(this).parents('.widget-panel').children('.panel-body');
-            if ( !jWidgetPanel.hasClass('hidden') ) {
+        $('.widget-area > .widget-panel > .panel-heading').on('mouseup', function() {
+            var jWidgetPanel = $(this).next();
+            if ( !jWidgetPanel.hasClass('mcwe-ajaxed') ) {
+				jWidgetPanel.addClass('mcwe-ajaxed');
 				jWidgetPanel.find('input.ajaxSelectSibling').each(function(index){
 					var MCWESN = $(this);
 					if (MCWESN.val()) {
@@ -130,6 +131,6 @@ $(document).ajaxComplete(function(event, response, settings) {
                     IDcounter++;
                 });
             }
-        });
+        }).trigger();
     }
 });
