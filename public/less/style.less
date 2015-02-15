@@ -22,41 +22,57 @@
 
 .canvasResizable {
     width: 100% !important;
-    max-width: 800px;
+    max-width: 1200px;
     height: auto !important;
+    display: block;
 }
 
 .widgetFillContainer {
     position: relative;
 }
 
-.widgetTable .td-label {
-    padding-left: 16px;
-    max-width: 90px;
-    width: 90px;
-}
-
-.widgetTable .td-padded {
-    padding-left: 16px;
-}
-
 .widgetTable {
     margin-bottom: 0px;
+    
+    .td-label {
+        padding-left: 16px;
+        max-width: 90px;
+        width: 90px;
+    }
+
+    .td-padded {
+        padding-left: 16px;
+    }
 }
 
-#mcwe-modal .modal-dialog {
-    width:95%;
-    min-height:95%;
-    overflow-y: hidden;
-}
-
-.modal-dialog, .modal-content {
-    height: 90%;
+.mcwe-modal .mcwe-modal-dialog {
+    height: 92%;
+    width: 92%;
     margin: 30px auto auto;
+    padding-left: 15px;
 }
 
-.modal-body {
+.mcwe-modal .mcwe-modal-content {
+    height: 100%;
+}
+
+.mcwe-modal-body {
     max-height: calc(100%);
     height: calc(~"100% - 60px");
     overflow-y: hidden;
+}
+
+.mcweIFrame {
+    border-style: ridge;
+    border-width: 4px;
+    border-color: #888;
+    display: block;
+}
+
+.mcweModalMap {
+    display: block;
+}
+
+body.modal-open {
+    margin-padding: 0px !important;
 }

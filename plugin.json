@@ -13,6 +13,7 @@
 	"hooks": [
 		{ "hook": "static:app.load", "method": "onLoad" },
 		{ "hook": "filter:widgets.getWidgets", "method": "defineWidgets" },
+        { "hook": "filter:widget.render:widgetMCDynmapMiniMap", "method": "renderMCDynmapMiniMap" },
         { "hook": "filter:widget.render:widgetMCOnlinePlayersGraph", "method": "renderMCOnlinePlayersGraph" },
         { "hook": "filter:widget.render:widgetMCOnlinePlayersGrid", "method": "renderMCOnlinePlayersGrid" },
 		{ "hook": "filter:widget.render:widgetMCServerStatus", "method": "renderMCServerStatus" },

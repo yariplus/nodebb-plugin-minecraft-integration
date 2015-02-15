@@ -30,7 +30,7 @@ function resizeend() {
     } else {
         timeout = false;
 		resizeCanvases();
-    }               
+    }
 }
 
 function resizeCanvases() {
@@ -67,6 +67,16 @@ function resizeCanvases() {
 			var Chartjs = Chart.noConflict();
 		});
 	}
+	
+	$('.widgetFillContainer .mcweIFrame').each(function(){
+		var heightRatio = $(this).attr('height-ratio');
+		heightRatio = typeof heightRatio == 'undefined' ? 2 : parseInt(heightRatio);
+		heightRatio = isNaN(heightRatio) ? 2 : heightRatio < 1 ? 2 : heightRatio;
+		$(this).attr('width', $(this).parent().width());
+		$(this).attr('height', $(this).parent().width() / heightRatio);
+		$(this).css('width', $(this).parent().width());
+		$(this).css('height', $(this).parent().width() / heightRatio);
+	});
 }
 
 $(document).ajaxComplete(function(event, response, settings) {
@@ -105,7 +115,7 @@ $(document).ajaxComplete(function(event, response, settings) {
 					MCWESN.prev().on('change', function(){
 						MCWESN.val($(this).val());
 					});
-				});				
+				});
                 jWidgetPanel.find('input.ajaxInputColorPicker').each(function(index){
 					if ($(this).val() === '') $(this).val('000000');
                     var MCWECP = $(this);

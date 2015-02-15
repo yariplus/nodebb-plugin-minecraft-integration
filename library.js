@@ -115,11 +115,13 @@
 				};
 
 				var templatesToLoad = [
+					"widgetMCDynmapMiniMap.tpl",
 					"widgetMCOnlinePlayersGraph.tpl",
 					"widgetMCOnlinePlayersGrid.tpl",
 					"widgetMCServerStatus.tpl",
 					"widgetMCTopPlayersGraph.tpl",
 					"widgetMCTopPlayersList.tpl",
+					"admin/adminWidgetMCDynmapMiniMap.tpl",
 					"admin/adminWidgetMCOnlinePlayersGraph.tpl",
 					"admin/adminWidgetMCOnlinePlayersGrid.tpl",
 					"admin/adminWidgetMCServerStatus.tpl",
@@ -384,7 +386,31 @@
 				}
 			}
 		};
-	
+
+	MinecraftWidgets.renderMCDynmapMiniMap = function(widget, callback) {
+		widget.data.serverNumber = isNaN(parseInt(widget.data.serverNumber)) || parseInt(widget.data.serverNumber) < 0 ? "0" : widget.data.serverNumber;
+
+		widget.data.showModalMap = widget.data.showModalMap == "on" ? true : false;
+
+		if (!widget.data.mapURI) widget.data.mapURI = 'http://' + MinecraftWidgets.settings.get('server' + widget.data.serverNumber + 'serverHost') + ':8123/';
+		widget.data.minimapURI = widget.data.mapURI + '?nopanel=true&hidechat=true&nogui=true';
+		if (widget.data.worldname) widget.data.minimapURI = widget.data.minimapURI + '&' + 'worldname=' + widget.data.worldname;
+		if (widget.data.mapname) widget.data.minimapURI = widget.data.minimapURI + '&' + 'mapname=' + widget.data.mapname;
+		if (widget.data.zoom) widget.data.minimapURI = widget.data.minimapURI + '&' + 'zoom=' + widget.data.zoom;
+		if (widget.data.X) widget.data.minimapURI = widget.data.minimapURI + '&' + 'x=' + widget.data.X;
+		if (widget.data.Z) widget.data.minimapURI = widget.data.minimapURI + '&' + 'z=' + widget.data.Z;
+
+		widget.data.modalID = "minimap" + widget.data.serverNumber;
+
+		formatWidgetData(widget.data, "Mini Map - ", widget.data.showModalMap ? '<span class="pointer pull-right" data-toggle="modal" data-target="#mcwe-modal-'+widget.data.modalID+'">Open Map</span>' : '');
+		
+		app.render('widgetMCDynmapMiniMap', widget.data, function(err, html) {
+			translator.translate(html, function(translatedHTML) {
+				callback(err, translatedHTML);
+			});
+		});
+	}
+
 	MinecraftWidgets.renderMCTopPlayersList = function(widget, callback) {
 		widget.data.serverNumber = isNaN(parseInt(widget.data.serverNumber)) || parseInt(widget.data.serverNumber) < 0 ? "0" : widget.data.serverNumber;
 		
@@ -706,6 +732,7 @@
 			widget.data.showPlayerCount = widget.data.isServerOnline && widget.data.showPlayerCount == "on" ? true : false;
 			widget.data.hidePluginList = widget.data.hidePluginList == "on" ? true : false;
 			widget.data.showIP = widget.data.showIP == "on" ? true : false;
+			widget.data.showModalMap = widget.data.showModalMap == "on" ? true : false;
 			
 			widget.data.showPlayers = widget.data.isServerOnline && widget.data.players.length > 0 ? true : false;
 			widget.data.showVersion = widget.data.isServerOnline && widget.data.version ? true : false;
@@ -834,7 +861,11 @@
 				widget.data.avatarMargin = 5;
 			}
 			
-			formatWidgetData(widget.data);
+			if (!widget.data.mapURI) widget.data.mapURI = 'http://' + MinecraftWidgets.settings.get('server' + widget.data.serverNumber + 'serverHost') + ':8123/';
+			widget.data.minimapURI = widget.data.mapURI + '?nopanel=true&hidechat=true&nogui=true';
+			widget.data.modalID = "serverstatusmap" + widget.data.serverNumber;
+			
+			formatWidgetData(widget.data, '', widget.data.showModalMap ? '<span class="pointer pull-right" data-toggle="modal" data-target="#mcwe-modal-'+widget.data.modalID+'">Open Map</span>' : '');
 			
 			if (widget.data.serverMOTD) {
 				widget.data.serverMOTD = parseMCFormatCodes( widget.data.serverMOTD );
@@ -865,18 +896,20 @@
 		});
 	};
 	
-	function formatWidgetData ( data, titlePrefix ) {
-		if(!titlePrefix) titlePrefix = "";
-		var titleSuffix = "";
-		if(typeof data.colorTitle !== 'undefined') {
-			titlePrefix = "<span style=\"color:#" + data.colorTitle + ";\">" + titlePrefix;
-			titleSuffix = titleSuffix + "</span>";
+	function formatWidgetData ( data, titlePrefix, titleSuffix ) {
+		var config = MinecraftWidgets.settings.get();
+		if (!titlePrefix) titlePrefix = "";
+		if (!titleSuffix) titleSuffix = "";
+		if (data.serverNumber && config["server" + data.serverNumber + "serverName"]) {
+			data.serverTitle = parseMCFormatCodes( MinecraftWidgets.settings.get()["server" + data.serverNumber + "serverName"] );
+			if(typeof data.colorTitle !== 'undefined') {
+				data.serverTitle = "<span style=\"color:#" + data.colorTitle + ";\">" + data.serverTitle + "</span>";
+			}
 		}
-		if ( MinecraftWidgets.settings.get()["server" + data.serverNumber + "serverName"] ) data.serverTitle = parseMCFormatCodes( titlePrefix + MinecraftWidgets.settings.get()["server" + data.serverNumber + "serverName"] + titleSuffix );
 		if (!data.title) {
-			if ( MinecraftWidgets.settings.get()["server" + data.serverNumber + "serverName"] ) {
-				data.title = parseMCFormatCodes( titlePrefix + MinecraftWidgets.settings.get()["server" + data.serverNumber + "serverName"] + titleSuffix );
-			}else{
+			if ( data.serverTitle ) {
+				data.title = parseMCFormatCodes( titlePrefix + data.serverTitle + titleSuffix );
+			}else if (data.serverNumber) {
 				data.title = titlePrefix + "Server " + data.serverNumber + titleSuffix;
 			}
 		}else{
@@ -1217,6 +1250,7 @@
 			data.serverConfigNames.push({ 'configName': MinecraftWidgets.settings.get()["server" + serverNumber + "serverConfigName"] || "Server " + serverNumber , 'serverNumber': serverNumber.toString() });
 		}
 		
+		var contentMCDynmapMiniMap      = templates.parse( MinecraftWidgets.templates['admin/adminWidgetMCDynmapMiniMap.tpl'], data);
 		var contentMCOnlinePlayersGraph = templates.parse( MinecraftWidgets.templates['admin/adminWidgetMCOnlinePlayersGraph.tpl'], data);
 		var contentMCOnlinePlayersGrid  = templates.parse( MinecraftWidgets.templates['admin/adminWidgetMCOnlinePlayersGrid.tpl'], data);
 		var contentMCServerStatus       = templates.parse( MinecraftWidgets.templates['admin/adminWidgetMCServerStatus.tpl'], data);
@@ -1224,6 +1258,12 @@
 		var contentMCTopPlayersList     = templates.parse( MinecraftWidgets.templates['admin/adminWidgetMCTopPlayersList.tpl'], data);
 		
 		widgets = widgets.concat([
+			{
+				widget: "widgetMCDynmapMiniMap",
+				name: "Dynmap Mini Map",
+				description: "SHows a small Map.",
+				content: contentMCDynmapMiniMap
+			},
 			{
 				widget: "widgetMCOnlinePlayersGraph",
 				name: "Minecraft Online Players Graph",
