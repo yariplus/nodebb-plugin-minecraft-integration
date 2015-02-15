@@ -1237,7 +1237,7 @@
 		name = name.replace(/§n/g, "<span style=\"text-decoration: underline;\">");
 		name = name.replace(/§o/g, "<span style=\"font-style: italic;\">");
 		name = name.replace(/§r/g, "<span style=\"font-style: normal; text-decoration: none; font-weight: normal; color:#000000;\">");
-		name = name.replace(/§/g, "");
+		name = name.replace(/§/g, "<span>");
 		for ( var i = 0; i < spancount; i++ ) name = name + "</span>";
 		return name;
 	}
