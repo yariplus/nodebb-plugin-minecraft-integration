@@ -1,5 +1,5 @@
 <div class="well" style="overflow:hidden;margin-bottom:15px;">
-<h4 style="margin-top:0;">Widget Preview</h4>
+<h4 style="margin-top:0;">Widget Preview (Testing)</h4>
 <div class="mcWidgetPreview" style="width:380px;">
 <div class="panel panel-default"><div class="panel-heading">Server Name</div><div style="padding: 0px;" class="panel-body"><div class="widgetFillContainer">
     <table class="table table-striped widgetTable">
@@ -161,7 +161,7 @@
         <input type="text" class="form-control ajaxInputColorPicker" name="gloryEnd">
     </div>
 </div>
-<button class="btn btn-primary mcweTogglableSibling"><span class="fa fa-chevron-down"></span></button>
+<button type="button" class="btn btn-primary mcweTogglableSibling"><span class="fa fa-chevron-down"></span></button>
 
 <br></br>
 
@@ -206,7 +206,7 @@
         <input class="form-control" type="text" name="Z">
     </div>
 </div>
-<button class="btn btn-primary mcweTogglableSibling"><span class="fa fa-chevron-down"></span></button>
+<button type="button" class="btn btn-primary mcweTogglableSibling"><span class="fa fa-chevron-down"></span></button>
 
 <br></br>
 
@@ -292,6 +292,6 @@
     </div>
 
 </div>
-<button class="btn btn-primary mcweTogglableSibling"><span class="fa fa-chevron-down"></span></button>
+<button type="button" class="btn btn-primary mcweTogglableSibling"><span class="fa fa-chevron-down"></span></button>
 
 <br></br>

@@ -908,11 +908,14 @@
 		}
 		if (!data.title) {
 			if ( data.serverTitle ) {
-				data.title = parseMCFormatCodes( titlePrefix + data.serverTitle + titleSuffix );
-			}else if (data.serverNumber) {
+				data.title = titlePrefix + data.serverTitle + titleSuffix;
+			}else{
 				data.title = titlePrefix + "Server " + data.serverNumber + titleSuffix;
 			}
 		}else{
+			if(typeof data.colorTitle !== 'undefined') {
+				data.title = "<span style=\"color:#" + data.colorTitle + ";\">" + data.title + "</span>";
+			}
 			data.title = parseMCFormatCodes(titlePrefix + data.title + titleSuffix);
 		}
 		if (!data.container && !data.useEmptyContainer) data.container = '<div class="panel panel-default"><div class="panel-heading">{title}</div><div class="panel-body">{body}</div></div>';
