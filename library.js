@@ -517,7 +517,7 @@
 				return;
 			}
 			
-			if (!widget.data.status || widget.data.status.players.length < 1) {
+			if (!widget.data.status) {
 				widget.data.title = '';
 				widget.data.container = '';
 				callback(null, '');
