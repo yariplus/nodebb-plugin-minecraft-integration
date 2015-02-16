@@ -36,6 +36,12 @@ Shows MOTD, min/max players, version, online player avatars, and other informati
 
 ![Server Status Widget Sample Image](http://yariplus.x10.mx/images/widgetServerStatus.png "Server Status Widget Sample Image")
 
+### Dynmap Mini Map Widget
+
+Displays a mini Dynmap with configurable start location. (World/MapType/Coordinate).
+
+![Dynmap Mini Map Sample Image](http://yariplus.x10.mx/images/widgetDynmapMiniMap.png "Dynmap Mini Map Sample Image")
+
 ### Online Players Graph Widget
 
 A graph showing the number of player on the server recently. (Last 30 pings)
@@ -64,7 +70,6 @@ A graphic chart (Pie) representing the top players' approximate play time.
 
 * Ping Graph - A graph showing the servers' recent ping times. (Last 30 pings)
 * TPS Graph - A graph showing the servers' recent Ticks per Second. (Last 30 pings, requires Bukkit)
-* MiniMap Widget - A widget that displays a Dynmap page inline with the widget container and expandable to full page size.
 * Donators List - Displays user avatars and related graphics in a list representing the players' total donations.
 * Store Items - Displays graphics for and links to items in the server store. (Buycraft etc..)
 * Daylight Cycle - Alters page colors based on the server time. (PlanetMinecraft.com uses a widget like this, requires RCON, and requires bukkit or 1.7+)
