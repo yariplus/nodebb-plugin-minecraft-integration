@@ -11,6 +11,21 @@ $(document).ready(function() {
 	$('body').popover({
         selector: '.has-popover'
     });
+	$('.mcweTogglableSibling').on('click', function(e) {
+		e.preventDefault();
+		$(this).prev().toggle();
+		$(this).blur();
+		if ($(this).children(':first-child').hasClass('fa-chevron-down')) {
+			$(this).children(':first-child').removeClass('fa-chevron-down').addClass('fa-chevron-up');
+		}else{
+			$(this).children(':first-child').removeClass('fa-chevron-up').addClass('fa-chevron-down');
+		}
+	}).each(function(i,e){
+		if (!$(e).children(':first-child').hasClass('fa-chevron-down')) {
+			$(e).addClass('fa-chevron-down');
+			$(e).removeClass('fa-chevron-up');
+		}
+	});
 });
 
 var rtime = new Date(1, 1, 2000, 12,00,00);
