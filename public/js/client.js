@@ -51,7 +51,7 @@ function resizeend() {
 function resizeCanvases() {
 	// Find better solution, so that we can draw on widget config pages.
 	if (typeof Chart == 'undefined') {
-		require(['vendor/chart.js/chart.min.js'], function(Chart){
+		require(['/vendor/chart.js/chart.min.js'], function(Chart){
 			$('.canvasResizable').each(function(i, e){
 				var heightRatio = $(e).attr('height-ratio');
 				heightRatio = typeof heightRatio == 'undefined' ? 3 : parseInt(heightRatio);
