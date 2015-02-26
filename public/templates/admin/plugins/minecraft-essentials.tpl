@@ -293,7 +293,7 @@
                             <i class="fa fa-fw fa-times"></i> Delete All
                         </button>
                     </div>
-                    <button type="submit" class="btn btn-success form-control" accesskey="s" id="save">
+                    <button type="button" class="btn btn-success form-control" id="save">
                         <i class="fa fa-fw fa-save"></i> Save Settings
                     </button>
                 </div>
@@ -343,14 +343,16 @@ require(['settings'], function(settings) {
     });
 
     $('#save').click( function (event) {
+        event.preventDefault();
         settings.persist('minecraft-essentials', $('#minecraft-essentials'), function(){
             socket.emit('admin.settings.syncMinecraftEssentials');
         });
     });
 
     $('#form-btn-delete-all').click( function (event) {
-        bootbox.confirm("Are you sure?<br><span class="text-danger strong">This will delete all data from all Minecraft servers.</span>", function(result) {
-            Example.show("Confirm Delete All);
+        event.preventDefault();
+        bootbox.confirm('Are you sure?<br><span class="text-danger strong">This will delete all data from all Minecraft servers.</span>', function(result) {
+            Example.show("Confirm Delete All");
         });
         settings.persist('minecraft-essentials', $('#minecraft-essentials'), function(){
             socket.emit('admin.settings.syncMinecraftEssentials');
