@@ -1,64 +1,70 @@
-<div class="row">
-	<div class="col-lg-9">
-        <form id="minecraftServers">
-        <input type="hidden" name="resetDatabase">
-        <div class="panel">
-            <div class="panel-heading">Minecraft Essentials Configuration</div>
-            <div class="panel-body">
-                <h4>General Settings</h4>
-                <div class="form-group">
-                    <label class="control-label" for="serverUpdateDelay">
-                        Ping Frequency (In minutes)
-                        <a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-title="This can usually be left alone, but some servers will block the plugin if it pings to often."></a>
-                        <input type="text" class="form-control" data-key="serverUpdateDelay" id="serverUpdateDelay" placeholder="1"></input>
-                    </label>
+<form id="minecraft-essentials">
+    <div class="row">
+        <div class="col-lg-9">
+            <div class="panel acp-panel-primary">
+                <div class="panel-heading">
+                    <div class="panel-title">
+                        Minecraft Essentials Configuration
+                    </div>
                 </div>
-                <div class="form-group">
-                    <div class="checkbox">
-                        <label>
-                            <input type="checkbox" data-type="check" data-key="logErrors"></input>
-                            Log Errors?
-                            <a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-title="This logs all non-critical errors."></a>
+                <div class="panel-body">
+                    <h4>General Settings</h4>
+                    <div class="form-group">
+                        <label class="control-label" for="serverUpdateDelay">
+                            Ping Frequency (In minutes)
+                            <a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-title="This can usually be left alone, but some servers will block the plugin if it pings to often."></a>
+                            <input type="text" class="form-control" data-key="serverUpdateDelay" id="serverUpdateDelay" placeholder="1"></input>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" data-type="check" data-key="logErrors"></input>
+                                Log Errors?
+                                <a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-title="This logs all non-critical errors."></a>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" data-type="check" data-key="logDebug"></input>
+                                Log Debug Messages?
+                                <a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-title="This sends a lot of data to the logs, which may be useful for filing bug reports."></a>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">
+                            Primary Avatar CDN
+                            <a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-title="The Avatar CDN is where avatars are downloaded from."></a>
+                            <select class="form-control" data-key="avatarCDN">
+                                <!--<option value="mojang">Mojang</option>-->
+                                <option value="cravatar" selected="selected">Cravatar.eu</option>
+                                <option value="minotar">Minotar</option>
+                                <option value="signaturecraft">Signaturecraft</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">
+                            Avatar Size (Pixels)
+                            <input type="text" class="form-control" data-key="avatarSize" id="avatarSize" placeholder="40"></input>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">
+                            Avatar Style
+                            <select class="form-control" data-key="avatarStyle">
+                                <option value="flat" selected="selected">Flat</option>
+                            </select>
                         </label>
                     </div>
                 </div>
-                <div class="form-group">
-                    <div class="checkbox">
-                        <label>
-                            <input type="checkbox" data-type="check" data-key="logDebug"></input>
-                            Log Debug Messages?
-                            <a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-title="This sends a lot of data to the logs, which may be useful for filing bug reports."></a>
-                        </label>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label">
-                        Primary Avatar CDN
-                        <a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-title="The Avatar CDN is where avatars are downloaded from."></a>
-                        <select class="form-control" data-key="avatarCDN">
-                            <!--<option value="mojang">Mojang</option>-->
-                            <option value="cravatar" selected="selected">Cravatar.eu</option>
-                            <option value="minotar">Minotar</option>
-                            <option value="signaturecraft">Signaturecraft</option>
-                        </select>
-                    </label>
-                </div>
-                <div class="form-group">
-                    <label class="control-label">
-                        Avatar Size (Pixels)
-                        <input type="text" class="form-control" data-key="avatarSize" id="avatarSize" placeholder="40"></input>
-                    </label>
-                </div>
-                <div class="form-group">
-                    <label class="control-label">
-                        Avatar Style
-                        <select class="form-control" data-key="avatarStyle">
-                            <option value="flat" selected="selected">Flat</option>
-                        </select>
-                    </label>
-                </div>
-                
-                <div class="well">
+            </div>
+
+            <div class="panel acp-panel-primary">
+                <div class="panel-body">
                     <h3>Server One</h3>
                     <div class="checkbox">
                         <label for="server0isDisabled">
@@ -126,8 +132,10 @@
                         </label>
                     </div>
                 </div>
-                
-                <div class="well">
+            </div>
+
+            <div class="panel acp-panel-primary">
+                <div class="panel-body">
                     <h3>Server Two</h3>
                     <div class="checkbox">
                         <label for="server1isDisabled">
@@ -195,8 +203,10 @@
                         </label>
                     </div>
                 </div>
-                
-                <div class="well">
+            </div>
+
+            <div class="panel acp-panel-primary">
+                <div class="panel-body">
                     <h3>Server Three</h3>
                     <div class="checkbox">
                         <label for="server2isDisabled">
@@ -264,28 +274,39 @@
                         </label>
                     </div>
                 </div>
-                
-			</div>
-		</div>
-        </form>
-	</div>
-	<div class="col-lg-3">
-		<div class="panel panel-default">
-			<div class="panel-heading">Minecraft Essentials Configuration</div>
-			<div class="panel-body">
-				<button class="btn btn-primary" id="save">Save Settings</button><br /><br />
-                <button class="btn btn-info" id="add-minecraft-server">Add a Server</button><br /><br />
-                <button class="btn btn-danger" id="delete-minecraft-servers">Reset Database</button>
-			</div>
-		</div>
-	</div>
-</div>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="panel acp-panel-primary">
+                <div class="panel-heading">
+                    Action Panel
+                </div>
+
+                <div class="panel-body">
+                    <div class="form-group">
+                        <button type="button" class="btn btn-warning form-control" id="form-btn-reset-all">
+                            <i class="fa fa-fw fa-history"></i> Reset All
+                        </button>
+                    </div>
+                    <div class="form-group">
+                        <button type="button" class="btn btn-danger form-control" id="form-btn-delete-all">
+                            <i class="fa fa-fw fa-times"></i> Delete All
+                        </button>
+                    </div>
+                    <button type="submit" class="btn btn-success form-control" accesskey="s" id="save">
+                        <i class="fa fa-fw fa-save"></i> Save Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
 
 <script type="text/javascript">
 
 require(['settings'], function(settings) {
 
-    settings.sync('minecraft-essentials', $('#minecraftServers'));
+    settings.sync('minecraft-essentials', $('#minecraft-essentials'));
     settings.registerPlugin({
         Settings: {},
 		types: ['check'],
@@ -322,11 +343,19 @@ require(['settings'], function(settings) {
     });
 
     $('#save').click( function (event) {
-        settings.persist('minecraft-essentials', $('#minecraftServers'), function(){
+        settings.persist('minecraft-essentials', $('#minecraft-essentials'), function(){
             socket.emit('admin.settings.syncMinecraftEssentials');
         });
     });
 
+    $('#form-btn-delete-all').click( function (event) {
+        bootbox.confirm("Are you sure?<br><span class="text-danger strong">This will delete all data from all Minecraft servers.</span>", function(result) {
+            Example.show("Confirm Delete All);
+        });
+        settings.persist('minecraft-essentials', $('#minecraft-essentials'), function(){
+            socket.emit('admin.settings.syncMinecraftEssentials');
+        });
+    });
 });
 
 </script>
