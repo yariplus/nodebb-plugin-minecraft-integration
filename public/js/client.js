@@ -6,10 +6,12 @@
 
 $(document).ready(function() {
     $('body').tooltip({
-        selector: '.has-tooltip'
+        selector: '.has-tooltip',
+		container: 'body'
     });
 	$('body').popover({
-        selector: '.has-popover'
+        selector: '.has-popover',
+		container: 'body'
     });
 	$('.mcweTogglableSibling').click(function(e) {
 		e.preventDefault();
