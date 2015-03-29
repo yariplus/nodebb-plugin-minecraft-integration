@@ -168,7 +168,7 @@
     </tbody>
     </table>
     <!-- IF showMiniMap -->
-    <iframe class="mcweIFrame" src="{minimapURI}" height-ratio="2">Your browser does not support the iframe tag.</iframe>
+    <iframe class="mcweIFrame" src="{minimapURI}" height-ratio="2"></iframe>
     <!-- ENDIF showMiniMap -->
     <!-- IF mapURI -->
     <!-- IMPORT partials/modalMap.tpl -->
