@@ -20,6 +20,38 @@
     max-width: 360px;
 }
 
+.admin {
+    .panel[data-widget="widgetMCDynmapMiniMap"],
+    .panel[data-widget="widgetMCServerStatus"],
+    .panel[data-widget="widgetMCTopPlayersList"],
+    .panel[data-widget="widgetMCTopPlayersGraph"],
+    .panel[data-widget="widgetMCOnlinePlayersGrid"],
+    .panel[data-widget="widgetMCOnlinePlayersGraph"] {
+        > .panel-heading {
+            background-color: #FE6;
+        }
+
+        > .panel-body {
+            border-top-color: #AAA;
+        }
+
+        .btn-primary:hover, .btn-primary:focus, .btn-primary.focus, .btn-primary:active, .btn-primary.active, .open > .dropdown-toggle.btn-primary {
+            color: #000;
+            background-color: #FF8;
+            border-color: #AA3;
+        }
+
+        .btn-primary {
+            color: #000;
+            background-color: #FE6;
+            border-color: #AA3;
+        }
+
+        background-color: #F8F8F8;
+        border-color: #AAA;
+    }
+}
+
 .canvasResizable {
     width: 100% !important;
     max-width: 1200px;
