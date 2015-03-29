@@ -5,27 +5,24 @@
 // And it was black and white
 
 $(document).ready(function() {
-    $('body').tooltip({
-        selector: '.has-tooltip',
+	var $body = $('body');
+	$body.tooltip({
+		selector: '.has-tooltip',
 		container: 'body'
-    });
-	$('body').popover({
-        selector: '.has-popover',
+	});
+	$body.popover({
+		selector: '.has-popover',
 		container: 'body'
-    });
-	$('.mcweTogglableSibling').click(function(e) {
+	});
+	$body.on('click', '.mcweTogglableSibling', function(e) {
 		e.preventDefault();
-		$(this).prev().toggle();
-		$(this).blur();
-		if ($(this).children(':first-child').hasClass('fa-chevron-down')) {
-			$(this).children(':first-child').removeClass('fa-chevron-down').addClass('fa-chevron-up');
+		var $that = $(e.target);
+		$that.prev().toggle();
+		$that.blur();
+		if ($that.children(':first-child').hasClass('fa-chevron-down')) {
+			$that.children(':first-child').removeClass('fa-chevron-down').addClass('fa-chevron-up');
 		}else{
-			$(this).children(':first-child').removeClass('fa-chevron-up').addClass('fa-chevron-down');
-		}
-	}).each(function(i,e){
-		if (!$(e).children(':first-child').hasClass('fa-chevron-down')) {
-			$(e).addClass('fa-chevron-down');
-			$(e).removeClass('fa-chevron-up');
+			$that.children(':first-child').removeClass('fa-chevron-up').addClass('fa-chevron-down');
 		}
 	});
 });
@@ -34,20 +31,20 @@ var rtime = new Date(1, 1, 2000, 12,00,00);
 var timeout = false;
 var delta = 300;
 $(window).resize(function() {
-    rtime = new Date();
-    if (timeout === false) {
-        timeout = true;
-        setTimeout(resizeend, delta);
-    }
+	rtime = new Date();
+	if (timeout === false) {
+		timeout = true;
+		setTimeout(resizeend, delta);
+	}
 });
 
 function resizeend() {
-    if (new Date() - rtime < delta) {
-        setTimeout(resizeend, delta);
-    } else {
-        timeout = false;
+	if (new Date() - rtime < delta) {
+		setTimeout(resizeend, delta);
+	} else {
+		timeout = false;
 		resizeCanvases();
-    }
+	}
 }
 
 function resizeCanvases() {
@@ -107,11 +104,11 @@ $(document).ajaxComplete(function(event, response, settings) {
 		resizeCanvases();
 	}
 	
-    if (settings.url == "/api/admin/extend/widgets") {
-        var IDcounter = 1;
-        $('.widget-area > .widget-panel > .panel-heading').on('mouseup', function() {
-            var jWidgetPanel = $(this).next();
-            if ( !jWidgetPanel.hasClass('mcwe-ajaxed') ) {
+	if (settings.url == "/api/admin/extend/widgets") {
+		var IDcounter = 1;
+		$('.widget-area > .widget-panel > .panel-heading').on('mouseup', function() {
+			var jWidgetPanel = $(this).next();
+			if ( !jWidgetPanel.hasClass('mcwe-ajaxed') ) {
 				jWidgetPanel.addClass('mcwe-ajaxed');
 				jWidgetPanel.find('input.ajaxSelectSibling').each(function(index){
 					var MCWESN = $(this);
@@ -133,34 +130,34 @@ $(document).ajaxComplete(function(event, response, settings) {
 						MCWESN.val($(this).val());
 					});
 				});
-                jWidgetPanel.find('input.ajaxInputColorPicker').each(function(index){
+				jWidgetPanel.find('input.ajaxInputColorPicker').each(function(index){
 					if ($(this).val() === '') $(this).val('000000');
-                    var MCWECP = $(this);
-                    var id = 'ajaxInputColorPicker' + IDcounter;
-                    MCWECP.attr('id',id);
-                    $('#'+id).ColorPicker({
-                        color: MCWECP.val() || '#000000',
-                        onChange: function(hsb, hex) {
-                            MCWECP.val(hex);
-                            MCWECP.css('color', '#' + hex);
+					var MCWECP = $(this);
+					var id = 'ajaxInputColorPicker' + IDcounter;
+					MCWECP.attr('id',id);
+					$('#'+id).ColorPicker({
+						color: MCWECP.val() || '#000000',
+						onChange: function(hsb, hex) {
+							MCWECP.val(hex);
+							MCWECP.css('color', '#' + hex);
 							
 							if(MCWECP.is('[preview]')) {
 								MCWECP.parents('.panel-body').find('.mcWidgetPreview').find(MCWECP.attr('preview')).each(function(){$(this).css('color', '#' + MCWECP.val())});
 							}
-                        },
-                        onShow: function(colpkr) {
-                            $(colpkr).css('z-index', 1051);
-                        }
-                    }).css('color', '#' + $(this).val()).bind('keyup', function(){
-                        $(this).ColorPickerSetColor($(this).val());
-                        $(this).css('color', '#' + $(this).val());
-                    });
+						},
+						onShow: function(colpkr) {
+							$(colpkr).css('z-index', 1051);
+						}
+					}).css('color', '#' + $(this).val()).bind('keyup', function(){
+						$(this).ColorPickerSetColor($(this).val());
+						$(this).css('color', '#' + $(this).val());
+					});
 					if(MCWECP.is('[preview]')) {
 						MCWECP.parents('.panel-body').find('.mcWidgetPreview').find(MCWECP.attr('preview')).each(function(){$(this).css('color', '#' + MCWECP.val())});
 					}
-                    IDcounter++;
-                });
-            }
-        }).trigger();
-    }
+					IDcounter++;
+				});
+			}
+		}).trigger();
+	}
 });
