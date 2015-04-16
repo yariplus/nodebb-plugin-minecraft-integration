@@ -13,7 +13,7 @@
 		plugins = module.parent.require('./plugins'),
 		templates = module.parent.require('templates.js'),
 		SocketAdmin = module.parent.require('./socket.io/admin'),
-		translator = module.parent.require('../public/src/translator'),
+		translator = module.parent.require('../public/src/modules/translator'),
 		mcquery = require('mcquery'),
 		rcon = require('rcon'),
 		net = require('net'),
@@ -22,13 +22,12 @@
 		encoding = require("encoding"),
 		varint = require("varint"),
 		mcping = require("mc-ping"),
-		app,
+		app, router, middleware,
 		MinecraftWidgets = {
-			onLoad: function (params, callback, controllers, legacyback) {
-				var router = params.router || params;
-				var middleware = params.middleware || callback;
-				app = params.app || params;
-				callback = legacyback || callback;
+			onLoad: function (data, callback) {
+				app = data.app;
+				router = data.router;
+				middleware = data.middleware;
 
 				function render(req, res, next) {
 					res.render('admin/plugins/minecraft-essentials', { });
@@ -388,6 +387,7 @@
 		};
 
 	MinecraftWidgets.renderMCDynmapMiniMap = function(widget, callback) {
+		if (widget.data.showModalMap) widget.data.widget = "minimap";
 		widget.data.serverNumber = isNaN(parseInt(widget.data.serverNumber)) || parseInt(widget.data.serverNumber) < 0 ? "0" : widget.data.serverNumber;
 
 		widget.data.showModalMap = widget.data.showModalMap == "on" ? true : false;
@@ -402,7 +402,6 @@
 
 		widget.data.modalID = "minimap" + widget.data.serverNumber;
 
-		if (widget.data.showModalMap) widget.data.title += '<i class="fa fa-compass pointer pull-right has-tooltip" data-title="Open Map" data-toggle="modal" data-target="#mcwe-modal-'+widget.data.modalID+'" style="font-size: 20px;"></i>';
 		formatWidgetData(widget.data, "Mini Map - ");
 
 		app.render('widgetMCDynmapMiniMap', widget.data, function(err, html) {
@@ -712,6 +711,7 @@
 	};
 
 	MinecraftWidgets.renderMCServerStatus = function(widget, callback) {
+		if (widget.data.showModalMap) widget.data.widget = "status";
 		widget.data.serverNumber = isNaN(parseInt(widget.data.serverNumber)) || parseInt(widget.data.serverNumber) < 0 ? "0" : widget.data.serverNumber;
 		var config = MinecraftWidgets.settings.get();
 
@@ -866,7 +866,6 @@
 			widget.data.minimapURI = widget.data.mapURI + '?nopanel=true&hidechat=true&nogui=true';
 			widget.data.modalID = "serverstatusmap" + widget.data.serverNumber;
 
-			if (widget.data.showModalMap) widget.data.title += '<i class="fa fa-compass pointer pull-right has-tooltip" data-title="Open Map" data-toggle="modal" data-target="#mcwe-modal-'+widget.data.modalID+'" style="font-size: 20px;"></i>';
 			formatWidgetData(widget.data);
 
 			if (widget.data.serverMOTD) {
@@ -920,7 +919,8 @@
 			}
 			data.title = parseMCFormatCodes(titlePrefix + data.title + titleSuffix);
 		}
-		if (!data.container && !data.useEmptyContainer) data.container = '<div class="panel panel-default"><div class="panel-heading"><h3 class="panel-title">{title}</h3></div><div class="panel-body">{body}</div></div>';
+		if (!data.container) data.container = '<div class="panel panel-default"><div class="panel-heading"><h3 class="panel-title">{title}</h3></div><div class="panel-body">{body}</div></div>';
+		data.container = '<div class="'+ (data.widget ? 'mcwe-widget-'+ data.widget : 'mcwe-widget') +'" data-mcwe-mid="'+ data.modalID +'">'+ data.container +'</div>';
 	}
 
 	function verifyHost(data, hostBack) {
