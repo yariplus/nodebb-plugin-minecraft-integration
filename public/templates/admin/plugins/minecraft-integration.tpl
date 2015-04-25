@@ -1,10 +1,10 @@
-<form id="minecraft-essentials">
+<form id="minecraft-integration">
     <div class="row">
         <div class="col-lg-9">
             <div class="panel acp-panel-primary">
                 <div class="panel-heading">
                     <div class="panel-title">
-                        Minecraft Essentials Configuration
+                        Minecraft Integration — Server Configuration
                     </div>
                 </div>
                 <div class="panel-body">
@@ -301,63 +301,3 @@
         </div>
     </div>
 </form>
-
-<script type="text/javascript">
-
-require(['settings'], function(settings) {
-
-    settings.sync('minecraft-essentials', $('#minecraft-essentials'));
-    settings.registerPlugin({
-        Settings: {},
-		types: ['check'],
-        use: function () {
-            Settings = this;
-        },
-        set: function (element, value) {
-            element.prop('checked', value || false);
-        },
-        get: function (element, trim, empty) {
-            return element.prop('checked');
-        }
-    });
-    settings.registerPlugin({
-        Settings: {},
-		types: ['selectMultiple'],
-        use: function () {
-            Settings = this;
-        },
-        set: function (element, value) {
-            if (value.constructor === Array) {
-                for (var val in value) {
-                    element.find('option[value=val]').attr("selected",true);
-                }
-            }
-        },
-        get: function (element, trim, empty) {
-            var value = [];
-            element.find('option:selected').each(function () {
-                value.push($(this).val());
-            });
-            return value;
-        }
-    });
-
-    $('#save').click( function (event) {
-        event.preventDefault();
-        settings.persist('minecraft-essentials', $('#minecraft-essentials'), function(){
-            socket.emit('admin.settings.syncMinecraftEssentials');
-        });
-    });
-
-    $('#form-btn-delete-all').click( function (event) {
-        event.preventDefault();
-        bootbox.confirm('Are you sure?<br><span class="text-danger strong">This will delete all data from all Minecraft servers.</span>', function(result) {
-            Example.show("Confirm Delete All");
-        });
-        settings.persist('minecraft-essentials', $('#minecraft-essentials'), function(){
-            socket.emit('admin.settings.syncMinecraftEssentials');
-        });
-    });
-});
-
-</script>

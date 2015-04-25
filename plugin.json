@@ -11,16 +11,15 @@
         "public/js/client.js"
     ],
 	"hooks": [
-		{ "hook": "static:app.load", "method": "onLoad" },
-		{ "hook": "filter:widgets.getWidgets", "method": "defineWidgets" },
-        { "hook": "filter:widget.render:widgetMCDynmapMiniMap", "method": "renderMCDynmapMiniMap" },
-        { "hook": "filter:widget.render:widgetMCOnlinePlayersGraph", "method": "renderMCOnlinePlayersGraph" },
-        { "hook": "filter:widget.render:widgetMCOnlinePlayersGrid", "method": "renderMCOnlinePlayersGrid" },
-		{ "hook": "filter:widget.render:widgetMCServerStatus", "method": "renderMCServerStatus" },
-        { "hook": "filter:widget.render:widgetMCTopPlayersGraph", "method": "renderMCTopPlayersGraph" },
-        { "hook": "filter:widget.render:widgetMCTopPlayersList", "method": "renderMCTopPlayersList" },
-        { "hook": "filter:admin.header.build", "method": "admin.menu" },
-        { "hook": "action:settings.set", "method": "settingsChange" }
+		{ "hook": "static:app.load", "method": "load" },
+		{ "hook": "filter:widgets.getWidgets", "method": "getWidgets" },
+        { "hook": "filter:admin.header.build", "method": "buildAdminHeader" },
+        { "hook": "filter:widget.render:widgetMCDynmapMiniMap",      "method": "Widgets.DynmapMiniMap.render" },
+        { "hook": "filter:widget.render:widgetMCOnlinePlayersGraph", "method": "Widgets.OnlinePlayersGraph.render" },
+        { "hook": "filter:widget.render:widgetMCOnlinePlayersGrid",  "method": "Widgets.OnlinePlayersGrid.render" },
+		{ "hook": "filter:widget.render:widgetMCServerStatus",       "method": "Widgets.ServerStatus.render" },
+        { "hook": "filter:widget.render:widgetMCTopPlayersGraph",    "method": "Widgets.TopPlayersGraph.render" },
+        { "hook": "filter:widget.render:widgetMCTopPlayersList",     "method": "Widgets.TopPlayersList.render" }
 	],
 	"templates": "./public/templates"
 }

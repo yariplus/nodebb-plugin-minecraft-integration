@@ -25,6 +25,63 @@ $(document).ready(function() {
 			$that.children(':first-child').removeClass('fa-chevron-up').addClass('fa-chevron-down');
 		}
 	});
+
+	if (document.getElementById('minecraft-integration')) {
+		require(['settings'], function(settings) {
+			settings.sync('minecraft-integration', $('#minecraft-integration'));
+			// settings.registerPlugin({
+				// Settings: {},
+				// types: ['check'],
+				// use: function () {
+					// Settings = this;
+				// },
+				// set: function (element, value) {
+					// element.prop('checked', value || false);
+				// },
+				// get: function (element, trim, empty) {
+					// return element.prop('checked');
+				// }
+			// });
+			// settings.registerPlugin({
+				// Settings: {},
+				// types: ['selectMultiple'],
+				// use: function () {
+					// Settings = this;
+				// },
+				// set: function (element, value) {
+					// if (value.constructor === Array) {
+						// for (var val in value) {
+							// element.find('option[value=val]').attr("selected",true);
+						// }
+					// }
+				// },
+				// get: function (element, trim, empty) {
+					// var value = [];
+					// element.find('option:selected').each(function () {
+						// value.push($(this).val());
+					// });
+					// return value;
+				// }
+			// });
+
+			$('#save').click( function (event) {
+				event.preventDefault();
+				settings.persist('minecraft-integration', $('#minecraft-integration'), function(){
+					socket.emit('admin.settings.syncMinecraftIntegration');
+				});
+			});
+
+			$('#form-btn-delete-all').click( function (event) {
+				event.preventDefault();
+				bootbox.confirm('Are you sure?<br><span class="text-danger strong">This will delete all data from all Minecraft servers.</span>', function(result) {
+					if (result) {
+						socket.emit('admin.settings.resetMinecraftIntegration');
+						//location.reload();
+					}
+				});
+			});
+		});
+	}
 });
 
 var rtime = new Date(1, 1, 2000, 12,00,00);
@@ -81,7 +138,7 @@ function resizeCanvases() {
 			var Chartjs = Chart.noConflict();
 		});
 	}
-	
+
 	$('.widgetFillContainer .mcweIFrame').each(function(){
 		var heightRatio = $(this).attr('height-ratio');
 		heightRatio = typeof heightRatio == 'undefined' ? 2 : parseInt(heightRatio);
@@ -109,7 +166,7 @@ $(document).ajaxComplete(function(event, response, settings) {
 			$widget.find('>.panel').prepend('<i style="position:relative;right:6px;top:6px;font-size:22px;" class="fa fa-compass pointer pull-right has-tooltip mcwe-modalmapicon" data-title="Open Map" data-toggle="modal" data-target="#mcwe-modal-'+ $widget.data('mcwe-mid') +'" style="font-size: 20px;"></i>');
 		});
 	}
-	
+
 	if (settings.url == "/api/admin/extend/widgets") {
 		var IDcounter = 1;
 		$('.widget-area > .widget-panel > .panel-heading').on('mouseup', function() {
@@ -146,7 +203,7 @@ $(document).ajaxComplete(function(event, response, settings) {
 						onChange: function(hsb, hex) {
 							MCWECP.val(hex);
 							MCWECP.css('color', '#' + hex);
-							
+
 							if(MCWECP.is('[preview]')) {
 								MCWECP.parents('.panel-body').find('.mcWidgetPreview').find(MCWECP.attr('preview')).each(function(){$(this).css('color', '#' + MCWECP.val())});
 							}
