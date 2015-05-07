@@ -1,8 +1,24 @@
 "use strict";
-/*global ajaxify*/
 
 // I've seen the other side of rainbow
 // And it was black and white
+
+__MIDIR = "/plugins/nodebb-widget-minecraft-essentials/public/";
+
+MinecraftIntegration = { };
+
+define('admin/plugins/minecraft-integration', function() {
+	console.log('define MI');
+
+	MinecraftIntegration.init = function() {
+		console.log('Init MI ACP');
+		require([__MIDIR + 'js/acp.js'], function(miACP) {
+			miACP.load();
+		});
+	};
+
+	return MinecraftIntegration;
+});
 
 $(document).ready(function() {
 	var $body = $('body');
@@ -25,63 +41,6 @@ $(document).ready(function() {
 			$that.children(':first-child').removeClass('fa-chevron-up').addClass('fa-chevron-down');
 		}
 	});
-
-	if (document.getElementById('minecraft-integration')) {
-		require(['settings'], function(settings) {
-			settings.sync('minecraft-integration', $('#minecraft-integration'));
-			// settings.registerPlugin({
-				// Settings: {},
-				// types: ['check'],
-				// use: function () {
-					// Settings = this;
-				// },
-				// set: function (element, value) {
-					// element.prop('checked', value || false);
-				// },
-				// get: function (element, trim, empty) {
-					// return element.prop('checked');
-				// }
-			// });
-			// settings.registerPlugin({
-				// Settings: {},
-				// types: ['selectMultiple'],
-				// use: function () {
-					// Settings = this;
-				// },
-				// set: function (element, value) {
-					// if (value.constructor === Array) {
-						// for (var val in value) {
-							// element.find('option[value=val]').attr("selected",true);
-						// }
-					// }
-				// },
-				// get: function (element, trim, empty) {
-					// var value = [];
-					// element.find('option:selected').each(function () {
-						// value.push($(this).val());
-					// });
-					// return value;
-				// }
-			// });
-
-			$('#save').click( function (event) {
-				event.preventDefault();
-				settings.persist('minecraft-integration', $('#minecraft-integration'), function(){
-					socket.emit('admin.settings.syncMinecraftIntegration');
-				});
-			});
-
-			$('#form-btn-delete-all').click( function (event) {
-				event.preventDefault();
-				bootbox.confirm('Are you sure?<br><span class="text-danger strong">This will delete all data from all Minecraft servers.</span>', function(result) {
-					if (result) {
-						socket.emit('admin.settings.resetMinecraftIntegration');
-						//location.reload();
-					}
-				});
-			});
-		});
-	}
 });
 
 var rtime = new Date(1, 1, 2000, 12,00,00);
@@ -105,7 +64,6 @@ function resizeend() {
 }
 
 function resizeCanvases() {
-	// Find better solution, so that we can draw on widget config pages.
 	if (typeof Chart == 'undefined') {
 		require(['/vendor/chart.js/chart.min.js'], function(Chart){
 			$('.canvasResizable').each(function(i, e){
@@ -125,7 +83,6 @@ function resizeCanvases() {
 						break;
 					case "Donut":
 					case "donut":
-						console.log("Drawing donut ");
 						new Chart($(e)[0].getContext('2d')).Pie(data, options);
 						break;
 					case "Line":
@@ -151,6 +108,7 @@ function resizeCanvases() {
 }
 
 $(document).ajaxComplete(function(event, response, settings) {
+	console.log('completed: ' + settings.url);
 	if (!!~settings.url.indexOf("/api/widgets/render")) {
 		$('.widgetFillContainer').each(function(index){
 			var parent = $(this).parent();

@@ -4,12 +4,12 @@
 
 (function(){
 
-var	MinecraftWidgets = { },
-	NodeBB = require('./lib/nodebb'),
+var	NodeBB = require('./lib/nodebb'),
 	Hooks = require('./lib/hooks'),
 	Config = require('./lib/config'),
 	Backend = require('./lib/backend'),
-	Views = require('./lib/views');
+	Views = require('./lib/views'),
+	MinecraftWidgets = { Widgets: require('./lib/widgets') };
 
 MinecraftWidgets.load = function(data, next){
 	// Delegate arguments
@@ -39,7 +39,9 @@ MinecraftWidgets.load = function(data, next){
 	});
 
 	NodeBB.SocketAdmin.settings.syncMinecraftIntegration = function(){
-		Config.settings.sync();
+		Config.settings.sync(function(){
+			Config.logSettings();
+		});
 	};
 
 	NodeBB.SocketAdmin.settings.resetMinecraftIntegration = function(){
