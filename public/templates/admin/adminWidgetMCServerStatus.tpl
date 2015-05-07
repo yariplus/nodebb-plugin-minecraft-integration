@@ -64,9 +64,9 @@
 <div class="form-group">
     <label>Server</label>
     <select class="form-control">
-        <!-- BEGIN serverConfigNames -->
-        <option value="{serverConfigNames.serverNumber}">{serverConfigNames.configName}</option>
-        <!-- END serverConfigNames -->
+        <!-- BEGIN servers -->
+        <option value="{servers.serverNumber}">{servers.name}</option>
+        <!-- END servers -->
     </select>
     <input type="hidden" class="ajaxSelectSibling" name="serverNumber">
 </div>

@@ -5,7 +5,9 @@ define(['settings'], function (settings) {
 
 	var miACP = { },
 		$form = $('#minecraft-integration'),
-		$serverTemplate;
+		$modal = $form.find('#mia-modal-servers'),
+		$modalBody = $modal.find('.modal-body'),
+		$serverTemplate, $modalTemplate;
 
 	miACP.load = function () {
 		console.log('miACP.load() called');
@@ -21,8 +23,16 @@ define(['settings'], function (settings) {
 					$server.find('.mia-server-rcon-pass').val(settings.cfg._.servers[i].rconPass);
 					$server.find('.mia-server-xapi').val(settings.cfg._.servers[i].xAPI);
 					$server.find('a').text(settings.cfg._.servers[i].name);
+					addServerToModal(i, settings.cfg._.servers[i].name);
 				}
 			}
+		}
+
+		function populateFields() {
+			$('#avatarCDN').val(settings.cfg._.avatarCDN);
+			$('#avatarSize').val(settings.cfg._.avatarSize);
+			$('#avatarStyle').val(settings.cfg._.avatarStyle);
+			makeServerList();
 		}
 
 		function validateAll() {
@@ -39,23 +49,21 @@ define(['settings'], function (settings) {
 			return $server;
 		}
 
+		function addServerToModal(serverNum, serverName, active) {
+			var $serverListing = $modalTemplate.clone();
+			$serverListing.data('serverNum', serverNum);
+			$serverListing.find('span').text(serverName).append(' <a class="mia-toggle-activation">Activate/Deactivate</a> <a class="mia-purge">Purge</a>')
+			$serverListing.appendTo($modalBody);
+		}
+
 		function makeButtons() {
 			console.log('MI: adding buttons');
-			$('#mia-add-server').click(function(e){
-				console.log('MI: adding server...');
+
+			$form.on('click', 'a, button', function (e) {
 				e.preventDefault();
-				var nextServerNum = settings.cfg._.servers.length;
-				$('#serverList').children().each(function(i,el){
-					console.log('compare ' + nextServerNum + ' to ' + $(el).data('server-num'))
-					var num = $(el).data('server-num');
-					if (num >= nextServerNum) nextServerNum = num + 1;
-				});
-				addServer({serverNum: nextServerNum});
-			});
-
-			$('#save').click(function (event) {
-				event.preventDefault();
-
+			}).on('click', '.fa-times', function (e) {
+				$(e.target).closest('.panel').remove();
+			}).on('click', '#mia-save', function (e) {
 				settings.cfg._.avatarCDN = $('#avatarCDN').val();
 				settings.cfg._.avatarSize = $('#avatarSize').val();
 				settings.cfg._.avatarStyle = $('#avatarStyle').val();
@@ -69,20 +77,33 @@ define(['settings'], function (settings) {
 						settings.cfg._.servers[serverNum].rconPort	= $el.find('.mia-server-rcon-port').val();
 						settings.cfg._.servers[serverNum].rconPass	= $el.find('.mia-server-rcon-pass').val();
 						settings.cfg._.servers[serverNum].xAPI		= $el.find('.mia-server-xapi').val();
+					}else{
+						$el.remove();
 					}
 				});
 				settings.helper.persistSettings('minecraft-integration', settings.cfg, true, function(){
 					socket.emit('admin.settings.syncMinecraftIntegration');
 				});
-			});
-
-			$('#form-btn-delete-all').click( function (event) {
-				event.preventDefault();
-				bootbox.confirm('Are you sure?<br><span class="text-danger strong">This will delete all data from all Minecraft servers.</span>', function(result) {
+			}).on('click', '#mia-delete', function (e) {
+				bootbox.confirm('Are you sure?<p class="text-danger strong">This will delete all data from all Minecraft servers.</p>', function(result) {
 					if (result) {
 						socket.emit('admin.settings.resetMinecraftIntegration');
 					}
 				});
+			}).on('click', '#mia-reset', function (e) {
+				$('#serverList').empty();
+				populateFields();
+			}).on('click', '#mia-add-server', function (e) {
+				console.log('MI: adding server...');
+				var nextServerNum = settings.cfg._.servers.length;
+				$('#serverList').children().each(function (i,el) {
+					var num = $(el).data('server-num');
+					if (num >= nextServerNum) nextServerNum = num + 1;
+				});
+				addServer({serverNum: nextServerNum});
+			}).on('click', '#mia-view-servers', function (e) {
+				//$modalBody.empty();
+				$modal.modal('show');
 			});
 		}
 
@@ -102,25 +123,21 @@ define(['settings'], function (settings) {
 				$server.find('a').text($this.val() || 'Unnamed Server');
 			}).submit(validateAll);
 		}
-		
+
 		socket.emit('admin.settings.get', { hash: 'minecraft-integration' }, function (err, values) {
 			if (err) {
 				console.log('Error getting values:', err);
-				settings.cfg._ = { };
 			} else {
 				console.log('MI: settings recieved');
-				$.get( "/plugins/nodebb-widget-minecraft-essentials/public/templates/admin/plugins/server.tpl", function(data) {
+				$.get(__MIDIR + '/templates/admin/plugins/server.tpl', function(data) {
 					$serverTemplate = $($.parseHTML(data));
-					console.log('MI: template got');
+					$modalTemplate = $($.parseHTML('<div><span><a></a><a></a></span></div>'));
+					console.log('MI: server template got');
 					settings.helper.whenReady(function () {						
 						settings.helper.use(values);
 						settings.cfg._.servers = settings.cfg._.servers || [ ];
-						$('#avatarCDN').val(settings.cfg._.avatarCDN);
-						$('#avatarSize').val(settings.cfg._.avatarSize);
-						$('#avatarStyle').val(settings.cfg._.avatarStyle);
-
 						makeButtons();
-						makeServerList();
+						populateFields();
 						setupInputs();
 
 						console.log('MI: template rendered');
