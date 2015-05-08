@@ -50,7 +50,7 @@ MinecraftWidgets.load = function(data, next){
 
 	setTimeout(Config.logSettings, 5000);
 	Views.loadTemplates();
-	//setTimeout(Backend.updateServers, 5000);
+	Backend.init();
 
 	next();
 };
