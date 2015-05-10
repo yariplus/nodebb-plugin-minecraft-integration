@@ -3,7 +3,7 @@
 // I've seen the other side of rainbow
 // And it was black and white
 
-__MIDIR = "/plugins/nodebb-widget-minecraft-essentials/public/";
+__MIDIR = "/plugins/nodebb-plugin-minecraft-integration/public/";
 
 MinecraftIntegration = { };
 

@@ -1,10 +1,10 @@
-**A Wiki is currently in development. For detailed information on the project and setting up your widgets, visit the project's topic on the NodeBB Forums.**
+# Minecraft Integration
 
-**[https://community.nodebb.org/topic/3559](https://community.nodebb.org/topic/3559 "The NodeBB Forums")**
+**For support, visit the project's topic on the NodeBB Forums.**
 
-# NodeBB Minecraft Widget Essentials
+**[https://community.nodebb.org/topic/3559](https://community.nodebb.org/topic/3559 "NodeBB Forums - Minecraft Integration")**
 
-NodeBB widgets for Minecraft. Project aims to reproduce and enhance widgets found on sites such as Enjin (XenForo) for use on a NodeBB forum. Widgets are designed to work without the use of server plugins or additional software whenever possible.
+The goal of this project is to reproduce and enhance features found on sites such as Enjin (XenForo) for use on a NodeBB forum.
 
 Compatible with NodeBB v0.5.7 and up.
 
@@ -12,21 +12,20 @@ Compatible with NodeBB v0.5.7 and up.
 
 Use npm from the command line in your NodeBB base directory:
 
-    npm install nodebb-widget-minecraft-essentials
+    npm install nodebb-plugin-minecraft-integration
 
 Or for bleeding edge builds, you can pull from github:
 
-    npm install git://github.com/yariplus/nodebb-widget-minecraft-essentials.git
+    npm install git://github.com/yariplus/nodebb-plugin-minecraft-integration.git
 
 ## Usage
 
 1. After installation, go to the ACP and enable the plugin.
-2. Go to the **Installed Plugins->Minecraft Essentials** page and enter your server's information.
-3. Save Settings, then add widgets in the **Extend->Widgets** page.
+2. Go to the **Installed Plugins->Minecraft Integration** page to configure your Minecraft server(s).
 
 ## Configuration
 
-[https://community.nodebb.org/topic/3559](https://community.nodebb.org/topic/3559 "The NodeBB Forums")
+[https://community.nodebb.org/topic/3559](https://community.nodebb.org/topic/3559 "NodeBB Forums - Minecraft Integration")
 
 ## Widgets
 

@@ -1,8 +1,8 @@
 {
-	"id": "nodebb-widget-minecraft-essentials",
-	"name": "NodeBB Minecraft Widgets",
-	"description": "Widgets for displaying information on Minecraft servers.",
-	"url": "https://github.com/yariplus/nodebb-widget-minecraft-essentials",
+	"id": "nodebb-plugin-minecraft-integration",
+	"name": "NodeBB Plugin Minecraft Integration",
+	"description": "NodeBB plugin to integrate your forum with your Minecraft Server using widgets, user syncing, group/rank syncing, sso, bukkit/bungeecord/sponge communication, and more.",
+	"url": "https://github.com/yariplus/nodebb-plugin-minecraft-integration",
 	"library": "./library.js",
     "less": [
         "public/less/style.less"

@@ -1,14 +1,14 @@
 {
-  "name": "nodebb-widget-minecraft-essentials",
+  "name": "nodebb-plugin-minecraft-integration",
   "version": "0.4.0",
-  "description": "NodeBB Minecraft Widgets",
+  "description": "NodeBB Plugin Minecraft Integration",
   "main": "library.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/yariplus/nodebb-widget-minecraft-essentials"
+    "url": "https://github.com/yariplus/nodebb-plugin-minecraft-integration"
   },
   "keywords": [
     "nodebb",
@@ -23,7 +23,7 @@
   },
   "license": "CC0",
   "bugs": {
-    "url": "https://github.com/yariplus/nodebb-widget-minecraft-essentials/issues"
+    "url": "https://github.com/yariplus/nodebb-plugin-minecraft-integration/issues"
   },
   "readme": "",
   "readmeFilename": "README.md",
@@ -37,7 +37,7 @@
     "mc-ping": "^0.0.3"
   },
   "nbbpm": {
-    "compatibility": "^0.7.0"
+    "compatibility": ">=0.5.7"
   },
-  "homepage": "https://github.com/yariplus/nodebb-widget-minecraft-essentials"
+  "homepage": "https://github.com/yariplus/nodebb-plugin-minecraft-integration"
 }

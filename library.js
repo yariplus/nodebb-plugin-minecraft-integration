@@ -9,9 +9,9 @@ var	NodeBB = require('./lib/nodebb'),
 	Config = require('./lib/config'),
 	Backend = require('./lib/backend'),
 	Views = require('./lib/views'),
-	MinecraftWidgets = { Widgets: require('./lib/widgets') };
+	MinecraftIntegration = { Widgets: require('./lib/widgets') };
 
-MinecraftWidgets.load = function (data, next) {
+MinecraftIntegration.load = function (data, next) {
 	// Delegate arguments
 	if (arguments.length === 2) {
 		// NodeBB version >=0.6.0
@@ -25,7 +25,7 @@ MinecraftWidgets.load = function (data, next) {
 		NodeBB.middleware = next;
 		next = arguments[3];
 	}else{
-		return console.log("MinecraftWidgets: " + "Failed to load plugin. Invalid arguments found for app.load(). Are you sure you're using a compatible version of NodeBB?");
+		return console.log("MinecraftIntegration: " + "Failed to load plugin. Invalid arguments found for app.load(). Are you sure you're using a compatible version of NodeBB?");
 	}
 
 	function render(req, res, next) {
@@ -55,7 +55,7 @@ MinecraftWidgets.load = function (data, next) {
 	next();
 };
 
-MinecraftWidgets.getWidgets = function(widgets, next){
+MinecraftIntegration.getWidgets = function(widgets, next){
 	widgets = widgets.concat([
 		{
 			widget: "widgetMCDynmapMiniMap",
@@ -98,7 +98,7 @@ MinecraftWidgets.getWidgets = function(widgets, next){
 	next(null, widgets);
 };
 
-MinecraftWidgets.buildAdminHeader = function(custom_header, next){
+MinecraftIntegration.buildAdminHeader = function(custom_header, next){
 	custom_header.plugins.push({
 		"route": '/plugins/minecraft-integration',
 		"icon": 'fa-edit',
@@ -108,6 +108,6 @@ MinecraftWidgets.buildAdminHeader = function(custom_header, next){
 	return next(null, custom_header);
 };
 
-	module.exports = MinecraftWidgets;
+	module.exports = MinecraftIntegration;
 
 }());
