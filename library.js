@@ -11,7 +11,7 @@ var	NodeBB = require('./lib/nodebb'),
 	Views = require('./lib/views'),
 	MinecraftWidgets = { Widgets: require('./lib/widgets') };
 
-MinecraftWidgets.load = function(data, next){
+MinecraftWidgets.load = function (data, next) {
 	// Delegate arguments
 	if (arguments.length === 2) {
 		// NodeBB version >=0.6.0
