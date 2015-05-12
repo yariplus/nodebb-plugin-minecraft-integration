@@ -65,10 +65,10 @@
     <label>Server</label>
     <select class="form-control">
         <!-- BEGIN servers -->
-        <option value="{servers.serverNumber}">{servers.name}</option>
+        <option value="{servers.sid}">{servers.name}</option>
         <!-- END servers -->
     </select>
-    <input type="hidden" class="ajaxSelectSibling" name="serverNumber">
+    <input type="hidden" class="ajaxSelectSibling" name="sid">
 </div>
 <div class="form-group">
     <label>Show MOTD</label>

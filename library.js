@@ -5,11 +5,13 @@
 (function(){
 
 var	NodeBB = require('./lib/nodebb'),
-	Hooks = require('./lib/hooks'),
 	Config = require('./lib/config'),
 	Backend = require('./lib/backend'),
 	Views = require('./lib/views'),
-	MinecraftIntegration = { Widgets: require('./lib/widgets') };
+	MinecraftIntegration = {
+		Widgets: require('./lib/widgets'),
+		Hooks: require('./lib/hooks')
+	};
 
 MinecraftIntegration.load = function (data, next) {
 	// Delegate arguments
@@ -49,53 +51,9 @@ MinecraftIntegration.load = function (data, next) {
 	};
 
 	setTimeout(Config.logSettings, 5000);
-	Views.loadTemplates();
 	Backend.init();
 
 	next();
-};
-
-MinecraftIntegration.getWidgets = function(widgets, next){
-	widgets = widgets.concat([
-		{
-			widget: "widgetMCDynmapMiniMap",
-			name: "Dynmap Mini Map",
-			description: "Shows a small Map.",
-			content: Views.render('admin/adminWidgetMCDynmapMiniMap.tpl')
-		},
-		{
-			widget: "widgetMCOnlinePlayersGraph",
-			name: "Minecraft Online Players Graph",
-			description: "Shows a graph showing online players over time.",
-			content: Views.render('admin/adminWidgetMCOnlinePlayersGraph.tpl')
-		},
-		{
-			widget: "widgetMCOnlinePlayersGrid",
-			name: "Minecraft Online Players Grid",
-			description: "Shows the avatars of online players.",
-			content: Views.render('admin/adminWidgetMCOnlinePlayersGrid.tpl')
-		},
-		{
-			widget: "widgetMCServerStatus",
-			name: "Minecraft Server Status",
-			description: "Lists information on a Minecraft server.",
-			content: Views.render('admin/adminWidgetMCServerStatus.tpl')
-		},
-		{
-			widget: "widgetMCTopPlayersGraph",
-			name: "Minecraft Top Players Graph",
-			description: "A graphic chart (Pie, Donut, or Bar) representing the top players' approximate play time.",
-			content: Views.render('admin/adminWidgetMCTopPlayersGraph.tpl')
-		},
-		{
-			widget: "widgetMCTopPlayersList",
-			name: "Minecraft Top Players List",
-			description: "Lists avatars of players sorted by their approximate play time.",
-			content: Views.render('admin/adminWidgetMCTopPlayersList.tpl')
-		}
-	]);
-
-	next(null, widgets);
 };
 
 MinecraftIntegration.buildAdminHeader = function(custom_header, next){

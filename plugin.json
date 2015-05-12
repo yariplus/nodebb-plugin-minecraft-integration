@@ -12,7 +12,7 @@
     ],
 	"hooks": [
 		{ "hook": "static:app.load", "method": "load" },
-		{ "hook": "filter:widgets.getWidgets", "method": "getWidgets" },
+		{ "hook": "filter:widgets.getWidgets", "method": "Hooks.filter.widgets.getWidgets" },
         { "hook": "filter:admin.header.build", "method": "buildAdminHeader" },
         { "hook": "filter:widget.render:widgetMCDynmapMiniMap",      "method": "Widgets.DynmapMiniMap.render" },
         { "hook": "filter:widget.render:widgetMCOnlinePlayersGraph", "method": "Widgets.OnlinePlayersGraph.render" },
