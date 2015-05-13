@@ -8,6 +8,7 @@ var	NodeBB = require('./lib/nodebb'),
 	Config = require('./lib/config'),
 	Backend = require('./lib/backend'),
 	Views = require('./lib/views'),
+	Sockets = require('./lib/sockets'),
 	MinecraftIntegration = {
 		Widgets: require('./lib/widgets'),
 		Hooks: require('./lib/hooks')
@@ -52,6 +53,7 @@ MinecraftIntegration.load = function (data, next) {
 
 	setTimeout(Config.logSettings, 5000);
 	Backend.init();
+	Sockets.init();
 
 	next();
 };
