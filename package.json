@@ -34,7 +34,8 @@
     "encoding": "^0.1.11",
     "bufferpack": "^0.0.6",
     "varint": "^3.0.1",
-    "mc-ping": "^0.0.3"
+    "mc-ping": "^0.0.3",
+    "validator": "*"
   },
   "nbbpm": {
     "compatibility": ">=0.5.7"

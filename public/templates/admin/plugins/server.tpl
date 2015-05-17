@@ -7,42 +7,42 @@
         <div class="row input-row">
             <div class="col-sm-7 col-xs-12 input-field">
                 <label class="control-label">Server Name</label>
-                <input class="mia-server-name form-control" type="text" placeholder=""/>
+                <input name="name" class="form-control" type="text" placeholder=""/>
             </div>
             <div class="col-sm-5 help-text" data-help=""></div>
         </div>
         <div class="row input-row">
             <div class="col-sm-7 col-xs-12 input-field">
                 <label class="control-label">Server Address</label>
-                <input class="mia-server-address form-control" type="text" placeholder=""/>
+                <input name="address" class="form-control" type="text" placeholder=""/>
             </div>
             <div class="col-sm-5 help-text" data-help=""></div>
         </div>
         <div class="row input-row">
             <div class="col-sm-7 col-xs-12 input-field">
                 <label class="control-label">Query Port</label>
-                <input class="mia-server-query-port form-control" type="text" placeholder=""/>
+                <input name="query-port" class="form-control" type="text" placeholder=""/>
             </div>
             <div class="col-sm-5 help-text" data-help=""></div>
         </div>
         <div class="row input-row">
             <div class="col-sm-7 col-xs-12 input-field">
                 <label class="control-label">RCON Port</label>
-                <input class="mia-server-rcon-port form-control" type="text" placeholder=""/>
+                <input name="rcon-port" class="form-control" type="text" placeholder=""/>
             </div>
             <div class="col-sm-5 help-text" data-help=""></div>
         </div>
         <div class="row input-row">
             <div class="col-sm-7 col-xs-12 input-field">
                 <label class="control-label">RCON Pass</label>
-                <input class="mia-server-rcon-pass form-control" type="password" placeholder="" autocomplete="off"/>
+                <input name="rcon-pass" class="form-control" type="password" placeholder="" autocomplete="off"/>
             </div>
             <div class="col-sm-5 help-text" data-help=""></div>
         </div>
         <div class="row input-row">
             <div class="col-sm-7 col-xs-12 input-field">
                 <label class="control-label">External API</label>
-                <input class="mia-server-xapi form-control" type="text" placeholder=""/>
+                <input name="xapi" class="form-control" type="text" placeholder=""/>
             </div>
             <div class="col-sm-5 help-text" data-help=""></div>
         </div>

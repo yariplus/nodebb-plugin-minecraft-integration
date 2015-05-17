@@ -1,7 +1,6 @@
 "use strict";
 
-define(['settings'], function (settings) {
-	console.log('define acp.js');
+define(['settings', __MIDIR + "js/vendor/validator.min.js"], function (settings, validator) {
 
 	var miACP = { },
 		$form, $serverList, $modal, $modalBody, $serverTemplate, $modalTemplate;
@@ -10,7 +9,7 @@ define(['settings'], function (settings) {
 		console.log('miACP.load() called');
 
 		$form = $('#minecraft-integration');
-		$serverList = $('#serverList');
+		$serverList = $('#server-list');
 		$modal = $form.find('#mia-modal-servers');
 		$modalBody = $modal.find('.modal-body');
 
@@ -26,14 +25,56 @@ define(['settings'], function (settings) {
 		}
 
 		function populateFields() {
-			$('#avatarCDN').val(settings.cfg._.avatarCDN);
-			$('#avatarSize').val(settings.cfg._.avatarSize);
-			$('#avatarStyle').val(settings.cfg._.avatarStyle);
+			$('[name=avatarCDN]').val(settings.cfg._.avatarCDN);
+			$('[name=avatarSize]').val(settings.cfg._.avatarSize);
+			$('[name=avatarStyle]').val(settings.cfg._.avatarStyle);
 			makeServerList();
 		}
 
-		function validateAll() {
-			
+		function validateAll(e) {
+			activate($('[name=avatarCDN]'));
+			activate($('[name=avatarSize]'));
+			activate($('[name=avatarStyle]'));
+
+			$serverList.children().each(function (i, el) {
+				var $el = $(el), serverNum = $el.data('server-num');
+
+				$el.find('input[name]').each(function (i, el) {
+					activate($(el));
+				});
+
+				if ($el.find('.error').length) $el.find('.panel-body').collapse("show");
+			});
+
+			if ($form.find('.error').length) {
+				$('html, body').animate({'scrollTop': '0px'}, 400);
+				return false;
+			} else {
+				return true;
+			}
+		}
+
+		function activate($el) {
+			var value  = $el.val(),
+				parent = $el.parents('.input-row'),
+				help   = parent.children('.help-text'),
+				key    = $el.attr('name');
+
+			function validateName() {
+				if (!validator.isLength(value, 6)) {
+					parent.addClass('error');
+					help.html('Server name must be at least 6 characters long.');
+				} else {
+					parent.removeClass('error');
+				}
+			}
+
+			switch (key) {
+				case 'name':
+					return validateName();
+				default:
+					return;
+			}
 		}
 
 		function toggleServer(serverNum) {
@@ -48,12 +89,12 @@ define(['settings'], function (settings) {
 		}
 
 		function populateServer($server, server) {
-			$server.find('.mia-server-name').val(server.name);
-			$server.find('.mia-server-address').val(server.address);
-			$server.find('.mia-server-query-port').val(server.queryPort);
-			$server.find('.mia-server-rcon-port').val(server.rconPort);
-			$server.find('.mia-server-rcon-pass').val(server.rconPass);
-			$server.find('.mia-server-xapi').val(server.xAPI);
+			$server.find('[name=name]').val(server.name);
+			$server.find('[name=address]').val(server.address);
+			$server.find('[name=query-port]').val(server.queryPort);
+			$server.find('[name=rcon-port]').val(server.rconPort);
+			$server.find('[name=rcon-pass]').val(server.rconPass);
+			$server.find('[name=xapi]').val(server.xAPI);
 			$server.find('a').text(server.name);
 		}
 
@@ -85,9 +126,12 @@ define(['settings'], function (settings) {
 			}).on('click', '.fa-times', function (e) {
 				$(e.target).closest('.panel').remove();
 			}).on('click', '#mia-save', function (e) {
-				settings.cfg._.avatarCDN = $('#avatarCDN').val();
-				settings.cfg._.avatarSize = $('#avatarSize').val();
-				settings.cfg._.avatarStyle = $('#avatarStyle').val();
+				e.preventDefault();
+				if (!validateAll()) return;
+
+				settings.cfg._.avatarCDN = $('[name=avatarCDN]').val();
+				settings.cfg._.avatarSize = $('[name=avatarSize]').val();
+				settings.cfg._.avatarStyle = $('[name=avatarStyle]').val();
 				for (var server in settings.cfg._.servers) {
 					if (settings.cfg._.servers[server]) {
 						settings.cfg._.servers[server].active = false;
@@ -95,14 +139,14 @@ define(['settings'], function (settings) {
 				}
 				$serverList.children().each(function(i, el){
 					var $el = $(el), serverNum = $el.data('server-num');
-					if ($el.find('.mia-server-name').val()) {
+					if ($el.find('[name=name]').val()) {
 						settings.cfg._.servers[serverNum] = { };
-						settings.cfg._.servers[serverNum].name		= $el.find('.mia-server-name').val();
-						settings.cfg._.servers[serverNum].address	= $el.find('.mia-server-address').val();
-						settings.cfg._.servers[serverNum].queryPort	= $el.find('.mia-server-query-port').val();
-						settings.cfg._.servers[serverNum].rconPort	= $el.find('.mia-server-rcon-port').val();
-						settings.cfg._.servers[serverNum].rconPass	= $el.find('.mia-server-rcon-pass').val();
-						settings.cfg._.servers[serverNum].xAPI		= $el.find('.mia-server-xapi').val();
+						settings.cfg._.servers[serverNum].name		= $el.find('[name=name]').val();
+						settings.cfg._.servers[serverNum].address	= $el.find('[name=address]').val();
+						settings.cfg._.servers[serverNum].queryPort	= $el.find('[name=query-port]').val();
+						settings.cfg._.servers[serverNum].rconPort	= $el.find('[name=rcon-port]').val();
+						settings.cfg._.servers[serverNum].rconPass	= $el.find('[name=rcon-pass]').val();
+						settings.cfg._.servers[serverNum].xAPI		= $el.find('[name=xapi]').val();
 						settings.cfg._.servers[serverNum].active	= true;
 					}else{
 						$el.remove();
@@ -173,7 +217,7 @@ define(['settings'], function (settings) {
 					$serverTemplate = $($.parseHTML(data));
 					$modalTemplate = $($.parseHTML('<div><span></span> <a class="mia-toggle-activation pointer">Activate/Deactivate</a> <a class="mia-purge pointer">Purge</a></div>'));
 					console.log('MI: server template got');
-					settings.helper.whenReady(function () {						
+					settings.helper.whenReady(function () {
 						settings.helper.use(values);
 						settings.cfg._.servers = settings.cfg._.servers || [ ];
 						makeButtons();

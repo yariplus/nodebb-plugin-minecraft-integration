@@ -12,7 +12,7 @@
                     <div class="row input-row">
                         <div class="col-sm-7 col-xs-12 input-field">
                             <label for="Primary Avatar CDN">Primary Avatar CDN</label>
-                            <select id="avatarCDN" class="form-control">
+                            <select name="avatarCDN" class="form-control">
                                 <!--<option value="mojang">Mojang</option>-->
                                 <option value="cravatar" selected="selected">Cravatar.eu</option>
                                 <option value="minotar">Minotar</option>
@@ -24,14 +24,14 @@
                     <div class="row input-row">
                         <div class="col-sm-7 col-xs-12 input-field">
                             <label for="admin:username">Avatar Size (Pixels)</label>
-                            <input id="avatarSize" type="number" class="form-control" placeholder="40" />
+                            <input name="avatarSize" type="number" class="form-control" placeholder="40" />
                         </div>
                         <div class="col-sm-5 help-text" data-help=""></div>
                     </div>
                     <div class="row input-row">
                         <div class="col-sm-7 col-xs-12 input-field">
                             <label for="admin:username">Avatar Style</label>
-                            <select id="avatarStyle" class="form-control">
+                            <select name="avatarStyle" class="form-control">
                                 <option value="flat" selected="selected">Flat</option>
                             </select>
                         </div>
@@ -39,7 +39,7 @@
                     </div>
                     <hr>
                     <h3>Active Servers</h3>
-                    <div class="panel-group" id="serverList">
+                    <div class="panel-group" id="server-list">
                     </div>
                     <button id="mia-add-server" type="button" class="btn btn-success"><i class="fa fa-plus fa-fw"></i> Add a New Server</button>
                     <button id="mia-view-servers" type="button" class="btn btn-warning"><i class="fa fa-cog fa-fw"></i> View All Servers</button>
