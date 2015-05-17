@@ -4,6 +4,11 @@ __MIDIR = "/plugins/nodebb-plugin-minecraft-integration/public/";
 
 MinecraftIntegration = { };
 
+socket.on('mi.ping', function (data) {
+	console.log("I got a ping! I feel special!");
+	console.log(data);
+});
+
 define('admin/plugins/minecraft-integration', function () {
 	MinecraftIntegration.init = function () {
 		require([__MIDIR + 'js/acp.js'], function (miACP) {
