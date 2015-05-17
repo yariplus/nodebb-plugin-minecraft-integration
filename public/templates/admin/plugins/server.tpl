@@ -1,50 +1,50 @@
 <div class="panel panel-success">
     <div class="panel-heading">
-        <span class="panel-title"><a class="mia-server-label" data-toggle="collapse" data-parent="#serverList">Name</a></span>
+        <span class="panel-title"><a class="mia-server-label" data-toggle="collapse" data-parent="#serverList">[[mi:name]]</a></span>
         <div class="pull-right pointer"><i class="fa fa-times"></i></div>
     </div>
     <div class="panel-body collapse">
         <div class="row input-row">
             <div class="col-sm-7 col-xs-12 input-field">
-                <label class="control-label">Server Name</label>
+                <label class="control-label">[[mi:server_name]]</label>
                 <input name="name" class="form-control" type="text" placeholder=""/>
             </div>
-            <div class="col-sm-5 help-text" data-help=""></div>
+            <div class="col-sm-5 help-text" data-help="[[mi:help_server_name]]"></div>
         </div>
         <div class="row input-row">
             <div class="col-sm-7 col-xs-12 input-field">
-                <label class="control-label">Server Address</label>
+                <label class="control-label">[[mi:server_address]]</label>
                 <input name="address" class="form-control" type="text" placeholder=""/>
             </div>
-            <div class="col-sm-5 help-text" data-help=""></div>
+            <div class="col-sm-5 help-text" data-help="[[mi:help_server_address]]"></div>
         </div>
         <div class="row input-row">
             <div class="col-sm-7 col-xs-12 input-field">
-                <label class="control-label">Query Port</label>
+                <label class="control-label">[[mi:query_port]]</label>
                 <input name="query-port" class="form-control" type="text" placeholder=""/>
             </div>
-            <div class="col-sm-5 help-text" data-help=""></div>
+            <div class="col-sm-5 help-text" data-help="[[mi:help_query_port]]"></div>
         </div>
         <div class="row input-row">
             <div class="col-sm-7 col-xs-12 input-field">
-                <label class="control-label">RCON Port</label>
+                <label class="control-label">[[mi:rcon_port]]</label>
                 <input name="rcon-port" class="form-control" type="text" placeholder=""/>
             </div>
-            <div class="col-sm-5 help-text" data-help=""></div>
+            <div class="col-sm-5 help-text" data-help="[[mi:help_rcon_port]]"></div>
         </div>
         <div class="row input-row">
             <div class="col-sm-7 col-xs-12 input-field">
-                <label class="control-label">RCON Pass</label>
+                <label class="control-label">[[mi:rcon_pass]]</label>
                 <input name="rcon-pass" class="form-control" type="password" placeholder="" autocomplete="off"/>
             </div>
-            <div class="col-sm-5 help-text" data-help=""></div>
+            <div class="col-sm-5 help-text" data-help="[[mi:help_rcon_pass]]"></div>
         </div>
         <div class="row input-row">
             <div class="col-sm-7 col-xs-12 input-field">
-                <label class="control-label">External API</label>
+                <label class="control-label">[[mi:xapi]]</label>
                 <input name="xapi" class="form-control" type="text" placeholder=""/>
             </div>
-            <div class="col-sm-5 help-text" data-help=""></div>
+            <div class="col-sm-5 help-text" data-help="[[mi:help_xapi]]"></div>
         </div>
     </div>
 </div>
