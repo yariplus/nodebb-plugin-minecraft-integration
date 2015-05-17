@@ -1,18 +1,12 @@
 "use strict";
 
-// I've seen the other side of rainbow
-// And it was black and white
-
 __MIDIR = "/plugins/nodebb-plugin-minecraft-integration/public/";
 
 MinecraftIntegration = { };
 
-define('admin/plugins/minecraft-integration', function() {
-	console.log('define MI');
-
-	MinecraftIntegration.init = function() {
-		console.log('Init MI ACP');
-		require([__MIDIR + 'js/acp.js'], function(miACP) {
+define('admin/plugins/minecraft-integration', function () {
+	MinecraftIntegration.init = function () {
+		require([__MIDIR + 'js/acp.js'], function (miACP) {
 			miACP.load();
 		});
 	};
@@ -107,23 +101,24 @@ function resizeCanvases() {
 	});
 }
 
+$(window).on('action:widgets.loaded', function (event, data) {
+    $('.mi-container').each(function(index){
+		var parent = $(this).parent();
+		if (!$(parent).prop('widget-area')) {
+			$(parent).css('padding-top', '0').css('padding-left', '0').css('padding-right', '0').css('padding-bottom', '0');
+		}
+	});
+	resizeCanvases();
+
+	$('.mcwe-widget-status, .mcwe-widget-minimap').each(function(){
+		var $widget = $(this);
+		$widget.find('h3').css('max-width', '90%');
+		$widget.find('>.panel').prepend('<i style="position:relative;right:6px;top:6px;font-size:22px;" class="fa fa-compass pointer pull-right has-tooltip mcwe-modalmapicon" data-title="Open Map" data-toggle="modal" data-target="#mcwe-modal-'+ $widget.data('mcwe-mid') +'" style="font-size: 20px;"></i>');
+	});
+});
+
 $(document).ajaxComplete(function(event, response, settings) {
 	console.log('completed: ' + settings.url);
-	if (!!~settings.url.indexOf("/api/widgets/render")) {
-		$('.widgetFillContainer').each(function(index){
-			var parent = $(this).parent();
-			if (!$(parent).prop('widget-area')) {
-				$(parent).css('padding-top', '0').css('padding-left', '0').css('padding-right', '0').css('padding-bottom', '0');
-			}
-		});
-		resizeCanvases();
-
-		$('.mcwe-widget-status, .mcwe-widget-minimap').each(function(){
-			var $widget = $(this);
-			$widget.find('h3').css('max-width', '90%');
-			$widget.find('>.panel').prepend('<i style="position:relative;right:6px;top:6px;font-size:22px;" class="fa fa-compass pointer pull-right has-tooltip mcwe-modalmapicon" data-title="Open Map" data-toggle="modal" data-target="#mcwe-modal-'+ $widget.data('mcwe-mid') +'" style="font-size: 20px;"></i>');
-		});
-	}
 
 	if (settings.url == "/api/admin/extend/widgets") {
 		var IDcounter = 1;
