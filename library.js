@@ -1,18 +1,16 @@
 "use strict";
 
-// All your sanity and wits, they will all vanish, I promise.
-
-(function(){
-
-var	NodeBB = require('./lib/nodebb'),
-	Config = require('./lib/config'),
-	Backend = require('./lib/backend'),
-	Views = require('./lib/views'),
-	Sockets = require('./lib/sockets'),
-	MinecraftIntegration = {
+var	MinecraftIntegration = {
 		Widgets: require('./lib/widgets'),
 		Hooks: require('./lib/hooks')
-	};
+	},
+
+	Backend = require('./lib/backend'),
+	Config  = require('./lib/config'),
+	NodeBB  = require('./lib/nodebb'),
+	Sockets = require('./lib/sockets'),
+	Utils   = require('./lib/utils'),
+	Views   = require('./lib/views');
 
 MinecraftIntegration.load = function (data, next) {
 	// Delegate arguments
@@ -54,20 +52,9 @@ MinecraftIntegration.load = function (data, next) {
 	setTimeout(Config.logSettings, 5000);
 	Backend.init();
 	Sockets.init();
+	Utils.loadTranslations();
 
 	next();
 };
 
-MinecraftIntegration.buildAdminHeader = function(custom_header, next){
-	custom_header.plugins.push({
-		"route": '/plugins/minecraft-integration',
-		"icon": 'fa-edit',
-		"name": 'Minecraft Integration'
-	});
-
-	return next(null, custom_header);
-};
-
-	module.exports = MinecraftIntegration;
-
-}());
+module.exports = MinecraftIntegration;
