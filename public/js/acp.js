@@ -100,7 +100,7 @@ define(['settings', 'translator', __MIDIR + "js/vendor/validator.min.js"], funct
 		function addNewServer(serverNum, server) {
 			var $server = $serverTemplate.clone();
 			$server.data('server-num', serverNum);
-			$server.find('.mia-server-label').text('Unnamed Server');
+			$server.find('a').first().text('Unnamed Server');
 			$server.find('[data-parent="#serverList"]').attr('href', '#server' + serverNum);
 			$server.find('.panel-body').attr('id', 'server' + serverNum);
 			$server.appendTo($serverList);
@@ -195,9 +195,9 @@ define(['settings', 'translator', __MIDIR + "js/vendor/validator.min.js"], funct
 				help.html(help.attr('data-help'));
 			}).on('blur change', '[name]', function() {
 				//activate($(this).attr('name'), $(this));
-			}).on('input', '.mia-server-name', function() {
+			}).on('input', '[name="name"]', function() {
 				var $this = $(this), $server = $this.closest('.panel'), serverNum = $server.data('server-num');
-				$server.find('a').text($this.val() || 'Unnamed Server');
+				$server.find('a').first().text($this.val() || 'Unnamed Server');
 				var $serverListing = $modalBody.children().filter(function () {
 					return $(this).data('serverNum') === serverNum;
 				});
