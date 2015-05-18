@@ -1,7 +1,6 @@
 "use strict";
 
-define(['settings', __MIDIR + "js/vendor/validator.min.js"], function (settings, validator) {
-
+define(['settings', 'translator', __MIDIR + "js/vendor/validator.min.js"], function (settings, translator, validator) {
 	var miACP = { },
 		$form, $serverList, $modal, $modalBody, $serverTemplate, $modalTemplate;
 
@@ -214,17 +213,19 @@ define(['settings', __MIDIR + "js/vendor/validator.min.js"], function (settings,
 			} else {
 				console.log('MI: settings recieved');
 				$.get(__MIDIR + '/templates/admin/plugins/server.tpl', function(data) {
-					$serverTemplate = $($.parseHTML(data));
-					$modalTemplate = $($.parseHTML('<div><span></span> <a class="mia-toggle-activation pointer">Activate/Deactivate</a> <a class="mia-purge pointer">Purge</a></div>'));
-					console.log('MI: server template got');
-					settings.helper.whenReady(function () {
-						settings.helper.use(values);
-						settings.cfg._.servers = settings.cfg._.servers || [ ];
-						makeButtons();
-						populateFields();
-						setupInputs();
+					translator.translate(data, function (translatedTemplate) {
+						$serverTemplate = $($.parseHTML(translatedTemplate));
+						$modalTemplate = $($.parseHTML('<div><span></span> <a class="mia-toggle-activation pointer">Activate/Deactivate</a> <a class="mia-purge pointer">Purge</a></div>'));
+						console.log('MI: server template got');
+						settings.helper.whenReady(function () {
+							settings.helper.use(values);
+							settings.cfg._.servers = settings.cfg._.servers || [ ];
+							makeButtons();
+							populateFields();
+							setupInputs();
 
-						console.log('MI: template rendered');
+							console.log('MI: template rendered');
+						});
 					});
 				});
 			}

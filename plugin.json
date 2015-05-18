@@ -24,5 +24,6 @@
 	"templates": "./public/templates",
     "staticDirs": {
 		"public": "./public"
-	}
+	},
+    "languages": "./public/language"
 }

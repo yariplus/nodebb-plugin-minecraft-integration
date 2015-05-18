@@ -1,4 +1,14 @@
 {
     "minecraft": "Minecraft",
-    "minecraft_integration": "Minecraft Integration"
+    "minecraft_integration": "Minecraft Integration",
+    "general_settings": "General Settings",
+    "avatar_cdn": "Avatar CDN",
+    "help_avatar_cdn": "Choose where the plugin will acquire its Minecraft avatars.",
+    "avatar_size": "Avatar Size",
+    "help_avatar_size": "The size in pixels to display Minecraft avatars.",
+    "avatar_style": "Avatar Style",
+    "help_avatar_style": "Choose the style of Minecraft avatar, will default to Flat if the selected option is not supported by the selected Avatar CDN.",
+    "flat": "Flat",
+    "active_servers": "Active Servers",
+    "server_name": "Server Name"
 }
