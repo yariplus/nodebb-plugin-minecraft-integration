@@ -131,7 +131,7 @@
             </tr>
             <!-- END customafterversion -->
 
-            <!-- IF showPlayers -->
+            <!-- IF showAvatars -->
             <tr>
                 <td class="td-label">
                     <span<!-- IF colorLabels --> style="color:#{colorLabels}"<!-- ENDIF colorLabels -->>
@@ -146,7 +146,7 @@
                     </span>
                 </td>
             </tr>
-            <!-- ENDIF showPlayers -->
+            <!-- ENDIF showAvatars -->
 
             <!-- BEGIN customafterplayers -->
             <tr>

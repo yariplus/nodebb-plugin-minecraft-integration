@@ -97,6 +97,13 @@
 <div class="form-group">
     <div class="checkbox">
         <label>
+            <input type="checkbox" name="showAvatars" checked>Show Player Avatars?
+        </label>
+    </div>
+</div>
+<div class="form-group">
+    <div class="checkbox">
+        <label>
             <input type="checkbox" name="showIP" checked>Show IP after Host? &nbsp; (&nbsp;e.g. "someserver.com (1.2.3.4)"&nbsp;)
         </label>
     </div>
