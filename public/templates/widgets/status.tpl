@@ -1,15 +1,15 @@
 <div class="mi-container" data-widget="mi-status">
     <table class="table widget-table">
         <tbody>
-            <!-- IF showRowMOTD -->
+            <!-- IF showMOTD -->
             <tr>
                 <td class="td-label" colspan="2">
                     <span<!-- IF colorMOTD --> style="color:#{colorMOTD}"<!-- ENDIF colorMOTD -->>
-                        {serverMOTD}
+                        {motd}
                     </span>
                 </td>
             </tr>
-            <!-- ENDIF showRowMOTD -->
+            <!-- ENDIF showMOTD -->
 
             <!-- BEGIN customaftername -->
             <tr>

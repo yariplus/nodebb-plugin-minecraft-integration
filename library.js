@@ -49,8 +49,8 @@ MinecraftIntegration.load = function (data, next) {
 		Config.settings.reset(Config.logSettings);
 	};
 
-	setTimeout(Config.logSettings, 5000);
-	Backend.init();
+	setTimeout(Config.logSettings, 3000);
+	setTimeout(Backend.updateServers, 2000);
 	Sockets.init();
 	Utils.loadTranslations();
 

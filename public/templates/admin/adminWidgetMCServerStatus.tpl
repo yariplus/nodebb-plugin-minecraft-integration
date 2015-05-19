@@ -70,14 +70,11 @@
     <input type="hidden" class="ajaxSelectSibling" name="sid">
 </div>
 <div class="form-group">
-    <label>Show MOTD</label>
-    <select class="form-control">
-        <option value="afterTitle">After Container Title</option>
-        <option value="replaceTitle">Replacing Container Title</option>
-        <option value="asRow">As Separate Row</option>
-        <option value="nowhere">Nowhere</option>
-    </select>
-    <input type="hidden" class="ajaxSelectSibling" name="showMOTD">
+    <div class="checkbox">
+        <label>
+            <input type="checkbox" name="showMOTD" checked>Show a row with the MOTD?
+        </label>
+    </div>
 </div>
 <div class="form-group">
     <div class="checkbox">

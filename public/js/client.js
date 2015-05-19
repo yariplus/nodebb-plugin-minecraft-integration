@@ -95,7 +95,7 @@ function resizeCanvases() {
 		});
 	}
 
-	$('.widgetFillContainer .mcweIFrame').each(function(){
+	$('.mcweIFrame').each(function(){
 		var heightRatio = $(this).attr('height-ratio');
 		heightRatio = typeof heightRatio == 'undefined' ? 2 : parseInt(heightRatio);
 		heightRatio = isNaN(heightRatio) ? 2 : heightRatio < 1 ? 2 : heightRatio;
