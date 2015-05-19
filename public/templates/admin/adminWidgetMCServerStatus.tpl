@@ -1,7 +1,9 @@
-<div class="well" style="overflow:hidden;margin-bottom:15px;">
-<h4 style="margin-top:0;">Widget Preview (Testing)</h4>
+<div class="well" style="overflow:hidden;margin-bottom:15px;display:none;">
 <div class="mcWidgetPreview" style="width:380px;">
-<div class="panel panel-default"><div class="panel-heading">Server Name</div><div style="padding: 0px;" class="panel-body"><div class="widgetFillContainer">
+<div class="panel panel-default">
+<div class="panel-heading">Server Name</div>
+<div style="padding: 0px;" class="panel-body">
+<div class="widgetFillContainer">
     <table class="table table-striped widgetTable">
     <tbody>
     <tr>
@@ -56,10 +58,7 @@
     </tr>
     </tbody>
     </table>
-</div></div></div>
-</div>
-
-</div>
+</div></div></div></div></div>
 
 <div class="form-group">
     <label>Server</label>
