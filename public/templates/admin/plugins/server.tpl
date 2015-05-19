@@ -1,6 +1,6 @@
 <div class="panel panel-success">
     <div class="panel-heading">
-        <span class="panel-title"><a class="mia-server-label" data-toggle="collapse" data-parent="#serverList">[[mi:name]]</a></span>
+        <span class="panel-title"><a class="mia-server-label" data-toggle="collapse" data-parent="#server-list">[[mi:name]]</a></span>
         <div class="pull-right pointer"><i class="fa fa-times"></i></div>
     </div>
     <div class="panel-body collapse">

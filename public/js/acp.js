@@ -101,11 +101,14 @@ define(['settings', 'translator', __MIDIR + "js/vendor/validator.min.js"], funct
 			var $server = $serverTemplate.clone();
 			$server.data('server-num', serverNum);
 			$server.find('a').first().text('Unnamed Server');
-			$server.find('[data-parent="#serverList"]').attr('href', '#server' + serverNum);
+			$server.find('[data-toggle="collapse"]').attr('href', '#server' + serverNum);
 			$server.find('.panel-body').attr('id', 'server' + serverNum);
 			$server.appendTo($serverList);
 			if (server) {
 				populateServer($server, server);
+			}else{
+				$server.find('[data-toggle="collapse"]').addClass('in');
+				$server.find('[name="name"]').focus();
 			}
 			return;
 		}
@@ -197,12 +200,12 @@ define(['settings', 'translator', __MIDIR + "js/vendor/validator.min.js"], funct
 				//activate($(this).attr('name'), $(this));
 			}).on('input', '[name="name"]', function() {
 				var $this = $(this), $server = $this.closest('.panel'), serverNum = $server.data('server-num');
-				$server.find('a').first().text($this.val() || 'Unnamed Server');
+				$server.find('a').first().text($this.val() || 'Unnamed Server (Will be removed if left unnamed.)');
 				var $serverListing = $modalBody.children().filter(function () {
 					return $(this).data('serverNum') === serverNum;
 				});
 				if ($serverListing.length) {
-					$serverListing.find('span').text($this.val() || 'Unnamed Server');
+					$serverListing.find('span').text($this.val() || 'Unnamed Server (Will be removed if left unnamed.)');
 				}
 			}).submit(validateAll);
 		}
