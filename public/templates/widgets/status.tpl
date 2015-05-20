@@ -1,4 +1,4 @@
-<div class="mi-container" data-widget="mi-status">
+<div class="mi-container" data-widget="mi-status" data-sid="{sid}">
     <table class="table widget-table">
         <tbody>
             <!-- IF showMOTD -->
@@ -138,12 +138,10 @@
                         <strong>Players</strong>
                     </span>
                 </td>
-                <td>
-                    <span<!-- IF colorText --> style="color:#{colorText}"<!-- ENDIF colorText -->>
-                        <!-- BEGIN players -->
-                        <!-- IMPORT partials/playerAvatars.tpl -->
-                        <!-- END players -->
-                    </span>
+                <td class="avatars">
+                    <!-- BEGIN players -->
+                    <!-- IMPORT partials/playerAvatars.tpl -->
+                    <!-- END players -->
                 </td>
             </tr>
             <!-- ENDIF showAvatars -->

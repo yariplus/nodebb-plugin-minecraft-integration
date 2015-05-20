@@ -7,6 +7,41 @@ MinecraftIntegration = { };
 socket.on('mi.ping', function (data) {
 	console.log("I got a ping! I feel special!");
 	console.log(data);
+
+	// Update Players
+	console.log('Getting avatar template');
+	$.get(__MIDIR + '/templates/partials/playerAvatars.tpl' + "?v=" + config['cache-buster'], function(avatarTemplate) {
+		console.log('Got avatar template');
+		$('[data-widget="mi-status"][data-sid="' + data.sid + '"]').each(function(i, $widget){
+			console.log('Found Widget');
+			$widget = $($widget);
+			if (data.players) {
+				try {
+					data.players = JSON.parse(data.players);
+				}catch (e){
+					data.players = [ ];
+				}
+				console.log('Found Players');
+				$widget.find('.mi-avatar').each(function (i, el) {
+					console.log('Found Player: ' + $(el).data('original-title'));
+					if (data.players.indexOf($(el).data('original-title')) < 0) {
+						$(el).fadeToggle(600, 'linear', function(){
+							$(el).remove();
+						});
+					}
+				});
+
+				for (var i in data.players) {
+					if (!$widget.find('.mi-avatar[data-original-title="' + data.players[i] + '"]').length) {
+						// Temp
+						var $avatar = $($.parseHTML('<img src="http://cravatar.eu/avatar/{player}/40" class="mi-avatar" style="display:none;border-style:solid;border-width:6px;border-radius:4px;border-color:black;" data-original-title="{player}"/>'.replace(/\{player\}/g, data.players[i])));
+						$avatar.appendTo($widget.find('.avatars'));
+						$avatar.fadeToggle(600, 'linear');
+					}
+				}
+			}
+		});
+	});
 });
 
 define('admin/plugins/minecraft-integration', function () {
