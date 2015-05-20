@@ -57,7 +57,7 @@ define('admin/plugins/minecraft-integration', function () {
 $(document).ready(function() {
 	var $body = $('body');
 	$body.tooltip({
-		selector: '.has-tooltip',
+		selector: '.has-tooltip, .mi-avatar',
 		container: 'body'
 	});
 	$body.popover({
