@@ -64,17 +64,6 @@ $(document).ready(function() {
 		selector: '.has-popover',
 		container: 'body'
 	});
-	$body.on('click', '.mcweTogglableSibling', function(e) {
-		e.preventDefault();
-		var $that = $(e.target);
-		$that.prev().toggle();
-		$that.blur();
-		if ($that.children(':first-child').hasClass('fa-chevron-down')) {
-			$that.children(':first-child').removeClass('fa-chevron-down').addClass('fa-chevron-up');
-		}else{
-			$that.children(':first-child').removeClass('fa-chevron-up').addClass('fa-chevron-down');
-		}
-	});
 });
 
 var rtime = new Date(1, 1, 2000, 12,00,00);
@@ -162,6 +151,7 @@ $(document).ajaxComplete(function(event, response, settings) {
 
 	if (settings.url == "/api/admin/extend/widgets") {
 		var IDcounter = 1;
+
 		$('.widget-area > .widget-panel > .panel-heading').on('mouseup', function() {
 			var jWidgetPanel = $(this).next();
 			if ( !jWidgetPanel.hasClass('mcwe-ajaxed') ) {
