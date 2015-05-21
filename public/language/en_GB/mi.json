@@ -39,5 +39,9 @@
     "optional": "Optional",
     "required": "Required",
     "not_used": "Not Used Yet",
-    "actions": "Actions"
+    "actions": "Actions",
+    "display_options": "Display Options",
+    "style_options": "Style Options",
+    "dynmap_options": "Dynmap Options",
+    "custom_rows": "Custom Rows"
 }

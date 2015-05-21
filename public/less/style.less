@@ -88,7 +88,8 @@
     .panel[data-widget="widgetMCOnlinePlayersGrid"],
     .panel[data-widget="widgetMCOnlinePlayersGraph"] {
         > .panel-heading {
-            background-color: #FE6;
+            background-color: #24B32D;
+            color: #fff;
         }
 
         > .panel-body {
@@ -109,6 +110,18 @@
 
         background-color: #F8F8F8;
         border-color: #AAA;
+
+        .mi-accordion {
+            margin: 25px 0px;
+
+            >.panel {
+                >.panel-heading {
+                    text-transform: none;
+                    border-bottom: #D6E9C6 1px solid;
+                    box-shadow: 0px 0px 2px 0px rgba(165, 165, 165, 0.75);
+                }
+            }
+        }
     }
 }
 
@@ -167,19 +180,4 @@
 
 body.modal-open {
     margin-padding: 0px !important;
-}
-
-.mcweTogglable {
-    padding-left: 15px;
-    padding-right: 15px;
-    padding-top: 5px;
-    width: calc(100%);
-    border-style: solid;
-    border-width: 1px;
-    border-color: #aaa;
-    display: none;
-}
-
-.mcweTogglableSibling {
-    width: calc(100%);
 }

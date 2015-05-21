@@ -73,7 +73,7 @@
 <div class="mi-accordion">
     <div class="panel panel-success">
         <div class="panel-heading" data-target=".mi-display-options" data-toggle="collapse">
-            <span class="panel-title">[[display_options]]</span>
+            <span class="panel-title">[[mi:display_options]]</span>
         </div>
         <div class="panel-body collapse mi-display-options">
             <div class="form-group">
@@ -122,7 +122,7 @@
     </div>
     <div class="panel panel-success">
         <div class="panel-heading" data-target=".mi-style-options" data-toggle="collapse">
-            <span class="panel-title">[[style_options]]</span>
+            <span class="panel-title">[[mi:style_options]]</span>
         </div>
         <div class="panel-body collapse mi-style-options">
             <div class="form-group">
@@ -176,7 +176,7 @@
     </div>
     <div class="panel panel-success">
         <div class="panel-heading" data-target=".mi-dynmap-options" data-toggle="collapse">
-            <span class="panel-title">[[dynmap_options]]</span>
+            <span class="panel-title">[[mi:dynmap_options]]</span>
         </div>
         <div class="panel-body collapse mi-dynmap-options">
             <div class="form-group">
@@ -221,7 +221,7 @@
     </div>
     <div class="panel panel-success">
         <div class="panel-heading" data-target=".mi-custom-rows" data-toggle="collapse">
-            <span class="panel-title">[[custom_rows]]</span>
+            <span class="panel-title">[[mi:custom_rows]]</span>
         </div>
         <div class="panel-body collapse mi-custom-rows">
             <h4><u>Custom Row 1</u></h4>
