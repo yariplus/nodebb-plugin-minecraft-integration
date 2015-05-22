@@ -39,6 +39,12 @@ MinecraftIntegration.load = function (data, next) {
 		res.status(200);
 	});
 
+	NodeBB.router.get('/api/minecraft-integration/server/:sid', function (req, res, next) {
+		Config.getServerStatus(req.params.sid, function (data) {
+			res.json(data);
+		});
+	});
+
 	NodeBB.SocketAdmin.settings.syncMinecraftIntegration = function(){
 		Config.settings.sync(function(){
 			Config.logSettings();
@@ -52,7 +58,6 @@ MinecraftIntegration.load = function (data, next) {
 	setTimeout(Config.logSettings, 3000);
 	setTimeout(Backend.updateServers, 2000);
 	Sockets.init();
-	Utils.loadTranslations();
 
 	next();
 };

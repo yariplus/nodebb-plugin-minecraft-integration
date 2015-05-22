@@ -23,7 +23,7 @@
 	],
 	"templates": "./public/templates",
     "staticDirs": {
-		"public": "./public"
+		"public": "public"
 	},
-    "languages": "./public/language"
+    "languages": "public/language"
 }
