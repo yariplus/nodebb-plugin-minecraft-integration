@@ -1,8 +1,13 @@
 "use strict";
-/*global ajaxify*/
 
-// I've seen the other side of rainbow
-// And it was black and white
+$(window).on('action:widgets.loaded', function (event, data) {
+    $('.widgetFillContainer').each(function(i, el){
+		var $parent = $(this).parent();
+		if (!$parent.prop('widget-area')) {
+			$parent.css('padding-top', '0').css('padding-left', '0').css('padding-right', '0').css('padding-bottom', '0');
+		}
+	});
+});
 
 $(document).ready(function() {
 	var $body = $('body');
@@ -48,40 +53,6 @@ function resizeend() {
 }
 
 function resizeCanvases() {
-	// Find better solution, so that we can draw on widget config pages.
-	if (typeof Chart == 'undefined') {
-		require(['/vendor/chart.js/chart.min.js'], function(Chart){
-			$('.canvasResizable').each(function(i, e){
-				var heightRatio = $(e).attr('height-ratio');
-				heightRatio = typeof heightRatio == 'undefined' ? 3 : parseInt(heightRatio);
-				heightRatio = isNaN(heightRatio) ? 3 : heightRatio < 1 ? 3 : heightRatio;
-				$(e).attr('width', $(e).parent().width());
-				$(e).attr('height', $(e).parent().width() / heightRatio);
-				$(e).css('width', $(e).parent().width());
-				$(e).css('height', $(e).parent().width() / heightRatio);
-				var data = window[$(e).attr('id') + 'Data'];
-				var options = window[$(e).attr('id') + 'Options'];
-				switch ($(e).attr('chart-type')) {
-					case "Pie":
-					case "pie":
-						new Chart($(e)[0].getContext('2d')).Pie(data, options);
-						break;
-					case "Donut":
-					case "donut":
-						console.log("Drawing donut ");
-						new Chart($(e)[0].getContext('2d')).Pie(data, options);
-						break;
-					case "Line":
-					case "line":
-					default:
-						new Chart($(e)[0].getContext('2d')).Line(data, options);
-						break;
-				}
-			});
-			var Chartjs = Chart.noConflict();
-		});
-	}
-	
 	$('.widgetFillContainer .mcweIFrame').each(function(){
 		var heightRatio = $(this).attr('height-ratio');
 		heightRatio = typeof heightRatio == 'undefined' ? 2 : parseInt(heightRatio);
