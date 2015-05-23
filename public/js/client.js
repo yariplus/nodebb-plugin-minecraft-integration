@@ -18,15 +18,26 @@ socket.on('mi.ping', function (data) {
 			if (data.players) {
 				try {
 					data.players = JSON.parse(data.players);
+					var _players = [ ];
+					for (var i in data.players) {
+						if (data.players[i] && typeof data.players[i] === 'object' && data.players[i].name) {
+							_players.push(data.players[i].name);
+						}
+					}
+					data.players = _players;
 				}catch (e){
 					data.players = [ ];
 				}
+
 				console.log('Found Players');
 				$widget.find('.mi-avatar').each(function (i, el) {
 					console.log('Found Player: ' + $(el).data('original-title'));
 					if (data.players.indexOf($(el).data('original-title')) < 0) {
-						$(el).fadeToggle(600, 'linear', function(){
+						$(el).fadeToggle(600, 'linear', function () {
 							$(el).remove();
+							$('.tooltip').each(function (i, el) {
+								$(this).remove();
+							});
 						});
 					}
 				});
@@ -34,7 +45,7 @@ socket.on('mi.ping', function (data) {
 				for (var i in data.players) {
 					if (!$widget.find('.mi-avatar[data-original-title="' + data.players[i] + '"]').length) {
 						// Temp
-						var $avatar = $($.parseHTML('<img src="http://cravatar.eu/avatar/{player}/40" class="mi-avatar" style="display:none;border-style:solid;border-width:6px;border-radius:4px;border-color:black;" data-original-title="{player}"/>'.replace(/\{player\}/g, data.players[i])));
+						var $avatar = $($.parseHTML('<img src="http://cravatar.eu/avatar/{player}/32" class="mi-avatar user-img" style="margin-bottom:5px;margin-right:5px;display:none;border-style:double;border-width:6px;border-radius:4px;border-color:black;" data-original-title="{player}"/>'.replace(/\{player\}/g, data.players[i])));
 						$avatar.appendTo($widget.find('.avatars'));
 						$avatar.fadeToggle(600, 'linear');
 					}

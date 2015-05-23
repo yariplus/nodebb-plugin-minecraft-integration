@@ -4,26 +4,26 @@
 	"description": "NodeBB plugin to integrate your forum with your Minecraft Server using widgets, user syncing, group/rank syncing, sso, bukkit/bungeecord/sponge communication, and more.",
 	"url": "https://github.com/yariplus/nodebb-plugin-minecraft-integration",
 	"library": "./library.js",
-    "less": [
-        "public/less/style.less"
-    ],
-    "scripts": [
-        "public/js/client.js"
-    ],
+	"less": [
+		"public/less/style.less"
+	],
+	"scripts": [
+		"public/js/client.js"
+	],
 	"hooks": [
 		{ "hook": "static:app.load", "method": "load" },
 		{ "hook": "filter:widgets.getWidgets", "method": "Hooks.filter.widgets.getWidgets" },
-        { "hook": "filter:admin.header.build", "method": "Hooks.filter.admin.header.build" },
-        { "hook": "filter:widget.render:widgetMCDynmapMiniMap",      "method": "Widgets.DynmapMiniMap.render" },
-        { "hook": "filter:widget.render:widgetMCOnlinePlayersGraph", "method": "Widgets.OnlinePlayersGraph.render" },
-        { "hook": "filter:widget.render:widgetMCOnlinePlayersGrid",  "method": "Widgets.OnlinePlayersGrid.render" },
+		{ "hook": "filter:admin.header.build", "method": "Hooks.filter.admin.header.build" },
+		{ "hook": "filter:widget.render:widgetMCDynmapMiniMap",      "method": "Widgets.DynmapMiniMap.render" },
+		{ "hook": "filter:widget.render:widgetMCOnlinePlayersGraph", "method": "Widgets.OnlinePlayersGraph.render" },
+		{ "hook": "filter:widget.render:widgetMCOnlinePlayersGrid",  "method": "Widgets.OnlinePlayersGrid.render" },
 		{ "hook": "filter:widget.render:widgetMCServerStatus",       "method": "Widgets.ServerStatus.render" },
-        { "hook": "filter:widget.render:widgetMCTopPlayersGraph",    "method": "Widgets.TopPlayersGraph.render" },
-        { "hook": "filter:widget.render:widgetMCTopPlayersList",     "method": "Widgets.TopPlayersList.render" }
+		{ "hook": "filter:widget.render:widgetMCTopPlayersGraph",    "method": "Widgets.TopPlayersGraph.render" },
+		{ "hook": "filter:widget.render:widgetMCTopPlayersList",     "method": "Widgets.TopPlayersList.render" }
 	],
 	"templates": "./public/templates",
-    "staticDirs": {
+	"staticDirs": {
 		"public": "public"
 	},
-    "languages": "public/language"
+	"languages": "public/language"
 }

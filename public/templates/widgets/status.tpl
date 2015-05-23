@@ -43,15 +43,6 @@
                     <!-- IF isServerRestarting -->
                         <a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-title="Pinged server at {serverIP}:{serverPort}"></a>&nbsp;<strong><span class="text-info">Restarting</span></strong>
                     <!-- ENDIF isServerRestarting -->
-                        <!-- IF failHost -->{msgFailHost}<!-- ENDIF failHost -->
-                        <!-- IF failPort -->{msgFailPort}<!-- ENDIF failPort -->
-                        <!-- IF msgFailQuery -->{msgFailQuery}<!-- ENDIF msgFailQuery -->
-                        <!-- IF failListPlayers -->{msgFailListPlayers}<!-- ENDIF failListPlayers -->
-                        <!-- IF failListMods -->{msgFailListMods}<!-- ENDIF failListMods -->
-                        <!-- IF failListPlugins -->{msgFailListPlugins}<!-- ENDIF failListPlugins -->
-                        <!-- IF hasInvalidHost -->{msgInvalidHost}<!-- ENDIF hasInvalidHost -->
-                        <!-- IF hasInvalidPort -->{msgInvalidPort}<!-- ENDIF hasInvalidPort -->
-                        <!-- IF hasInvalidQuery -->{msgInvalidQuery}<!-- ENDIF hasInvalidQuery -->
                     </span>
                 </td>
             </tr>
@@ -79,7 +70,7 @@
                 </td>
                 <td>
                     <span<!-- IF colorText --> style="color:#{colorText}"<!-- ENDIF colorText -->>
-                        {address} <!-- IF showIP -->(&nbsp;{host}<!-- IF port -->:{port}<!-- ENDIF port --><!-- ENDIF showIP --><!-- IF showIP -->&nbsp;)<!-- ENDIF showIP -->
+                        {address} <!-- IF showIP -->[{host}<!-- IF port -->:{port}<!-- ENDIF port --><!-- ENDIF showIP --><!-- IF showIP -->]<!-- ENDIF showIP -->
                     </span>
                 </td>
             </tr>
@@ -109,8 +100,10 @@
                 <td>
                     <span<!-- IF colorText --> style="color:#{colorText}"<!-- ENDIF colorText -->>
                         {version}
+
                         <!-- IF hasMods -->&nbsp;<a class="fa fa-cog text-info has-popover" data-html="true" data-title="<h6><b>Mod List</b></h6>" data-placement="bottom"<!-- ENDIF hasMods --><!-- BEGIN modList -->{modList.modid}<!-- IF @first -->   data-content="&lt;h6&gt;<!-- ENDIF @first --><!-- IF @last -->&lt;/h6&gt;"<!-- ELSE --><!-- IF !@first -->, <!-- ENDIF !@first --><!-- ENDIF @last --><!-- END modList --><!-- IF hasMods -->></a><!-- ENDIF hasMods -->
-                        <!-- IF hasPlugins -->&nbsp;<a class="fa fa-plug text-info has-popover"<!-- ENDIF hasPlugins --><!-- IF !hidePluginList --> data-html="true" data-title="<h6><b>Plugin List</b></h6>" data-placement="bottom"<!-- ENDIF !hidePluginList --><!-- BEGIN pluginList -->{pluginList.name}<!-- IF @first --> data-content="&lt;h6&gt;<!-- ENDIF @first --><!-- IF @last -->&lt;/h6&gt;"<!-- ELSE --><!-- IF !@first -->, <!-- ENDIF !@first --><!-- ENDIF @last --><!-- END pluginList --><!-- IF hasPlugins -->></a><!-- ENDIF hasPlugins -->
+
+                        <!-- IF hasPlugins --> <a class="fa fa-plug text-info has-popover" data-html="true" data-title="{{<h6><b>Plugin List</b></h6>}}" data-placement="bottom"></a><!-- ENDIF hasPlugins -->
                     </span>
                 </td>
             </tr>
