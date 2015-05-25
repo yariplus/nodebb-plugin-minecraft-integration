@@ -5,8 +5,7 @@ __MIDIR = "/plugins/nodebb-plugin-minecraft-integration/public/";
 MinecraftIntegration = { };
 
 socket.on('mi.ping', function (data) {
-	console.log("I got a ping! I feel special!");
-	console.log(data);
+	console.log("PING: ", data);
 
 	// Update Players
 	console.log('Getting avatar template');
@@ -98,60 +97,109 @@ function resizeend() {
 }
 
 function resizeCanvases() {
-	if (typeof Chart == 'undefined') {
-		require(['/vendor/chart.js/chart.min.js'], function(Chart){
-			$('.canvasResizable').each(function(i, e){
-				var heightRatio = $(e).attr('height-ratio');
-				heightRatio = typeof heightRatio == 'undefined' ? 3 : parseInt(heightRatio);
-				heightRatio = isNaN(heightRatio) ? 3 : heightRatio < 1 ? 3 : heightRatio;
-				$(e).attr('width', $(e).parent().width());
-				$(e).attr('height', $(e).parent().width() / heightRatio);
-				$(e).css('width', $(e).parent().width());
-				$(e).css('height', $(e).parent().width() / heightRatio);
-				var data = window[$(e).attr('id') + 'Data'];
-				var options = window[$(e).attr('id') + 'Options'];
-				switch ($(e).attr('chart-type')) {
-					case "Pie":
-					case "pie":
-						new Chart($(e)[0].getContext('2d')).Pie(data, options);
-						break;
-					case "Donut":
-					case "donut":
-						new Chart($(e)[0].getContext('2d')).Pie(data, options);
-						break;
-					case "Line":
-					case "line":
-					default:
-						new Chart($(e)[0].getContext('2d')).Line(data, options);
-						break;
-				}
-			});
-			var Chartjs = Chart.noConflict();
-		});
-	}
+	$('.mi-iframe, .mi-canvas').each(function () {
+		var $this = $(this),
+			heightRatio = $this.attr('height-ratio');
 
-	$('.mcweIFrame').each(function(){
-		var heightRatio = $(this).attr('height-ratio');
 		heightRatio = typeof heightRatio == 'undefined' ? 2 : parseInt(heightRatio);
 		heightRatio = isNaN(heightRatio) ? 2 : heightRatio < 1 ? 2 : heightRatio;
-		$(this).attr('width', $(this).parent().width());
-		$(this).attr('height', $(this).parent().width() / heightRatio);
-		$(this).css('width', $(this).parent().width());
-		$(this).css('height', $(this).parent().width() / heightRatio);
+		$this.attr('width', $this.parent().width());
+		$this.attr('height', $this.parent().width() / heightRatio);
+		$this.css('width', $this.parent().width());
+		$this.css('height', $this.parent().width() / heightRatio);
 	});
 }
 
-$(window).on('action:widgets.loaded', function (event, data) {
-    $('.mi-container').each(function(index){
-		var parent = $(this).parent();
-		if (!$(parent).prop('widget-area')) {
-			$(parent).css('padding-top', '0').css('padding-left', '0').css('padding-right', '0').css('padding-bottom', '0');
-		}
+$(window).on('action:widgets.loaded', function (event) {
+	require(['/vendor/chart.js/chart.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/async/1.0.0/async.min.js'], function (Chart, async) {
+		async.each($('.mi-container'), function (el, next) {
+			var $this = $(el),
+				$parent = $this.parent(),
+				sid = $this.data('sid');
+
+			if (!$parent.prop('widget-area')) {
+				$parent.css('padding-top', '0').css('padding-left', '0').css('padding-right', '0').css('padding-bottom', '0');
+			}
+
+			if (!$this.find('.mi-canvas').length) return next();
+
+			$this.find('.mi-canvas').first().each(function () {
+				var $this = $(this);
+
+				$.get('/api/minecraft-integration/server/' + sid + '/pings/30', function (pings) {
+					if (typeof pings !== 'object') return next();
+
+					var options = {
+						showScale: false,
+						scaleShowGridLines : true,
+						scaleGridLineColor : "rgba(0,0,0,.05)",
+						scaleGridLineWidth : 1,
+						scaleShowHorizontalLines: true,
+						scaleShowVerticalLines: true,
+						bezierCurve : false,
+						bezierCurveTension : 0.4,
+						pointDot : true,
+						pointDotRadius : 2,
+						pointDotStrokeWidth : 1,
+						pointHitDetectionRadius : 4,
+						datasetStroke : true,
+						datasetStrokeWidth : 2,
+						datasetFill : true,
+						scaleBeginAtZero: true,
+						responsive: true,
+						tooltipTemplate: "<%if (label){%><%=label%>: <%}%><%= value %> Players Online"
+					};
+
+					var data = {
+						labels: [ ],
+						datasets: [
+							{
+								label: "",
+								fillColor: "rgba(151,187,205,0.2)",
+								strokeColor: "rgba(151,187,205,1)",
+								pointColor: "rgba(151,187,205,1)",
+								pointStrokeColor: "#fff",
+								pointHighlightFill: "#fff",
+								pointHighlightStroke: "rgba(151,187,205,1)",
+								data: [ ]
+							}
+						]
+					};
+
+					for (var stamp in pings) {
+						data.labels.push(stamp);
+						data.datasets[0].data.push(JSON.parse(pings[stamp].players).length);
+					}
+
+					switch ('line') {
+						case "Pie":
+						case "pie":
+							new Chart($this[0].getContext('2d')).Pie(data, options);
+							break;
+						case "Donut":
+						case "donut":
+							new Chart($this[0].getContext('2d')).Pie(data, options);
+							break;
+						case "Line":
+						case "line":
+						default:
+							new Chart($this[0].getContext('2d')).Line(data, options);
+							break;
+					}
+
+					console.log("done one");
+					next();
+				});
+			});
+		}, function (err) {
+			console.log("resizing");
+			resizeCanvases();
+		});
 	});
-	resizeCanvases();
 
 	$('.mcwe-widget-status, .mcwe-widget-minimap').each(function(){
 		var $widget = $(this);
+
 		$widget.find('h3').css('max-width', '90%');
 		$widget.find('>.panel').prepend('<i style="position:relative;right:6px;top:6px;font-size:22px;" class="fa fa-compass pointer pull-right has-tooltip mcwe-modalmapicon" data-title="Open Map" data-toggle="modal" data-target="#mcwe-modal-'+ $widget.data('mcwe-mid') +'" style="font-size: 20px;"></i>');
 	});

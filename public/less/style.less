@@ -130,13 +130,6 @@
     }
 }
 
-.canvasResizable {
-    width: 100% !important;
-    max-width: 1200px;
-    height: auto !important;
-    display: block;
-}
-
 .mi-container {
     position: relative;
 
@@ -152,6 +145,20 @@
         .td-padded {
             padding-left: 16px;
         }
+    }
+
+    .mi-canvas {
+        width: 100% !important;
+        max-width: 2800px;
+        height: auto !important;
+        display: block;
+    }
+
+    .mi-iframe {
+        border-style: solid;
+        border-width: 2px;
+        border-color: #888;
+        display: block;
     }
 }
 
@@ -170,13 +177,6 @@
     max-height: calc(100%);
     height: calc(~"100% - 60px");
     overflow-y: hidden;
-}
-
-.mcweIFrame {
-    border-style: ridge;
-    border-width: 4px;
-    border-color: #888;
-    display: block;
 }
 
 .mcweModalMap {

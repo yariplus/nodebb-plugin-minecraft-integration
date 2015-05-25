@@ -45,6 +45,12 @@ MinecraftIntegration.load = function (data, next) {
 		});
 	});
 
+	NodeBB.router.get('/api/minecraft-integration/server/:sid/pings/:last', function (req, res, next) {
+		Config.getRecentPings(req.params.sid, req.params.last, function (data) {
+			res.json(data);
+		});
+	});
+
 	NodeBB.SocketAdmin.settings.syncMinecraftIntegration = function(){
 		Config.settings.sync(function(){
 			Config.logSettings();
