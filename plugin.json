@@ -14,12 +14,17 @@
 		{ "hook": "static:app.load", "method": "load" },
 		{ "hook": "filter:widgets.getWidgets", "method": "Hooks.filter.widgets.getWidgets" },
 		{ "hook": "filter:admin.header.build", "method": "Hooks.filter.admin.header.build" },
-		{ "hook": "filter:widget.render:widgetMCDynmapMiniMap",      "method": "Widgets.DynmapMiniMap.render" },
-		{ "hook": "filter:widget.render:widgetMCOnlinePlayersGraph", "method": "Widgets.OnlinePlayersGraph.render" },
-		{ "hook": "filter:widget.render:widgetMCOnlinePlayersGrid",  "method": "Widgets.OnlinePlayersGrid.render" },
-		{ "hook": "filter:widget.render:widgetMCServerStatus",       "method": "Widgets.ServerStatus.render" },
-		{ "hook": "filter:widget.render:widgetMCTopPlayersGraph",    "method": "Widgets.TopPlayersGraph.render" },
-		{ "hook": "filter:widget.render:widgetMCTopPlayersList",     "method": "Widgets.TopPlayersList.render" }
+        { "hook": "filter:widget.render:miChat",         "method": "Widgets.Chat.render" },
+        { "hook": "filter:widget.render:miDirectory",    "method": "Widgets.Directory.render" },
+        { "hook": "filter:widget.render:miGallery",      "method": "Widgets.Gallery.render" },
+		{ "hook": "filter:widget.render:miMap",          "method": "Widgets.Map.render" },
+        { "hook": "filter:widget.render:miPingGraph",    "method": "Widgets.PingGraph.render" },
+		{ "hook": "filter:widget.render:miPlayersGraph", "method": "Widgets.PlayersGraph.render" },
+		{ "hook": "filter:widget.render:miPlayersGrid",  "method": "Widgets.PlayersGrid.render" },
+		{ "hook": "filter:widget.render:miStatus",       "method": "Widgets.Status.render" },
+		{ "hook": "filter:widget.render:miTopGraph",     "method": "Widgets.TopGraph.render" },
+		{ "hook": "filter:widget.render:miTopList",      "method": "Widgets.TopList.render" },
+        { "hook": "filter:widget.render:miTPSGraph",     "method": "Widgets.TPSGraph.render" }
 	],
 	"templates": "./public/templates",
 	"staticDirs": {

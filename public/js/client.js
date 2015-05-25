@@ -291,9 +291,9 @@ $(window).on('action:widgets.adminDataLoaded', function (event, data) {
 
 		if ($heading.parent().is('.ui-sortable-helper') || $(e.target).closest('.delete-widget').length) return;
 
-		console.log("CLICK on " + widget);
 		switch (widget) {
-			case 'widgetMCServerStatus':
+			case 'miStatus':
+			case 'miPlayersGraph':
 				initPanel($panel);
 				break;
 		}
@@ -301,7 +301,8 @@ $(window).on('action:widgets.adminDataLoaded', function (event, data) {
 
 	$('.widget-area >[data-widget]').each(function (i, el) {
 		switch ($(el).data('widget')) {
-			case 'widgetMCServerStatus':
+			case 'miStatus':
+			case 'miPlayersGraph':
 				initPanel($(el));
 				break;
 		}
