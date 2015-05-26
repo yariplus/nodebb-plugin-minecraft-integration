@@ -111,7 +111,7 @@ function resizeCanvases() {
 }
 
 $(window).on('action:widgets.loaded', function (event) {
-	require(['/vendor/chart.js/chart.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/async/1.0.0/async.min.js'], function (Chart, async) {
+	require(['/vendor/chart.js/chart.min.js', __MIDIR + 'js/vendor/async.min.js'], function (Chart, async) {
 		async.each($('.mi-container'), function (el, next) {
 			var $this = $(el),
 				$parent = $this.parent(),
