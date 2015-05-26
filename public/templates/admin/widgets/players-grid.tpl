@@ -1,12 +1,13 @@
 <div class="form-group">
     <label>Server</label>
     <select class="form-control">
-        <!-- BEGIN serverConfigNames -->
-        <option value="{serverConfigNames.serverNumber}">{serverConfigNames.configName}</option>
-        <!-- END serverConfigNames -->
+        <!-- BEGIN servers -->
+        <option value="{servers.sid}">{servers.name}</option>
+        <!-- END servers -->
     </select>
-    <input type="hidden" class="ajaxSelectSibling" name="serverNumber">
+    <input type="hidden" class="ajaxSelectSibling" name="sid">
 </div>
+
 <div class="form-group">
     <div class="checkbox">
         <label>
@@ -14,6 +15,7 @@
         </label>
     </div>
 </div>
+
 <div class="form-group">
     <label>Avatar Border Style</label>
     <select class="form-control">
@@ -28,24 +30,28 @@
     </select>
     <input type="hidden" class="ajaxSelectSibling" name="styleGlory">
 </div>
+
 <div class="form-group">
     <label class="control-label">Avatar Border starting color.</label>
     <div>
         <input type="text" class="form-control ajaxInputColorPicker" name="gloryStart">
     </div>
 </div>
+
 <div class="form-group">
     <label class="control-label">Avatar Border ending color.</label>
     <div>
         <input type="text" class="form-control ajaxInputColorPicker" name="gloryEnd">
     </div>
 </div>
+
 <div class="form-group">
     <label class="control-label">Widget Title Color</label>
     <div>
         <input type="text" class="form-control ajaxInputColorPicker" name="colorTitle">
     </div>
 </div>
+
 <div class="form-group">
     <label class="control-label">MOTD Color</label>
     <div>

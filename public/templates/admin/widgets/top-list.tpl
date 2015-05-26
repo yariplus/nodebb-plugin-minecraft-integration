@@ -1,13 +1,24 @@
-
 <div class="form-group">
     <label>Server</label>
     <select class="form-control">
-        <!-- BEGIN serverConfigNames -->
-        <option value="{serverConfigNames.serverNumber}">{serverConfigNames.configName}</option>
-        <!-- END serverConfigNames -->
+        <!-- BEGIN servers -->
+        <option value="{servers.sid}">{servers.name}</option>
+        <!-- END servers -->
     </select>
-    <input type="hidden" class="ajaxSelectSibling" name="serverNumber">
+    <input type="hidden" class="ajaxSelectSibling" name="sid">
 </div>
+
+<div class="form-group">
+    <label>Statistic</label>
+    <select class="form-control">
+        <option value="online">Online Time</option>
+        <option value="mcmmo">McMMO Stat</option>
+        <option value="money">Vault Money</option>
+        <option value="score">Score</option>
+    </select>
+    <input type="hidden" class="ajaxSelectSibling" name="statistic">
+</div>
+
 <div class="form-group">
     <label>Max&nbsp;Players</label>
     <select class="form-control">
@@ -44,6 +55,7 @@
     </select>
     <input type="hidden" class="ajaxSelectSibling" name="showTopPlayers">
 </div>
+
 <div class="form-group">
     <div class="checkbox">
         <label>
@@ -51,6 +63,7 @@
         </label>
     </div>
 </div>
+
 <div class="form-group">
     <label>Avatar&nbsp;Border&nbsp;Style</label>
     <select class="form-control">
@@ -65,24 +78,28 @@
     </select>
     <input type="hidden" class="ajaxSelectSibling" name="styleGlory">
 </div>
+
 <div class="form-group">
     <label class="control-label">Avatar Border gradient start</label>
     <div>
         <input type="text" class="form-control ajaxInputColorPicker" name="gloryStart">
     </div>
 </div>
+
 <div class="form-group">
     <label class="control-label">Avatar Border gradient end</label>
     <div>
         <input type="text" class="form-control ajaxInputColorPicker" name="gloryEnd">
     </div>
 </div>
+
 <div class="form-group">
     <label class="control-label">Title&nbsp;Color</label>
     <div>
         <input type="text" class="form-control ajaxInputColorPicker" name="colorTitle">
     </div>
 </div>
+
 <div class="form-group">
     <label class="control-label">Text&nbsp;Color</label>
     <div>
