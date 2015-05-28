@@ -33,6 +33,16 @@ MinecraftIntegration.load = function (data, next) {
 	API.init();
 	Sockets.init();
 
+	NodeBB.SocketAdmin.settings.syncMinecraftIntegration = function(){
+		Config.settings.sync(function(){
+			Config.logSettings();
+		});
+	};
+
+	NodeBB.SocketAdmin.settings.resetMinecraftIntegration = function(){
+		Config.settings.reset(Config.logSettings);
+	};
+
 	setTimeout(Config.logSettings, 1500);
 	setTimeout(Backend.updateServers, 2000);
 
