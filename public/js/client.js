@@ -4,8 +4,8 @@ __MIDIR = "/plugins/nodebb-plugin-minecraft-integration/public/";
 
 MinecraftIntegration = { };
 
-socket.on('mi.ping', function (data) {
-	console.log("PING: ", data);
+socket.on('mi.status', function (data) {
+	console.log("Received status update: ", data);
 
 	// Update Players
 	console.log('Getting avatar template');
@@ -52,6 +52,10 @@ socket.on('mi.ping', function (data) {
 			}
 		});
 	});
+});
+
+socket.on('mi.ping', function (ping) {
+	console.log("Received server ping: ", ping);
 });
 
 define('admin/plugins/minecraft-integration', function () {
