@@ -12,14 +12,14 @@ MinecraftIntegration.getTemplate = function (template, callback) {
 
 MinecraftIntegration.getTemplates = function (templates, callback) {
 	require([MinecraftIntegration.__MIDIR + 'js/vendor/async.min.js'], function (async) {
-		async.map(templates, function (templates, next) {
+		async.map(templates, function (template, next) {
 			if (MinecraftIntegration.templates[template]) {
 				next(null, MinecraftIntegration.templates[template]);
 			}else{
 				$.get(MinecraftIntegration.__MIDIR + "/templates/" + template + "?v=" + config['cache-buster'], function(data) {
 					MinecraftIntegration.templates[template] = data;
 					next(null, data);
-				}
+				});
 			}
 		}, function (err, payload) {
 			callback(payload);

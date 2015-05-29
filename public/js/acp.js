@@ -1,6 +1,6 @@
 "use strict";
 
-define(['settings', 'translator', __MIDIR + "js/vendor/validator.min.js"], function (settings, translator, validator) {
+define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/validator.min.js"], function (settings, translator, validator) {
 	var miACP = { },
 		$form, $serverList, $modal, $modalBody, $serverTemplate, $modalTemplate;
 
@@ -215,7 +215,7 @@ define(['settings', 'translator', __MIDIR + "js/vendor/validator.min.js"], funct
 				console.log('Error getting values:', err);
 			} else {
 				console.log('MI: settings recieved');
-				$.get(__MIDIR + '/templates/admin/plugins/server.tpl' + "?v=" + config['cache-buster'], function(data) {
+				$.get(MinecraftIntegration.__MIDIR + '/templates/admin/plugins/server.tpl' + "?v=" + config['cache-buster'], function(data) {
 					translator.translate(data, function (translatedTemplate) {
 						$serverTemplate = $($.parseHTML(translatedTemplate));
 						$modalTemplate = $($.parseHTML('<div><span></span> <a class="mia-toggle-activation pointer">Activate/Deactivate</a> <a class="mia-purge pointer">Purge</a></div>'));
