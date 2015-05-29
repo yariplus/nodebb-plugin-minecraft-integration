@@ -1,8 +1,31 @@
 "use strict";
 
-__MIDIR = "/plugins/nodebb-plugin-minecraft-integration/public/";
+MinecraftIntegration = { templates: { } };
 
-MinecraftIntegration = { };
+MinecraftIntegration.__MIDIR = "/plugins/nodebb-plugin-minecraft-integration/public/";
+
+MinecraftIntegration.getTemplate = function (template, callback) {
+	MinecraftIntegration.getTemplates([template], function (templates) {
+		callback(templates[0]);
+	});
+};
+
+MinecraftIntegration.getTemplates = function (templates, callback) {
+	require([MinecraftIntegration.__MIDIR + 'js/vendor/async.min.js'], function (async) {
+		async.map(templates, function (templates, next) {
+			if (MinecraftIntegration.templates[template]) {
+				next(null, MinecraftIntegration.templates[template]);
+			}else{
+				$.get(MinecraftIntegration.__MIDIR + "/templates/" + template + "?v=" + config['cache-buster'], function(data) {
+					MinecraftIntegration.templates[template] = data;
+					next(null, data);
+				}
+			}
+		}, function (err, payload) {
+			callback(payload);
+		});
+	});
+};
 
 socket.on('mi.PlayerJoin', function (player) {
 	console.log("I saw " + player.name + " " + player.id + " joined the server.");
@@ -17,7 +40,7 @@ socket.on('mi.status', function (data) {
 
 	// Update Players
 	console.log('Getting avatar template');
-	$.get(__MIDIR + '/templates/partials/playerAvatars.tpl' + "?v=" + config['cache-buster'], function(avatarTemplate) {
+	MinecraftIntegration.getTemplate('partials/playerAvatars.tpl', function (template) {
 		console.log('Got avatar template');
 		$('[data-widget="mi-status"][data-sid="' + data.sid + '"]').each(function(i, $widget){
 			console.log('Found Widget');
@@ -68,7 +91,7 @@ socket.on('mi.ping', function (ping) {
 
 define('admin/plugins/minecraft-integration', function () {
 	MinecraftIntegration.init = function () {
-		require([__MIDIR + 'js/acp.js'], function (miACP) {
+		require([MinecraftIntegration.__MIDIR + 'js/acp.js'], function (miACP) {
 			miACP.load();
 		});
 	};
@@ -123,7 +146,7 @@ function resizeCanvases() {
 }
 
 $(window).on('action:widgets.loaded', function (event) {
-	require(['/vendor/chart.js/chart.min.js', __MIDIR + 'js/vendor/async.min.js'], function (Chart, async) {
+	require(['/vendor/chart.js/chart.min.js', MinecraftIntegration.__MIDIR + 'js/vendor/async.min.js'], function (Chart, async) {
 		async.each($('.mi-container'), function (el, next) {
 			var $this = $(el),
 				$parent = $this.parent(),
