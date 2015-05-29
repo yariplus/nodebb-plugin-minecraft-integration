@@ -4,6 +4,14 @@ __MIDIR = "/plugins/nodebb-plugin-minecraft-integration/public/";
 
 MinecraftIntegration = { };
 
+socket.on('mi.PlayerJoin', function (player) {
+	console.log("I saw " + player.name + " " + player.id + " joined the server.");
+});
+
+socket.on('mi.PlayerQuit', function (player) {
+	console.log("I saw " + player.name + " " + player.id + " quit the server.");
+});
+
 socket.on('mi.status', function (data) {
 	console.log("Received status update: ", data);
 
