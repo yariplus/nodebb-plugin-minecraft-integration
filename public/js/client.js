@@ -5,8 +5,8 @@ MinecraftIntegration = { templates: { } };
 MinecraftIntegration.__MIDIR = "/plugins/nodebb-plugin-minecraft-integration/public/";
 
 MinecraftIntegration.getTemplate = function (template, callback) {
-	MinecraftIntegration.getTemplates([template], function (templates) {
-		callback(templates[0]);
+	MinecraftIntegration.getTemplates([template], function (err, templates) {
+		callback(null, templates[0]);
 	});
 };
 
@@ -16,77 +16,192 @@ MinecraftIntegration.getTemplates = function (templates, callback) {
 			if (MinecraftIntegration.templates[template]) {
 				next(null, MinecraftIntegration.templates[template]);
 			}else{
-				$.get(MinecraftIntegration.__MIDIR + "/templates/" + template + "?v=" + config['cache-buster'], function(data) {
+				$.get(MinecraftIntegration.__MIDIR + "templates/" + template + "?v=" + config['cache-buster'], function(data) {
 					MinecraftIntegration.templates[template] = data;
 					next(null, data);
 				});
 			}
 		}, function (err, payload) {
-			callback(payload);
+			callback(null, payload);
 		});
 	});
 };
 
-socket.on('mi.PlayerJoin', function (player) {
-	console.log("I saw " + player.name + " " + player.id + " joined the server.");
-});
+MinecraftIntegration.API = { _: { } };
 
-socket.on('mi.PlayerQuit', function (player) {
-	console.log("I saw " + player.name + " " + player.id + " quit the server.");
-});
+MinecraftIntegration.API.get = function (url, callback) {
+	if (MinecraftIntegration.API._[url]) {
+		callback(null, MinecraftIntegration.API._[url]);
+	}else{
+		$.get("/api/minecraft-integration/" + url + "?v=" + config['cache-buster'], function (data) {
+			MinecraftIntegration.API._[url] = data;
+			callback(null, data);
+		});
+	}
+};
 
-socket.on('mi.status', function (data) {
-	console.log("Received status update: ", data);
+MinecraftIntegration.setPlayers = function (data) {
+	if (!(data && data.sid !== void 0 && Array.isArray(data.players))) return;
 
-	// Update Players
-	console.log('Getting avatar template');
-	MinecraftIntegration.getTemplate('partials/playerAvatars.tpl', function (template) {
-		console.log('Got avatar template');
-		$('[data-widget="mi-status"][data-sid="' + data.sid + '"]').each(function(i, $widget){
-			console.log('Found Widget');
-			$widget = $($widget);
-			if (data.players) {
-				try {
-					data.players = JSON.parse(data.players);
-					var _players = [ ];
+	require([MinecraftIntegration.__MIDIR + 'js/vendor/async.min.js'], function (async) {
+		async.parallel({
+			avatarUrl: async.apply(MinecraftIntegration.API.get, "avatar"),
+			avatarSize: async.apply(MinecraftIntegration.API.get, "avatar/size"),
+			avatarTemplate: async.apply(MinecraftIntegration.getTemplate, "partials/playerAvatars.tpl")
+		}, function (err, results) {
+			results.avatarTemplate = results.avatarTemplate.replace("{url}", results.avatarUrl.replace("{size}", results.avatarSize));
+
+			async.each($('[data-widget="mi-status"][data-sid="' + data.sid + '"]'), function ($widget, next) {
+				$widget = $($widget);
+
+				// Remove players no longer on the server.
+				$widget.find('.mi-avatar').each(function (i, el) {
+					var $avatar = $(el);
+
 					for (var i in data.players) {
-						if (data.players[i] && typeof data.players[i] === 'object' && data.players[i].name) {
-							_players.push(data.players[i].name);
+						if (data.players[i].id && data.players[i].name) {
+							if ($avatar.data('id') === data.players[i].id) return;
 						}
 					}
-					data.players = _players;
-				}catch (e){
-					data.players = [ ];
+
+					$avatar.fadeToggle(600, 'linear', function () {
+						$avatar.remove();
+					});
+				});
+
+				// Add players now on the server.
+				for (var i in data.players) {
+					var found = false;
+
+					$widget.find('.mi-avatar').each(function (i, el) {
+						var $avatar = $(el);
+
+						if ($avatar.data('id') === data.players[i].id) found = true;
+					});
+
+					if (!found) {
+						var $avatar = $($.parseHTML(results.avatarTemplate.replace("{name}", data.players[i].name).replace("{styleGlory}", "double").replace("{players.glory}", "pink").replace("{players.name}", data.players[i].name)));
+						$avatar.css("display", "none");
+						$avatar.data('id', data.players[i].id);
+						$avatar.appendTo($widget.find('.avatars'));
+						$avatar.fadeToggle(600, 'linear');
+						console.log("Adding from set");
+					}
 				}
 
-				console.log('Found Players');
+				next();
+			}, function (err) {
+				$('.tooltip').each(function (i, el) {
+					$(this).remove();
+				});
+			});
+		});
+	});
+};
+
+MinecraftIntegration.addPlayer = function (data) {
+	require([MinecraftIntegration.__MIDIR + 'js/vendor/async.min.js'], function (async) {
+		async.parallel({
+			avatarUrl: async.apply(MinecraftIntegration.API.get, "avatar"),
+			avatarSize: async.apply(MinecraftIntegration.API.get, "avatar/size"),
+			avatarTemplate: async.apply(MinecraftIntegration.getTemplate, "partials/playerAvatars.tpl")
+		}, function (err, results) {
+			results.avatarTemplate = results.avatarTemplate.replace("{url}", results.avatarUrl.replace("{size}", results.avatarSize));
+
+			async.each($('[data-widget="mi-status"][data-sid="' + data.sid + '"]'), function ($widget, next) {
+				$widget = $($widget);
+
+				console.log("Found Widget");
+
+				// Add player now on the server.
+				var found = false;
+
 				$widget.find('.mi-avatar').each(function (i, el) {
-					console.log('Found Player: ' + $(el).data('original-title'));
-					if (data.players.indexOf($(el).data('original-title')) < 0) {
-						$(el).fadeToggle(600, 'linear', function () {
-							$(el).remove();
-							$('.tooltip').each(function (i, el) {
-								$(this).remove();
-							});
-						});
+					var $avatar = $(el);
+
+					if ($avatar.data('id') === data.player.id) {
+						console.log("Found Player");
+						found = true;
 					}
 				});
 
-				for (var i in data.players) {
-					if (!$widget.find('.mi-avatar[data-original-title="' + data.players[i] + '"]').length) {
-						// Temp
-						var $avatar = $($.parseHTML('<img src="http://cravatar.eu/avatar/{player}/32" class="mi-avatar user-img" style="margin-bottom:5px;margin-right:5px;display:none;border-style:double;border-width:6px;border-radius:4px;border-color:black;" data-original-title="{player}"/>'.replace(/\{player\}/g, data.players[i])));
-						$avatar.appendTo($widget.find('.avatars'));
-						$avatar.fadeToggle(600, 'linear');
-					}
+				if (!found) {
+					console.log("Adding Player");
+					var $avatar = $($.parseHTML(results.avatarTemplate.replace("{name}", data.player.name).replace("{styleGlory}", "double").replace("{players.glory}", "pink").replace("{players.name}", data.player.name)));
+					$avatar.css("display", "none");
+					$avatar.data('id', data.player.id);
+					$avatar.appendTo($widget.find('.avatars'));
+					$avatar.fadeToggle(600, 'linear');
+					console.log("Adding from ping");
 				}
-			}
+
+				next();
+			}, function (err) {
+				$('.tooltip').each(function (i, el) {
+					$(this).remove();
+				});
+			});
 		});
 	});
+};
+
+MinecraftIntegration.removePlayer = function (data) {
+	require([MinecraftIntegration.__MIDIR + 'js/vendor/async.min.js'], function (async) {
+		async.parallel({
+			avatarUrl: async.apply(MinecraftIntegration.API.get, "avatar"),
+			avatarSize: async.apply(MinecraftIntegration.API.get, "avatar/size"),
+			avatarTemplate: async.apply(MinecraftIntegration.getTemplate, "partials/playerAvatars.tpl")
+		}, function (err, results) {
+			results.avatarTemplate = results.avatarTemplate.replace("{url}", results.avatarUrl.replace("{size}", results.avatarSize));
+
+			async.each($('[data-widget="mi-status"][data-sid="' + data.sid + '"]'), function ($widget, next) {
+				$widget = $($widget);
+
+				// Remove players no longer on the server.
+				$widget.find('.mi-avatar').each(function (i, el) {
+					var $avatar = $(el);
+
+					for (var i in data.players) {
+						if (data.players[i].id && data.players[i].name) {
+							if ($avatar.data('id') === data.players[i].id) return;
+						}
+					}
+
+					$avatar.fadeToggle(600, 'linear', function () {
+						$avatar.remove();
+					});
+				});
+
+				next();
+			}, function (err) {
+				$('.tooltip').each(function (i, el) {
+					$(this).remove();
+				});
+			});
+		});
+	});
+};
+
+socket.on('mi.PlayerJoin', function (data) {
+	console.log("[Minecraft Integration] I saw " + data.player.name + " " + data.player.id + " joined the server.");
+
+	MinecraftIntegration.addPlayer(data);
+});
+
+socket.on('mi.PlayerQuit', function (data) {
+	console.log("[Minecraft Integration] I saw " + data.player.name + " " + data.player.id + " quit the server.");
+
+	MinecraftIntegration.removePlayer(data);
+});
+
+socket.on('mi.status', function (data) {
+	console.log("[Minecraft Integration] Received status update: ", data);
+
+	MinecraftIntegration.setPlayers(data);
 });
 
 socket.on('mi.ping', function (ping) {
-	console.log("Received server ping: ", ping);
+	console.log("[Minecraft Integration] Received server ping: ", ping);
 });
 
 define('admin/plugins/minecraft-integration', function () {
@@ -221,13 +336,11 @@ $(window).on('action:widgets.loaded', function (event) {
 							new Chart($this[0].getContext('2d')).Line(data, options);
 							break;
 					}
-
-					console.log("done one");
 					next();
 				});
 			});
 		}, function (err) {
-			console.log("resizing");
+			console.log("[Minecraft Integration] Resizing widgets.");
 			resizeCanvases();
 		});
 	});
@@ -237,6 +350,12 @@ $(window).on('action:widgets.loaded', function (event) {
 
 		$widget.find('h3').css('max-width', '90%');
 		$widget.find('>.panel').prepend('<i style="position:relative;right:6px;top:6px;font-size:22px;" class="fa fa-compass pointer pull-right has-tooltip mcwe-modalmapicon" data-title="Open Map" data-toggle="modal" data-target="#mcwe-modal-'+ $widget.data('mcwe-mid') +'" style="font-size: 20px;"></i>');
+	});
+
+	MinecraftIntegration.API.get('server/0', function (err, status) {
+		status.sid = "0";
+		status.players = JSON.parse(status.players);
+		MinecraftIntegration.setPlayers(status);
 	});
 });
 

@@ -31,6 +31,7 @@ MinecraftIntegration.load = function (data, next) {
 
 	NodeBB.init();
 	API.init();
+	Views.init();
 
 	NodeBB.SocketAdmin.settings.syncMinecraftIntegration = function(){
 		Config.settings.sync(function(){

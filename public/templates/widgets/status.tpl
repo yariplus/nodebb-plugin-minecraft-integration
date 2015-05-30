@@ -132,9 +132,6 @@
                     </span>
                 </td>
                 <td class="avatars">
-                    <!-- BEGIN players -->
-                    <!-- IMPORT partials/playerAvatars.tpl -->
-                    <!-- END players -->
                 </td>
             </tr>
             <!-- ENDIF showAvatars -->
