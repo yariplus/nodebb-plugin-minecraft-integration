@@ -354,7 +354,14 @@ $(window).on('action:widgets.loaded', function (event) {
 
 	MinecraftIntegration.API.get('server/0', function (err, status) {
 		status.sid = "0";
-		status.players = JSON.parse(status.players);
+		if (typeof status.players === 'string') {
+			try {
+				status.players = JSON.parse(status.players);
+			}catch(e){
+				console.log("[Minecraft Integration] Error parsing players: ", e);
+				status.players = [ ];
+			}
+		}
 		MinecraftIntegration.setPlayers(status);
 	});
 });
