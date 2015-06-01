@@ -1,5 +1,1 @@
-<span<!-- IF colorText --> style="color:#{colorText}"<!-- ENDIF colorText -->>
-    <!-- BEGIN players -->
-    <!-- IMPORT partials/playerAvatars.tpl -->
-    <!-- END players -->
-</span>
+<div class="mi-container" data-widget="mi-players-grid" data-sid="{sid}"><div class="avatars"></div></div>

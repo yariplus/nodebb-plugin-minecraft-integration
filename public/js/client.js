@@ -51,7 +51,7 @@ MinecraftIntegration.setPlayers = function (data) {
 		}, function (err, results) {
 			results.avatarTemplate = results.avatarTemplate.replace("{url}", results.avatarUrl.replace("{size}", results.avatarSize));
 
-			async.each($('[data-widget="mi-status"][data-sid="' + data.sid + '"]'), function ($widget, next) {
+			async.each($('[data-widget="mi-status"][data-sid="' + data.sid + '"], [data-widget="mi-players-grid"][data-sid="' + data.sid + '"]'), function ($widget, next) {
 				$widget = $($widget);
 
 				// Remove players no longer on the server.
@@ -108,7 +108,7 @@ MinecraftIntegration.addPlayer = function (data) {
 		}, function (err, results) {
 			results.avatarTemplate = results.avatarTemplate.replace("{url}", results.avatarUrl.replace("{size}", results.avatarSize));
 
-			async.each($('[data-widget="mi-status"][data-sid="' + data.sid + '"]'), function ($widget, next) {
+			async.each($('[data-widget="mi-status"][data-sid="' + data.sid + '"], [data-widget="mi-players-grid"][data-sid="' + data.sid + '"]'), function ($widget, next) {
 				$widget = $($widget);
 
 				console.log("Found Widget");
@@ -154,7 +154,7 @@ MinecraftIntegration.removePlayer = function (data) {
 		}, function (err, results) {
 			results.avatarTemplate = results.avatarTemplate.replace("{url}", results.avatarUrl.replace("{size}", results.avatarSize));
 
-			async.each($('[data-widget="mi-status"][data-sid="' + data.sid + '"]'), function ($widget, next) {
+			async.each($('[data-widget="mi-status"][data-sid="' + data.sid + '"], [data-widget="mi-players-grid"][data-sid="' + data.sid + '"]'), function ($widget, next) {
 				$widget = $($widget);
 
 				// Remove players no longer on the server.
@@ -503,6 +503,7 @@ $(window).on('action:widgets.adminDataLoaded', function (event, data) {
 		switch (widget) {
 			case 'miStatus':
 			case 'miPlayersGraph':
+			case 'miPlayersGrid':
 				initPanel($panel);
 				break;
 		}
@@ -512,6 +513,7 @@ $(window).on('action:widgets.adminDataLoaded', function (event, data) {
 		switch ($(el).data('widget')) {
 			case 'miStatus':
 			case 'miPlayersGraph':
+			case 'miPlayersGrid':
 				initPanel($(el));
 				break;
 		}
