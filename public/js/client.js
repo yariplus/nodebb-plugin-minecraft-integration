@@ -267,7 +267,7 @@ $(window).on('action:widgets.loaded', function (event) {
 				$parent = $this.parent(),
 				sid = $this.data('sid');
 
-			if (!$parent.prop('widget-area')) {
+			if (!$parent.is('[widget-area]')) {
 				$parent.css('padding-top', '0').css('padding-left', '0').css('padding-right', '0').css('padding-bottom', '0');
 			}
 
@@ -501,6 +501,7 @@ $(window).on('action:widgets.adminDataLoaded', function (event, data) {
 		if ($heading.parent().is('.ui-sortable-helper') || $(e.target).closest('.delete-widget').length) return;
 
 		switch (widget) {
+			case 'miMap':
 			case 'miStatus':
 			case 'miPlayersGraph':
 			case 'miPlayersGrid':
@@ -511,6 +512,7 @@ $(window).on('action:widgets.adminDataLoaded', function (event, data) {
 
 	$('.widget-area >[data-widget]').each(function (i, el) {
 		switch ($(el).data('widget')) {
+			case 'miMap':
 			case 'miStatus':
 			case 'miPlayersGraph':
 			case 'miPlayersGrid':

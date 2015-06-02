@@ -26,7 +26,7 @@
 </div>
 
 <div class="form-group">
-    <label class="control-label">Map URI</label>
+    <label class="control-label">Map Address</label>
     <input type="text" class="form-control" name="uri" placeholder="http://localhost:8123/">
 </div>
 
@@ -46,17 +46,28 @@
 
 <div class="form-group">
     <label class="control-label">X Coordinate</label>
-    <input class="form-control" type="text" name="X" placeholder="0">
+    <input class="form-control" type="text" name="x" placeholder="0">
 </div>
 
 <div class="form-group">
     <label class="control-label">Z Coordinate</label>
-    <input class="form-control" type="text" name="Z" placeholder="0">
+    <input class="form-control" type="text" name="z" placeholder="0">
 </div>
 
 <div class="form-group">
-    <label class="control-label">Title&nbsp;Color</label>
-    <div>
-        <input type="text" class="form-control ajaxInputColorPicker" name="colorTitle">
-    </div>
+	<div class="checkbox">
+		<label>
+			<input type="checkbox" name="parseFormatCodes" checked>Parse format codes in Server Name and MOTD?
+		</label>
+	</div>
+</div>
+
+<div class="form-group">
+	<label class="control-label">Title&nbsp;Color</label>
+	<input type="text" class="form-control ajaxInputColorPicker" name="colorTitle" preview=".panel-heading">
+</div>
+
+<div class="form-group">
+	<label class="control-label">MOTD Color</label>
+	<input type="text" class="form-control ajaxInputColorPicker" name="colorMOTD" preview=".mcWidgetMOTD">
 </div>

@@ -1,6 +1,3 @@
-<div class="mi-container">
-    <iframe class="mi-iframe" src="{minimapURI}" height-ratio="2">Your browser does not support the iframe tag.</iframe>
-    <!-- IF mapURI -->
-    <!-- IMPORT partials/modalMap.tpl -->
-    <!-- ENDIF mapURI -->
+<div class="mi-container" data-widget="mi-map" data-sid="{sid}">
+    <iframe class="mi-iframe" src="{uri}" height-ratio="2"></iframe>
 </div>
