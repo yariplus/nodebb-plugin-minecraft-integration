@@ -273,7 +273,7 @@ $(window).on('action:widgets.loaded', function (event) {
 
 			if (!$this.find('.mi-canvas').length) return next();
 
-			$this.find('.mi-canvas').first().each(function () {
+			$this.find('.mi-canvas').each(function () {
 				var $this = $(this);
 
 				$.get('/api/minecraft-integration/server/' + sid + '/pings/30', function (pings) {
@@ -317,8 +317,9 @@ $(window).on('action:widgets.loaded', function (event) {
 					};
 
 					for (var stamp in pings) {
-						data.labels.push(stamp);
-						data.datasets[0].data.push(JSON.parse(pings[stamp].players).length);
+						var date = new Date(parseInt(stamp,10));
+						data.labels.unshift(date.getHours() + ":" + date.getMinutes());
+						data.datasets[0].data.unshift(JSON.parse(pings[stamp].players).length);
 					}
 
 					switch ('line') {
