@@ -286,6 +286,10 @@ $(window).on('action:widgets.loaded', function (event) {
 						scaleGridLineWidth : 1,
 						scaleShowHorizontalLines: true,
 						scaleShowVerticalLines: true,
+						scaleOverride : true,
+						scaleSteps : 3,
+						scaleStepWidth : 1,
+						scaleStartValue : -1,
 						bezierCurve : false,
 						bezierCurveTension : 0.4,
 						pointDot : true,
@@ -297,7 +301,8 @@ $(window).on('action:widgets.loaded', function (event) {
 						datasetFill : true,
 						scaleBeginAtZero: true,
 						responsive: true,
-						tooltipTemplate: "<%if (label){%><%=label%>: <%}%><%= value %> Players Online"
+						tooltipTemplate: "<%if (label){%><%=label%>: <%}%><%= value %> Players Online",
+						backgroundColor: "#ffffff"
 					};
 
 					var data = {
@@ -305,7 +310,7 @@ $(window).on('action:widgets.loaded', function (event) {
 						datasets: [
 							{
 								label: "",
-								fillColor: "rgba(151,187,205,0.2)",
+								fillColor: "rgba(151,187,205,1)",
 								strokeColor: "rgba(151,187,205,1)",
 								pointColor: "rgba(151,187,205,1)",
 								pointStrokeColor: "#fff",
@@ -322,6 +327,7 @@ $(window).on('action:widgets.loaded', function (event) {
 						data.datasets[0].data.unshift(JSON.parse(pings[stamp].players).length);
 					}
 
+					console.log("saw ", data.labels, " and ", data.datasets[0].data);
 					switch ('line') {
 						case "Pie":
 						case "pie":
@@ -502,10 +508,17 @@ $(window).on('action:widgets.adminDataLoaded', function (event, data) {
 		if ($heading.parent().is('.ui-sortable-helper') || $(e.target).closest('.delete-widget').length) return;
 
 		switch (widget) {
-			case 'miMap':
-			case 'miStatus':
-			case 'miPlayersGraph':
-			case 'miPlayersGrid':
+			case 'mi-chat':
+			case 'mi-directory':
+			case 'mi-gallery':
+			case 'mi-map':
+			case 'mi-ping-graph':
+			case 'mi-players-graph':
+			case 'mi-players-grid':
+			case 'mi-status':
+			case 'mi-top-graph':
+			case 'mi-top-list':
+			case 'mi-tps-graph':
 				initPanel($panel);
 				break;
 		}
@@ -513,10 +526,17 @@ $(window).on('action:widgets.adminDataLoaded', function (event, data) {
 
 	$('.widget-area >[data-widget]').each(function (i, el) {
 		switch ($(el).data('widget')) {
-			case 'miMap':
-			case 'miStatus':
-			case 'miPlayersGraph':
-			case 'miPlayersGrid':
+			case 'mi-chat':
+			case 'mi-directory':
+			case 'mi-gallery':
+			case 'mi-map':
+			case 'mi-ping-graph':
+			case 'mi-players-graph':
+			case 'mi-players-grid':
+			case 'mi-status':
+			case 'mi-top-graph':
+			case 'mi-top-list':
+			case 'mi-tps-graph':
 				initPanel($(el));
 				break;
 		}

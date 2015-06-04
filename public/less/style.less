@@ -81,17 +81,17 @@
 }
 
 .admin {
-    .panel[data-widget="miChat"],
-    .panel[data-widget="miDirectory"],
-    .panel[data-widget="miGallery"],
-    .panel[data-widget="miMap"],
-    .panel[data-widget="miPingGraph"],
-    .panel[data-widget="miPlayersGraph"],
-    .panel[data-widget="miPlayersGrid"],
-    .panel[data-widget="miStatus"],
-    .panel[data-widget="miTopGraph"],
-    .panel[data-widget="miTopList"],
-    .panel[data-widget="miTPSGraph"] {
+    .panel[data-widget="mi-chat"],
+    .panel[data-widget="mi-directory"],
+    .panel[data-widget="mi-gallery"],
+    .panel[data-widget="mi-map"],
+    .panel[data-widget="mi-ping-graph"],
+    .panel[data-widget="mi-players-graph"],
+    .panel[data-widget="mi-players-grid"],
+    .panel[data-widget="mi-status"],
+    .panel[data-widget="mi-top-graph"],
+    .panel[data-widget="mi-top-list"],
+    .panel[data-widget="mi-tps-graph"] {
         > .panel-heading {
             background-color: #24B32D;
             color: #fff;
@@ -160,6 +160,13 @@
         border-color: #888;
         display: block;
     }
+
+	&[data-widget="mi-players-graph"],
+	&[data-widget="mi-ping-graph"],
+	&[data-widget="mi-top-graph"],
+	&[data-widget="mi-tps-graph"], {
+		background-color: #ffffff;
+	}
 }
 
 .mcwe-modal .mcwe-modal-dialog {

@@ -21,3 +21,11 @@
         <input type="text" class="form-control ajaxInputColorPicker" name="colorMOTD">
     </div>
 </div>
+
+<div class="form-group">
+	<div class="checkbox">
+		<label>
+			<input type="checkbox" name="parseFormatCodes" checked>Parse format codes in Server Name and MOTD?
+		</label>
+	</div>
+</div>
