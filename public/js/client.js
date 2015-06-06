@@ -336,7 +336,7 @@ $(window).on('action:widgets.loaded', function (event) {
 					for (var stamp in pings) {
 						var date = new Date(parseInt(stamp,10));
 						data.labels.unshift(date.getHours() + ":" + date.getMinutes());
-						data.datasets[0].data.unshift(JSON.parse(pings[stamp].players).length);
+						data.datasets[0].data.unshift(pings[stamp].players.length);
 					}
 
 					console.log("saw ", data.labels, " and ", data.datasets[0].data);
@@ -376,14 +376,6 @@ $(window).on('action:widgets.loaded', function (event) {
 
 		MinecraftIntegration.API.get('server/' + sid, function (err, status) {
 			status.sid = sid;
-			if (typeof status.players === 'string') {
-				try {
-					status.players = JSON.parse(status.players);
-				}catch(e){
-					console.log("[Minecraft Integration] Error parsing players: ", e);
-					status.players = [ ];
-				}
-			}
 			MinecraftIntegration.setPlayers(status);
 		});
 	}
