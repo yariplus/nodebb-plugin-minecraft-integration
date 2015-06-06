@@ -35,7 +35,7 @@
                 <td>
                     <span<!-- IF colorText --> style="color:#{colorText}"<!-- ENDIF colorText -->>
                     <!-- IF isServerOnline -->
-                        <a class="fa fa-check-circle text-success has-tooltip" data-placement="top" data-title="Pinged server at {serverIP}:{serverPort}"></a>&nbsp;<strong><span class="text-success">Online</span></strong><!-- IF showPlayerCount -->&nbsp;({onlinePlayers}/{maxPlayers})<!-- ENDIF showPlayerCount -->
+                        <a class="fa fa-check-circle text-success has-tooltip" data-placement="top" data-title="Pinged server at {serverIP}:{serverPort}"></a>&nbsp;<strong><span class="text-success">Online</span></strong><!-- IF showPlayerCount -->&nbsp;(<span class="online-players">{onlinePlayers}</span>/<span class="max-players">{maxPlayers}</span>)<!-- ENDIF showPlayerCount -->
                     <!-- ENDIF isServerOnline -->
                     <!-- IF isServerOffline -->
                         <a class="fa fa-exclamation-circle text-danger has-tooltip" data-placement="top" data-title="Pinged server at {serverIP}:{serverPort}"></a>&nbsp;<strong><span class="text-danger">Offline</span></strong>

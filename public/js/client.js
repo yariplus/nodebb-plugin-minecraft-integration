@@ -89,6 +89,8 @@ MinecraftIntegration.setPlayers = function (data) {
 					}
 				}
 
+				$widget.find(".online-players").text(data.players.length);
+
 				next();
 			}, function (err) {
 				$('.tooltip').each(function (i, el) {
@@ -135,6 +137,8 @@ MinecraftIntegration.addPlayer = function (data) {
 					console.log("Adding from ping");
 				}
 
+				$widget.find(".online-players").text(parseInt($widget.find(".online-players").text(), 10) + 1);
+
 				next();
 			}, function (err) {
 				$('.tooltip').each(function (i, el) {
@@ -171,6 +175,8 @@ MinecraftIntegration.removePlayer = function (data) {
 						$avatar.remove();
 					});
 				});
+
+				$widget.find(".online-players").text(parseInt($widget.find(".online-players").text(), 10) - 1);
 
 				next();
 			}, function (err) {
