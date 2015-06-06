@@ -267,11 +267,17 @@ function resizeCanvases() {
 }
 
 $(window).on('action:widgets.loaded', function (event) {
+	var sids = [ ];
+
 	require(['/vendor/chart.js/chart.min.js', MinecraftIntegration.__MIDIR + 'js/vendor/async.min.js'], function (Chart, async) {
 		async.each($('.mi-container'), function (el, next) {
 			var $this = $(el),
 				$parent = $this.parent(),
 				sid = $this.data('sid');
+
+			if (sids.indexOf(sid) < 0) {
+				sids.push(sid);
+			}
 
 			if (!$parent.is('[widget-area]')) {
 				$parent.css('padding-top', '0').css('padding-left', '0').css('padding-right', '0').css('padding-bottom', '0');
@@ -365,18 +371,22 @@ $(window).on('action:widgets.loaded', function (event) {
 		$widget.find('>.panel').prepend('<i style="position:relative;right:6px;top:6px;font-size:22px;" class="fa fa-compass pointer pull-right has-tooltip mcwe-modalmapicon" data-title="Open Map" data-toggle="modal" data-target="#mcwe-modal-'+ $widget.data('mcwe-mid') +'" style="font-size: 20px;"></i>');
 	});
 
-	MinecraftIntegration.API.get('server/0', function (err, status) {
-		status.sid = "0";
-		if (typeof status.players === 'string') {
-			try {
-				status.players = JSON.parse(status.players);
-			}catch(e){
-				console.log("[Minecraft Integration] Error parsing players: ", e);
-				status.players = [ ];
+	for (var i = 0; i < sids.length; i++) {
+		var sid = sids[i];
+
+		MinecraftIntegration.API.get('server/' + sid, function (err, status) {
+			status.sid = sid;
+			if (typeof status.players === 'string') {
+				try {
+					status.players = JSON.parse(status.players);
+				}catch(e){
+					console.log("[Minecraft Integration] Error parsing players: ", e);
+					status.players = [ ];
+				}
 			}
-		}
-		MinecraftIntegration.setPlayers(status);
-	});
+			MinecraftIntegration.setPlayers(status);
+		});
+	}
 });
 
 var miIDcounter = 1;
