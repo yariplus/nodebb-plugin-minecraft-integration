@@ -269,6 +269,8 @@ function resizeCanvases() {
 $(window).on('action:widgets.loaded', function (event) {
 	var sids = [ ];
 
+	resizeCanvases();
+
 	require(['/vendor/chart.js/chart.min.js', MinecraftIntegration.__MIDIR + 'js/vendor/async.min.js'], function (Chart, async) {
 		async.each($('.mi-container'), function (el, next) {
 			var $this = $(el),
@@ -291,6 +293,8 @@ $(window).on('action:widgets.loaded', function (event) {
 				$.get('/api/minecraft-integration/server/' + sid + '/pings/30', function (pings) {
 					if (typeof pings !== 'object') return next();
 
+					var scaleMax = 10, date, hours, minutes, meridiem;
+
 					var options = {
 						showScale: false,
 						scaleShowGridLines : true,
@@ -299,9 +303,8 @@ $(window).on('action:widgets.loaded', function (event) {
 						scaleShowHorizontalLines: true,
 						scaleShowVerticalLines: true,
 						scaleOverride : true,
-						scaleSteps : 3,
 						scaleStepWidth : 1,
-						scaleStartValue : -1,
+						scaleStartValue : 0,
 						bezierCurve : false,
 						bezierCurveTension : 0.4,
 						pointDot : true,
@@ -334,12 +337,17 @@ $(window).on('action:widgets.loaded', function (event) {
 					};
 
 					for (var stamp in pings) {
-						var date = new Date(parseInt(stamp,10));
-						data.labels.unshift(date.getHours() + ":" + date.getMinutes());
+						date = new Date(parseInt(stamp,10));
+						hours = date.getHours() < 13 ? (date.getHours() === 0 ? 12 : date.getHours()) : date.getHours() - 12;
+						minutes = (date.getMinutes() < 10 ? "0" : "") + date.getMinutes();
+						meridiem = date.getHours() < 12 ? "AM" : "PM";
+						data.labels.unshift(hours + ":" + minutes + " " + meridiem);
 						data.datasets[0].data.unshift(pings[stamp].players.length);
+						if (pings[stamp].players.length > scaleMax) scaleMax = pings[stamp].players.length;
 					}
 
-					console.log("saw ", data.labels, " and ", data.datasets[0].data);
+					options.scaleSteps = scaleMax + 1;
+
 					switch ('line') {
 						case "Pie":
 						case "pie":
