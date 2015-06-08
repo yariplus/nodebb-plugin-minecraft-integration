@@ -29,15 +29,23 @@ MinecraftIntegration.getTemplates = function (templates, callback) {
 
 MinecraftIntegration.API = { _: { } };
 
-MinecraftIntegration.API.get = function (url, callback) {
-	if (MinecraftIntegration.API._[url]) {
-		callback(null, MinecraftIntegration.API._[url]);
-	}else{
-		$.get("/api/minecraft-integration/" + url + "?v=" + config['cache-buster'], function (data) {
-			MinecraftIntegration.API._[url] = data;
-			callback(null, data);
+MinecraftIntegration.API.get = function (routes, callback) {
+	var payload = [ ];
+
+	if (!Array.isArray(routes)) routes = [routes];
+
+	require([MinecraftIntegration.__MIDIR + 'js/vendor/async.min.js'], function (async) {
+		async.each(routes, function (route, next) {
+			var i = routes.indexOf(route);
+
+			$.get("/api/minecraft-integration/" + route + "?v=" + config['cache-buster'], function (data) {
+				payload[i] = MinecraftIntegration.API._[route] = data;
+				callback(null, data);
+			});
+		}, function (err) {
+			callback(err, payload.length === 1 ? payload[0] : payload);
 		});
-	}
+	});
 };
 
 MinecraftIntegration.setPlayers = function (data) {
@@ -45,12 +53,9 @@ MinecraftIntegration.setPlayers = function (data) {
 
 	require([MinecraftIntegration.__MIDIR + 'js/vendor/async.min.js'], function (async) {
 		async.parallel({
-			avatarUrl: async.apply(MinecraftIntegration.API.get, "avatar"),
 			avatarSize: async.apply(MinecraftIntegration.API.get, "avatar/size"),
 			avatarTemplate: async.apply(MinecraftIntegration.getTemplate, "partials/playerAvatars.tpl")
 		}, function (err, results) {
-			results.avatarTemplate = results.avatarTemplate.replace("{url}", results.avatarUrl.replace("{size}", results.avatarSize));
-
 			async.each($('[data-widget="mi-status"][data-sid="' + data.sid + '"], [data-widget="mi-players-grid"][data-sid="' + data.sid + '"]'), function ($widget, next) {
 				$widget = $($widget);
 
@@ -72,20 +77,29 @@ MinecraftIntegration.setPlayers = function (data) {
 				// Add players now on the server.
 				for (var i in data.players) {
 					var found = false;
-
 					$widget.find('.mi-avatar').each(function (i, el) {
 						var $avatar = $(el);
 
-						if ($avatar.data('id') === data.players[i].id) found = true;
+						if ($avatar.data('id') === data.player.id) {
+							found = true;
+						}
 					});
 
 					if (!found) {
-						var $avatar = $($.parseHTML(results.avatarTemplate.replace("{name}", data.players[i].name).replace("{styleGlory}", "double").replace("{players.glory}", "pink").replace("{players.name}", data.players[i].name)));
-						$avatar.css("display", "none");
-						$avatar.data('id', data.players[i].id);
-						$avatar.appendTo($widget.find('.avatars'));
-						$avatar.fadeToggle(600, 'linear');
-						console.log("Adding from set");
+						MinecraftIntegration.API.get("avatar/" + data.players[i].name + "/base64", function (err, avatar) {
+							if (err) {
+								console.log(err);
+							}
+							if (avatar) {
+								results.avatarTemplate = results.avatarTemplate.replace("{url}", "data:image/png;base64," + avatar);
+								var $avatar = $($.parseHTML(results.avatarTemplate.replace("{name}", data.players[i].name).replace("{styleGlory}", "double").replace("{players.glory}", "pink").replace("{players.name}", data.players[i].name)));
+								$avatar.css("display", "none");
+								$avatar.data('id', data.players[i].id);
+								$avatar.appendTo($widget.find('.avatars'));
+								$avatar.fadeToggle(600, 'linear');
+							}
+						});
+						$widget.find(".online-players").text(parseInt($widget.find(".online-players").text(), 10) + 1);
 					}
 				}
 
@@ -104,40 +118,39 @@ MinecraftIntegration.setPlayers = function (data) {
 MinecraftIntegration.addPlayer = function (data) {
 	require([MinecraftIntegration.__MIDIR + 'js/vendor/async.min.js'], function (async) {
 		async.parallel({
-			avatarUrl: async.apply(MinecraftIntegration.API.get, "avatar"),
 			avatarSize: async.apply(MinecraftIntegration.API.get, "avatar/size"),
 			avatarTemplate: async.apply(MinecraftIntegration.getTemplate, "partials/playerAvatars.tpl")
 		}, function (err, results) {
-			results.avatarTemplate = results.avatarTemplate.replace("{url}", results.avatarUrl.replace("{size}", results.avatarSize));
-
 			async.each($('[data-widget="mi-status"][data-sid="' + data.sid + '"], [data-widget="mi-players-grid"][data-sid="' + data.sid + '"]'), function ($widget, next) {
 				$widget = $($widget);
 
-				console.log("Found Widget");
-
-				// Add player now on the server.
+				// Add player now on the server, but not if they are already listed.
 				var found = false;
-
 				$widget.find('.mi-avatar').each(function (i, el) {
 					var $avatar = $(el);
 
 					if ($avatar.data('id') === data.player.id) {
-						console.log("Found Player");
 						found = true;
 					}
 				});
 
 				if (!found) {
 					console.log("Adding Player");
-					var $avatar = $($.parseHTML(results.avatarTemplate.replace("{name}", data.player.name).replace("{styleGlory}", "double").replace("{players.glory}", "pink").replace("{players.name}", data.player.name)));
-					$avatar.css("display", "none");
-					$avatar.data('id', data.player.id);
-					$avatar.appendTo($widget.find('.avatars'));
-					$avatar.fadeToggle(600, 'linear');
-					console.log("Adding from ping");
+					MinecraftIntegration.API.get("avatar/" + data.player.name + "/base64", function (err, avatar) {
+						if (err) {
+							console.log(err);
+						}
+						if (avatar) {
+							results.avatarTemplate = results.avatarTemplate.replace("{url}", "data:image/png;base64," + avatar);
+							var $avatar = $($.parseHTML(results.avatarTemplate.replace("{name}", data.player.name).replace("{styleGlory}", "double").replace("{players.glory}", "pink").replace("{players.name}", data.player.name)));
+							$avatar.css("display", "none");
+							$avatar.data('id', data.player.id);
+							$avatar.appendTo($widget.find('.avatars'));
+							$avatar.fadeToggle(600, 'linear');
+						}
+					});
+					$widget.find(".online-players").text(parseInt($widget.find(".online-players").text(), 10) + 1);
 				}
-
-				$widget.find(".online-players").text(parseInt($widget.find(".online-players").text(), 10) + 1);
 
 				next();
 			}, function (err) {
@@ -275,7 +288,7 @@ $(window).on('action:widgets.loaded', function (event) {
 		async.each($('.mi-container'), function (el, next) {
 			var $this = $(el),
 				$parent = $this.parent(),
-				sid = $this.data('sid');
+				sid = $this.attr('data-sid');
 
 			if (sids.indexOf(sid) < 0) {
 				sids.push(sid);
@@ -369,6 +382,14 @@ $(window).on('action:widgets.loaded', function (event) {
 		}, function (err) {
 			console.log("[Minecraft Integration] Resizing widgets.");
 			resizeCanvases();
+			for (var i = 0; i < sids.length; i++) {
+				var sid = sids[i];
+
+				MinecraftIntegration.API.get('server/' + sid, function (err, status) {
+					status.sid = sid;
+					MinecraftIntegration.setPlayers(status);
+				});
+			}
 		});
 	});
 
@@ -378,15 +399,6 @@ $(window).on('action:widgets.loaded', function (event) {
 		$widget.find('h3').css('max-width', '90%');
 		$widget.find('>.panel').prepend('<i style="position:relative;right:6px;top:6px;font-size:22px;" class="fa fa-compass pointer pull-right has-tooltip mcwe-modalmapicon" data-title="Open Map" data-toggle="modal" data-target="#mcwe-modal-'+ $widget.data('mcwe-mid') +'" style="font-size: 20px;"></i>');
 	});
-
-	for (var i = 0; i < sids.length; i++) {
-		var sid = sids[i];
-
-		MinecraftIntegration.API.get('server/' + sid, function (err, status) {
-			status.sid = sid;
-			MinecraftIntegration.setPlayers(status);
-		});
-	}
 });
 
 var miIDcounter = 1;
