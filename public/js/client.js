@@ -463,7 +463,7 @@ $(window).on('action:widgets.adminDataLoaded', function (event, data) {
 
 		title = title.replace(/\{\{motd\}\}/g, $panel.data('motd'));
 		title = title.replace(/\{\{name\}\}/g, $panel.data('name'));
-		title = title.replace(/[\u0247&][0123456789abcdefklmnor]/g, '');
+		title = title.replace(/[§&][0123456789abcdefklmnorABCDEFKLMNOR]/g, '');
 
 		$title.html($title.text().split(' - ')[0] + ' - ' + title);
 	}
