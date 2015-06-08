@@ -24,14 +24,18 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 		}
 
 		function populateFields() {
+			$('[name=api-key]').val(settings.cfg._.APIKey);
 			$('[name=avatarCDN]').val(settings.cfg._.avatarCDN);
+			$('[name=custom-cdn]').val(settings.cfg._.customCDN);
 			$('[name=avatarSize]').val(settings.cfg._.avatarSize);
 			$('[name=avatarStyle]').val(settings.cfg._.avatarStyle);
 			makeServerList();
 		}
 
 		function validateAll(e) {
+			activate($('[name=api-key]'));
 			activate($('[name=avatarCDN]'));
+			activate($('[name=custom-cdn]'));
 			activate($('[name=avatarSize]'));
 			activate($('[name=avatarStyle]'));
 
@@ -131,9 +135,12 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 				e.preventDefault();
 				if (!validateAll()) return;
 
+				settings.cfg._.APIKey = $('[name=api-key]').val();
 				settings.cfg._.avatarCDN = $('[name=avatarCDN]').val();
+				settings.cfg._.customCDN = $('[name=custom-cdn]').val();
 				settings.cfg._.avatarSize = $('[name=avatarSize]').val();
 				settings.cfg._.avatarStyle = $('[name=avatarStyle]').val();
+
 				for (var server in settings.cfg._.servers) {
 					if (settings.cfg._.servers[server]) {
 						settings.cfg._.servers[server].active = false;
@@ -208,6 +215,14 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 					$serverListing.find('span').text($this.val() || 'Unnamed Server (Will be removed if left unnamed.)');
 				}
 			}).submit(validateAll);
+
+			$('[name=avatarCDN]').change(function(){
+				 if ($('[name=avatarCDN]').val() !== 'custom') {
+					 $('[name=custom-cdn]').closest('.row').css('display', 'none');
+				 }else{
+					 $('[name=custom-cdn]').closest('.row').css('display', 'block');
+				 }
+			});
 		}
 
 		socket.emit('admin.settings.get', { hash: 'minecraft-integration' }, function (err, values) {
@@ -226,6 +241,8 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 							makeButtons();
 							populateFields();
 							setupInputs();
+
+							if ($('[name=avatarCDN]').val() !== 'custom') $('[name=custom-cdn]').closest('.row').css('display', 'none');
 
 							console.log('MI: template rendered');
 						});

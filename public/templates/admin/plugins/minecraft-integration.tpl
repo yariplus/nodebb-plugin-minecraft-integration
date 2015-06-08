@@ -34,6 +34,14 @@
 
                     <div class="row input-row">
                         <div class="col-sm-7 col-xs-12 input-field">
+                            <label for="custom-cdn">[[mi:custom_cdn]]</label>
+                            <input name="custom-cdn" type="text" class="form-control" placeholder="" />
+                        </div>
+                        <div class="col-sm-5 help-text" data-help="[[mi:help_custom_cdn]]"></div>
+                    </div>
+
+                    <div class="row input-row">
+                        <div class="col-sm-7 col-xs-12 input-field">
                             <label for="avatarSize">[[mi:avatar_size]]</label>
                             <input name="avatarSize" type="number" class="form-control" placeholder="40" />
                         </div>
