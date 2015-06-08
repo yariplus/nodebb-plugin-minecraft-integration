@@ -80,7 +80,7 @@ MinecraftIntegration.setPlayers = function (data) {
 					$widget.find('.mi-avatar').each(function (i, el) {
 						var $avatar = $(el);
 
-						if ($avatar.data('id') === data.player.id) {
+						if ($avatar.data('id') === data.players[i].id) {
 							found = true;
 						}
 					});
@@ -205,18 +205,21 @@ socket.on('mi.PlayerJoin', function (data) {
 	console.log("[Minecraft Integration] I saw " + data.player.name + " " + data.player.id + " joined the server.");
 
 	MinecraftIntegration.addPlayer(data);
+	MinecraftIntegration.updateCharts(data);
 });
 
 socket.on('mi.PlayerQuit', function (data) {
 	console.log("[Minecraft Integration] I saw " + data.player.name + " " + data.player.id + " quit the server.");
 
 	MinecraftIntegration.removePlayer(data);
+	MinecraftIntegration.updateCharts(data);
 });
 
 socket.on('mi.status', function (data) {
 	console.log("[Minecraft Integration] Received status update: ", data);
 
 	MinecraftIntegration.setPlayers(data);
+	MinecraftIntegration.setGraphs(data);
 });
 
 socket.on('mi.ping', function (ping) {
@@ -279,6 +282,112 @@ function resizeCanvases() {
 	});
 }
 
+MinecraftIntegration.updateCharts = function (status) {
+	require([MinecraftIntegration.__MIDIR + 'js/vendor/async.min.js'], function (async) {
+		async.each($('[data-widget="mi-players-graph"][data-sid="' + status.sid + '"]'), function ($widget, next) {
+			$widget = $($widget).find('.mi-canvas');
+
+			var chart = $widget.data('chart');
+
+			$.get('/api/minecraft-integration/server/' + status.sid, function (status) {
+				if (typeof status !== 'object' || !status.players || !Array.isArray(status.players)) return next();
+
+				chart.datasets[0].points[chart.datasets[0].points.length - 1].value = status.players.length;
+				chart.update();
+
+				next();
+			});
+		});
+	});
+};
+
+MinecraftIntegration.setGraphs = function (status) {
+	require(['/vendor/chart.js/chart.min.js', MinecraftIntegration.__MIDIR + 'js/vendor/async.min.js'], function (Chart, async) {
+		async.each($('[data-widget="mi-players-graph"][data-sid="' + status.sid + '"]'), function ($widget, next) {
+			$widget = $($widget).find('.mi-canvas');
+
+			$.get('/api/minecraft-integration/server/' + status.sid + '/pings/30', function (pings) {
+				if (typeof pings !== 'object') return next();
+
+				var scaleMax = 10, date, hours, minutes, meridiem, chart;
+
+				var options = {
+					showScale: false,
+					scaleShowGridLines : true,
+					scaleGridLineColor : "rgba(0,0,0,.05)",
+					scaleGridLineWidth : 1,
+					scaleShowHorizontalLines: true,
+					scaleShowVerticalLines: true,
+					scaleOverride : true,
+					scaleStepWidth : 1,
+					scaleStartValue : 0,
+					bezierCurve : false,
+					bezierCurveTension : 0.4,
+					pointDot : true,
+					pointDotRadius : 2,
+					pointDotStrokeWidth : 1,
+					pointHitDetectionRadius : 4,
+					datasetStroke : true,
+					datasetStrokeWidth : 2,
+					datasetFill : true,
+					scaleBeginAtZero: true,
+					responsive: true,
+					tooltipTemplate: "<%if (label){%><%=label%>: <%}%><%= value %> Players Online",
+					backgroundColor: "#ffffff"
+				};
+
+				var data = {
+					labels: [ ],
+					datasets: [
+						{
+							label: "",
+							fillColor: "rgba(151,187,205,1)",
+							strokeColor: "rgba(151,187,205,1)",
+							pointColor: "rgba(151,187,205,1)",
+							pointStrokeColor: "#fff",
+							pointHighlightFill: "#fff",
+							pointHighlightStroke: "rgba(151,187,205,1)",
+							data: [ ]
+						}
+					]
+				};
+
+				for (var stamp in pings) {
+					date = new Date(parseInt(stamp,10));
+					hours = date.getHours() < 13 ? (date.getHours() === 0 ? 12 : date.getHours()) : date.getHours() - 12;
+					minutes = (date.getMinutes() < 10 ? "0" : "") + date.getMinutes();
+					meridiem = date.getHours() < 12 ? "AM" : "PM";
+					data.labels.unshift(hours + ":" + minutes + " " + meridiem);
+					data.datasets[0].data.unshift(pings[stamp].players.length);
+					if (pings[stamp].players.length > scaleMax) scaleMax = pings[stamp].players.length;
+				}
+
+				options.scaleSteps = scaleMax + 1;
+
+				switch ('line') {
+					case "Pie":
+					case "pie":
+						chart = new Chart($widget[0].getContext('2d')).Pie(data, options);
+						break;
+					case "Donut":
+					case "donut":
+						chart = new Chart($widget[0].getContext('2d')).Pie(data, options);
+						break;
+					case "Line":
+					case "line":
+					default:
+						chart = new Chart($widget[0].getContext('2d')).Line(data, options);
+						break;
+				}
+
+				$widget.data('chart', chart);
+
+				next();
+			});
+		});
+	});
+};
+
 $(window).on('action:widgets.loaded', function (event) {
 	var sids = [ ];
 
@@ -298,96 +407,15 @@ $(window).on('action:widgets.loaded', function (event) {
 				$parent.css('padding-top', '0').css('padding-left', '0').css('padding-right', '0').css('padding-bottom', '0');
 			}
 
-			if (!$this.find('.mi-canvas').length) return next();
-
-			$this.find('.mi-canvas').each(function () {
-				var $this = $(this);
-
-				$.get('/api/minecraft-integration/server/' + sid + '/pings/30', function (pings) {
-					if (typeof pings !== 'object') return next();
-
-					var scaleMax = 10, date, hours, minutes, meridiem;
-
-					var options = {
-						showScale: false,
-						scaleShowGridLines : true,
-						scaleGridLineColor : "rgba(0,0,0,.05)",
-						scaleGridLineWidth : 1,
-						scaleShowHorizontalLines: true,
-						scaleShowVerticalLines: true,
-						scaleOverride : true,
-						scaleStepWidth : 1,
-						scaleStartValue : 0,
-						bezierCurve : false,
-						bezierCurveTension : 0.4,
-						pointDot : true,
-						pointDotRadius : 2,
-						pointDotStrokeWidth : 1,
-						pointHitDetectionRadius : 4,
-						datasetStroke : true,
-						datasetStrokeWidth : 2,
-						datasetFill : true,
-						scaleBeginAtZero: true,
-						responsive: true,
-						tooltipTemplate: "<%if (label){%><%=label%>: <%}%><%= value %> Players Online",
-						backgroundColor: "#ffffff"
-					};
-
-					var data = {
-						labels: [ ],
-						datasets: [
-							{
-								label: "",
-								fillColor: "rgba(151,187,205,1)",
-								strokeColor: "rgba(151,187,205,1)",
-								pointColor: "rgba(151,187,205,1)",
-								pointStrokeColor: "#fff",
-								pointHighlightFill: "#fff",
-								pointHighlightStroke: "rgba(151,187,205,1)",
-								data: [ ]
-							}
-						]
-					};
-
-					for (var stamp in pings) {
-						date = new Date(parseInt(stamp,10));
-						hours = date.getHours() < 13 ? (date.getHours() === 0 ? 12 : date.getHours()) : date.getHours() - 12;
-						minutes = (date.getMinutes() < 10 ? "0" : "") + date.getMinutes();
-						meridiem = date.getHours() < 12 ? "AM" : "PM";
-						data.labels.unshift(hours + ":" + minutes + " " + meridiem);
-						data.datasets[0].data.unshift(pings[stamp].players.length);
-						if (pings[stamp].players.length > scaleMax) scaleMax = pings[stamp].players.length;
-					}
-
-					options.scaleSteps = scaleMax + 1;
-
-					switch ('line') {
-						case "Pie":
-						case "pie":
-							new Chart($this[0].getContext('2d')).Pie(data, options);
-							break;
-						case "Donut":
-						case "donut":
-							new Chart($this[0].getContext('2d')).Pie(data, options);
-							break;
-						case "Line":
-						case "line":
-						default:
-							new Chart($this[0].getContext('2d')).Line(data, options);
-							break;
-					}
-					next();
-				});
-			});
+			next();
 		}, function (err) {
-			console.log("[Minecraft Integration] Resizing widgets.");
-			resizeCanvases();
 			for (var i = 0; i < sids.length; i++) {
 				var sid = sids[i];
 
 				MinecraftIntegration.API.get('server/' + sid, function (err, status) {
 					status.sid = sid;
 					MinecraftIntegration.setPlayers(status);
+					MinecraftIntegration.setGraphs(status);
 				});
 			}
 		});

@@ -1,6 +1,3 @@
-<div class="col-xs-6 col-sm-6 col-md-6 col-lg-12">
-<div class="panel panel-default">
-    <div class="panel-heading"></div>
-    <div class="status-widget">
-</div>
+<div class="mi-container" data-widget="mi-tps-graph" data-sid="{sid}">
+    <canvas id="canvasOnlinePlayers{serverNumber}" data-height-ratio="3" class="mi-canvas" style="border:1px solid #000000;"></canvas>
 </div>
