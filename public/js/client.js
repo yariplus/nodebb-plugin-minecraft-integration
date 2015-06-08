@@ -36,10 +36,10 @@ MinecraftIntegration.API.get = function (routes, callback) {
 
 	require([MinecraftIntegration.__MIDIR + 'js/vendor/async.min.js'], function (async) {
 		async.each(routes, function (route, next) {
-			var i = routes.indexOf(route);
+			var iRoute = routes.indexOf(route);
 
 			$.get("/api/minecraft-integration/" + route + "?v=" + config['cache-buster'], function (data) {
-				payload[i] = MinecraftIntegration.API._[route] = data;
+				payload[iRoute] = MinecraftIntegration.API._[route] = data;
 				callback(null, data);
 			});
 		}, function (err) {
@@ -60,7 +60,7 @@ MinecraftIntegration.setPlayers = function (data) {
 				$widget = $($widget);
 
 				// Remove players no longer on the server.
-				$widget.find('.mi-avatar').each(function (i, el) {
+				async.each($widget.find('.mi-avatar'), function (el, next) {
 					var $avatar = $(el);
 
 					for (var i in data.players) {
@@ -72,13 +72,18 @@ MinecraftIntegration.setPlayers = function (data) {
 					$avatar.fadeToggle(600, 'linear', function () {
 						$avatar.remove();
 					});
+
+					next();
 				});
 
 				// Add players now on the server.
-				for (var i in data.players) {
+				async.each(data.players, function (player, next) {
+					var i = data.players.indexOf(player);
+
 					var found = false;
-					$widget.find('.mi-avatar').each(function (i, el) {
-						var $avatar = $(el);
+
+					$widget.find('.mi-avatar').each(function () {
+						var $avatar = $(this);
 
 						if ($avatar.data('id') === data.players[i].id) {
 							found = true;
@@ -101,9 +106,26 @@ MinecraftIntegration.setPlayers = function (data) {
 						});
 						$widget.find(".online-players").text(parseInt($widget.find(".online-players").text(), 10) + 1);
 					}
-				}
+
+					next();
+				});
 
 				$widget.find(".online-players").text(data.players.length);
+
+				if ($widget.attr('data-widget') === 'mi-status') {
+					var popover = $widget.find('a.fa-plug');
+
+					if (popover.length && data.pluginList) {
+						var html = '<table class="table widget-table"><tbody>';
+
+						for (var iPlugin in data.pluginList) {
+							html += '<tr><td class="td-label">' + data.pluginList[iPlugin].name + '</td></tr>';
+						}
+
+						html += '</tbody></table>';
+						popover.attr('data-content', html);
+					}
+				}
 
 				next();
 			}, function (err) {
@@ -413,6 +435,8 @@ $(window).on('action:widgets.loaded', function (event) {
 					MinecraftIntegration.setGraphs(status);
 				});
 			}
+
+			resizeCanvases();
 		});
 	});
 
