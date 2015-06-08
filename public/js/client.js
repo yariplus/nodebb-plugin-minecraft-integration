@@ -135,7 +135,6 @@ MinecraftIntegration.addPlayer = function (data) {
 				});
 
 				if (!found) {
-					console.log("Adding Player");
 					MinecraftIntegration.API.get("avatar/" + data.player.name + "/base64", function (err, avatar) {
 						if (err) {
 							console.log(err);
@@ -178,11 +177,7 @@ MinecraftIntegration.removePlayer = function (data) {
 				$widget.find('.mi-avatar').each(function (i, el) {
 					var $avatar = $(el);
 
-					for (var i in data.players) {
-						if (data.players[i].id && data.players[i].name) {
-							if ($avatar.data('id') === data.players[i].id) return;
-						}
-					}
+					if ($avatar.data('id') !== data.player.id) return;
 
 					$avatar.fadeToggle(600, 'linear', function () {
 						$avatar.remove();
@@ -271,7 +266,7 @@ function resizeend() {
 function resizeCanvases() {
 	$('.mi-iframe, .mi-canvas').each(function () {
 		var $this = $(this),
-			heightRatio = $this.attr('height-ratio');
+			heightRatio = $this.attr('data-height-ratio');
 
 		heightRatio = typeof heightRatio == 'undefined' ? 2 : parseInt(heightRatio);
 		heightRatio = isNaN(heightRatio) ? 2 : heightRatio < 1 ? 2 : heightRatio;
