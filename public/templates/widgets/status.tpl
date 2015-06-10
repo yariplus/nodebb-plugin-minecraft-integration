@@ -100,10 +100,11 @@
                 <td>
                     <span<!-- IF colorText --> style="color:#{colorText}"<!-- ENDIF colorText -->>
                         {version}
-
-                        <!-- IF hasMods -->&nbsp;<a class="fa fa-cog text-info has-popover" data-html="true" data-title="<h6><b>Mod List</b></h6>" data-placement="bottom"<!-- ENDIF hasMods --><!-- BEGIN modList -->{modList.modid}<!-- IF @first -->   data-content="&lt;h6&gt;<!-- ENDIF @first --><!-- IF @last -->&lt;/h6&gt;"<!-- ELSE --><!-- IF !@first -->, <!-- ENDIF !@first --><!-- ENDIF @last --><!-- END modList --><!-- IF hasMods -->></a><!-- ENDIF hasMods -->
-
-                        <!-- IF hasPlugins --> <a class="fa fa-plug text-info" data-popover="plugin-list" data-html="true" data-title="[[mi:plugin_list]]" data-placement="bottom"></a><!-- ENDIF hasPlugins -->
+                        <!-- IF status.hasPlugins -->&nbsp;<a class="fa fa-plug text-info" data-popover="plugin-list" data-html="true" data-title="[[mi:plugin_list]]" data-placement="bottom"></a><!-- ENDIF status.hasPlugins -->
+                        <!-- IF status.hasMods -->&nbsp;<a class="fa fa-gavel text-danger" data-popover="mod-list" data-html="true" data-title="[[mi:mod_list]]" data-placement="bottom"></a><!-- ENDIF status.hasMods -->
+                        <!-- IF status.hasModPack -->&nbsp;<a class="fa fa-gift" data-popover="mod-list" data-html="true" data-title="[[mi:mod_pack_info]]" data-placement="bottom"></a><!-- ENDIF status.hasModPack -->
+                        <!-- IF status.hasSponge -->&nbsp;<a class="fa fa-life-ring" data-popover="mod-list" data-html="true" data-title="[[mi:sponge_mods]]" data-placement="bottom"></a><!-- ENDIF status.hasSponge -->
+                        <!-- IF status.hasBungeecord -->&nbsp;<a class="fa fa-arrows-alt" data-popover="mod-list" data-html="true" data-title="[[mi:hub_list]]" data-placement="bottom"></a><!-- ENDIF status.hasBungeecord -->
                     </span>
                 </td>
             </tr>

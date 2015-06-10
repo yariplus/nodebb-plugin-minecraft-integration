@@ -63,7 +63,7 @@
     width: 120px;
 }
 
-.plugin-list {
+.plugin-list, .mod-list {
 	max-width: 400px;
     width: 400px;
 
@@ -80,15 +80,22 @@
 		font-weight: normal;
 		padding: 10px;
 		color: white;
-		background-color: #5B94DE;
 	}
 
-	.table-plugin-list {
+	.table-plugin-list, .table-mod-list {
 		margin: 0;
 	}
 }
 
-[data-popover="plugin-list"] {
+.plugin-list .popover-title {
+	background-color: #5B94DE;
+}
+
+.mod-list .popover-title {
+	background-color: #D94F79;
+}
+
+[data-popover="plugin-list"], [data-popover="mod-list"] {
     cursor: pointer;
 }
 

@@ -49,5 +49,9 @@
     "dynmap_options": "Dynmap Options",
     "custom_rows": "Custom Rows",
 	"status": "Status",
-	"plugin_list": "Plugins"
+	"plugin_list": "Plugins",
+	"mod_list": "Mods",
+	"mod_pack_info": "Mod Pack",
+	"sponge_mods": "Sponge Mods",
+	"hub_list": "Hub Servers"
 }

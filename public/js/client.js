@@ -112,10 +112,11 @@ MinecraftIntegration.setPlayers = function (data) {
 
 				$widget.find(".online-players").text(data.players.length);
 
-				if ($widget.attr('data-widget') === 'mi-status') {
-					var popover = $widget.find('a.fa-plug');
+				var $popover;
 
-					if (popover.length && data.pluginList) {
+				if ($widget.attr('data-widget') === 'mi-status') {
+					$popover = $widget.find('a.fa-plug');
+					if ($popover.length && data.pluginList) {
 						var html = '<table class="table table-plugin-list"><tbody>';
 
 						for (var iPlugin in data.pluginList) {
@@ -123,7 +124,29 @@ MinecraftIntegration.setPlayers = function (data) {
 						}
 
 						html += '</tbody></table>';
-						popover.attr('data-content', html);
+						$popover.attr('data-content', html);
+						$popover.popover({
+							container: 'body',
+							viewport: { selector: 'body', padding: 20 },
+							template: '<div class="popover plugin-list"><div class="arrow"></div><div class="popover-inner"><h1 class="popover-title"></h1><div class="popover-content"><p></p></div></div></div>'
+						});
+					}
+
+					$popover = $widget.find('a.fa-gavel');
+					if ($popover.length && data.modList) {
+						var html = '<table class="table table-mod-list"><tbody>';
+
+						for (var i in data.modList) {
+							html += '<tr><td>' + data.modList[i].modid + '</td></tr>';
+						}
+
+						html += '</tbody></table>';
+						$popover.attr('data-content', html);
+						$popover.popover({
+							container: 'body',
+							viewport: { selector: 'body', padding: 20 },
+							template: '<div class="popover mod-list"><div class="arrow"></div><div class="popover-inner"><h1 class="popover-title"></h1><div class="popover-content"><p></p></div></div></div>'
+						});
 					}
 				}
 
@@ -259,12 +282,6 @@ $(document).ready(function() {
 		selector: '.has-tooltip, .mi-avatar',
 		container: 'body',
 		viewport: { selector: 'body', padding: 20 }
-	});
-	$body.popover({
-		selector: '[data-popover="plugin-list"]',
-		container: 'body',
-		viewport: { selector: 'body', padding: 20 },
-		template: '<div class="popover plugin-list"><div class="arrow"></div><div class="popover-inner"><h1 class="popover-title"></h1><div class="popover-content"><p></p></div></div></div>'
 	});
 });
 
@@ -430,10 +447,7 @@ $(window).on('action:widgets.loaded', function (event) {
 			next();
 		}, function (err) {
 			for (var i = 0; i < sids.length; i++) {
-				var sid = sids[i];
-
-				MinecraftIntegration.API.get('server/' + sid, function (err, status) {
-					status.sid = sid;
+				MinecraftIntegration.API.get('server/' + sids[i], function (err, status) {
 					MinecraftIntegration.setPlayers(status);
 					MinecraftIntegration.setGraphs(status);
 				});
