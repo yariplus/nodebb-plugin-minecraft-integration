@@ -29,7 +29,7 @@
             <tr>
                 <td class="td-label">
                     <span<!-- IF colorLabels --> style="color:#{colorLabels}"<!-- ENDIF colorLabels -->>
-                        <strong>Status</strong>
+                        <strong>[[mi:status]]</strong>
                     </span>
                 </td>
                 <td>
@@ -103,7 +103,7 @@
 
                         <!-- IF hasMods -->&nbsp;<a class="fa fa-cog text-info has-popover" data-html="true" data-title="<h6><b>Mod List</b></h6>" data-placement="bottom"<!-- ENDIF hasMods --><!-- BEGIN modList -->{modList.modid}<!-- IF @first -->   data-content="&lt;h6&gt;<!-- ENDIF @first --><!-- IF @last -->&lt;/h6&gt;"<!-- ELSE --><!-- IF !@first -->, <!-- ENDIF !@first --><!-- ENDIF @last --><!-- END modList --><!-- IF hasMods -->></a><!-- ENDIF hasMods -->
 
-                        <!-- IF hasPlugins --> <a class="fa fa-plug text-info has-popover" data-html="true" data-title="<h6><b>[[plugin_list]]</b></h6>" data-placement="bottom"></a><!-- ENDIF hasPlugins -->
+                        <!-- IF hasPlugins --> <a class="fa fa-plug text-info" data-popover="plugin-list" data-html="true" data-title="[[mi:plugin_list]]" data-placement="bottom"></a><!-- ENDIF hasPlugins -->
                     </span>
                 </td>
             </tr>

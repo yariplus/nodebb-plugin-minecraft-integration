@@ -116,10 +116,10 @@ MinecraftIntegration.setPlayers = function (data) {
 					var popover = $widget.find('a.fa-plug');
 
 					if (popover.length && data.pluginList) {
-						var html = '<table class="table widget-table"><tbody>';
+						var html = '<table class="table table-plugin-list"><tbody>';
 
 						for (var iPlugin in data.pluginList) {
-							html += '<tr><td class="td-label">' + data.pluginList[iPlugin].name + '</td></tr>';
+							html += '<tr><td>' + data.pluginList[iPlugin].name + '</td></tr>';
 						}
 
 						html += '</tbody></table>';
@@ -257,11 +257,14 @@ $(document).ready(function() {
 	var $body = $('body');
 	$body.tooltip({
 		selector: '.has-tooltip, .mi-avatar',
-		container: 'body'
+		container: 'body',
+		viewport: { selector: 'body', padding: 20 }
 	});
 	$body.popover({
-		selector: '.has-popover',
-		container: 'body'
+		selector: '[data-popover="plugin-list"]',
+		container: 'body',
+		viewport: { selector: 'body', padding: 20 },
+		template: '<div class="popover plugin-list"><div class="arrow"></div><div class="popover-inner"><h1 class="popover-title"></h1><div class="popover-content"><p></p></div></div></div>'
 	});
 });
 

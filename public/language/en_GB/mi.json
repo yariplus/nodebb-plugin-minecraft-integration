@@ -47,5 +47,7 @@
     "display_options": "Display Options",
     "style_options": "Style Options",
     "dynmap_options": "Dynmap Options",
-    "custom_rows": "Custom Rows"
+    "custom_rows": "Custom Rows",
+	"status": "Status",
+	"plugin_list": "Plugins"
 }

@@ -63,12 +63,32 @@
     width: 120px;
 }
 
-.popover {
-    max-width: 400px;
+.plugin-list {
+	max-width: 400px;
     width: 400px;
+
+	.popover-content {
+		padding: 0;
+	}
+
+	td {
+		padding: 6px 10px;
+	}
+
+	.popover-title {
+		font-size: 18px;
+		font-weight: normal;
+		padding: 10px;
+		color: white;
+		background-color: #5B94DE;
+	}
+
+	.table-plugin-list {
+		margin: 0;
+	}
 }
 
-.has-popover {
+[data-popover="plugin-list"] {
     cursor: pointer;
 }
 
