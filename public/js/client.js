@@ -96,8 +96,8 @@ MinecraftIntegration.setPlayers = function (data) {
 								console.log(err);
 							}
 							if (avatar) {
-								results.avatarTemplate = results.avatarTemplate.replace("{url}", "data:image/png;base64," + avatar);
-								var $avatar = $($.parseHTML(results.avatarTemplate.replace("{name}", data.players[i].name).replace("{styleGlory}", "double").replace("{players.glory}", "pink").replace("{players.name}", data.players[i].name)));
+								var avatarTemplate = results.avatarTemplate.replace("{url}", "data:image/png;base64," + avatar);
+								var $avatar = $($.parseHTML(avatarTemplate.replace("{name}", data.players[i].name).replace("{styleGlory}", "double").replace("{players.glory}", "pink").replace("{players.name}", data.players[i].name)));
 								$avatar.css("display", "none");
 								$avatar.data('id', data.players[i].id);
 								$avatar.appendTo($widget.find('.avatars'));
