@@ -6,7 +6,7 @@
     <div class="panel-body collapse">
         <div class="row input-row">
             <div class="col-sm-7 col-xs-12 input-field">
-                <label class="control-label">[[mi:server_name]]</label>
+                <label class="control-label">[[mi:server_name]] <small>([[mi:required]])</small></label>
                 <input name="name" class="form-control" type="text" placeholder=""/>
             </div>
             <div class="col-sm-5 help-text" data-help="[[mi:help_server_name]]"></div>
@@ -20,24 +20,10 @@
         </div>
         <div class="row input-row">
             <div class="col-sm-7 col-xs-12 input-field">
-                <label class="control-label">[[mi:query_port]]</label>
+                <label class="control-label">[[mi:query_port]] <small>([[mi:optional]])</small></label>
                 <input name="query-port" class="form-control" type="text" placeholder=""/>
             </div>
             <div class="col-sm-5 help-text" data-help="[[mi:help_query_port]]"></div>
-        </div>
-        <div class="row input-row">
-            <div class="col-sm-7 col-xs-12 input-field">
-                <label class="control-label">[[mi:rcon_port]] <small>([[mi:not_used]])</small></label>
-                <input name="rcon-port" class="form-control" type="text" placeholder=""/>
-            </div>
-            <div class="col-sm-5 help-text" data-help="[[mi:help_rcon_port]]"></div>
-        </div>
-        <div class="row input-row">
-            <div class="col-sm-7 col-xs-12 input-field">
-                <label class="control-label">[[mi:rcon_pass]] <small>([[mi:not_used]])</small></label>
-                <input name="rcon-pass" class="form-control" placeholder="" autocomplete="off"/>
-            </div>
-            <div class="col-sm-5 help-text" data-help="[[mi:help_rcon_pass]]"></div>
         </div>
         <div class="row input-row">
             <div class="col-sm-7 col-xs-12 input-field">
