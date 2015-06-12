@@ -250,6 +250,10 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 				});
 			}
 		});
+
+		socket.emit('plugins.MinecraftIntegration.getPlayers', { }, function (err, data) {
+			console.log("Response: " + data);
+		});
 	};
 
 	return miACP;
