@@ -56,106 +56,126 @@ MinecraftIntegration.setPlayers = function (data) {
 			avatarSize: async.apply(MinecraftIntegration.API.get, "avatar/size"),
 			avatarTemplate: async.apply(MinecraftIntegration.getTemplate, "partials/playerAvatars.tpl")
 		}, function (err, results) {
-			async.each($('[data-widget="mi-status"][data-sid="' + data.sid + '"], [data-widget="mi-players-grid"][data-sid="' + data.sid + '"]'), function ($widget, next) {
-				$widget = $($widget);
+			async.parallel([
+				function (next) {
+					async.each($('[data-widget="mi-status"][data-sid="' + data.sid + '"], [data-widget="mi-players-grid"][data-sid="' + data.sid + '"]'), function ($widget, next) {
+						$widget = $($widget);
 
-				// Remove players no longer on the server.
-				async.each($widget.find('.mi-avatar'), function (el, next) {
-					var $avatar = $(el);
+						// Remove players no longer on the server.
+						async.each($widget.find('.mi-avatar'), function (el, next) {
+							var $avatar = $(el);
 
-					for (var i in data.players) {
-						if (data.players[i].id && data.players[i].name) {
-							if ($avatar.data('id') === data.players[i].id) return;
-						}
-					}
-
-					$avatar.fadeToggle(600, 'linear', function () {
-						$avatar.remove();
-					});
-
-					next();
-				});
-
-				// Add players now on the server.
-				async.each(data.players, function (player, next) {
-					var i = data.players.indexOf(player);
-
-					var found = false;
-
-					$widget.find('.mi-avatar').each(function () {
-						var $avatar = $(this);
-
-						if ($avatar.data('id') === data.players[i].id) {
-							found = true;
-						}
-					});
-
-					if (!found) {
-						MinecraftIntegration.API.get("avatar/" + data.players[i].name + "/base64", function (err, avatar) {
-							if (err) {
-								console.log(err);
+							for (var i in data.players) {
+								if (data.players[i].id && data.players[i].name) {
+									if ($avatar.data('id') === data.players[i].id) return;
+								}
 							}
-							if (avatar) {
-								var avatarTemplate = results.avatarTemplate.replace("{url}", "data:image/png;base64," + avatar);
-								var $avatar = $($.parseHTML(avatarTemplate.replace("{name}", data.players[i].name).replace("{styleGlory}", "double").replace("{players.glory}", "pink").replace("{players.name}", data.players[i].name)));
-								$avatar.css("display", "none");
-								$avatar.data('id', data.players[i].id);
-								$avatar.appendTo($widget.find('.avatars'));
-								$avatar.fadeToggle(600, 'linear');
+
+							$avatar.fadeToggle(600, 'linear', function () {
+								$avatar.remove();
+							});
+
+							next();
+						});
+
+						// Add players now on the server.
+						async.each(data.players, function (player, next) {
+							var i = data.players.indexOf(player);
+
+							var found = false;
+
+							$widget.find('.mi-avatar').each(function () {
+								var $avatar = $(this);
+
+								if ($avatar.data('id') === data.players[i].id) {
+									found = true;
+								}
+							});
+
+							if (!found) {
+								MinecraftIntegration.API.get("avatar/" + data.players[i].name + "/base64", function (err, avatar) {
+									if (err) {
+										console.log(err);
+									}
+									if (avatar) {
+										var avatarTemplate = results.avatarTemplate.replace("{url}", "data:image/png;base64," + avatar);
+										var $avatar = $($.parseHTML(avatarTemplate.replace("{name}", data.players[i].name).replace("{styleGlory}", "double").replace("{players.glory}", "pink").replace("{players.name}", data.players[i].name)));
+										$avatar.css("display", "none");
+										$avatar.data('id', data.players[i].id);
+										$avatar.appendTo($widget.find('.avatars'));
+										$avatar.fadeToggle(600, 'linear');
+									}
+								});
+								$widget.find(".online-players").text(parseInt($widget.find(".online-players").text(), 10) + 1);
 							}
+
+							next();
 						});
-						$widget.find(".online-players").text(parseInt($widget.find(".online-players").text(), 10) + 1);
-					}
 
-					next();
-				});
+						$widget.find(".online-players").text(data.players.length);
 
-				$widget.find(".online-players").text(data.players.length);
+						var $popover;
 
-				var $popover;
+						if ($widget.attr('data-widget') === 'mi-status') {
+							$popover = $widget.find('a.fa-plug');
+							if ($popover.length && data.pluginList) {
+								var html = '<table class="table table-plugin-list"><tbody>';
 
-				if ($widget.attr('data-widget') === 'mi-status') {
-					$popover = $widget.find('a.fa-plug');
-					if ($popover.length && data.pluginList) {
-						var html = '<table class="table table-plugin-list"><tbody>';
+								for (var iPlugin in data.pluginList) {
+									html += '<tr><td>' + data.pluginList[iPlugin].name + '</td></tr>';
+								}
 
-						for (var iPlugin in data.pluginList) {
-							html += '<tr><td>' + data.pluginList[iPlugin].name + '</td></tr>';
+								html += '</tbody></table>';
+								$popover.attr('data-content', html);
+								$popover.popover({
+									container: 'body',
+									viewport: { selector: 'body', padding: 20 },
+									template: '<div class="popover plugin-list"><div class="arrow"></div><div class="popover-inner"><h1 class="popover-title"></h1><div class="popover-content"><p></p></div></div></div>'
+								});
+							}
+
+							$popover = $widget.find('a.fa-gavel');
+							if ($popover.length && data.modList) {
+								var html = '<table class="table table-mod-list"><tbody>';
+
+								for (var i in data.modList) {
+									html += '<tr><td>' + data.modList[i].modid + '</td></tr>';
+								}
+
+								html += '</tbody></table>';
+								$popover.attr('data-content', html);
+								$popover.popover({
+									container: 'body',
+									viewport: { selector: 'body', padding: 20 },
+									template: '<div class="popover mod-list"><div class="arrow"></div><div class="popover-inner"><h1 class="popover-title"></h1><div class="popover-content"><p></p></div></div></div>'
+								});
+							}
 						}
 
-						html += '</tbody></table>';
-						$popover.attr('data-content', html);
-						$popover.popover({
-							container: 'body',
-							viewport: { selector: 'body', padding: 20 },
-							template: '<div class="popover plugin-list"><div class="arrow"></div><div class="popover-inner"><h1 class="popover-title"></h1><div class="popover-content"><p></p></div></div></div>'
+						next();
+					}, function (err) {
+						$('.tooltip').each(function (i, el) {
+							$(this).remove();
 						});
-					}
-
-					$popover = $widget.find('a.fa-gavel');
-					if ($popover.length && data.modList) {
-						var html = '<table class="table table-mod-list"><tbody>';
-
-						for (var i in data.modList) {
-							html += '<tr><td>' + data.modList[i].modid + '</td></tr>';
-						}
-
-						html += '</tbody></table>';
-						$popover.attr('data-content', html);
-						$popover.popover({
-							container: 'body',
-							viewport: { selector: 'body', padding: 20 },
-							template: '<div class="popover mod-list"><div class="arrow"></div><div class="popover-inner"><h1 class="popover-title"></h1><div class="popover-content"><p></p></div></div></div>'
-						});
-					}
+						next();
+					});
+				},
+				function (next) {
+					async.each($('[data-widget="mi-top-list"][data-sid="' + data.sid + '"]'), function ($widget, next) {
+						async.each(data.players, function (player, next) {
+							var $img = $('[data-uuid="' + player.id + '"]');
+							if ($img.length) {
+								MinecraftIntegration.API.get("uuid/" + player.id + "/playtime", function (err, playtime) {
+									$img.parent().parent().find('.mi-score').html(playtime);
+									next();
+								});
+							}else{
+								next();
+							}
+						}, next);
+					}, next);
 				}
-
-				next();
-			}, function (err) {
-				$('.tooltip').each(function (i, el) {
-					$(this).remove();
-				});
-			});
+			]);
 		});
 	});
 };
