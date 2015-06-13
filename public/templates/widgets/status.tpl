@@ -154,9 +154,9 @@
 
         </tbody>
     </table>
-    <!-- IF showMiniMap -->
-    <iframe class="mi-iframe" src="{minimapURI}" height-ratio="2"></iframe>
-    <!-- ENDIF showMiniMap -->
+	<!-- IF mapshow -->
+	<iframe class="mi-iframe" src="{uri}" data-height-ratio="2"></iframe>
+	<!-- ENDIF mapshow -->
     <!-- IF mapURI -->
     <!-- IMPORT partials/modalMap.tpl -->
     <!-- ENDIF mapURI -->

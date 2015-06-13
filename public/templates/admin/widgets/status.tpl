@@ -175,47 +175,47 @@
         </div>
     </div>
     <div class="panel panel-success">
-        <div class="panel-heading" data-target=".mi-dynmap-options" data-toggle="collapse">
-            <span class="panel-title">[[mi:dynmap_options]]</span>
+        <div class="panel-heading" data-target=".mi-map-options" data-toggle="collapse">
+            <span class="panel-title">[[mi:map_options]]</span>
         </div>
-        <div class="panel-body collapse mi-dynmap-options">
+        <div class="panel-body collapse mi-map-options">
             <div class="form-group">
                 <div class="checkbox">
                     <label>
-                        <input type="checkbox" name="showMiniMap">Attach mini map.
+                        <input type="checkbox" name="mapshow">Attach mini map.
                     </label>
                 </div>
             </div>
             <div class="form-group">
                 <div class="checkbox">
                     <label>
-                        <input type="checkbox" name="showModalMap">Show link to large map.
+                        <input type="checkbox" name="mapshowlarge">Show link to large map.
                     </label>
                 </div>
             </div>
             <div class="form-group">
-                <label class="control-label">Dynmap URI</label>
-                <input type="text" class="form-control" name="mapURI" placeholder="http://ServerHost:8123/">
+                <label class="control-label">Map Host Address</label>
+                <input type="text" class="form-control" name="mapuri" placeholder="http://ServerHost:8123/">
             </div>
             <div class="form-group">
                 <label class="control-label">World Name</label>
-                <input class="form-control" type="text" name="worldname">
+                <input class="form-control" type="text" name="mapworld">
             </div>
             <div class="form-group">
-                <label class="control-label">Map Name</label>
-                <input class="form-control" type="text" name="mapname">
+                <label class="control-label">Map Type</label>
+                <input class="form-control" type="text" name="maptype">
             </div>
             <div class="form-group">
                 <label class="control-label">Zoom Level</label>
-                <input class="form-control" type="text" name="zoom">
+                <input class="form-control" type="text" name="mapzoom">
             </div>
             <div class="form-group">
                 <label class="control-label">X Coordinate</label>
-                <input class="form-control" type="text" name="X">
+                <input class="form-control" type="text" name="mapx">
             </div>
             <div class="form-group">
                 <label class="control-label">Z Coordinate</label>
-                <input class="form-control" type="text" name="Z">
+                <input class="form-control" type="text" name="mapz">
             </div>
         </div>
     </div>
