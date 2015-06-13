@@ -53,13 +53,13 @@
         <option value="29">29</option>
         <option value="30">30</option>
     </select>
-    <input type="hidden" class="ajaxSelectSibling" name="showTopPlayers">
+    <input type="hidden" class="ajaxSelectSibling" name="show">
 </div>
 
 <div class="form-group">
     <div class="checkbox">
         <label>
-            <input type="checkbox" name="showGlory">Show Avatar Border?
+            <input type="checkbox" name="border">Show Avatar Border?
         </label>
     </div>
 </div>
@@ -76,33 +76,33 @@
         <option value="dashed">Dashed</option>
         <option value="dotted">Dotted</option>
     </select>
-    <input type="hidden" class="ajaxSelectSibling" name="styleGlory">
+    <input type="hidden" class="ajaxSelectSibling" name="border-style">
 </div>
 
 <div class="form-group">
     <label class="control-label">Avatar Border gradient start</label>
     <div>
-        <input type="text" class="form-control ajaxInputColorPicker" name="gloryStart">
+        <input type="text" class="form-control ajaxInputColorPicker" name="border-start">
     </div>
 </div>
 
 <div class="form-group">
     <label class="control-label">Avatar Border gradient end</label>
     <div>
-        <input type="text" class="form-control ajaxInputColorPicker" name="gloryEnd">
+        <input type="text" class="form-control ajaxInputColorPicker" name="border-end">
     </div>
 </div>
 
 <div class="form-group">
     <label class="control-label">Title&nbsp;Color</label>
     <div>
-        <input type="text" class="form-control ajaxInputColorPicker" name="colorTitle">
+        <input type="text" class="form-control ajaxInputColorPicker" name="color-title">
     </div>
 </div>
 
 <div class="form-group">
     <label class="control-label">Text&nbsp;Color</label>
     <div>
-        <input type="text" class="form-control ajaxInputColorPicker" name="colorText">
+        <input type="text" class="form-control ajaxInputColorPicker" name="color-text">
     </div>
 </div>
