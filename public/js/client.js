@@ -340,10 +340,11 @@ MinecraftIntegration.updateCharts = function (status) {
 
 MinecraftIntegration.setGraphs = function (status) {
 	require(['/vendor/chart.js/chart.min.js', MinecraftIntegration.__MIDIR + 'js/vendor/async.min.js'], function (Chart, async) {
+
 		async.each($('[data-widget="mi-players-graph"][data-sid="' + status.sid + '"]'), function ($widget, next) {
 			$widget = $($widget).find('.mi-canvas');
 
-			$.get('/api/minecraft-integration/server/' + status.sid + '/pings/30', function (pings) {
+			MinecraftIntegration.API.get("server/" + status.sid + "/pings/30", function (err, pings) {
 				if (typeof pings !== 'object') return next();
 
 				var scaleMax = 10, date, hours, minutes, meridiem, chart;
@@ -422,6 +423,89 @@ MinecraftIntegration.setGraphs = function (status) {
 				next();
 			});
 		});
+
+		async.each($('[data-widget="mi-tps-graph"][data-sid="' + status.sid + '"]'), function ($widget, next) {
+			$widget = $($widget).find('.mi-canvas');
+
+			MinecraftIntegration.API.get("server/" + status.sid + "/pings/30", function (err, pings) {
+				if (typeof pings !== 'object') return next();
+
+				var date, hours, minutes, meridiem, chart;
+
+				var options = {
+					showScale: false,
+					scaleShowGridLines : true,
+					scaleGridLineColor : "rgba(0,0,0,.05)",
+					scaleGridLineWidth : 1,
+					scaleShowHorizontalLines: true,
+					scaleShowVerticalLines: true,
+					scaleOverride : true,
+					scaleStepWidth : 1,
+					scaleStartValue : 14,
+					bezierCurve : false,
+					bezierCurveTension : 0.4,
+					pointDot : true,
+					pointDotRadius : 2,
+					pointDotStrokeWidth : 1,
+					pointHitDetectionRadius : 4,
+					datasetStroke : true,
+					datasetStrokeWidth : 2,
+					datasetFill : true,
+					scaleBeginAtZero: true,
+					responsive: true,
+					tooltipTemplate: "<%if (label){%><%=label%><%}%>: <%= value %> TPS",
+					backgroundColor: "#ffffff"
+				};
+
+				var data = {
+					labels: [ ],
+					datasets: [
+						{
+							label: "",
+							fillColor: "rgba(151,187,205,1)",
+							strokeColor: "rgba(151,187,205,1)",
+							pointColor: "rgba(151,187,205,1)",
+							pointStrokeColor: "#fff",
+							pointHighlightFill: "#fff",
+							pointHighlightStroke: "rgba(151,187,205,1)",
+							data: [ ]
+						}
+					]
+				};
+
+				for (var stamp in pings) {
+					date = new Date(parseInt(stamp,10));
+					hours = date.getHours() < 13 ? (date.getHours() === 0 ? 12 : date.getHours()) : date.getHours() - 12;
+					minutes = (date.getMinutes() < 10 ? "0" : "") + date.getMinutes();
+					meridiem = date.getHours() < 12 ? "AM" : "PM";
+					data.labels.unshift(hours + ":" + minutes + " " + meridiem);
+					data.datasets[0].data.unshift(pings[stamp].tps);
+				}
+
+				options.scaleSteps = 6;
+
+				switch ('line') {
+					case "Pie":
+					case "pie":
+						chart = new Chart($widget[0].getContext('2d')).Pie(data, options);
+						break;
+					case "Donut":
+					case "donut":
+						chart = new Chart($widget[0].getContext('2d')).Pie(data, options);
+						break;
+					case "Line":
+					case "line":
+					default:
+						chart = new Chart($widget[0].getContext('2d')).Line(data, options);
+						break;
+				}
+
+				$widget.data('chart', chart);
+
+				next();
+			});
+		});
+
 	});
 };
 
