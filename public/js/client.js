@@ -540,13 +540,6 @@ $(window).on('action:widgets.loaded', function (event) {
 			resizeCanvases();
 		});
 	});
-
-	$('.mcwe-widget-status, .mcwe-widget-minimap').each(function(){
-		var $widget = $(this);
-
-		$widget.find('h3').css('max-width', '90%');
-		$widget.find('>.panel').prepend('<i style="position:relative;right:6px;top:6px;font-size:22px;" class="fa fa-compass pointer pull-right has-tooltip mcwe-modalmapicon" data-title="Open Map" data-toggle="modal" data-target="#mcwe-modal-'+ $widget.data('mcwe-mid') +'" style="font-size: 20px;"></i>');
-	});
 });
 
 var miIDcounter = 1;
