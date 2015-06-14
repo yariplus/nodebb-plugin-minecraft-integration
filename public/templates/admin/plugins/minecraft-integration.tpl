@@ -21,7 +21,7 @@
 									<div class="col-sm-7 col-xs-12 input-field">
 										<label for="avatarCDN">[[mi:avatar_cdn]]</label>
 										<select name="avatarCDN" class="form-control">
-											<option value="mojang">Mojang</option>
+											<!--<option value="mojang">Mojang</option>-->
 											<option value="cravatar" selected="selected">Cravatar.eu</option>
 											<option value="minotar">Minotar</option>
 											<option value="signaturecraft">Signaturecraft</option>

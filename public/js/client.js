@@ -366,6 +366,8 @@ MinecraftIntegration.updateCharts = function (status) {
 };
 
 MinecraftIntegration.setGraphs = function (status) {
+	// TODO: Need to clean this up.
+
 	require(['/vendor/chart.js/chart.min.js', MinecraftIntegration.__MIDIR + 'js/vendor/async.min.js'], function (Chart, async) {
 
 		async.each($('[data-widget="mi-players-graph"][data-sid="' + status.sid + '"]'), function ($widget, next) {
@@ -515,6 +517,57 @@ MinecraftIntegration.setGraphs = function (status) {
 					case "Pie":
 					case "pie":
 						chart = new Chart($widget[0].getContext('2d')).Pie(data, options);
+						break;
+					case "Donut":
+					case "donut":
+						chart = new Chart($widget[0].getContext('2d')).Pie(data, options);
+						break;
+					case "Line":
+					case "line":
+					default:
+						chart = new Chart($widget[0].getContext('2d')).Line(data, options);
+						break;
+				}
+
+				$widget.data('chart', chart);
+
+				next();
+			});
+		});
+
+		async.each($('[data-widget="mi-top-graph"][data-sid="' + status.sid + '"]'), function ($widget, next) {
+			$widget = $($widget).find('.mi-canvas');
+
+			MinecraftIntegration.API.get("playtimes/top", function (err, players) {
+				if (typeof players !== 'object') return next();
+
+				var time;
+
+				var options = {
+					responsive: true,
+					tooltipTemplate: "<%if (label){%><%=label%><%}%>: <%= value %>"
+				};
+
+				var data = [ ];
+
+				console.log(players);
+				for (var i in players) {
+					// TODO: Increment time.
+
+					data.unshift({
+						value: parseInt(players[i].playtime, 10),
+						color: "#5B94DE",
+						highlight: "#AADDFF",
+						label: players[i].playername
+					});
+				}
+				console.log(data);
+
+				switch ('pie') {
+					case "Pie":
+					case "pie":
+						chart = new Chart($widget[0].getContext('2d')).Pie(data, options);
+						console.log(chart);
 						break;
 					case "Donut":
 					case "donut":
