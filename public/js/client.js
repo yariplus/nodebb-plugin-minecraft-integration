@@ -173,6 +173,10 @@ MinecraftIntegration.setPlayers = function (data) {
 							var $img = $('[data-uuid="' + player.id + '"]');
 							if ($img.length) {
 								MinecraftIntegration.API.get("uuid/" + player.id + "/playtime", function (err, playtime) {
+									playtime = parseInt(playtime, 10);
+									if (playtime > 60) {
+										playtime = Math.floor(playtime / 60).toString() + " Hours, " + (playtime % 60).toString();
+									}
 									$img.parent().parent().find('.mi-score').html(playtime);
 									next();
 								});
@@ -614,18 +618,20 @@ $(window).on('action:widgets.loaded', function (event) {
 			}
 
 			$this.find('button').click(function (e) {
+				if (app.user.uid === 0) return;
 				var $this = $(this);
 
-				socket.emit('plugins.MinecraftIntegration.PlayerChat', {sid: sid, chat: {playername: '[WEB]', message: $this.parent().prev().children('input').val()}});
+				socket.emit('plugins.MinecraftIntegration.PlayerChat', {sid: sid, chat: {playername: '[WEB] ' + app.user.username, message: $this.parent().prev().children('input').val()}});
 				$this.parent().prev().children('input').val('');
 			});
 
 			$this.find('input').keyup(function(e){
+				if (app.user.uid === 0) return;
 				if(e.keyCode == 13)
 				{
 					var $this = $(this);
 
-					socket.emit('plugins.MinecraftIntegration.PlayerChat', {sid: sid, chat: {playername: '[WEB]', message: $this.val()}});
+					socket.emit('plugins.MinecraftIntegration.PlayerChat', {sid: sid, chat: {playername: '[WEB] ' + app.user.username, message: $this.val()}});
 					$this.val('');
 				}
 			});

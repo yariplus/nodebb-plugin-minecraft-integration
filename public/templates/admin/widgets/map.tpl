@@ -14,7 +14,7 @@
         <option value="dynmap">Dynmap</option>
         <option value="overviewer">Overviewer</option>
     </select>
-    <input type="hidden" class="ajaxSelectSibling" name="type">
+    <input type="hidden" class="ajaxSelectSibling" name="mapplugin">
 </div>
 
 <div class="form-group">
