@@ -1,6 +1,6 @@
 {
   "name": "nodebb-plugin-minecraft-integration",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "NodeBB Plugin Minecraft Integration",
   "main": "library.js",
   "scripts": {
@@ -38,7 +38,7 @@
     "validator": "*"
   },
   "nbbpm": {
-    "compatibility": ">=0.5.7"
+    "compatibility": ">=0.6.0"
   },
   "homepage": "https://github.com/yariplus/nodebb-plugin-minecraft-integration"
 }
