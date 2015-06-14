@@ -295,7 +295,7 @@ socket.on('mi.PlayerChat', function (data) {
 		async.each($('[data-widget="mi-chat"][data-sid="' + data.sid + '"]'), function ($widget, next) {
 			$widget = $($widget);
 
-			$widget.find('div').append("<span>" + data.chat.username + ": " + data.chat.message + "</span><br>");
+			$widget.find('div').append("<span>" + data.chat.playername + ": " + data.chat.message + "</span><br>");
 			$widget.find('div').scrollTop(100000);
 		});
 	});
@@ -605,13 +605,20 @@ $(window).on('action:widgets.loaded', function (event) {
 				$parent = $this.parent(),
 				sid = $this.attr('data-sid');
 
+			if (!$parent.is('[widget-area]')) {
+				$parent.css('padding-top', '0').css('padding-left', '0').css('padding-right', '0').css('padding-bottom', '0');
+			}
+
 			if (sids.indexOf(sid) < 0) {
 				sids.push(sid);
 			}
 
-			if (!$parent.is('[widget-area]')) {
-				$parent.css('padding-top', '0').css('padding-left', '0').css('padding-right', '0').css('padding-bottom', '0');
-			}
+			$this.find('button').click(function (e) {
+				var $this = $(this);
+
+				socket.emit('plugins.MinecraftIntegration.PlayerChat', {sid: sid, chat: {playername: '[WEB]', message: $this.parent().prev().children('input').val()}});
+				$this.parent().prev().children('input').val('');
+			});
 
 			next();
 		}, function (err) {
@@ -634,7 +641,7 @@ $(window).on('action:ajaxify.end', function (event, url) {
 
 	switch (url) {
 		case 'admin/extend/widgets':
-			setTimeout(function(){ $(window).trigger('action:widgets.adminDataLoaded'); }, 5000);
+			setTimeout(function(){ $(window).trigger('action:widgets.adminDataLoaded'); }, 2500);
 			break;
 	}
 });

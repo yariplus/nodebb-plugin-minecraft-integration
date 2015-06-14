@@ -111,13 +111,6 @@
                     </label>
                 </div>
             </div>
-            <div class="form-group">
-                <div class="checkbox">
-                    <label>
-                        <input type="checkbox" name="hidePluginList">Hide plugin list?
-                    </label>
-                </div>
-            </div>
         </div>
     </div>
     <div class="panel panel-success">
@@ -141,43 +134,14 @@
                 <label class="control-label">Text&nbsp;Color</label>
                 <input type="text" class="form-control ajaxInputColorPicker" name="colorText" preview=".mcWidgetText">
             </div>
-            <div class="form-group">
-                <div class="checkbox">
-                    <label>
-                        <input type="checkbox" name="showGlory">Show Avatar Border?
-                    </label>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Avatar Border Style</label>
-                <select class="form-control">
-                    <option value="double" selected="selected">Double</option>
-                    <option value="ridge">Ridge</option>
-                    <option value="groove">Groove</option>
-                    <option value="inset">Inset</option>
-                    <option value="outset">Outset</option>
-                    <option value="solid">Solid</option>
-                    <option value="dashed">Dashed</option>
-                    <option value="dotted">Dotted</option>
-                </select>
-                <input type="hidden" class="ajaxSelectSibling" name="styleGlory">
-            </div>
-            <div class="form-group">
-                <label class="control-label">Avatar Border gradient starting color.</label>
-                <div>
-                    <input type="text" class="form-control ajaxInputColorPicker" name="gloryStart">
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="control-label">Avatar Border gradient ending color.</label>
-                <input type="text" class="form-control ajaxInputColorPicker" name="gloryEnd">
-            </div>
         </div>
     </div>
+
     <div class="panel panel-success">
         <div class="panel-heading" data-target=".mi-map-options" data-toggle="collapse">
             <span class="panel-title">[[mi:map_options]]</span>
         </div>
+
         <div class="panel-body collapse mi-map-options">
             <div class="form-group">
                 <div class="checkbox">
@@ -186,6 +150,7 @@
                     </label>
                 </div>
             </div>
+
             <div class="form-group">
                 <div class="checkbox">
                     <label>
@@ -193,114 +158,41 @@
                     </label>
                 </div>
             </div>
+
+			<div class="form-group">
+				<label>Map Plugin</label>
+				<select class="form-control">
+					<option value="dynmap">Dynmap</option>
+					<option value="overviewer">Overviewer</option>
+				</select>
+				<input type="hidden" class="ajaxSelectSibling" name="maptype">
+			</div>
+
             <div class="form-group">
-                <label class="control-label">Map Host Address</label>
-                <input type="text" class="form-control" name="mapuri" placeholder="http://ServerHost:8123/">
+                <label class="control-label">Map Address</label>
+                <input type="text" class="form-control" name="mapuri" placeholder="http://localhost:8123/">
             </div>
             <div class="form-group">
                 <label class="control-label">World Name</label>
-                <input class="form-control" type="text" name="mapworld">
+                <input class="form-control" type="text" name="mapworld" placeholder="world">
             </div>
             <div class="form-group">
                 <label class="control-label">Map Type</label>
-                <input class="form-control" type="text" name="maptype">
+                <input class="form-control" type="text" name="maptype" placeholder="surface">
             </div>
             <div class="form-group">
                 <label class="control-label">Zoom Level</label>
-                <input class="form-control" type="text" name="mapzoom">
+                <input class="form-control" type="text" name="mapzoom" placeholder="-2">
             </div>
             <div class="form-group">
                 <label class="control-label">X Coordinate</label>
-                <input class="form-control" type="text" name="mapx">
+                <input class="form-control" type="text" name="mapx" placeholder="0">
             </div>
             <div class="form-group">
                 <label class="control-label">Z Coordinate</label>
-                <input class="form-control" type="text" name="mapz">
+                <input class="form-control" type="text" name="mapz" placeholder="0">
             </div>
         </div>
     </div>
-    <div class="panel panel-success">
-        <div class="panel-heading" data-target=".mi-custom-rows" data-toggle="collapse">
-            <span class="panel-title">[[mi:custom_rows]]</span>
-        </div>
-        <div class="panel-body collapse mi-custom-rows">
-            <h4><u>Custom Row 1</u></h4>
-            <div class="form-group well">
-                <div class="checkbox">
-                    <label>
-                        <input type="checkbox" name="usecustom1">Enable
-                    </label>
-                </div>
-                <label class="control-label" for="custom1orderafter">Place Row</label>
-                <select class="form-control" id="custom1orderafter">
-                    <option value="name" selected="selected">After Title</option>
-                    <option value="status">After Status</option>
-                    <option value="address">After Address</option>
-                    <option value="version">After Version</option>
-                    <option value="players">After Players</option>
-                </select>
-                <input type="hidden" class="ajaxSelectSibling" name="custom1orderafter">
-                <label class="control-label" for="custom1label">
-                    Label
-                    <input type="text" class="form-control" id="custom1label" name="custom1label" placeholder="Label" />
-                </label>
-                <label class="control-label" for="custom1text">
-                    Text
-                    <input type="text" class="form-control" id="custom1text" name="custom1text" placeholder="Text" />
-                </label>
-            </div>
 
-            <h4><u>Custom Row 2</u></h4>
-            <div class="form-group well">
-                <div class="checkbox">
-                    <label>
-                        <input type="checkbox" name="usecustom2">Enable
-                    </label>
-                </div>
-                <label class="control-label" for="custom2orderafter">Place Row</label>
-                <select class="form-control" id="custom2orderafter">
-                    <option value="name" selected="selected">After Title</option>
-                    <option value="status">After Status</option>
-                    <option value="address">After Address</option>
-                    <option value="version">After Version</option>
-                    <option value="players">After Players</option>
-                </select>
-                <input type="hidden" class="ajaxSelectSibling" name="custom2orderafter">
-                <label class="control-label" for="custom2label">
-                    Label
-                    <input type="text" class="form-control" id="custom2label" name="custom2label" placeholder="Label" />
-                </label>
-                <label class="control-label" for="custom2text">
-                    Text
-                    <input type="text" class="form-control" id="custom2text" name="custom2text" placeholder="Text" />
-                </label>
-            </div>
-
-            <h4><u>Custom Row 3</u></h4>
-            <div class="form-group well">
-                <div class="checkbox">
-                    <label>
-                        <input type="checkbox" name="usecustom3">Enable
-                    </label>
-                </div>
-                <label class="control-label" for="custom3orderafter">Place Row</label>
-                <select class="form-control" id="custom3orderafter">
-                    <option value="name" selected="selected">After Title</option>
-                    <option value="status">After Status</option>
-                    <option value="address">After Address</option>
-                    <option value="version">After Version</option>
-                    <option value="players">After Players</option>
-                </select>
-                <input type="hidden" class="ajaxSelectSibling" name="custom3orderafter">
-                <label class="control-label" for="custom3label">
-                    Label
-                    <input type="text" class="form-control" id="custom3label" name="custom3label" placeholder="Label" />
-                </label>
-                <label class="control-label" for="custom3text">
-                    Text
-                    <input type="text" class="form-control" id="custom3text" name="custom3text" placeholder="Text" />
-                </label>
-            </div>
-        </div>
-    </div>
 </div>
