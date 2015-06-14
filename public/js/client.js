@@ -620,12 +620,34 @@ $(window).on('action:widgets.loaded', function (event) {
 				$this.parent().prev().children('input').val('');
 			});
 
+			$this.find('input').keyup(function(e){
+				if(e.keyCode == 13)
+				{
+					var $this = $(this);
+
+					socket.emit('plugins.MinecraftIntegration.PlayerChat', {sid: sid, chat: {playername: '[WEB]', message: $this.val()}});
+					$this.val('');
+				}
+			});
+
 			next();
 		}, function (err) {
 			for (var i = 0; i < sids.length; i++) {
 				MinecraftIntegration.API.get('server/' + sids[i], function (err, status) {
 					MinecraftIntegration.setPlayers(status);
 					MinecraftIntegration.setGraphs(status);
+				});
+
+				socket.emit('plugins.MinecraftIntegration.getChat', {sid: sids[i]}, function (err, data) {
+					async.each($('[data-widget="mi-chat"][data-sid="' + data.sid + '"]'), function ($widget, next) {
+						$chatbox = $($widget).find('div');
+
+						for (var i in data.chats) {
+							$chatbox.append("<span>" + data.chats[i].playername + ": " + data.chats[i].message + "</span><br>");
+						}
+
+						$chatbox.scrollTop(100000);
+					});
 				});
 			}
 
