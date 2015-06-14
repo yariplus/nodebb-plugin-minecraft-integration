@@ -2,7 +2,7 @@
     <table class="table widget-table">
 		<tbody>
 			<tr>
-				<td>
+				<td colspan="2">
 					<div class="mi-chat-box">
 					</div>
 				</td>
