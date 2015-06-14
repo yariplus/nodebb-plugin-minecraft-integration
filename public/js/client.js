@@ -216,6 +216,13 @@ MinecraftIntegration.addPlayer = function (data) {
 							var $avatar = $($.parseHTML(results.avatarTemplate.replace("{name}", data.player.name).replace("{styleGlory}", "").replace("{players.glory}", "").replace("{players.name}", data.player.name)));
 							$avatar.css("display", "none");
 							$avatar.data('id', data.player.id);
+							if (!$avatar.parent().is('a')) {
+								MinecraftIntegration.API.get("uuid/" + data.player.id + "/username", function (err, username) {
+									if (username && username !== '[[global:guest]]') {
+										$avatar.wrap('<a href="/user/' + username + '"/>');
+									}
+								});
+							}
 							$avatar.appendTo($widget.find('.avatars'));
 							$avatar.fadeToggle(600, 'linear');
 						}
