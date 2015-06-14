@@ -19,14 +19,6 @@
 
 								<div class="row input-row">
 									<div class="col-sm-7 col-xs-12 input-field">
-										<label for="api-key">[[mi:api_key]]</label>
-										<input name="api-key" type="text" class="form-control" placeholder="SECRETPASSWORD" />
-									</div>
-									<div class="col-sm-5 help-text" data-help="[[mi:help_api_key]]"></div>
-								</div>
-
-								<div class="row input-row">
-									<div class="col-sm-7 col-xs-12 input-field">
 										<label for="avatarCDN">[[mi:avatar_cdn]]</label>
 										<select name="avatarCDN" class="form-control">
 											<option value="mojang">Mojang</option>
@@ -64,6 +56,15 @@
 									</div>
 									<div class="col-sm-5 help-text" data-help="[[mi:help_avatar_style]]"></div>
 								</div>
+								
+								<div class="row input-row">
+									<div class="col-sm-7 col-xs-12 input-field">
+										<label for="api-key">[[mi:api_key]]</label>
+										<input name="api-key" type="text" class="form-control" placeholder="SECRETPASSWORD" />
+									</div>
+									<div class="col-sm-5 help-text" data-help="[[mi:help_api_key]]"></div>
+								</div>
+								
 								<hr>
 								<h3>[[mi:active_servers]]</h3>
 								<div class="panel-group" id="server-list">
