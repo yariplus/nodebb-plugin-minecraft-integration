@@ -99,7 +99,7 @@ MinecraftIntegration.setPlayers = function (data) {
 									}
 									if (avatar) {
 										var avatarTemplate = results.avatarTemplate.replace("{url}", "data:image/png;base64," + avatar);
-										var $avatar = $($.parseHTML(avatarTemplate.replace("{name}", data.players[i].name).replace("{styleGlory}", "double").replace("{players.glory}", "pink").replace("{players.name}", data.players[i].name)));
+										var $avatar = $($.parseHTML(avatarTemplate.replace("{name}", data.players[i].name).replace("{styleGlory}", "").replace("{players.glory}", "").replace("{players.name}", data.players[i].name)));
 										$avatar.css("display", "none");
 										$avatar.data('id', data.players[i].id);
 										if (!$avatar.parent().is('a')) {
@@ -213,7 +213,7 @@ MinecraftIntegration.addPlayer = function (data) {
 						}
 						if (avatar) {
 							results.avatarTemplate = results.avatarTemplate.replace("{url}", "data:image/png;base64," + avatar);
-							var $avatar = $($.parseHTML(results.avatarTemplate.replace("{name}", data.player.name).replace("{styleGlory}", "double").replace("{players.glory}", "pink").replace("{players.name}", data.player.name)));
+							var $avatar = $($.parseHTML(results.avatarTemplate.replace("{name}", data.player.name).replace("{styleGlory}", "").replace("{players.glory}", "").replace("{players.name}", data.player.name)));
 							$avatar.css("display", "none");
 							$avatar.data('id', data.player.id);
 							$avatar.appendTo($widget.find('.avatars'));
@@ -269,29 +269,21 @@ MinecraftIntegration.removePlayer = function (data) {
 };
 
 socket.on('mi.PlayerJoin', function (data) {
-	console.log("[Minecraft Integration] I saw " + data.player.name + " " + data.player.id + " joined the server.");
-
 	MinecraftIntegration.addPlayer(data);
 	MinecraftIntegration.updateCharts(data);
 });
 
 socket.on('mi.PlayerQuit', function (data) {
-	console.log("[Minecraft Integration] I saw " + data.player.name + " " + data.player.id + " quit the server.");
-
 	MinecraftIntegration.removePlayer(data);
 	MinecraftIntegration.updateCharts(data);
 });
 
 socket.on('mi.status', function (data) {
-	console.log("[Minecraft Integration] Received status update: ", data);
-
 	MinecraftIntegration.setPlayers(data);
 	MinecraftIntegration.setGraphs(data);
 });
 
 socket.on('mi.PlayerChat', function (data) {
-	console.log("[Minecraft Integration] Received chat update.");
-
 	require([MinecraftIntegration.__MIDIR + 'js/vendor/async.min.js'], function (async) {
 		async.each($('[data-widget="mi-chat"][data-sid="' + data.sid + '"]'), function ($widget, next) {
 			$widget = $($widget);
@@ -300,10 +292,6 @@ socket.on('mi.PlayerChat', function (data) {
 			$widget.find('div').scrollTop(100000);
 		});
 	});
-});
-
-socket.on('mi.ping', function (ping) {
-	console.log("[Minecraft Integration] Received server ping: ", ping);
 });
 
 define('admin/plugins/minecraft-integration', function () {
@@ -563,7 +551,6 @@ MinecraftIntegration.setGraphs = function (status) {
 
 				var data = [ ];
 
-				console.log(players);
 				for (var i in players) {
 					// TODO: Increment time.
 
@@ -574,13 +561,11 @@ MinecraftIntegration.setGraphs = function (status) {
 						label: players[i].playername
 					});
 				}
-				console.log(data);
 
 				switch ('pie') {
 					case "Pie":
 					case "pie":
 						chart = new Chart($widget[0].getContext('2d')).Pie(data, options);
-						console.log(chart);
 						break;
 					case "Donut":
 					case "donut":
@@ -640,21 +625,11 @@ var miIDcounter = 1;
 $(window).on('action:ajaxify.end', function (event, url) {
 	url = url.url.split('?')[0].split('#')[0];
 
-	console.log('ajaxify.end: ' + url);
-
 	switch (url) {
 		case 'admin/extend/widgets':
 			setTimeout(function(){ $(window).trigger('action:widgets.adminDataLoaded'); }, 5000);
 			break;
 	}
-});
-
-$(window).on('action:ajaxify.contentLoaded', function (event, data) {
-	console.log("contentLoaded: " + JSON.stringify(data));
-});
-
-$(window).on('action:ajaxify.dataLoaded', function (event, data) {
-	console.log("dataLoaded: " + JSON.stringify(data));
 });
 
 $(window).on('action:widgets.adminDataLoaded', function (event, data) {
