@@ -289,6 +289,19 @@ socket.on('mi.status', function (data) {
 	MinecraftIntegration.setGraphs(data);
 });
 
+socket.on('mi.PlayerChat', function (data) {
+	console.log("[Minecraft Integration] Received chat update.");
+
+	require([MinecraftIntegration.__MIDIR + 'js/vendor/async.min.js'], function (async) {
+		async.each($('[data-widget="mi-chat"][data-sid="' + data.sid + '"]'), function ($widget, next) {
+			$widget = $($widget);
+
+			$widget.find('div').append("<span>" + data.chat.username + ": " + data.chat.message + "</span><br>");
+			$widget.find('div').scrollTop(100000);
+		});
+	});
+});
+
 socket.on('mi.ping', function (ping) {
 	console.log("[Minecraft Integration] Received server ping: ", ping);
 });
