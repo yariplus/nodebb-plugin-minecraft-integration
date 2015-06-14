@@ -684,7 +684,20 @@ $(window).on('action:widgets.adminDataLoaded', function (event, data) {
 			return;
 		}
 
-		title = title.replace(/\{\{motd\}\}/g, $panel.data('motd'));
+		if ($panel.data('motd') === void 0) {
+			$.get('/api/minecraft-integration/server/' + $panel.find('[name="sid"]').val() + "?v=" + config['cache-buster'], function (server) {
+				if (server && server.motd && server.name) {
+					$panel.data('motd', server.motd);
+					$panel.data('name', server.name);
+				}else{
+					$panel.data('motd', '');
+					$panel.data('name', '');
+				}
+				formatTitle($panel);
+			});
+		}
+
+		title = title.replace(/\{\{motd\}\}/g, $panel.data('motd') || $panel.find('[name="sid"]').val());
 		title = title.replace(/\{\{name\}\}/g, $panel.data('name'));
 		title = title.replace(/[§&][0123456789abcdefklmnorABCDEFKLMNOR]/g, '');
 
