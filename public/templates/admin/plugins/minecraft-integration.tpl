@@ -3,6 +3,7 @@
 		<ul class="nav nav-tabs" role="tablist">
 			<li role="presentation" class="active"><a href="#mi-tab-settings" aria-controls="mi-tab-settings" role="tab" data-toggle="tab">Settings</a></li>
 			<li role="presentation"><a href="#mi-tab-players" aria-controls="mi-tab-players" role="tab" data-toggle="tab">Players</a></li>
+			<li role="presentation"><a href="#mi-tab-maintenance" aria-controls="mi-tab-maintenance" role="tab" data-toggle="tab">Maintenance</a></li>
 		</ul>
 		<div class="tab-content">
 			<div role="tabpanel" class="tab-pane active" id="mi-tab-settings">
@@ -99,6 +100,23 @@
 				</div>
 			</div>
 			<div role="tabpanel" class="tab-pane" id="mi-tab-players">...</div>
+			<div role="tabpanel" class="tab-pane" id="mi-tab-maintenance">
+				<div class="row">
+					<div class="col-lg-9">
+						<div class="panel panel-primary">
+							<table class="table table-striped">
+								<tbody>
+									<tr>
+										<td>
+											<button id="mi-btn-clear-avatar-cache" class="btn btn-primary">Clear Avatar Cache</button>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
     <div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" id="mia-modal-servers">
