@@ -5,6 +5,7 @@ var	MinecraftIntegration = {
 		Hooks: require('./lib/hooks')
 	},
 
+	Admin   = require('./lib/admin'),
 	API     = require('./lib/api'),
 	Backend = require('./lib/backend'),
 	Config  = require('./lib/config'),
@@ -32,16 +33,7 @@ MinecraftIntegration.load = function (data, next) {
 	NodeBB.init();
 	API.init();
 	Views.init();
-
-	NodeBB.SocketAdmin.settings.syncMinecraftIntegration = function(){
-		Config.settings.sync(function(){
-			Config.logSettings();
-		});
-	};
-
-	NodeBB.SocketAdmin.settings.resetMinecraftIntegration = function(){
-		Config.settings.reset(Config.logSettings);
-	};
+	Admin.init();
 
 	setTimeout(Config.logSettings, 1500);
 	setTimeout(Backend.updateServers, 2000);

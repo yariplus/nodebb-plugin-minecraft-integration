@@ -2,6 +2,11 @@
 
 MinecraftIntegration = { templates: { } };
 
+MinecraftIntegration.log = function (memo) {
+	if (typeof memo === 'object') memo = JSON.stringify(memo);
+	console.log("[Minecraft Integration] " + memo);
+};
+
 MinecraftIntegration.__MIDIR = "/plugins/nodebb-plugin-minecraft-integration/public/";
 
 MinecraftIntegration.getTemplate = function (template, callback) {
@@ -49,7 +54,11 @@ MinecraftIntegration.API.get = function (routes, callback) {
 };
 
 MinecraftIntegration.setPlayers = function (data) {
-	if (!(data && data.sid !== void 0 && Array.isArray(data.players))) return;
+	if (!(data && data.sid !== void 0 && Array.isArray(data.players))) {
+		MinecraftIntegration.log("Received invalid status data.");
+		MinecraftIntegration.log(data);
+		return;
+	}
 
 	require([MinecraftIntegration.__MIDIR + 'js/vendor/async.min.js'], function (async) {
 		async.parallel({
@@ -639,7 +648,7 @@ $(window).on('action:widgets.loaded', function (event) {
 			next();
 		}, function (err) {
 			for (var i = 0; i < sids.length; i++) {
-				MinecraftIntegration.API.get('server/' + sids[i], function (err, status) {
+				socket.emit('plugins.MinecraftIntegration.getServerStatus', {sid: sids[i]}, function (err, status) {
 					MinecraftIntegration.setPlayers(status);
 					MinecraftIntegration.setGraphs(status);
 				});
