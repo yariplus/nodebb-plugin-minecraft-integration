@@ -1,6 +1,6 @@
 {
   "name": "nodebb-plugin-minecraft-integration",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "NodeBB Plugin Minecraft Integration",
   "main": "library.js",
   "scripts": {
