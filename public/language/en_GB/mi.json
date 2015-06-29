@@ -35,6 +35,8 @@
     "xapi": "NodeBB-Integration Address",
     "help_xapi": "Enter the address for your NodeBB-Integration Plugin for Bukkit, Bungeecord, Sponge, or Node.",
     "error_xapi": "Needs to be a valid IP, DNS, or SRV.",
+	"hide_plugins": "Hide Plugins",
+	"hide_plugins_help": "This will prevent plugin data from being displayed on widgets and exposed to any API calls.",
     "add_server": "Add a Server",
     "view_servers": "View all Servers",
     "reset_admin": "Reset Fields",

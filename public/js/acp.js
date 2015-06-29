@@ -98,6 +98,7 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 			$server.find('[name=rcon-port]').val(server.rconPort);
 			$server.find('[name=rcon-pass]').val(server.rconPass);
 			$server.find('[name=xapi]').val(server.xAPI);
+			$server.find('[name=hide-plugins]').prop( "checked", server.hidePlugins);
 			$server.find('a').text(server.name);
 		}
 
@@ -135,10 +136,10 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 				e.preventDefault();
 				if (!validateAll()) return;
 
-				settings.cfg._.APIKey = $('[name=api-key]').val();
-				settings.cfg._.avatarCDN = $('[name=avatarCDN]').val();
-				settings.cfg._.customCDN = $('[name=custom-cdn]').val();
-				settings.cfg._.avatarSize = $('[name=avatarSize]').val();
+				settings.cfg._.APIKey      = $('[name=api-key]').val();
+				settings.cfg._.avatarCDN   = $('[name=avatarCDN]').val();
+				settings.cfg._.customCDN   = $('[name=custom-cdn]').val();
+				settings.cfg._.avatarSize  = $('[name=avatarSize]').val();
 				settings.cfg._.avatarStyle = $('[name=avatarStyle]').val();
 
 				for (var server in settings.cfg._.servers) {
@@ -150,13 +151,14 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 					var $el = $(el), serverNum = $el.data('server-num');
 					if ($el.find('[name=name]').val()) {
 						settings.cfg._.servers[serverNum] = { };
-						settings.cfg._.servers[serverNum].name		= $el.find('[name=name]').val();
-						settings.cfg._.servers[serverNum].address	= $el.find('[name=address]').val();
-						settings.cfg._.servers[serverNum].queryPort	= $el.find('[name=query-port]').val();
-						settings.cfg._.servers[serverNum].rconPort	= $el.find('[name=rcon-port]').val();
-						settings.cfg._.servers[serverNum].rconPass	= $el.find('[name=rcon-pass]').val();
-						settings.cfg._.servers[serverNum].xAPI		= $el.find('[name=xapi]').val();
-						settings.cfg._.servers[serverNum].active	= true;
+						settings.cfg._.servers[serverNum].name        = $el.find('[name=name]').val();
+						settings.cfg._.servers[serverNum].address     = $el.find('[name=address]').val();
+						settings.cfg._.servers[serverNum].queryPort   = $el.find('[name=query-port]').val();
+						settings.cfg._.servers[serverNum].rconPort    = $el.find('[name=rcon-port]').val();
+						settings.cfg._.servers[serverNum].rconPass    = $el.find('[name=rcon-pass]').val();
+						settings.cfg._.servers[serverNum].xAPI        = $el.find('[name=xapi]').val();
+						settings.cfg._.servers[serverNum].hidePlugins = $el.find('[name=hide-plugins]').is(':checked');
+						settings.cfg._.servers[serverNum].active      = true;
 					}else{
 						$el.remove();
 					}

@@ -32,5 +32,14 @@
             </div>
             <div class="col-sm-5 help-text" data-help="[[mi:help_xapi]]"></div>
         </div>
+        <div class="row input-row">
+            <div class="col-sm-7 col-xs-12 input-field">
+                <label class="control-label">
+                    <input name="hide-plugins" class="form-control" type="checkbox"/>
+                    [[mi:hide_plugins]]
+                </label>
+            </div>
+            <div class="col-sm-5 help-text" data-help="[[mi:hide_plugins_help]]"></div>
+        </div>
     </div>
 </div>
