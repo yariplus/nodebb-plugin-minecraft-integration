@@ -1,18 +1,18 @@
 /*
-RainbowVis-JS 
+RainbowVis-JS
 Released under Eclipse Public License - v 1.0
 */
 
-module.exports =  function Rainbow()
+function Rainbow()
 {
 	"use strict";
 	var gradients = null;
 	var minNum = 0;
 	var maxNum = 100;
-	var colours = ['ff0000', 'ffff00', '00ff00', '0000ff']; 
+	var colours = ['ff0000', 'ffff00', '00ff00', '0000ff'];
 	setColours(colours);
-	
-	function setColours (spectrum) 
+
+	function setColours (spectrum)
 	{
 		if (spectrum.length < 2) {
 			throw new Error('Rainbow must have two or more colours.');
@@ -22,19 +22,19 @@ module.exports =  function Rainbow()
 			firstGradient.setGradient(spectrum[0], spectrum[1]);
 			firstGradient.setNumberRange(minNum, minNum + increment);
 			gradients = [ firstGradient ];
-			
+
 			for (var i = 1; i < spectrum.length - 1; i++) {
 				var colourGradient = new ColourGradient();
 				colourGradient.setGradient(spectrum[i], spectrum[i + 1]);
-				colourGradient.setNumberRange(minNum + increment * i, minNum + increment * (i + 1)); 
-				gradients[i] = colourGradient; 
+				colourGradient.setNumberRange(minNum + increment * i, minNum + increment * (i + 1));
+				gradients[i] = colourGradient;
 			}
 
 			colours = spectrum;
 		}
 	}
 
-	this.setSpectrum = function () 
+	this.setSpectrum = function ()
 	{
 		setColours(arguments);
 		return this;
@@ -74,7 +74,7 @@ module.exports =  function Rainbow()
 	}
 }
 
-function ColourGradient() 
+function ColourGradient()
 {
 	"use strict";
 	var startColour = 'ff0000';
@@ -100,11 +100,11 @@ function ColourGradient()
 
 	this.colourAt = function (number)
 	{
-		return calcHex(number, startColour.substring(0,2), endColour.substring(0,2)) 
-			+ calcHex(number, startColour.substring(2,4), endColour.substring(2,4)) 
+		return calcHex(number, startColour.substring(0,2), endColour.substring(0,2))
+			+ calcHex(number, startColour.substring(2,4), endColour.substring(2,4))
 			+ calcHex(number, startColour.substring(4,6), endColour.substring(4,6));
 	}
-	
+
 	function calcHex(number, channelStart_Base16, channelEnd_Base16)
 	{
 		var num = number;
@@ -113,24 +113,24 @@ function ColourGradient()
 		}
 		if (num > maxNum) {
 			num = maxNum;
-		} 
+		}
 		var numRange = maxNum - minNum;
 		var cStart_Base10 = parseInt(channelStart_Base16, 16);
-		var cEnd_Base10 = parseInt(channelEnd_Base16, 16); 
+		var cEnd_Base10 = parseInt(channelEnd_Base16, 16);
 		var cPerUnit = (cEnd_Base10 - cStart_Base10)/numRange;
 		var c_Base10 = Math.round(cPerUnit * (num - minNum) + cStart_Base10);
 		return formatHex(c_Base10.toString(16));
 	}
 
-	function formatHex(hex) 
+	function formatHex(hex)
 	{
 		if (hex.length === 1) {
 			return '0' + hex;
 		} else {
 			return hex;
 		}
-	} 
-	
+	}
+
 	function isHexColour(string)
 	{
 		var regex = /^#?[0-9a-fA-F]{6}$/i;
@@ -149,7 +149,7 @@ function ColourGradient()
 			throw new Error(string + ' is not a valid colour.');
 		}
 	}
-	
+
 	// Extended list of CSS colornames s taken from
 	// http://www.w3.org/TR/css3-color/#svg-color
 	var colourNames = {
@@ -303,3 +303,6 @@ function ColourGradient()
 	}
 }
 
+if (typeof module !== 'undefined') {
+  module.exports = Rainbow;
+}

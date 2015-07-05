@@ -1,5 +1,7 @@
 "use strict";
 
+console.log("[Minecraft Integration] Loading...");
+
 MinecraftIntegration = { templates: { } };
 
 MinecraftIntegration.log = function (memo) {
@@ -52,6 +54,15 @@ MinecraftIntegration.API.get = function (routes, callback) {
 		});
 	});
 };
+
+// TEMP
+require([MinecraftIntegration.__MIDIR + 'js/vendor/rainbowvis.js'], function () {
+	if (Rainbow) {
+		MinecraftIntegration.log("Loaded Rainbow-vis");
+	}else{
+		MinecraftIntegration.log("Failed loading Rainbow-vis");
+	}
+});
 
 MinecraftIntegration.setPlayers = function (data) {
 	if (!(data && data.sid !== void 0 && Array.isArray(data.players))) {

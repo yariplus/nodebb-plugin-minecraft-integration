@@ -165,6 +165,13 @@
 
 .mi-container {
     position: relative;
+	min-height: 40px;
+
+	&[data-widget="mi-status"] {
+		[data-popover="plugin-list"] {
+			text-decoration: none;
+		}
+	}
 
     .widget-table {
         margin-bottom: 0px;
