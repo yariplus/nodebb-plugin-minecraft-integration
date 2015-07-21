@@ -193,6 +193,11 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 			}).on('click', '.mia-toggle-activation', function (e) {
 				console.log('MI: toggle server activation');
 				toggleServer($(e.target).closest('div').data('server-num'));
+			}).on('click', '#mi-btn-clear-avatar-cache', function (e) {
+				console.log("Doing it");
+				socket.emit('admin.MinecraftIntegration.resetCachedAvatars', { }, function () {
+					console.log("Did it");
+				});
 			});
 		}
 
@@ -253,8 +258,23 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 			}
 		});
 
-		socket.emit('plugins.MinecraftIntegration.getPlayers', { }, function (err, data) {
-			console.log("Response: " + data);
+		socket.emit('plugins.MinecraftIntegration.getUsers', { }, function (err, data) {
+			var $el = $('#miTableUUIDs');
+			for (var i = 0; i < data.length; i++) {
+				data[i].yuuid = data[i].yuuid.replace(/-/g, '&#8209;');
+				$el.append(
+					$('<tr data-uid="' + data[i].uid + '"><td class="compact">'+ data[i].yuuid + '</td><td>' + "player" + '</td><td><img src="' + data[i].picture + '" width="40px" height="40px"> ' + data[i].username + '</td><td class="compact"><button id="avatar-refresh" class="btn btn-primary">Refresh</button></td><td class="compact"><button id="avatar-delete" class="btn btn-primary">Delete</button></td></tr>')
+				);
+			}
+		});
+
+		socket.emit('plugins.MinecraftIntegration.getAvatars', { }, function (err, data) {
+			var $el = $('#miTableAvatars');
+			for (var i = 0; i < data.length; i++) {
+				$el.append(
+					$('<tr data-player="' + data[i].name + '"><td class="compact"><img src="data:image/png;base64,' + data[i]['base64'] + '" width="40px" height="40px"></td><td style="vertical-align: middle;">' + data[i].name + '</td><td></td><td class="compact"><button id="avatar-refresh" class="btn btn-primary">Refresh</button></td><td class="compact"><button id="avatar-delete" class="btn btn-primary">Delete</button></td></tr>')
+				);
+			}
 		});
 	};
 

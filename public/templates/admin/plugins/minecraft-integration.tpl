@@ -1,29 +1,43 @@
 <form id="minecraft-integration" autocomplete="off">
-	<div role="tabpanel">
-		<ul class="nav nav-tabs" role="tablist">
-			<li role="presentation" class="active"><a href="#mi-tab-settings" aria-controls="mi-tab-settings" role="tab" data-toggle="tab">Settings</a></li>
-			<li role="presentation"><a href="#mi-tab-players" aria-controls="mi-tab-players" role="tab" data-toggle="tab">Players</a></li>
-			<li role="presentation"><a href="#mi-tab-maintenance" aria-controls="mi-tab-maintenance" role="tab" data-toggle="tab">Maintenance</a></li>
-		</ul>
-		<div class="tab-content">
-			<div role="tabpanel" class="tab-pane active" id="mi-tab-settings">
-				<div class="row">
-					<div class="col-lg-9">
+	<h1 style="">
+		<!-- TEMP -->
+		<img style="margin-bottom: 7px;" src="/plugins/nodebb-plugin-minecraft-integration/public/images/Grass.png" width="42px" height="42px">
+		[[mi:minecraft_integration]]
+	</h1>
+	<div class="row">
+		<div class="col-lg-9">
+			<div role="tabpanel">
+				<ul class="nav nav-tabs" role="tablist">
+					<li role="presentation" class="active"><a href="#mi-tab-servers" aria-controls="mi-tab-servers" role="tab" data-toggle="tab">[[mi:active_servers]]</a></li>
+					<li role="presentation"><a href="#mi-tab-settings" aria-controls="mi-tab-settings" role="tab" data-toggle="tab">[[mi:general_settings]]</a></li>
+					<li role="presentation"><a href="#mi-tab-players" aria-controls="mi-tab-players" role="tab" data-toggle="tab">Registered Players</a></li>
+					<li role="presentation"><a href="#mi-tab-avatars" aria-controls="mi-tab-avatars" role="tab" data-toggle="tab">Cached Avatars</a></li>
+					<li role="presentation"><a href="#mi-tab-maintenance" aria-controls="mi-tab-maintenance" role="tab" data-toggle="tab">Maintenance</a></li>
+				</ul>
+				<div class="tab-content">
+					<div role="tabpanel" class="tab-pane active" id="mi-tab-servers">
 						<div class="panel panel-primary">
-							<div class="panel-heading">
-								<span class="panel-title">
-									[[mi:minecraft_integration]]
-								</span>
-							</div>
 							<div class="panel-body">
-								<h3>[[mi:general_settings]]</h3>
-
+								<div class="alert">
+									Servers listed here are pinged every minute and widgets are updated. If the NodeBB-Integration plugin is installed on the server, widgets are updated in real-time instead.
+								</div>
+								<div class="panel-group" id="server-list">
+								</div>
+								<button id="mia-add-server" type="button" class="btn btn-success"><i class="fa fa-plus fa-fw"></i> [[mi:add_server]]</button>
+								<button id="mia-view-servers" type="button" class="btn btn-warning"><i class="fa fa-cog fa-fw"></i> [[mi:view_servers]]</button>
+							</div>
+						</div>
+					</div>
+					<div role="tabpanel" class="tab-pane" id="mi-tab-settings">
+						<div class="panel panel-primary">
+							<div class="panel-body">
 								<div class="row input-row">
 									<div class="col-sm-7 col-xs-12 input-field">
 										<label for="avatarCDN">[[mi:avatar_cdn]]</label>
 										<select name="avatarCDN" class="form-control">
-											<!--<option value="mojang">Mojang</option>-->
-											<option value="cravatar" selected="selected">Cravatar.eu</option>
+											<option value="mojang" selected="selected">Mojang</option>-->
+											<option value="brony">Brony ModPack</option>
+											<option value="cravatar">Cravatar.eu</option>
 											<option value="minotar">Minotar</option>
 											<option value="signaturecraft">Signaturecraft</option>
 											<option value="custom">[[mi:custom]]</option>
@@ -65,44 +79,42 @@
 									</div>
 									<div class="col-sm-5 help-text" data-help="[[mi:help_api_key]]"></div>
 								</div>
-								
-								<hr>
-								<h3>[[mi:active_servers]]</h3>
-								<div class="panel-group" id="server-list">
-								</div>
-								<button id="mia-add-server" type="button" class="btn btn-success"><i class="fa fa-plus fa-fw"></i> [[mi:add_server]]</button>
-								<button id="mia-view-servers" type="button" class="btn btn-warning"><i class="fa fa-cog fa-fw"></i> [[mi:view_servers]]</button>
 							</div>
 						</div>
 					</div>
-					<div class="col-lg-3">
-						<div class="panel acp-panel-primary">
-							<div class="panel-heading">
-								[[mi:actions]]
-							</div>
-							<div class="panel-body">
-								<div class="form-group">
-									<button type="button" class="btn btn-warning form-control" id="mia-reset">
-										<i class="fa fa-fw fa-history"></i> [[mi:reset_admin]]
-									</button>
-								</div>
-								<div class="form-group">
-									<button type="button" class="btn btn-danger form-control" id="mia-delete">
-										<i class="fa fa-fw fa-times"></i> [[mi:delete_admin]]
-									</button>
-								</div>
-								<button type="button" class="btn btn-success form-control" id="mia-save">
-									<i class="fa fa-fw fa-save"></i> [[mi:save_admin]]
-								</button>
-							</div>
+					<div role="tabpanel" class="tab-pane" id="mi-tab-players">
+						<div class="panel panel-primary">
+							<table class="table table-striped">
+								<thead>
+									<tr>
+										<th>UUID</th>
+										<th>Player Name</th>
+										<th>User</th>
+										<th>Actions</th>
+										<th></th>
+									</tr>
+								</thead>
+								<tbody id="miTableUUIDs"></tbody>
+							</table>
 						</div>
 					</div>
-				</div>
-			</div>
-			<div role="tabpanel" class="tab-pane" id="mi-tab-players">...</div>
-			<div role="tabpanel" class="tab-pane" id="mi-tab-maintenance">
-				<div class="row">
-					<div class="col-lg-9">
+					<div role="tabpanel" class="tab-pane" id="mi-tab-avatars">
+						<div class="panel panel-primary">
+							<table class="table table-striped">
+								<thead>
+									<tr>
+										<th>#</th>
+										<th>Player Name</th>
+										<th>UUID</th>
+										<th>Actions</th>
+										<th></th>
+									</tr>
+								</thead>
+								<tbody id="miTableAvatars"></tbody>
+							</table>
+						</div>
+					</div>
+					<div role="tabpanel" class="tab-pane" id="mi-tab-maintenance">
 						<div class="panel panel-primary">
 							<table class="table table-striped">
 								<tbody>
@@ -115,6 +127,28 @@
 							</table>
 						</div>
 					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-lg-3">
+			<div class="panel acp-panel-primary">
+				<div class="panel-heading">
+					[[mi:actions]]
+				</div>
+				<div class="panel-body">
+					<div class="form-group">
+						<button type="button" class="btn btn-warning form-control" id="mia-reset">
+							<i class="fa fa-fw fa-history"></i> [[mi:reset_admin]]
+						</button>
+					</div>
+					<div class="form-group">
+						<button type="button" class="btn btn-danger form-control" id="mia-delete">
+							<i class="fa fa-fw fa-times"></i> [[mi:delete_admin]]
+						</button>
+					</div>
+					<button type="button" class="btn btn-success form-control" id="mia-save">
+						<i class="fa fa-fw fa-save"></i> [[mi:save_admin]]
+					</button>
 				</div>
 			</div>
 		</div>

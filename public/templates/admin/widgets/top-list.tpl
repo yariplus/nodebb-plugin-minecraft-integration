@@ -57,43 +57,6 @@
 </div>
 
 <div class="form-group">
-    <div class="checkbox">
-        <label>
-            <input type="checkbox" name="border">Show Avatar Border?
-        </label>
-    </div>
-</div>
-
-<div class="form-group">
-    <label>Avatar&nbsp;Border&nbsp;Style</label>
-    <select class="form-control">
-        <option value="double" selected="selected">Double</option>
-        <option value="ridge">Ridge</option>
-        <option value="groove">Groove</option>
-        <option value="inset">Inset</option>
-        <option value="outset">Outset</option>
-        <option value="solid">Solid</option>
-        <option value="dashed">Dashed</option>
-        <option value="dotted">Dotted</option>
-    </select>
-    <input type="hidden" class="ajaxSelectSibling" name="border-style">
-</div>
-
-<div class="form-group">
-    <label class="control-label">Avatar Border gradient start</label>
-    <div>
-        <input type="text" class="form-control ajaxInputColorPicker" name="border-start">
-    </div>
-</div>
-
-<div class="form-group">
-    <label class="control-label">Avatar Border gradient end</label>
-    <div>
-        <input type="text" class="form-control ajaxInputColorPicker" name="border-end">
-    </div>
-</div>
-
-<div class="form-group">
     <label class="control-label">Title&nbsp;Color</label>
     <div>
         <input type="text" class="form-control ajaxInputColorPicker" name="color-title">
@@ -105,4 +68,41 @@
     <div>
         <input type="text" class="form-control ajaxInputColorPicker" name="color-text">
     </div>
+</div>
+
+<div class="form-group">
+	<div class="checkbox">
+		<label>
+			<input type="checkbox" name="show-avatar-borders"> [[mi:show-avatar-borders]]
+		</label>
+	</div>
+</div>
+
+<div class="form-group">
+	<label>[[mi:avatar-border-style]]</label>
+	<select class="form-control">
+		<option value="double" selected="selected">Double</option>
+		<option value="ridge">Ridge</option>
+		<option value="groove">Groove</option>
+		<option value="inset">Inset</option>
+		<option value="outset">Outset</option>
+		<option value="solid">Solid</option>
+		<option value="dashed">Dashed</option>
+		<option value="dotted">Dotted</option>
+	</select>
+	<input type="hidden" class="ajaxSelectSibling" name="avatar-border-style">
+</div>
+
+<div class="form-group">
+	<label class="control-label">[[mi:avatar-border-start]]</label>
+	<div>
+		<input type="text" class="form-control ajaxInputColorPicker" name="avatar-border-start">
+	</div>
+</div>
+
+<div class="form-group">
+	<label class="control-label">[[mi:avatar-border-end]]</label>
+	<div>
+		<input type="text" class="form-control ajaxInputColorPicker" name="avatar-border-end">
+	</div>
 </div>

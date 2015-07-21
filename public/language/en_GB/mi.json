@@ -55,5 +55,10 @@
 	"mod_list": "Mods",
 	"mod_pack_info": "Mod Pack",
 	"sponge_mods": "Sponge Mods",
-	"hub_list": "Hub Servers"
+	"hub_list": "Hub Servers",
+
+	"show-avatar-borders": "Show Avatar Borders?",
+	"avatar-border-start": "Avatar Border Gradient Start",
+	"avatar-border-end": "Avatar Border Gradient End",
+	"avatar-border-style": "Avatar Border Style"
 }

@@ -12,6 +12,30 @@
         margin-bottom: 100px;
     }
 
+	td {
+		vertical-align: middle;
+	}
+
+	.nav-tabs > li > a {
+		background-color: rgb(251, 251, 251);
+		border-color: #D2D2D2;
+
+		&:hover {
+			background-color: rgb(255, 255, 255);
+			border-color: #337AB7;
+		}
+	}
+
+	.nav-tabs > li.active > a {
+		color: #FFF;
+		background-color: #337AB7;
+		border-color: #337AB7;
+	}
+
+	.compact {
+		width: 0;
+	}
+
     body, small, p, div {
         font-family: "Roboto", sans-serif;
     }
@@ -171,6 +195,10 @@
 		[data-popover="plugin-list"] {
 			text-decoration: none;
 		}
+
+		.fa {
+			text-decoration: none;
+		}
 	}
 
     .widget-table {
@@ -186,6 +214,16 @@
             padding-left: 16px;
         }
     }
+
+	.mi-avatar {
+		width: 46px;
+		height: 46px;
+		border-width: 3px;
+	}
+
+	.mi-avatars, .avatars {
+		font-size: 0;
+	}
 
     .mi-canvas {
         width: 100% !important;

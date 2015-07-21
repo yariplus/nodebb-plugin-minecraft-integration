@@ -1,15 +1,19 @@
 "use strict";
 
-console.log("[Minecraft Integration] Loading...");
-
 MinecraftIntegration = { templates: { } };
 
-MinecraftIntegration.log = function (memo) {
-	if (typeof memo === 'object') memo = JSON.stringify(memo);
-	console.log("[Minecraft Integration] " + memo);
-};
+(function () {
 
-MinecraftIntegration.__MIDIR = "/plugins/nodebb-plugin-minecraft-integration/public/";
+	MinecraftIntegration.log = function (memo) {
+		if (typeof memo === 'object') memo = JSON.stringify(memo);
+		console.log("[Minecraft Integration] " + memo);
+	};
+
+	MinecraftIntegration.log("Loading...");
+
+	MinecraftIntegration.__MIDIR = "/plugins/nodebb-plugin-minecraft-integration/public/";
+
+}());
 
 MinecraftIntegration.getTemplate = function (template, callback) {
 	MinecraftIntegration.getTemplates([template], function (err, templates) {
@@ -55,15 +59,32 @@ MinecraftIntegration.API.get = function (routes, callback) {
 	});
 };
 
-// TEMP
-require([MinecraftIntegration.__MIDIR + 'js/vendor/rainbowvis.js'], function () {
-	if (Rainbow) {
-		MinecraftIntegration.log("Loaded Rainbow-vis");
-	}else{
-		MinecraftIntegration.log("Failed loading Rainbow-vis");
-	}
-});
+// 
+MinecraftIntegration.setAvatarBorders = function ($widget) {
+	var $avatars = $widget.find('.mi-avatar');
 
+	if ($avatars.length === 0 || $widget.is('[data-show-avatar-borders="off"]')) return;
+
+	require([MinecraftIntegration.__MIDIR + 'js/vendor/rainbowvis.js'], function () {
+		if (Rainbow) {
+			MinecraftIntegration.log("Avatars Found: " + $avatars.length);
+
+			var rainbow = new Rainbow();
+			rainbow.setNumberRange(0, $avatars.length > 1 ? $avatars.length - 1 : $avatars.length);
+			rainbow.setSpectrum($widget.attr('data-avatar-border-start') || 'white', $widget.attr('data-avatar-border-end') || 'white');
+
+			$avatars.each(function (i, el) {
+				$(el).css('border-style', $widget.attr('data-avatar-border-style') || 'solid');
+				$(el).css('border-color', '#' + rainbow.colourAt(i));
+			});
+		}else{
+			return MinecraftIntegration.log("Failed loading Rainbow-vis");
+		}
+	});
+};
+
+// When a new status update is received, refresh widgets that track players.
+// TODO: This does too many things, separate into more functions based on each task.
 MinecraftIntegration.setPlayers = function (data) {
 	if (!(data && data.sid !== void 0 && Array.isArray(data.players))) {
 		MinecraftIntegration.log("Received invalid status data.");
@@ -129,14 +150,17 @@ MinecraftIntegration.setPlayers = function (data) {
 												}
 											});
 										}
-										$avatar.appendTo($widget.find('.avatars'));
+										$avatar.appendTo($widget.find('.mi-avatars'));
 										$avatar.fadeToggle(600, 'linear');
 									}
+									next();
 								});
 								$widget.find(".online-players").text(parseInt($widget.find(".online-players").text(), 10) + 1);
+							}else{
+								next();
 							}
-
-							next();
+						}, function () {
+							MinecraftIntegration.setAvatarBorders($widget);
 						});
 
 						$widget.find(".online-players").text(data.players.length);
@@ -145,11 +169,11 @@ MinecraftIntegration.setPlayers = function (data) {
 
 						if ($widget.attr('data-widget') === 'mi-status') {
 							$popover = $widget.find('a.fa-plug');
-							if ($popover.length && data.pluginList) {
+							if ($popover.length && Array.isArray(data.pluginList) && data.pluginList.length) {
 								var html = '<table class="table table-plugin-list"><tbody>';
 
-								for (var iPlugin in data.pluginList) {
-									html += '<tr><td>' + data.pluginList[iPlugin].name + '</td></tr>';
+								for (var i = 0; i < data.pluginList.length; i++) {
+									html += '<tr><td>' + data.pluginList[i].name + '</td></tr>';
 								}
 
 								html += '</tbody></table>';
@@ -184,11 +208,15 @@ MinecraftIntegration.setPlayers = function (data) {
 						$('.tooltip').each(function (i, el) {
 							$(this).remove();
 						});
+
 						next();
 					});
 				},
 				function (next) {
 					async.each($('[data-widget="mi-top-list"][data-sid="' + data.sid + '"]'), function ($widget, next) {
+						$widget = $($widget);
+
+						// TODO: Reverse this so players is only traversed once.
 						async.each(data.players, function (player, next) {
 							var $img = $('[data-uuid="' + player.id + '"]');
 							if ($img.length) {
@@ -203,7 +231,11 @@ MinecraftIntegration.setPlayers = function (data) {
 							}else{
 								next();
 							}
-						}, next);
+						}, function () {
+							MinecraftIntegration.setAvatarBorders($widget);
+							console.log($widget.find('.mi-avatar').length);
+							next();
+						});
 					}, next);
 				}
 			]);
@@ -247,14 +279,16 @@ MinecraftIntegration.addPlayer = function (data) {
 									}
 								});
 							}
-							$avatar.appendTo($widget.find('.avatars'));
+							$avatar.appendTo($widget.find('.mi-avatars'));
+							MinecraftIntegration.setAvatarBorders($widget);
 							$avatar.fadeToggle(600, 'linear');
 						}
+						next();
 					});
 					$widget.find(".online-players").text(parseInt($widget.find(".online-players").text(), 10) + 1);
+				}else{
+					next();
 				}
-
-				next();
 			}, function (err) {
 				$('.tooltip').each(function (i, el) {
 					$(this).remove();
@@ -294,6 +328,8 @@ MinecraftIntegration.removePlayer = function (data) {
 				$('.tooltip').each(function (i, el) {
 					$(this).remove();
 				});
+				
+				MinecraftIntegration.setAvatarBorders($widget);
 			});
 		});
 	});
@@ -310,6 +346,8 @@ socket.on('mi.PlayerQuit', function (data) {
 });
 
 socket.on('mi.status', function (data) {
+	MinecraftIntegration.log("Received Status Ping:");
+	MinecraftIntegration.log(data);
 	MinecraftIntegration.setPlayers(data);
 	MinecraftIntegration.setGraphs(data);
 });

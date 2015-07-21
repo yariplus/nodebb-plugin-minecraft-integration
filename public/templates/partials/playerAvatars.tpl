@@ -1,1 +1,1 @@
-<img src="{url}" title="{players.name}" style="border-style:{styleGlory}; border-width: 6px; border-radius: 4px; border-color:{players.glory};" data-placement="top" data-toggle="tooltip" rel="tooltip" class="mi-avatar user-img" />
+<img src="{url}" title="{players.name}" data-placement="top" data-toggle="tooltip" rel="tooltip" class="mi-avatar user-img" />
