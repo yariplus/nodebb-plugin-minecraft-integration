@@ -194,9 +194,24 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 				console.log('MI: toggle server activation');
 				toggleServer($(e.target).closest('div').data('server-num'));
 			}).on('click', '#mi-btn-clear-avatar-cache', function (e) {
-				console.log("Doing it");
 				socket.emit('admin.MinecraftIntegration.resetCachedAvatars', { }, function () {
 					console.log("Did it");
+				});
+			}).on('click', '.mi-btn-clear-avatar', function (e) {
+				var $this = $(this);
+
+				socket.emit('admin.MinecraftIntegration.resetCachedAvatar', {playerName: $this.closest('tr').attr('data-player')}, function (err) {
+					$this.closest('tr').remove();
+				});
+			}).on('click', '.mi-btn-refresh-avatar', function (e) {
+				var $this = $(this),
+					$avatar = $this.closest('tr').find('.mi-avatar');
+
+				$avatar.fadeOut(600, function () {
+					socket.emit('admin.MinecraftIntegration.refreshAvatar', {playerName: $this.closest('tr').attr('data-player')}, function (err, data) {
+						$avatar.attr('src', 'data:image/png;base64,' + data.base64);
+						$avatar.fadeIn(600);
+					});
 				});
 			});
 		}
@@ -272,7 +287,7 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 			var $el = $('#miTableAvatars');
 			for (var i = 0; i < data.length; i++) {
 				$el.append(
-					$('<tr data-player="' + data[i].name + '"><td class="compact"><img src="data:image/png;base64,' + data[i]['base64'] + '" width="40px" height="40px"></td><td style="vertical-align: middle;">' + data[i].name + '</td><td></td><td class="compact"><button id="avatar-refresh" class="btn btn-primary">Refresh</button></td><td class="compact"><button id="avatar-delete" class="btn btn-primary">Delete</button></td></tr>')
+					$('<tr data-player="' + data[i].name + '"><td class="compact"><img class="mi-avatar" src="data:image/png;base64,' + data[i]['base64'] + '" width="40px" height="40px"></td><td style="vertical-align: middle;">' + data[i].name + '</td><td></td><td class="compact" style="padding-right:0;"><button class="btn btn-info mi-btn-refresh-avatar">Refresh</button></td><td class="compact"><button class="btn btn-danger mi-btn-clear-avatar">Delete</button></td></tr>')
 				);
 			}
 		});
