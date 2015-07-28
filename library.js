@@ -10,8 +10,8 @@ var	MinecraftIntegration = {
 	Backend = require('./lib/backend'),
 	Config  = require('./lib/config'),
 	NodeBB  = require('./lib/nodebb'),
-	Sockets = require('./lib/sockets'),
 	Utils   = require('./lib/utils'),
+	Updater = require('./lib/updater'),
 	Views   = require('./lib/views');
 
 MinecraftIntegration.load = function (data, next) {
@@ -36,7 +36,7 @@ MinecraftIntegration.load = function (data, next) {
 	Admin.init();
 
 	setTimeout(Config.logSettings, 1500);
-	setTimeout(Backend.updateServers, 2000);
+	setTimeout(Updater.updateServers, 2000);
 
 	next();
 };

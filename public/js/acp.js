@@ -136,11 +136,11 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 				e.preventDefault();
 				if (!validateAll()) return;
 
-				settings.cfg._.APIKey      = $('[name=api-key]').val();
-				settings.cfg._.avatarCDN   = $('[name=avatarCDN]').val();
-				settings.cfg._.customCDN   = $('[name=custom-cdn]').val();
-				settings.cfg._.avatarSize  = $('[name=avatarSize]').val();
-				settings.cfg._.avatarStyle = $('[name=avatarStyle]').val();
+				settings.cfg._.APIKey      = $('[name=api-key]').val()     || "SECRETPASSWORD";
+				settings.cfg._.avatarCDN   = $('[name=avatarCDN]').val()   || "mojang";
+				settings.cfg._.customCDN   = $('[name=custom-cdn]').val()  || "";
+				settings.cfg._.avatarSize  = $('[name=avatarSize]').val()  || "40";
+				settings.cfg._.avatarStyle = $('[name=avatarStyle]').val() || "flat";
 
 				for (var server in settings.cfg._.servers) {
 					if (settings.cfg._.servers[server]) {
@@ -273,12 +273,13 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 			}
 		});
 
-		socket.emit('plugins.MinecraftIntegration.getUsers', { }, function (err, data) {
+		socket.emit('plugins.MinecraftIntegration.getRegisteredUsers', {fields: ['picture']}, function (err, data) {
 			var $el = $('#miTableUUIDs');
 			for (var i = 0; i < data.length; i++) {
+				data[i].yuuid = data[i].yuuid.slice(0,8) + '-' + data[i].yuuid.slice(8, 12) + '-' + data[i].yuuid.slice(12, 16) + '-' + data[i].yuuid.slice(16, 20) + '-' + data[i].yuuid.slice(20, 32);
 				data[i].yuuid = data[i].yuuid.replace(/-/g, '&#8209;');
 				$el.append(
-					$('<tr data-uid="' + data[i].uid + '"><td class="compact">'+ data[i].yuuid + '</td><td>' + "player" + '</td><td><img src="' + data[i].picture + '" width="40px" height="40px"> ' + data[i].username + '</td><td class="compact"><button id="avatar-refresh" class="btn btn-primary">Refresh</button></td><td class="compact"><button id="avatar-delete" class="btn btn-primary">Delete</button></td></tr>')
+					$('<tr data-uid="' + data[i].uid + '"><td class="compact" style="white-space: nowrap"><img src="' + data[i].picture + '" width="40px" height="40px">&nbsp;&nbsp;' + data[i].username + '</td><td class="compact">'+ data[i].yuuid + '</td><td>' + data[i].name + '</td><td class="compact"><button id="avatar-refresh" class="btn btn-primary">Refresh</button></td><td class="compact"><button id="avatar-delete" class="btn btn-primary">Delete</button></td></tr>')
 				);
 			}
 		});

@@ -10,7 +10,7 @@
 				<ul class="nav nav-tabs" role="tablist">
 					<li role="presentation" class="active"><a href="#mi-tab-servers" aria-controls="mi-tab-servers" role="tab" data-toggle="tab">[[mi:active_servers]]</a></li>
 					<li role="presentation"><a href="#mi-tab-settings" aria-controls="mi-tab-settings" role="tab" data-toggle="tab">[[mi:general_settings]]</a></li>
-					<li role="presentation"><a href="#mi-tab-players" aria-controls="mi-tab-players" role="tab" data-toggle="tab">Registered Players</a></li>
+					<li role="presentation"><a href="#mi-tab-users" aria-controls="mi-tab-users" role="tab" data-toggle="tab">Registered Users</a></li>
 					<li role="presentation"><a href="#mi-tab-avatars" aria-controls="mi-tab-avatars" role="tab" data-toggle="tab">Cached Avatars</a></li>
 					<li role="presentation"><a href="#mi-tab-maintenance" aria-controls="mi-tab-maintenance" role="tab" data-toggle="tab">Maintenance</a></li>
 				</ul>
@@ -82,14 +82,14 @@
 							</div>
 						</div>
 					</div>
-					<div role="tabpanel" class="tab-pane" id="mi-tab-players">
+					<div role="tabpanel" class="tab-pane" id="mi-tab-users">
 						<div class="panel panel-primary">
 							<table class="table table-striped">
 								<thead>
 									<tr>
+										<th>User</th>
 										<th>UUID</th>
 										<th>Player Name</th>
-										<th>User</th>
 										<th>Actions</th>
 										<th></th>
 									</tr>
