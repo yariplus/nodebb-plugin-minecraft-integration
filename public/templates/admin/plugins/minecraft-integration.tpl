@@ -160,7 +160,11 @@
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title">[[mi:minecraft_servers]]</h4>
                 </div>
-                <div class="modal-body form-group form-horizontal">
+                <div class="modal-body" style="padding:0px;">
+					<table style="margin-bottom:0px;" class="table">
+						<tbody>
+						</tbody>
+					</table>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">[[mi:close]]</button>

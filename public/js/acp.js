@@ -10,12 +10,12 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 		$form = $('#minecraft-integration');
 		$serverList = $('#server-list');
 		$modal = $form.find('#mia-modal-servers');
-		$modalBody = $modal.find('.modal-body');
+		$modalBody = $modal.find('.modal-body').find('tbody');
 
 		function makeServerList() {
 			for (var i in settings.cfg._.servers) {
 				if (settings.cfg._.servers[i]) {
-					addServerToModal({serverNum: i, name: settings.cfg._.servers[i].name});
+					addServerToModal({serverNum: i, name: settings.cfg._.servers[i].name, active: settings.cfg._.servers[i].active});
 					if (settings.cfg._.servers[i].active !== false) {
 						addNewServer(i, settings.cfg._.servers[i]);
 					}
@@ -122,6 +122,9 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 			var $serverListing = $modalTemplate.clone();
 			$serverListing.data('server-num', server.serverNum);
 			$serverListing.find('span').text(server.name);
+			if (server.active) {
+				$serverListing.find('.mia-toggle-activation').removeClass('btn-success').text('Deactivate');
+			}
 			$serverListing.appendTo($modalBody);
 		}
 
@@ -192,7 +195,12 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 				$modal.modal('show');
 			}).on('click', '.mia-toggle-activation', function (e) {
 				console.log('MI: toggle server activation');
-				toggleServer($(e.target).closest('div').data('server-num'));
+				toggleServer($(e.target).closest('tr').data('server-num'));
+				if ($(this).hasClass('btn-success')) {
+					$(this).removeClass('btn-success').text('Deactivate');
+				}else{
+					$(this).addClass('btn-success').text('Activate');
+				}
 			}).on('click', '#mi-btn-clear-avatar-cache', function (e) {
 				socket.emit('admin.MinecraftIntegration.resetCachedAvatars', { }, function () {
 					console.log("Did it");
@@ -255,7 +263,7 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 				$.get(MinecraftIntegration.__MIDIR + '/templates/admin/plugins/server.tpl' + "?v=" + config['cache-buster'], function(data) {
 					translator.translate(data, function (translatedTemplate) {
 						$serverTemplate = $($.parseHTML(translatedTemplate));
-						$modalTemplate = $($.parseHTML('<div><span></span> <a class="mia-toggle-activation pointer">Activate/Deactivate</a> <a class="mia-purge pointer">Purge</a></div>'));
+						$modalTemplate = $($.parseHTML('<tr><td><span></span></td><td style="width:0px;text-align:right;"><button class="btn btn-success mia-toggle-activation pointer">Activate</button></td><td style="width:0px;"><button class="btn btn-danger mia-purge pointer">Purge</button></td></tr>'));
 						console.log('MI: server template got');
 						settings.helper.whenReady(function () {
 							settings.helper.use(values);

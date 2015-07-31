@@ -1,6 +1,7 @@
 {
 	"minecraft": "Minecraft",
 	"minecraft_integration": "Minecraft Integration",
+
 	"general_settings": "General Settings",
 	"avatar_cdn": "Avatar CDN",
 	"help_avatar_cdn": "Choose where the plugin will acquire its Minecraft avatars.",
@@ -12,13 +13,16 @@
 	"help_avatar_style": "Choose the style of Minecraft avatar, will default to Flat if the selected option is not supported by the selected Avatar CDN.",
 	"error_avatar_style": "",
 	"flat": "Flat",
-	"active_servers": "Active Servers",
-	"api_key": "Plugin API Key",
-	"help_api_key": "If you are using NodeBB-Integration on you Minecraft server, this should match the API Key that you use there. This is an identifier, not a password.",
-
 	"cdn_custom": "Custom CDN",
 	"custom_cdn": "Custom CDN URL",
 	"help_custom_cdn": "The URL to fetch avatars from. Variables include {name}, {size}, and {style}.",
+
+	"minecraft_servers": "All Minecraft Servers",
+	"activate": "Activate",
+	"deactivate": "Deactivate",
+	"close": "Close",
+
+	"active_servers": "Active Servers",
 	"server_name": "Server Name",
 	"help_server_name": "Enter a name for the server that is at least 6 characters long.",
 	"error_server_name": "Needs to be at least 6 characters long.",
@@ -39,11 +43,15 @@
 	"error_xapi": "Needs to be a valid IP, DNS, or SRV.",
 	"hide_plugins": "Hide Plugins",
 	"hide_plugins_help": "This will prevent plugin data from being displayed on widgets and exposed to any API calls.",
+	"api_key": "API Key",
+	"help_api_key": "If you are using NodeBB-Integration on you Minecraft server, this should match the API Key that you use there. This is an identifier, not a password.",
 	"add_server": "Add a Server",
 	"view_servers": "View all Servers",
+
 	"reset_admin": "Reset Fields",
 	"delete_admin": "Delete Everything",
 	"save_admin": "Save All",
+
 	"optional": "Optional",
 	"required": "Required",
 	"not_used": "Not Used Yet",
