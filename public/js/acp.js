@@ -24,7 +24,6 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 		}
 
 		function populateFields() {
-			$('[name=api-key]').val(settings.cfg._.APIKey);
 			$('[name=avatarCDN]').val(settings.cfg._.avatarCDN);
 			$('[name=custom-cdn]').val(settings.cfg._.customCDN);
 			$('[name=avatarSize]').val(settings.cfg._.avatarSize);
@@ -82,12 +81,21 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 
 		function toggleServer(serverNum) {
 			var $server = $serverList.children().filter(function () {
-				return $(this).data('serverNum') === serverNum;
+				return $(this).data('server-num') === serverNum;
 			});
 			if ($server.length) {
 				$server.remove();
 			}else{
 				addNewServer(serverNum, settings.cfg._.servers[serverNum]);
+			}
+
+			var $modalBtn = $modalBody.children().filter(function () {
+				return $(this).data('server-num') === serverNum;
+			}).find('.mia-toggle-activation');
+			if ($modalBtn.hasClass('btn-success')) {
+				$modalBtn.addClass('btn-warning').removeClass('btn-success').text('Deactivate');
+			}else{
+				$modalBtn.addClass('btn-success').removeClass('btn-warning').text('Activate');
 			}
 		}
 
@@ -97,7 +105,7 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 			$server.find('[name=query-port]').val(server.queryPort);
 			$server.find('[name=rcon-port]').val(server.rconPort);
 			$server.find('[name=rcon-pass]').val(server.rconPass);
-			$server.find('[name=xapi]').val(server.xAPI);
+			$server.find('[name=api-key]').val(server.APIKey);
 			$server.find('[name=hide-plugins]').prop( "checked", server.hidePlugins);
 			$server.find('a').text(server.name);
 		}
@@ -108,12 +116,21 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 			$server.find('a').first().text('Unnamed Server');
 			$server.find('[data-toggle="collapse"]').attr('href', '#server' + serverNum);
 			$server.find('.panel-body').attr('id', 'server' + serverNum);
+			$server.on('click', '[name="api-key"]', function (e) {
+				if (!$(this).val()) {
+					regenKey($(this));
+				}else{
+					$(this).select();
+				}
+			});
 			$server.appendTo($serverList);
 			if (server) {
 				populateServer($server, server);
 			}else{
-				$server.find('[data-toggle="collapse"]').addClass('in');
-				$server.find('[name="name"]').focus();
+				$server.find('[data-toggle="collapse"]').removeClass('collapsed');
+				$server.find('.collapse').addClass('in');
+				regenKey($server.find('[name="api-key"]'));
+				setTimeout(function () { $server.find('[name="name"]').focus(); }, 200);
 			}
 			return;
 		}
@@ -123,9 +140,15 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 			$serverListing.data('server-num', server.serverNum);
 			$serverListing.find('span').text(server.name);
 			if (server.active) {
-				$serverListing.find('.mia-toggle-activation').removeClass('btn-success').text('Deactivate');
+				$serverListing.find('.mia-toggle-activation').addClass('btn-warning').removeClass('btn-success').text('Deactivate');
 			}
 			$serverListing.appendTo($modalBody);
+		}
+
+		function regenKey($input) {
+			socket.emit('plugins.MinecraftIntegration.getKey', { }, function (err, data) {
+				$input.val(data.key).select();
+			});
 		}
 
 		function makeButtons() {
@@ -134,12 +157,11 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 			$form.on('click', 'a, button', function (e) {
 				e.preventDefault();
 			}).on('click', '.fa-times', function (e) {
-				$(e.target).closest('.panel').remove();
+				toggleServer($(e.target).closest('.panel').data('server-num'));
 			}).on('click', '#mia-save', function (e) {
 				e.preventDefault();
 				if (!validateAll()) return;
 
-				settings.cfg._.APIKey      = $('[name=api-key]').val()     || "SECRETPASSWORD";
 				settings.cfg._.avatarCDN   = $('[name=avatarCDN]').val()   || "mojang";
 				settings.cfg._.customCDN   = $('[name=custom-cdn]').val()  || "";
 				settings.cfg._.avatarSize  = $('[name=avatarSize]').val()  || "40";
@@ -159,7 +181,7 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 						settings.cfg._.servers[serverNum].queryPort   = $el.find('[name=query-port]').val();
 						settings.cfg._.servers[serverNum].rconPort    = $el.find('[name=rcon-port]').val();
 						settings.cfg._.servers[serverNum].rconPass    = $el.find('[name=rcon-pass]').val();
-						settings.cfg._.servers[serverNum].xAPI        = $el.find('[name=xapi]').val();
+						settings.cfg._.servers[serverNum].APIKey      = $el.find('[name=api-key]').val();
 						settings.cfg._.servers[serverNum].hidePlugins = $el.find('[name=hide-plugins]').is(':checked');
 						settings.cfg._.servers[serverNum].active      = true;
 					}else{
@@ -194,16 +216,18 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 				//$modalBody.empty();
 				$modal.modal('show');
 			}).on('click', '.mia-toggle-activation', function (e) {
-				console.log('MI: toggle server activation');
 				toggleServer($(e.target).closest('tr').data('server-num'));
-				if ($(this).hasClass('btn-success')) {
-					$(this).removeClass('btn-success').text('Deactivate');
-				}else{
-					$(this).addClass('btn-success').text('Activate');
-				}
 			}).on('click', '#mi-btn-clear-avatar-cache', function (e) {
-				socket.emit('admin.MinecraftIntegration.resetCachedAvatars', { }, function () {
-					console.log("Did it");
+				bootbox.confirm("Are you sure?<br/><br/>This will remove all avatars from the database.", function (result) {
+					if (result) {
+						socket.emit('admin.MinecraftIntegration.resetCachedAvatars', { }, function () {
+							app.alert({
+								type: 'info',
+								alert_id: 'mi-alert-avatars',
+								title: 'Avatars Cleared'
+							});
+						});
+					}
 				});
 			}).on('click', '.mi-btn-clear-avatar', function (e) {
 				var $this = $(this);
@@ -221,6 +245,8 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 						$avatar.fadeIn(600);
 					});
 				});
+			}).on('click', '.regen-key', function (e) {
+				regenKey($(this).closest('.input-row').find('input'));
 			});
 		}
 
@@ -239,10 +265,10 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 				var $this = $(this), $server = $this.closest('.panel'), serverNum = $server.data('server-num');
 				$server.find('a').first().text($this.val() || 'Unnamed Server (Will be removed if left unnamed.)');
 				var $serverListing = $modalBody.children().filter(function () {
-					return $(this).data('serverNum') === serverNum;
+					return $(this).data('server-num') === serverNum;
 				});
 				if ($serverListing.length) {
-					$serverListing.find('span').text($this.val() || 'Unnamed Server (Will be removed if left unnamed.)');
+					$serverListing.find('span').text($this.val());
 				}
 			}).submit(validateAll);
 
@@ -263,8 +289,9 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 				$.get(MinecraftIntegration.__MIDIR + '/templates/admin/plugins/server.tpl' + "?v=" + config['cache-buster'], function(data) {
 					translator.translate(data, function (translatedTemplate) {
 						$serverTemplate = $($.parseHTML(translatedTemplate));
-						$modalTemplate = $($.parseHTML('<tr><td><span></span></td><td style="width:0px;text-align:right;"><button class="btn btn-success mia-toggle-activation pointer">Activate</button></td><td style="width:0px;"><button class="btn btn-danger mia-purge pointer">Purge</button></td></tr>'));
-						console.log('MI: server template got');
+						$modalTemplate = $($.parseHTML('<tr><td><span></span></td><td style="width:0px;text-align:right;"><button class="btn btn-success mia-toggle-activation pointer">Activate</button></td></tr>'));
+						// TODO: Add purging option.
+						// <td style="width:0px;"><button class="btn btn-danger mia-purge pointer">Purge</button></td>
 						settings.helper.whenReady(function () {
 							settings.helper.use(values);
 							settings.cfg._.servers = settings.cfg._.servers || [ ];

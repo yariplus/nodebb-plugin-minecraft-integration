@@ -1,7 +1,6 @@
 <form id="minecraft-integration" autocomplete="off">
-	<h1 style="">
-		<!-- TEMP -->
-		<img style="margin-bottom: 7px;" src="/plugins/nodebb-plugin-minecraft-integration/public/images/Grass.png" width="42px" height="42px">
+	<h1>
+		<img src="/plugins/nodebb-plugin-minecraft-integration/public/images/Grass.png">
 		[[mi:minecraft_integration]]
 	</h1>
 	<div class="row">
@@ -70,14 +69,6 @@
 										</select>
 									</div>
 									<div class="col-sm-5 help-text" data-help="[[mi:help_avatar_style]]"></div>
-								</div>
-								
-								<div class="row input-row">
-									<div class="col-sm-7 col-xs-12 input-field">
-										<label for="api-key">[[mi:api_key]]</label>
-										<input name="api-key" type="text" class="form-control" placeholder="SECRETPASSWORD" />
-									</div>
-									<div class="col-sm-5 help-text" data-help="[[mi:help_api_key]]"></div>
 								</div>
 							</div>
 						</div>
@@ -160,10 +151,9 @@
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title">[[mi:minecraft_servers]]</h4>
                 </div>
-                <div class="modal-body" style="padding:0px;">
-					<table style="margin-bottom:0px;" class="table">
-						<tbody>
-						</tbody>
+                <div class="modal-body">
+					<table class="table">
+						<tbody></tbody>
 					</table>
                 </div>
                 <div class="modal-footer">

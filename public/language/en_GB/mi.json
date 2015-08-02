@@ -44,7 +44,8 @@
 	"hide_plugins": "Hide Plugins",
 	"hide_plugins_help": "This will prevent plugin data from being displayed on widgets and exposed to any API calls.",
 	"api_key": "API Key",
-	"help_api_key": "If you are using NodeBB-Integration on you Minecraft server, this should match the API Key that you use there. This is an identifier, not a password.",
+	"help_api_key": "If you are using NodeBB-Integration on you Minecraft server, use this API Key to connect it to the forum. <a href=''>Click here</a> for more help.",
+	"regenerate": "Regenerate",
 	"add_server": "Add a Server",
 	"view_servers": "View all Servers",
 

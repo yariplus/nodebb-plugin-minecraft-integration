@@ -28,21 +28,32 @@
             </div>
             <div class="col-sm-5 help-text" data-help="[[mi:help_query_port]]"></div>
         </div>
-        <div class="row input-row">
-            <div class="col-sm-7 col-xs-12 input-field">
-                <label class="control-label">[[mi:xapi]] <small>([[mi:optional]])</small></label>
-                <input name="xapi" class="form-control" type="text" placeholder=""/>
-            </div>
-            <div class="col-sm-5 help-text" data-help="[[mi:help_xapi]]"></div>
-        </div>
+		<div class="row input-row">
+			<div class="col-sm-7 col-xs-12 input-field">
+				<label for="api-key">API Key</label>
+				<table class="table">
+					<tbody>
+						<tr>
+							<td>
+								<input name="api-key" type="text" class="form-control" readonly/>
+							</td>
+							<td class="compact">
+								<button class="btn btn-default form-control regen-key">[[mi:regenerate]]</button>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="col-sm-5 help-text" data-help="[[mi:help_api_key]]"></div>
+		</div>
         <div class="row input-row">
             <div class="col-sm-7 col-xs-12 input-field">
                 <label class="control-label">
-                    <input name="hide-plugins" class="form-control" type="checkbox"/>
-                    [[mi:hide_plugins]]
+                    <input name="hide-plugins" class="form-control" type="checkbox">
+                    Hide Plugins
                 </label>
             </div>
-            <div class="col-sm-5 help-text" data-help="[[mi:hide_plugins_help]]"></div>
+			<div class="col-sm-5 help-text" data-help="[[mi:help_hide_plugins]]"></div>
         </div>
     </div>
 </div>

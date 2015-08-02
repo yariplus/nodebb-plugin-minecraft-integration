@@ -1,4 +1,10 @@
 #minecraft-integration {
+	h1 > img {
+		margin-bottom: 7px;
+		width: 42px;
+		height: 42px;
+	}
+
     .btn, .form-control, .navbar {
         border-radius: 0;
     }
@@ -45,7 +51,24 @@
 
         .form-control {
             margin-bottom: 5px;
+
+			&[name="api-key"] {
+				cursor: pointer;
+			}
         }
+
+		td {
+			padding: 0;
+			border: none;
+
+			&+td {
+				padding-left:10px;
+			}
+
+			button {
+				width: unset;
+			}
+		}
 
         .help-text {
             pointer-events: none;
@@ -86,6 +109,14 @@
             }
         }
     }
+
+	.modal-body {
+		padding: 0;
+
+		table {
+			margin-bottom: 0;
+		}
+	}
 }
 
 .ajaxInputColorPicker {
