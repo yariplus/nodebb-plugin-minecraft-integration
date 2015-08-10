@@ -317,6 +317,7 @@ MinecraftIntegration.removePlayer = function (data) {
 
 				$avatar.fadeToggle(600, 'linear', function () {
 					$avatar.remove();
+					MinecraftIntegration.setAvatarBorders($widget);
 				});
 			});
 
@@ -327,8 +328,6 @@ MinecraftIntegration.removePlayer = function (data) {
 			$('.tooltip').each(function (i, el) {
 				$(this).remove();
 			});
-			
-			MinecraftIntegration.setAvatarBorders($widget);
 		});
 	});
 };
@@ -419,6 +418,7 @@ MinecraftIntegration.updateCharts = function (status) {
 	require([MinecraftIntegration.__MIDIR + 'js/vendor/async.min.js'], function (async) {
 		async.each($('[data-widget="mi-players-graph"][data-sid="' + status.sid + '"]'), function ($widget, next) {
 			$widget = $($widget).find('.mi-canvas');
+			if (!$widget.length) return next();
 
 			var chart = $widget.data('chart');
 
