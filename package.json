@@ -38,7 +38,7 @@
     "validator": "*"
   },
   "nbbpm": {
-    "compatibility": ">=0.6.0"
+    "compatibility": "^0.7.0"
   },
   "homepage": "https://github.com/yariplus/nodebb-plugin-minecraft-integration"
 }
