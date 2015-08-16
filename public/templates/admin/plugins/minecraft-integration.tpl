@@ -11,14 +11,16 @@
 					<li role="presentation"><a href="#mi-tab-settings" aria-controls="mi-tab-settings" role="tab" data-toggle="tab">[[mi:general_settings]]</a></li>
 					<li role="presentation"><a href="#mi-tab-users" aria-controls="mi-tab-users" role="tab" data-toggle="tab">Registered Users</a></li>
 					<li role="presentation"><a href="#mi-tab-avatars" aria-controls="mi-tab-avatars" role="tab" data-toggle="tab">Cached Avatars</a></li>
+					<li role="presentation"><a href="#mi-tab-players" aria-controls="mi-tab-players" role="tab" data-toggle="tab">Cached Players</a></li>
 					<li role="presentation"><a href="#mi-tab-maintenance" aria-controls="mi-tab-maintenance" role="tab" data-toggle="tab">Maintenance</a></li>
 				</ul>
 				<div class="tab-content">
 					<div role="tabpanel" class="tab-pane active" id="mi-tab-servers">
 						<div class="panel panel-primary">
 							<div class="panel-body">
-								<div class="alert">
-									Servers listed here are pinged every minute and widgets are updated. If the NodeBB-Integration plugin is installed on the server, widgets are updated in real-time instead.
+								<div class="info bg-info alert">
+									<i class="fa fa-question"></i>
+									<span>Servers listed here are pinged every minute and widgets are updated. If the NodeBB-Integration plugin is installed on the server, widgets are updated in real-time instead.</span>
 								</div>
 								<div class="panel-group" id="server-list">
 								</div>
@@ -85,7 +87,7 @@
 										<th></th>
 									</tr>
 								</thead>
-								<tbody id="miTableUUIDs"></tbody>
+								<tbody id="miTableUsers"></tbody>
 							</table>
 						</div>
 					</div>
@@ -102,6 +104,23 @@
 									</tr>
 								</thead>
 								<tbody id="miTableAvatars"></tbody>
+							</table>
+						</div>
+					</div>
+					<div role="tabpanel" class="tab-pane" id="mi-tab-players">
+						<div class="panel panel-primary">
+							<table class="table table-striped">
+								<thead>
+									<tr>
+										<th>UUID</th>
+										<th>Player Name</th>
+										<th>Play Time</th>
+										<th>Last Online</th>
+										<th>Actions</th>
+										<th></th>
+									</tr>
+								</thead>
+								<tbody id="miTablePlayers"></tbody>
 							</table>
 						</div>
 					</div>
