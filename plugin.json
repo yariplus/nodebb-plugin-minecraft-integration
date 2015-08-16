@@ -14,6 +14,7 @@
 		{ "hook": "static:app.load", "method": "load" },
 		{ "hook": "filter:widgets.getWidgets", "method": "Hooks.filter.widgets.getWidgets" },
 		{ "hook": "filter:admin.header.build", "method": "Hooks.filter.admin.header.build" },
+		{ "hook": "filter:user.profileLinks",  "method": "Hooks.filter.user.profileLinks" },
 		{ "hook": "filter:widget.render:mi-chat",          "method": "Widgets.renderChat" },
 		{ "hook": "filter:widget.render:mi-directory",     "method": "Widgets.renderDirectory" },
 		{ "hook": "filter:widget.render:mi-gallery",       "method": "Widgets.renderGallery" },
