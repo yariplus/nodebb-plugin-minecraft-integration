@@ -350,12 +350,12 @@ socket.on('mi.status', function (data) {
 });
 
 socket.on('mi.PlayerChat', function (data) {
-	console.log("Saw chat event: " + data.message);
+	console.log("Saw chat event: " + data.chat.message);
 	require([MinecraftIntegration.__MIDIR + 'js/vendor/async.min.js'], function (async) {
 		async.each($('[data-widget="mi-chat"][data-sid="' + data.sid + '"]'), function ($widget, next) {
 			$widget = $($widget);
 
-			$widget.find('div').append("<span>" + data.player + ": " + data.message + "</span><br>");
+			$widget.find('div').append("<span>" + data.chat.name + ": " + data.chat.message + "</span><br>");
 			$widget.find('div').scrollTop(100000);
 		});
 	});
@@ -691,14 +691,14 @@ $(window).on('action:widgets.loaded', function (event) {
 							$chatbox    = $chatwidget.find('div');
 
 							for (var i in data.chats) {
-								$chatbox.append("<span>" + data.chats[i].playername + ": " + data.chats[i].message + "</span><br>");
+								$chatbox.append("<span>" + data.chats[i].name + ": " + data.chats[i].message + "</span><br>");
 							}
 
 							$chatwidget.find('button').click(function (e) {
 								if (app.user.uid === 0) return;
 								var $this = $(this);
 
-								socket.emit('plugins.MinecraftIntegration.PlayerChat', {sid: $chatwidget.attr('data-sid'), player: '[WEB] ' + app.user.username, message: $this.parent().prev().children('input').val()});
+								socket.emit('plugins.MinecraftIntegration.eventWebChat', {sid: $chatwidget.attr('data-sid'), name: app.user.username, message: $this.parent().prev().children('input').val()});
 								$this.parent().prev().children('input').val('');
 							});
 
@@ -708,7 +708,7 @@ $(window).on('action:widgets.loaded', function (event) {
 								{
 									var $this = $(this);
 
-									socket.emit('plugins.MinecraftIntegration.PlayerChat', {sid: $chatwidget.attr('data-sid'), player: '[WEB] ' + app.user.username, message: $this.val()});
+									socket.emit('plugins.MinecraftIntegration.eventWebChat', {sid: $chatwidget.attr('data-sid'), name: app.user.username, message: $this.val()});
 									$this.val('');
 								}
 							});
