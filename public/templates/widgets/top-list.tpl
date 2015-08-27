@@ -8,7 +8,7 @@
 		<!-- BEGIN players -->
 		<tr>
 			<td width="20px">
-				<img src="data:image/png;base64,{players.avatar}" title="{players.playername}" data-uuid="{players.uuid}" data-placement="top" data-toggle="tooltip" rel="tooltip" class="mi-avatar user-img">
+				<img src="data:image/png;base64,{players.avatar}" title="{players.name}" data-uuid="{players.id}" data-placement="top" data-toggle="tooltip" rel="tooltip" class="mi-avatar user-img">
 			</td>
 			<td style="vertical-align:middle">
 				<span style="<!-- IF players.glory -->color:{players.glory}<!-- ENDIF players.glory -->"><strong>{players.playername}</strong></span><span style="<!-- IF colorText -->color:#{colorText}<!-- ENDIF colorText -->"> ~ <span class="mi-score">{players.score}</span> {statname}</span>

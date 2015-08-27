@@ -308,10 +308,14 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 			}
 		});
 
+		function formatUuid(yuuid) {
+			return yuuid.slice(0,8) + '-' + yuuid.slice(8, 12) + '-' + yuuid.slice(12, 16) + '-' + yuuid.slice(16, 20) + '-' + yuuid.slice(20, 32);
+		}
+
 		socket.emit('plugins.MinecraftIntegration.getRegisteredUsers', {fields: ['picture']}, function (err, data) {
 			var $el = $('#miTableUsers');
 			for (var i = 0; i < data.length; i++) {
-				data[i].yuuid = data[i].yuuid.slice(0,8) + '-' + data[i].yuuid.slice(8, 12) + '-' + data[i].yuuid.slice(12, 16) + '-' + data[i].yuuid.slice(16, 20) + '-' + data[i].yuuid.slice(20, 32);
+				data[i].yuuid = formatUuid(data[i].yuuid);
 				data[i].yuuid = data[i].yuuid.replace(/-/g, '&#8209;');
 				$el.append(
 					$('<tr data-uid="' + data[i].uid + '"><td class="compact" style="white-space: nowrap"><img src="' + data[i].picture + '" width="40px" height="40px">&nbsp;&nbsp;' + data[i].username + '</td><td class="compact">'+ data[i].yuuid + '</td><td>' + data[i].name + '</td><td class="compact squish"><button id="avatar-refresh" class="btn btn-info">Refresh</button></td><td class="compact"><button id="avatar-delete" class="btn btn-danger">Delete</button></td></tr>')
@@ -322,6 +326,7 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 		socket.emit('plugins.MinecraftIntegration.getAvatars', { }, function (err, data) {
 			var $el = $('#miTableAvatars');
 			for (var i = 0; i < data.length; i++) {
+				data[i].id = formatUuid(data[i].id);
 				$el.append(
 					$('<tr data-player="' + data[i].name + '"><td class="compact"><img class="mi-avatar" src="data:image/png;base64,' + data[i]['base64'] + '" width="40px" height="40px"></td><td class="compact" style="vertical-align: middle;">' + data[i].name + '</td><td>' + data[i].id + '</td><td class="compact squish"><button class="btn btn-info mi-btn-refresh-avatar">Refresh</button></td><td class="compact"><button class="btn btn-danger mi-btn-clear-avatar">Delete</button></td></tr>')
 				);
@@ -331,6 +336,7 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 		socket.emit('plugins.MinecraftIntegration.getPlayers', { }, function (err, data) {
 			var $el = $('#miTablePlayers');
 			for (var i = 0; i < data.length; i++) {
+				data[i].id = formatUuid(data[i].id);
 				$el.append(
 					$('<tr data-uuid="' + data[i].id + '"><td class="compact">' + data[i].id + '</td><td>' + data[i].name + '</td><td>' + data[i].playtime + '</td><td>' + data[i].lastonline + '</td><td class="compact squish"><button class="btn btn-info mi-btn-refresh-player">Refresh</button></td><td class="compact"><button class="btn btn-danger mi-btn-clear-player">Delete</button></td></tr>')
 				);

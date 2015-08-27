@@ -676,21 +676,26 @@ $(window).on('action:widgets.loaded', function (event) {
 
 			next();
 		}, function (err) {
-			for (var i = 0; i < sids.length; i++) {
-				socket.emit('plugins.MinecraftIntegration.getServerStatus', {sid: sids[i]}, function (err, status) {
+
+			async.each(sids, function (sid, next) {
+				socket.emit('plugins.MinecraftIntegration.getServerStatus', {sid: sid}, function (err, status) {
 					MinecraftIntegration.setPlayers(status);
 					MinecraftIntegration.setGraphs(status);
 				});
 
-				var widgetsChat = $('[data-widget="mi-chat"][data-sid="' + sids[i] + '"]');
+				var widgetsChat = $('[data-widget="mi-chat"][data-sid="' + sid + '"]');
 
 				if (widgetsChat.length) {
-					socket.emit('plugins.MinecraftIntegration.getChat', {sid: sids[i]}, function (err, data) {
+					socket.emit('plugins.MinecraftIntegration.getChat', {sid: sid}, function (err, data) {
+
+						console.log(widgetsChat);
 						async.each(widgetsChat, function ($chatwidget, next) {
+							console.log(data);
 							$chatwidget = $($chatwidget);
-							$chatbox    = $chatwidget.find('div');
+							var $chatbox    = $chatwidget.find('div');
 
 							for (var i in data.chats) {
+								console.log(data.chats[i]);
 								$chatbox.append("<span>" + data.chats[i].name + ": " + data.chats[i].message + "</span><br>");
 							}
 
@@ -717,9 +722,9 @@ $(window).on('action:widgets.loaded', function (event) {
 						});
 					});
 				}
-			}
 
-			resizeCanvases();
+				next();
+			}, resizeCanvases);
 		});
 	});
 });
