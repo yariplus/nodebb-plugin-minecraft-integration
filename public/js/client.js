@@ -3,16 +3,16 @@
 MinecraftIntegration = { templates: { } };
 
 (function () {
-
 	MinecraftIntegration.log = function (memo) {
-		if (typeof memo === 'object') memo = JSON.stringify(memo);
-		console.log("[Minecraft Integration] " + memo);
+		if (typeof memo === 'object') {
+			console.log(memo);
+		}else{
+			console.log("[Minecraft Integration] " + memo);
+		}
 	};
 
 	MinecraftIntegration.log("Loading...");
-
 	MinecraftIntegration.__MIDIR = "/plugins/nodebb-plugin-minecraft-integration/public/";
-
 }());
 
 MinecraftIntegration.getTemplate = function (template, callback) {
@@ -25,7 +25,6 @@ MinecraftIntegration.getTemplates = function (templates, callback) {
 	require([MinecraftIntegration.__MIDIR + 'js/vendor/async.min.js'], function (async) {
 		async.map(templates, function (template, next) {
 			MinecraftIntegration.log("Getting template: " + template);
-			MinecraftIntegration.log(typeof next);
 			if (MinecraftIntegration.templates[template]) {
 				next(null, MinecraftIntegration.templates[template]);
 			}else{
@@ -69,8 +68,6 @@ MinecraftIntegration.setAvatarBorders = function ($widget) {
 
 	require([MinecraftIntegration.__MIDIR + 'js/vendor/rainbowvis.js'], function () {
 		if (Rainbow) {
-			MinecraftIntegration.log("Avatars Found: " + $avatars.length);
-
 			var rainbow = new Rainbow();
 			rainbow.setNumberRange(0, $avatars.length > 1 ? $avatars.length - 1 : $avatars.length);
 			rainbow.setSpectrum($widget.attr('data-avatar-border-start') || 'white', $widget.attr('data-avatar-border-end') || 'white');
@@ -237,7 +234,6 @@ MinecraftIntegration.setPlayers = function (data) {
 							}
 						}, function () {
 							MinecraftIntegration.setAvatarBorders($widget);
-							console.log($widget.find('.mi-avatar').length);
 							next();
 						});
 					}, next);
@@ -343,7 +339,7 @@ socket.on('mi.PlayerQuit', function (data) {
 });
 
 socket.on('mi.status', function (data) {
-	MinecraftIntegration.log("Received Status Ping:");
+	MinecraftIntegration.log("Received Status Ping from " + data.name + ":");
 	MinecraftIntegration.log(data);
 	MinecraftIntegration.setPlayers(data);
 	MinecraftIntegration.setGraphs(data);
@@ -688,14 +684,11 @@ $(window).on('action:widgets.loaded', function (event) {
 				if (widgetsChat.length) {
 					socket.emit('plugins.MinecraftIntegration.getChat', {sid: sid}, function (err, data) {
 
-						console.log(widgetsChat);
 						async.each(widgetsChat, function ($chatwidget, next) {
-							console.log(data);
 							$chatwidget = $($chatwidget);
 							var $chatbox    = $chatwidget.find('div');
 
 							for (var i in data.chats) {
-								console.log(data.chats[i]);
 								$chatbox.append("<span>" + data.chats[i].name + ": " + data.chats[i].message + "</span><br>");
 							}
 
