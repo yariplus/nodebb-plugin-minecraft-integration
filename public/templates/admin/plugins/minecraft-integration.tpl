@@ -114,6 +114,7 @@
 									<tr>
 										<th>UUID</th>
 										<th>Player Name</th>
+										<th>Prefix</th>
 										<th>Play Time</th>
 										<th>Last Online</th>
 										<th>Actions</th>

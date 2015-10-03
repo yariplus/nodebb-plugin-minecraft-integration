@@ -344,7 +344,7 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 			var $el = $('#miTablePlayers');
 			for (var i = 0; i < data.length; i++) {
 				$el.append(
-					$('<tr data-uuid="' + data[i].id + '"><td class="compact">' + formatUuid(data[i].id) + '</td><td><span class="name">' + data[i].name + '</span></td><td>' + data[i].playtime + '</td><td>' + data[i].lastonline + '</td><td class="compact squish"><button class="btn btn-info mi-btn-refresh-player">Refresh</button></td><td class="compact"><button class="btn btn-danger mi-btn-clear-player">Delete</button></td></tr>')
+					$('<tr data-uuid="' + data[i].id + '"><td class="compact">' + formatUuid(data[i].id) + '</td><td><span class="name">' + data[i].name + '</span></td><td><span class="prefix">' + (data[i].prefix || "") + '</span></td><td>' + data[i].playtime + '</td><td>' + data[i].lastonline + '</td><td class="compact squish"><button class="btn btn-info mi-btn-refresh-player">Refresh</button></td><td class="compact"><button class="btn btn-danger mi-btn-clear-player">Delete</button></td></tr>')
 				);
 			}
 		});

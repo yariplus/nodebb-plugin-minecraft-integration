@@ -25,7 +25,10 @@
 		{ "hook": "filter:widget.render:mi-status",        "method": "Widgets.renderStatus" },
 		{ "hook": "filter:widget.render:mi-top-graph",     "method": "Widgets.renderTopGraph" },
 		{ "hook": "filter:widget.render:mi-top-list",      "method": "Widgets.renderTopList" },
-		{ "hook": "filter:widget.render:mi-tps-graph",     "method": "Widgets.renderTPSGraph" }
+		{ "hook": "filter:widget.render:mi-tps-graph",     "method": "Widgets.renderTPSGraph" },
+		{ "hook": "filter:topic.build",                    "method": "Hooks.filter.topic.build"},
+		{ "hook": "filter:post.getPosts",                  "method": "Hooks.filter.post.getPosts"},
+		{ "hook": "filter:post.get",                       "method": "Hooks.filter.post.get"}
 	],
 	"templates": "./public/templates",
 	"staticDirs": {

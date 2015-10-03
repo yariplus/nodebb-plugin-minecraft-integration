@@ -14,7 +14,21 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 	MinecraftIntegration.log("Loading...");
 	MinecraftIntegration.__MIDIR = "/plugins/nodebb-plugin-minecraft-integration/public/";
 
-	
+	function addPrefixes(event, data) {
+		console.dir(data);
+		if (ajaxify.data.prefixes) {
+			console.log("Adding prefixes...");
+			$('.post-row:not([data-prefix])').each(function () {
+				var $el = $(this);
+				var prefix = ajaxify.data.prefixes[$el.attr("data-uid")];
+				$el.attr("data-prefix", prefix);
+				$el.find(".username>a").prepend('<span class="prefix" style="text-shadow: 0.5px 0.5px rgba(0,0,0,0.5);">' + prefix + '</span><br>');
+			});
+		}
+	}
+
+	$(window).on('action:posts.loaded',          addPrefixes);
+	$(window).on('action:ajaxify.contentLoaded', addPrefixes);
 }());
 
 MinecraftIntegration.getTemplate = function (template, callback) {
