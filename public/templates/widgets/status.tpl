@@ -38,12 +38,37 @@
 				</td>
 				<td>
 					<span<!-- IF colorText --> style="color:#{colorText}"<!-- ENDIF colorText -->>
-					<!-- IF isServerOnline -->
-						<a class="fa fa-check-circle text-success has-tooltip" data-placement="top" data-title="Pinged server at {serverIP}:{serverPort}"></a>&nbsp;<strong><span class="text-success">Online</span></strong><!-- IF showPlayerCount -->&nbsp;(<span class="online-players">{onlinePlayers}</span>/<span class="max-players">{maxPlayers}</span>)<!-- ENDIF showPlayerCount -->
-					<!-- ENDIF isServerOnline -->
-					<!-- IF isServerOffline -->
-						<a class="fa fa-exclamation-circle text-danger has-tooltip" data-placement="top" data-title="Pinged server at {serverIP}:{serverPort}"></a>&nbsp;<strong><span class="text-danger">Offline</span></strong>
-					<!-- ENDIF isServerOffline -->
+
+					<a class="mc-statusicon fa has-tooltip
+
+						<!-- IF isServerOnline -->
+							fa-check-circle text-success
+						<!-- ENDIF isServerOnline -->
+						<!-- IF !isServerOnline -->
+							fa-exclamation-circle text-danger
+						<!-- ENDIF !isServerOnline -->
+
+					" data-placement="top" data-title=""></a>
+
+					<strong>
+						<span class="mc-statustext
+
+							<!-- IF isServerOnline -->
+								text-success
+							<!-- ENDIF isServerOnline -->
+							<!-- IF !isServerOnline -->
+								text-danger
+							<!-- ENDIF !isServerOnline -->
+
+						"><!-- IF isServerOnline -->Online<!-- ENDIF isServerOnline --><!-- IF !isServerOnline -->Offline<!-- ENDIF !isServerOnline --></span>
+					</strong>
+
+					<!-- IF showPlayerCount -->
+					<span class="mc-playercount">
+						(<span class="online-players">{onlinePlayers}</span>/<span class="max-players">{maxPlayers}</span>)
+					</span>
+					<!-- ENDIF showPlayerCount -->
+
 					<!-- IF isServerRestarting -->
 						<a class="fa fa-question-circle text-info has-tooltip" data-placement="top" data-title="Pinged server at {serverIP}:{serverPort}"></a>&nbsp;<strong><span class="text-info">Restarting</span></strong>
 					<!-- ENDIF isServerRestarting -->

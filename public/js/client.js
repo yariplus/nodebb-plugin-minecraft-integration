@@ -293,6 +293,31 @@ socket.on('mi.status', function (data) {
 	MinecraftIntegration.log(data);
 	MinecraftIntegration.setPlayers(data);
 	MinecraftIntegration.setGraphs(data);
+
+	var $widget = $('[data-sid="' + data.sid + '"]');
+	if (parseInt(data.isServerOnline, 10)) {
+		$widget.find(".mc-statusicon")
+		.addClass("fa-check-circle")
+		.addClass("text-success")
+		.removeClass("fa-exclamation-circle")
+		.removeClass("text-danger");
+		$widget.find(".mc-statustext")
+		.addClass("text-success")
+		.removeClass("text-danger")
+		.text("Online");
+		$widget.find(".mc-playercount").show();
+	}else{
+		$widget.find(".mc-statusicon")
+		.removeClass("fa-check-circle")
+		.removeClass("text-success")
+		.addClass("fa-exclamation-circle")
+		.addClass("text-danger");
+		$widget.find(".mc-statustext")
+		.removeClass("text-success")
+		.addClass("text-danger")
+		.text("Offline");
+		$widget.find(".mc-playercount").hide();
+	}
 });
 
 socket.on('mi.PlayerChat', function (data) {

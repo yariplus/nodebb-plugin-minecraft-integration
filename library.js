@@ -35,8 +35,8 @@ MinecraftIntegration.load = function (data, next) {
 	Views.init();
 	Admin.init();
 
-	setTimeout(Config.logSettings, 1500);
-	setTimeout(Updater.updateServers, 2000);
+	setTimeout(Config.logSettings, 5000);
+	setTimeout(Updater.updateServers, 10000);
 
 	next();
 };

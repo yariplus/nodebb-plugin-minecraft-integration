@@ -154,9 +154,7 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 		function makeButtons() {
 			console.log('MI: adding buttons');
 
-			$form.on('click', 'a, button', function (e) {
-				e.preventDefault();
-			}).on('click', '.fa-times', function (e) {
+			$form.on('click', '.fa-times', function (e) {
 				toggleServer($(e.target).closest('.panel').data('server-num'));
 			}).on('click', '#mia-save', function (e) {
 				e.preventDefault();
@@ -319,14 +317,14 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 		});
 
 		function formatUuid(yuuid) {
-			return yuuid.slice(0,8) + '&#8209;' + yuuid.slice(8, 12) + '&#8209;' + yuuid.slice(12, 16) + '&#8209;' + yuuid.slice(16, 20) + '&#8209;' + yuuid.slice(20, 32);
+			return yuuid.slice(0,8) + '-' + yuuid.slice(8, 12) + '-' + yuuid.slice(12, 16) + '-' + yuuid.slice(16, 20) + '-' + yuuid.slice(20, 32);
 		}
 
 		socket.emit('plugins.MinecraftIntegration.getRegisteredUsers', {fields: ['picture']}, function (err, data) {
 			var $el = $('#miTableUsers');
 			for (var i = 0; i < data.length; i++) {
 				$el.append(
-					$('<tr data-uid="' + data[i].uid + '"><td class="compact" style="white-space: nowrap"><img src="' + data[i].picture + '" width="40px" height="40px">&nbsp;&nbsp;' + data[i].username + '</td><td class="compact">'+ formatUuid(data[i].yuuid) + '</td><td>' + data[i].name + '</td><td class="compact squish"><button id="avatar-refresh" class="btn btn-info">Refresh</button></td><td class="compact"><button id="avatar-delete" class="btn btn-danger">Delete</button></td></tr>')
+					$('<tr data-uid="' + data[i].uid + '"><td class="compact no-break"><a href="/user/' + data[i].username + '" target="_blank"><img class="userpic" src="' + data[i].picture + '" width="40px" height="40px">&nbsp;&nbsp;' + data[i].username + '</a></td><td class="compact no-break">'+ formatUuid(data[i].yuuid) + '</td><td>' + data[i].name + '</td><td class="compact squish"><button id="avatar-refresh" class="btn btn-info">Refresh</button></td><td class="compact"><button id="avatar-delete" class="btn btn-danger">Delete</button></td></tr>')
 				);
 			}
 		});
