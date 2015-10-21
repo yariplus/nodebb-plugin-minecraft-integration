@@ -131,7 +131,7 @@
 								<tbody>
 									<tr>
 										<td>
-											<button id="mi-btn-clear-avatar-cache" class="btn btn-primary">Clear Avatar Cache</button>
+											<button id="mi-btn-clear-avatar-cache" type="button" class="btn btn-primary">Clear Avatar Cache</button>
 										</td>
 									</tr>
 								</tbody>

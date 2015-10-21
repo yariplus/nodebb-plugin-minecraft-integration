@@ -227,7 +227,9 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 						});
 					}
 				});
-			}).on('click', '.mi-btn-clear-avatar', function (e) {
+
+			// Avatars
+			}).on('click', '.mi-btn-delete-avatar', function (e) {
 				var $this = $(this);
 
 				socket.emit('admin.MinecraftIntegration.resetCachedAvatar', {playerName: $this.closest('tr').attr('data-player')}, function (err) {
@@ -243,18 +245,34 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 						$avatar.fadeIn(600);
 					});
 				});
-			}).on('click', '.mi-btn-refresh-player', function (e) {
-				var $this = $(this),
-					$name = $this.closest('tr').find('.name').first();
+			}).on('click', '.regen-key', function (e) {
+				regenKey($(this).closest('.input-row').find('input'));
 
-				socket.emit('plugins.MinecraftIntegration.getProfile', {id: $this.closest('tr').attr('data-uuid')}, function (err, profile) {
+			// Players
+			}).on('click', '.mi-btn-refresh-player', function (e) {
+				var	$this = $(this).closest('tr'),
+					$name = $this.find('.name').first();
+
+				// Retrieving the profile will refresh it if there's no risk of throttling.
+				socket.emit('plugins.MinecraftIntegration.getProfile', {id: $this.attr('data-uuid')}, function (err, profile) {
+					if (err) return console.log(err);
 					$name.fadeOut(600, function () {
 						$name.text(profile.name);
 						$name.fadeIn(600);
 					});
 				});
-			}).on('click', '.regen-key', function (e) {
-				regenKey($(this).closest('.input-row').find('input'));
+			}).on('click', '.mi-btn-delete-player', function (e) {
+				var	$this = $(this).closest('tr'),
+					$name = $this.find('.name').first();
+
+				socket.emit('admin.MinecraftIntegration.deleteProfile', {id: $this.attr('data-uuid')}, function (err) {
+					if (err) return console.log(err);
+					$this.fadeOut(600, $this.remove);
+				});
+
+			// Users
+			}).on('click', '.mi-btn-delete-user', function (e) {
+				// TODO
 			});
 		}
 
@@ -297,9 +315,9 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 				$.get(MinecraftIntegration.__MIDIR + '/templates/admin/plugins/server.tpl' + "?v=" + config['cache-buster'], function(data) {
 					translator.translate(data, function (translatedTemplate) {
 						$serverTemplate = $($.parseHTML(translatedTemplate));
-						$modalTemplate = $($.parseHTML('<tr><td><span></span></td><td style="width:0px;text-align:right;"><button class="btn btn-success mia-toggle-activation pointer">Activate</button></td></tr>'));
+						$modalTemplate = $($.parseHTML('<tr><td><span></span></td><td style="width:0px;text-align:right;"><button type="button" class="btn btn-success mia-toggle-activation pointer">Activate</button></td></tr>'));
 						// TODO: Add purging option.
-						// <td style="width:0px;"><button class="btn btn-danger mia-purge pointer">Purge</button></td>
+						// <td style="width:0px;"><button type="button" class="btn btn-danger mia-purge pointer">Purge</button></td>
 						settings.helper.whenReady(function () {
 							settings.helper.use(values);
 							settings.cfg._.servers = settings.cfg._.servers || [ ];
@@ -308,6 +326,20 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 							setupInputs();
 
 							if ($('[name=avatarCDN]').val() !== 'custom') $('[name=custom-cdn]').closest('.row').css('display', 'none');
+
+							// Select hashed tab.
+							window.onhashchange = function (e) {
+								if (location.hash) {
+									$('.nav-tabs a[href=#' + location.hash.slice(1) + ']').tab('show');
+								}else{
+									$('.nav-tabs a').first().tab('show');
+								}
+							};
+							if (app.previousUrl.match('minecraft-integration#')) {
+								var hash = app.previousUrl.split('#')[1] || '';
+								$('.nav-tabs a[href=#' + hash + ']').tab('show');
+								location.hash = '#' + hash;
+							}
 
 							console.log('MI: template rendered');
 						});
@@ -324,7 +356,7 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 			var $el = $('#miTableUsers');
 			for (var i = 0; i < data.length; i++) {
 				$el.append(
-					$('<tr data-uid="' + data[i].uid + '"><td class="compact no-break"><a href="/user/' + data[i].username + '" target="_blank"><img class="userpic" src="' + data[i].picture + '" width="40px" height="40px">&nbsp;&nbsp;' + data[i].username + '</a></td><td class="compact no-break">'+ formatUuid(data[i].yuuid) + '</td><td>' + data[i].name + '</td><td class="compact squish"><button id="avatar-refresh" class="btn btn-info">Refresh</button></td><td class="compact"><button id="avatar-delete" class="btn btn-danger">Delete</button></td></tr>')
+					$('<tr data-uid="' + data[i].uid + '" data-uuid="' + data[i].yuuid + '"><td class="compact no-break"><a href="/user/' + data[i].username + '" target="_blank"><img class="userpic" src="' + data[i].picture + '" width="40px" height="40px">&nbsp;&nbsp;' + data[i].username + '</a></td><td class="compact no-break">'+ formatUuid(data[i].yuuid) + '</td><td><span class="name">' + data[i].name + '</span></td><td class="compact squish"><button type="button" class="btn btn-info mi-btn-refresh-player">Refresh</button></td><td class="compact"><button type="button" class="btn btn-danger mi-btn-delete-user">Delete</button></td></tr>')
 				);
 			}
 		});
@@ -333,7 +365,7 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 			var $el = $('#miTableAvatars');
 			for (var i = 0; i < data.length; i++) {
 				$el.append(
-					$('<tr data-player="' + data[i].name + '"><td class="compact"><img class="mi-avatar" src="data:image/png;base64,' + data[i]['base64'] + '" width="40px" height="40px"></td><td class="compact" style="vertical-align: middle;">' + data[i].name + '</td><td>' + formatUuid(data[i].id) + '</td><td class="compact squish"><button class="btn btn-info mi-btn-refresh-avatar">Refresh</button></td><td class="compact"><button class="btn btn-danger mi-btn-clear-avatar">Delete</button></td></tr>')
+					$('<tr data-player="' + data[i].name + '"><td class="compact"><img class="mi-avatar" src="data:image/png;base64,' + data[i]['base64'] + '" width="40px" height="40px"></td><td class="compact" style="vertical-align: middle;">' + data[i].name + '</td><td class="compact no-break">' + formatUuid(data[i].id) + '</td><td class="compact squish"><button type="button" class="btn btn-info mi-btn-refresh-avatar">Refresh</button></td><td class="compact"><button type="button" class="btn btn-danger mi-btn-delete-avatar">Delete</button></td></tr>')
 				);
 			}
 		});
@@ -342,7 +374,7 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 			var $el = $('#miTablePlayers');
 			for (var i = 0; i < data.length; i++) {
 				$el.append(
-					$('<tr data-uuid="' + data[i].id + '"><td class="compact">' + formatUuid(data[i].id) + '</td><td><span class="name">' + data[i].name + '</span></td><td><span class="prefix">' + (data[i].prefix || "") + '</span></td><td>' + data[i].playtime + '</td><td>' + data[i].lastonline + '</td><td class="compact squish"><button class="btn btn-info mi-btn-refresh-player">Refresh</button></td><td class="compact"><button class="btn btn-danger mi-btn-clear-player">Delete</button></td></tr>')
+					$('<tr data-uuid="' + data[i].id + '"><td class="compact no-break">' + formatUuid(data[i].id) + '</td><td><span class="name">' + data[i].name + '</span></td><td><span class="prefix">' + (data[i].prefix || "") + '</span></td><td>' + data[i].playtime + '</td><td>' + data[i].lastonline + '</td><td class="compact squish"><button type="button" class="btn btn-info mi-btn-refresh-player">Refresh</button></td><td class="compact"><button type="button" class="btn btn-danger mi-btn-delete-player">Delete</button></td></tr>')
 				);
 			}
 		});

@@ -38,7 +38,7 @@
 								<input name="api-key" type="text" class="form-control" readonly/>
 							</td>
 							<td class="compact">
-								<button class="btn btn-default form-control regen-key">[[mi:regenerate]]</button>
+								<button type="button" class="btn btn-default form-control regen-key">[[mi:regenerate]]</button>
 							</td>
 						</tr>
 					</tbody>
