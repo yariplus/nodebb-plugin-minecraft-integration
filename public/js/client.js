@@ -1,5 +1,7 @@
+// Global
 MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 
+// TODO: This still needs a ton of work.
 (function(){
 	"use strict";
 
