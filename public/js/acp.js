@@ -5,12 +5,18 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 		$form, $serverList, $modal, $modalBody, $serverTemplate, $modalTemplate;
 
 	miACP.load = function () {
-		console.log('miACP.load() called');
+		MinecraftIntegration.log("Loading admin data...");
 
 		$form = $('#minecraft-integration');
 		$serverList = $('#server-list');
 		$modal = $form.find('#mia-modal-servers');
 		$modalBody = $modal.find('.modal-body').find('tbody');
+
+		// Tables
+		var	$elTableUsers   = $('#miTableUsers'),
+			$elTableAvatars = $('#miTableAvatars'),
+			$elTablePlayers = $('#miTablePlayers'),
+			tplTablePlayers = '<tr data-uuid="{id}"><td class="compact no-break">{idf}</td><td><span class="name">{name}</span></td><td><span class="prefix">{prefix}</span></td><td>{playtime}</td><td>{lastonline}</td><td class="compact squish"><button type="button" class="btn btn-info mi-btn-refresh-player">Refresh</button></td><td class="compact"><button type="button" class="btn btn-danger mi-btn-delete-player">Delete</button></td></tr>';
 
 		function makeServerList() {
 			for (var i in settings.cfg._.servers) {
@@ -152,7 +158,7 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 		}
 
 		function makeButtons() {
-			console.log('MI: adding buttons');
+			MinecraftIntegration.log("Adding buttons");
 
 			$form.on('click', '.fa-times', function (e) {
 				toggleServer($(e.target).closest('.panel').data('server-num'));
@@ -203,7 +209,6 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 				$modalBody.empty();
 				populateFields();
 			}).on('click', '#mia-add-server', function (e) {
-				console.log('MI: adding server...');
 				var nextServerNum = settings.cfg._.servers.length;
 				$serverList.children().each(function (i,el) {
 					var num = $(el).data('server-num');
@@ -215,7 +220,49 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 				$modal.modal('show');
 			}).on('click', '.mia-toggle-activation', function (e) {
 				toggleServer($(e.target).closest('tr').data('server-num'));
-			}).on('click', '#mi-btn-clear-avatar-cache', function (e) {
+			}).on('click', '.regen-key', function (e) {
+				regenKey($(this).closest('.input-row').find('input'));
+
+			// Avatars
+			}).on('click', '.mi-btn-delete-avatar', function (e) {
+				var	$this = $(this).closest('tr');
+
+				socket.emit('admin.MinecraftIntegration.deleteAvatar', {name: $this.attr('data-player')}, function (err) {
+					if (err) return MinecraftIntegration.log(err);
+					$this.fadeOut(600, $this.remove);
+				});
+			}).on('click', '.mi-btn-refresh-avatar', function (e) {
+				var $this = $(this),
+					$avatar = $this.closest('tr').find('.mi-avatar');
+
+				$avatar.fadeOut(600, function () {
+					socket.emit('admin.MinecraftIntegration.refreshAvatar', {name: $this.closest('tr').attr('data-player')}, function (err, data) {
+						$avatar.attr('src', 'data:image/png;base64,' + data.base64);
+						$avatar.fadeIn(600);
+					});
+				});
+
+			// Players
+			}).on('click', '.mi-btn-delete-player', function (e) {
+				var	$this = $(this).closest('tr');
+
+				socket.emit('admin.MinecraftIntegration.deletePlayer', {id: $this.attr('data-uuid')}, function (err) {
+					if (err) return MinecraftIntegration.log(err);
+					$this.fadeOut(600, $this.remove);
+				});
+			}).on('click', '.mi-btn-refresh-player', function (e) {
+				var	$this = $(this).closest('tr'),
+					$name = $this.find('.name').first();
+
+				// Retrieving the profile will refresh it if there's no risk of throttling.
+				socket.emit('plugins.MinecraftIntegration.getPlayer', {id: $this.attr('data-uuid')}, function (err, profile) {
+					if (err) return MinecraftIntegration.log(err);
+					$name.fadeOut(600, function () {
+						$name.text(profile.name);
+						$name.fadeIn(600);
+					});
+				});
+			}).on('click', '#mi-btn-reset-avatars', function (e) {
 				bootbox.confirm("Are you sure?<br/><br/>This will remove all avatars from the database.", function (result) {
 					if (result) {
 						socket.emit('admin.MinecraftIntegration.resetCachedAvatars', { }, function () {
@@ -228,51 +275,14 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 					}
 				});
 
-			// Avatars
-			}).on('click', '.mi-btn-delete-avatar', function (e) {
-				var $this = $(this);
-
-				socket.emit('admin.MinecraftIntegration.resetCachedAvatar', {playerName: $this.closest('tr').attr('data-player')}, function (err) {
-					$this.closest('tr').remove();
-				});
-			}).on('click', '.mi-btn-refresh-avatar', function (e) {
-				var $this = $(this),
-					$avatar = $this.closest('tr').find('.mi-avatar');
-
-				$avatar.fadeOut(600, function () {
-					socket.emit('admin.MinecraftIntegration.refreshAvatar', {playerName: $this.closest('tr').attr('data-player')}, function (err, data) {
-						$avatar.attr('src', 'data:image/png;base64,' + data.base64);
-						$avatar.fadeIn(600);
-					});
-				});
-			}).on('click', '.regen-key', function (e) {
-				regenKey($(this).closest('.input-row').find('input'));
-
-			// Players
-			}).on('click', '.mi-btn-refresh-player', function (e) {
-				var	$this = $(this).closest('tr'),
-					$name = $this.find('.name').first();
-
-				// Retrieving the profile will refresh it if there's no risk of throttling.
-				socket.emit('plugins.MinecraftIntegration.getProfile', {id: $this.attr('data-uuid')}, function (err, profile) {
-					if (err) return console.log(err);
-					$name.fadeOut(600, function () {
-						$name.text(profile.name);
-						$name.fadeIn(600);
-					});
-				});
-			}).on('click', '.mi-btn-delete-player', function (e) {
-				var	$this = $(this).closest('tr'),
-					$name = $this.find('.name').first();
-
-				socket.emit('admin.MinecraftIntegration.deleteProfile', {id: $this.attr('data-uuid')}, function (err) {
-					if (err) return console.log(err);
-					$this.fadeOut(600, $this.remove);
-				});
-
 			// Users
 			}).on('click', '.mi-btn-delete-user', function (e) {
-				// TODO
+				var	$this = $(this).closest('tr');
+
+				socket.emit('admin.MinecraftIntegration.deleteUser', {uid: $this.attr('data-uid')}, function (err) {
+					if (err) return MinecraftIntegration.log(err);
+					$this.fadeOut(600, $this.remove);
+				});
 			});
 		}
 
@@ -309,9 +319,9 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 
 		socket.emit('admin.settings.get', { hash: 'minecraft-integration' }, function (err, values) {
 			if (err) {
-				console.log('Error getting values:', err);
+				MinecraftIntegration.log('Error getting settings:', err);
 			} else {
-				console.log('MI: settings recieved');
+				MinecraftIntegration.log('Settings recieved');
 				$.get(MinecraftIntegration.__MIDIR + '/templates/admin/plugins/server.tpl' + "?v=" + config['cache-buster'], function(data) {
 					translator.translate(data, function (translatedTemplate) {
 						$serverTemplate = $($.parseHTML(translatedTemplate));
@@ -340,43 +350,48 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 								$('.nav-tabs a[href=#' + hash + ']').tab('show');
 								location.hash = '#' + hash;
 							}
-
-							console.log('MI: template rendered');
 						});
 					});
 				});
 			}
 		});
 
+		// Helpers
 		function formatUuid(yuuid) {
 			return yuuid.slice(0,8) + '-' + yuuid.slice(8, 12) + '-' + yuuid.slice(12, 16) + '-' + yuuid.slice(16, 20) + '-' + yuuid.slice(20, 32);
 		}
 
+		function parseTpl(tpl, data) {
+			for (var prop in data) {
+				if (data.hasOwnProperty(prop)) {
+					tpl = tpl.replace('{'+prop+'}', data[prop]);
+				}
+			}
+			return tpl;
+		}
+
+		// Populate tables.
 		socket.emit('plugins.MinecraftIntegration.getRegisteredUsers', {fields: ['picture']}, function (err, data) {
-			var $el = $('#miTableUsers');
 			for (var i = 0; i < data.length; i++) {
-				$el.append(
+				$elTableUsers.append(
 					$('<tr data-uid="' + data[i].uid + '" data-uuid="' + data[i].yuuid + '"><td class="compact no-break"><a href="/user/' + data[i].username + '" target="_blank"><img class="userpic" src="' + data[i].picture + '" width="40px" height="40px">&nbsp;&nbsp;' + data[i].username + '</a></td><td class="compact no-break">'+ formatUuid(data[i].yuuid) + '</td><td><span class="name">' + data[i].name + '</span></td><td class="compact squish"><button type="button" class="btn btn-info mi-btn-refresh-player">Refresh</button></td><td class="compact"><button type="button" class="btn btn-danger mi-btn-delete-user">Delete</button></td></tr>')
 				);
 			}
 		});
 
 		socket.emit('plugins.MinecraftIntegration.getAvatars', { }, function (err, data) {
-			var $el = $('#miTableAvatars');
 			for (var i = 0; i < data.length; i++) {
-				$el.append(
+				$elTableAvatars.append(
 					$('<tr data-player="' + data[i].name + '"><td class="compact"><img class="mi-avatar" src="data:image/png;base64,' + data[i]['base64'] + '" width="40px" height="40px"></td><td class="compact" style="vertical-align: middle;">' + data[i].name + '</td><td class="no-break">' + formatUuid(data[i].id) + '</td><td class="compact squish"><button type="button" class="btn btn-info mi-btn-refresh-avatar">Refresh</button></td><td class="compact"><button type="button" class="btn btn-danger mi-btn-delete-avatar">Delete</button></td></tr>')
 				);
 			}
 		});
 
-		socket.emit('plugins.MinecraftIntegration.getPlayers', { }, function (err, data) {
-			var $el = $('#miTablePlayers');
-			for (var i = 0; i < data.length; i++) {
-				$el.append(
-					$('<tr data-uuid="' + data[i].id + '"><td class="compact no-break">' + formatUuid(data[i].id) + '</td><td><span class="name">' + data[i].name + '</span></td><td><span class="prefix">' + (data[i].prefix || "") + '</span></td><td>' + data[i].playtime + '</td><td>' + data[i].lastonline + '</td><td class="compact squish"><button type="button" class="btn btn-info mi-btn-refresh-player">Refresh</button></td><td class="compact"><button type="button" class="btn btn-danger mi-btn-delete-player">Delete</button></td></tr>')
-				);
-			}
+		socket.emit('plugins.MinecraftIntegration.getPlayers', { }, function (err, players) {
+			players.forEach(function(player){
+				player.idf = formatUuid(player.id);
+				$elTablePlayers.append(parseTpl(tplTablePlayers, player));
+			});
 		});
 	};
 
