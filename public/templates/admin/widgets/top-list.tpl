@@ -73,7 +73,7 @@
 <div class="form-group">
 	<div class="checkbox">
 		<label>
-			<input type="checkbox" name="show-avatar-borders"> [[mi:show-avatar-borders]]
+			<input type="checkbox" name="show-colors"> [[mi:show-colors]]
 		</label>
 	</div>
 </div>
@@ -90,19 +90,19 @@
 		<option value="dashed">Dashed</option>
 		<option value="dotted">Dotted</option>
 	</select>
-	<input type="hidden" class="ajaxSelectSibling" name="avatar-border-style">
+	<input type="hidden" class="ajaxSelectSibling" name="border-style">
 </div>
 
 <div class="form-group">
-	<label class="control-label">[[mi:avatar-border-start]]</label>
+	<label class="control-label">[[mi:color-start]]</label>
 	<div>
-		<input type="text" class="form-control ajaxInputColorPicker" name="avatar-border-start">
+		<input type="text" class="form-control ajaxInputColorPicker" name="color-start">
 	</div>
 </div>
 
 <div class="form-group">
-	<label class="control-label">[[mi:avatar-border-end]]</label>
+	<label class="control-label">[[mi:color-end]]</label>
 	<div>
-		<input type="text" class="form-control ajaxInputColorPicker" name="avatar-border-end">
+		<input type="text" class="form-control ajaxInputColorPicker" name="color-end">
 	</div>
 </div>

@@ -17,7 +17,6 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 	MinecraftIntegration.__MIDIR = "/plugins/nodebb-plugin-minecraft-integration/public/";
 
 	function addPrefixes(event, data) {
-		console.dir(data);
 		if (ajaxify.data.prefixes) {
 			console.log("Adding prefixes...");
 			$('[data-pid]:not([data-prefix])').each(function () {
@@ -58,19 +57,25 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 
 	// 
 	MinecraftIntegration.setAvatarBorders = function ($widget) {
-		var $avatars = $widget.find('.mi-avatar');
+		var	$avatars = $widget.find('.mi-avatar'),
+			$scores  = $widget.find('.score');
 
-		if ($avatars.length === 0 || $widget.is('[data-show-avatar-borders="off"]')) return;
+		if ($avatars.length === 0 || $widget.is('[data-show-avatar-borders="off"]')) return console.log("No avatar borders", $widget.data('widget'), $avatars.length, $widget.is('[data-show-avatar-borders="off"]'));
+		if (!($widget.data('color-start') || $widget.attr('data-avatar-border-start'))) return console.log("No colors", $widget.data('widget'));
 
 		require([MinecraftIntegration.__MIDIR + 'js/vendor/rainbowvis.js'], function () {
 			if (Rainbow) {
 				var rainbow = new Rainbow();
 				rainbow.setNumberRange(0, $avatars.length > 1 ? $avatars.length - 1 : $avatars.length);
-				rainbow.setSpectrum($widget.attr('data-avatar-border-start') || 'white', $widget.attr('data-avatar-border-end') || 'white');
+
+				rainbow.setSpectrum($widget.attr('data-color-start') || $widget.attr('data-avatar-border-start') || 'white', $widget.attr('data-color-end') || $widget.attr('data-avatar-border-end') || 'white');
 
 				$avatars.each(function (i, el) {
 					$(el).css('border-style', $widget.attr('data-avatar-border-style') || 'solid');
 					$(el).css('border-color', '#' + rainbow.colourAt(i));
+				});
+				$scores.each(function (i, el) {
+					$(el).css('color', '#' + rainbow.colourAt(i));
 				});
 			}else{
 				return MinecraftIntegration.log("Failed loading Rainbow-vis");
@@ -107,6 +112,8 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 					});
 				});
 
+				var pendingPlayers = data.players.length;
+
 				// Add players now on the server.
 				data.players.forEach(function (player) {
 					var i = data.players.indexOf(player);
@@ -142,11 +149,12 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 								$avatar.appendTo($widget.find('.mi-avatars'));
 								$avatar.fadeToggle(600, 'linear');
 							}
+							if (!--pendingPlayers) MinecraftIntegration.setAvatarBorders($widget);
 						});
 						$widget.find(".online-players").text(parseInt($widget.find(".online-players").text(), 10) + 1);
+					}else{
+						if (!--pendingPlayers) MinecraftIntegration.setAvatarBorders($widget);
 					}
-				}, function () {
-					MinecraftIntegration.setAvatarBorders($widget);
 				});
 
 				$widget.find(".online-players").text(data.players.length);
@@ -189,7 +197,7 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 					}
 				}
 			});
-			
+
 			$('[data-widget="mi-top-list"][data-sid="' + data.sid + '"]').each(function (i, $widget) {
 				$widget = $($widget);
 
@@ -204,7 +212,7 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 							}
 							$img.parent().parent().find('.mi-score').html(playtime);
 						});
-					}e
+					}
 				});
 
 				MinecraftIntegration.setAvatarBorders($widget);
@@ -356,7 +364,7 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 		});
 	});
 
-	var rtime = new Date(1, 1, 2000, 12,00,00);
+	var rtime = new Date();
 	var timeout = false;
 	var delta = 300;
 	$(window).resize(function() {
