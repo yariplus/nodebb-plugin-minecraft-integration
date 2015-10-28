@@ -83,6 +83,21 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 		});
 	};
 
+	function wrapAvatar($avatar) {
+		if (!$avatar.parent().is('a')) {
+			socket.emit('plugins.MinecraftIntegration.getRegisteredUser', {id: $avatar.data('uuid')}, function (err, userData) {
+				if (!err && userData && userData.username) {
+					$avatar.wrap('<a href="/user/' + userData.username + '"/>');
+				}else{
+					$avatar.wrap('<a/>');
+				}
+				$avatar.parent().click(function () {
+					$('.tooltip').remove();
+				});
+			});
+		}
+	}
+
 	// When a new status update is received, refresh widgets that track players.
 	// TODO: This does too many things, separate into more functions based on each task.
 	MinecraftIntegration.setPlayers = function (data) {
@@ -103,7 +118,7 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 
 					for (var i in data.players) {
 						if (data.players[i].id && data.players[i].name) {
-							if ($avatar.data('id') === data.players[i].id) return;
+							if ($avatar.data('uuid') === data.players[i].id) return;
 						}
 					}
 
@@ -123,7 +138,7 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 					$widget.find('.mi-avatar').each(function () {
 						var $avatar = $(this);
 
-						if ($avatar.data('id') === data.players[i].id) {
+						if ($avatar.data('uuid') === data.players[i].id) {
 							found = true;
 						}
 					});
@@ -136,15 +151,9 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 								avatarTemplate = avatarTemplate.replace("{url}", "data:image/png;base64," + avatar);
 								var $avatar = $($.parseHTML(avatarTemplate.replace("{name}", data.players[i].name).replace("{styleGlory}", "").replace("{players.glory}", "").replace("{players.name}", data.players[i].name)));
 								$avatar.css("display", "none");
-								$avatar.data('id', data.players[i].id);
+								$avatar.data('uuid', data.players[i].id);
 
-								// if (!$avatar.parent().is('a')) {
-									// socket.emit('getPlayer', data.players[i].id + "/username", function (err, username) {
-										// if (username && username !== '[[global:guest]]') {
-											// $avatar.wrap('<a href="/user/' + username + '"/>');
-										// }
-									// });
-								// }
+								wrapAvatar($avatar);
 
 								$avatar.appendTo($widget.find('.mi-avatars'));
 								$avatar.fadeToggle(600, 'linear');
@@ -201,28 +210,25 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 			$('[data-widget="mi-top-list"][data-sid="' + data.sid + '"]').each(function (i, $widget) {
 				$widget = $($widget);
 
-				// TODO: Reverse this so players is only traversed once.
-				data.players.forEach(function (player) {
-					var $img = $('[data-uuid="' + player.id + '"]');
-					if ($img.length) {
-						socket.emit('getPlayer', {id: player.id}, function (err, playerData) {
+				var $avatars = $widget.find('.mi-avatar');
+				$avatars.each(function (i, $avatar) {
+					$avatar = $($avatar);
+					var id = $avatar.data('uuid');
+
+					if (id) {
+						socket.emit('plugins.MinecraftIntegration.getPlayer', {id: id}, function (err, playerData) {
 							var playtime = parseInt(playerData.playtime, 10);
 							if (playtime > 60) {
 								playtime = Math.floor(playtime / 60).toString() + " Hours, " + (playtime % 60).toString();
 							}
-							$img.parent().parent().find('.mi-score').html(playtime);
+							$avatar.parent().parent().find('.mi-score').html(playtime);
 						});
+						wrapAvatar($avatar);
 					}
 				});
 
 				MinecraftIntegration.setAvatarBorders($widget);
 			});
-		});
-	};
-
-	MinecraftIntegration.removeTooltips = function ($el) {
-		$el.find('.tooltip').each(function (i, el) {
-			$(this).remove();
 		});
 	};
 
@@ -240,7 +246,7 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 						// Add player now on the server, but not if they are already listed.
 						var found = false;
 						$widget.find('.mi-avatar').each(function(){
-							if ($(this).data('id') === data.player.id) found = true;
+							if ($(this).data('uuid') === data.player.id) found = true;
 						});
 
 						if (!found) {
@@ -250,7 +256,7 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 								if (avatar) {
 									var $avatar = $($.parseHTML(avatarTemplate.replace("{url}", "data:image/png;base64," + avatar).replace("{players.name}", data.player.name)));
 									$avatar.css("display", "none");
-									$avatar.data('id', data.player.id);
+									$avatar.data('uuid', data.player.id);
 									$widget.find('.mi-avatars').append($avatar);
 									MinecraftIntegration.setAvatarBorders($widget);
 									$avatar.fadeToggle(600, 'linear');
@@ -259,7 +265,7 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 							$widget.find(".online-players").text(parseInt($widget.find(".online-players").text(), 10) + 1);
 						}
 
-						MinecraftIntegration.removeTooltips($widget);
+						$('.tooltip').remove();
 					break;
 				}
 			});
@@ -278,7 +284,7 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 					$widget.find('.mi-avatar').each(function (i, el) {
 						var $avatar = $(el);
 
-						if ($avatar.data('id') !== data.player.id) return;
+						if ($avatar.data('uuid') !== data.player.id) return;
 
 						$avatar.fadeToggle(600, 'linear', function () {
 							$avatar.remove();
@@ -288,7 +294,7 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 
 					$widget.find(".online-players").text(parseInt($widget.find(".online-players").text(), 10) - 1);
 
-					MinecraftIntegration.removeTooltips($widget);
+					$('.tooltip').remove();
 				break;
 			}
 		});
