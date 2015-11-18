@@ -53,10 +53,6 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 		}
 	};
 
-	MinecraftIntegration.API.get = function (route, callback) {
-		$.get("/api/minecraft-integration/" + route + "?v=" + config['cache-buster'], function (data) { callback(null, data); });
-	};
-
 	// When avatars change, render new effects.
 	MinecraftIntegration.setAvatarBorders = function ($widget) {
 		var	$avatars = $widget.find('.mi-avatar'),
@@ -161,7 +157,7 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 
 					if (!found) {
 
-						MinecraftIntegration.API.get("avatar/" + player.name + "/base64", function (err, avatar) {
+						socket.emit('plugins.MinecraftIntegration.getAvatar', {name: player.name}, function (err, avatar) {
 
 							if (err) return MinecraftIntegration.log(err);
 							if (!avatar) return MinecraftIntegration.log("No avatar found for " + player.name);
@@ -282,7 +278,7 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 					if ($(this).data('uuid') === player.id) return;
 				});
 
-				MinecraftIntegration.API.get("avatar/" + player.name + "/base64", function (err, avatar) {
+				socket.emit('plugins.MinecraftIntegration.getAvatar', {name: player.name}, function (err, avatar) {
 
 					if (err) return MinecraftIntegration.log(err);
 					if (!avatar) return MinecraftIntegration.log("No avatar found for " + player.name);
@@ -473,10 +469,10 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 			$('[data-widget="mi-players-graph"][data-sid="' + status.sid + '"]').each(function (i, $widget) {
 				$widget = $($widget).find('.mi-canvas');
 
-				MinecraftIntegration.API.get("server/" + status.sid + "/pings/30", function (err, pings) {
+				socket.emit('plugins.MinecraftIntegration.getRecentPings', {sid: status.sid}, function (err, pings) {
 					if (typeof pings !== 'object') return;
 
-					var scaleMax = 10, date, hours, minutes, meridiem, chart;
+					var scaleMax = 10, date, hours, minutes, meridiem;
 
 					var options = {
 						showScale: false,
@@ -534,30 +530,30 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 					switch ('line') {
 						case "Pie":
 						case "pie":
-							chart = new Chart($widget[0].getContext('2d')).Pie(data, options);
+							$widget.data('chart', new Chart($widget[0].getContext('2d')).Pie(data, options));
 							break;
 						case "Donut":
 						case "donut":
-							chart = new Chart($widget[0].getContext('2d')).Pie(data, options);
+							$widget.data('chart', new Chart($widget[0].getContext('2d')).Pie(data, options));
 							break;
 						case "Line":
 						case "line":
 						default:
-							chart = new Chart($widget[0].getContext('2d')).Line(data, options);
+							$widget.data('chart', new Chart($widget[0].getContext('2d')).Line(data, options));
 							break;
 					}
 
-					$widget.data('chart', chart);
 				});
 			});
 
 			$('[data-widget="mi-tps-graph"][data-sid="' + status.sid + '"]').each(function (i, $widget) {
 				$widget = $($widget).find('.mi-canvas');
 
-				MinecraftIntegration.API.get("server/" + status.sid + "/pings/30", function (err, pings) {
+				socket.emit('plugins.MinecraftIntegration.getRecentPings', {sid: status.sid}, function (err, pings) {
+
 					if (typeof pings !== 'object') return;
 
-					var date, hours, minutes, meridiem, chart;
+					var date, hours, minutes, meridiem;
 
 					var options = {
 						showScale: false,
@@ -614,20 +610,19 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 					switch ('line') {
 						case "Pie":
 						case "pie":
-							chart = new Chart($widget[0].getContext('2d')).Pie(data, options);
+							$widget.data('chart', new Chart($widget[0].getContext('2d')).Pie(data, options));
 							break;
 						case "Donut":
 						case "donut":
-							chart = new Chart($widget[0].getContext('2d')).Pie(data, options);
+							$widget.data('chart', new Chart($widget[0].getContext('2d')).Pie(data, options));
 							break;
 						case "Line":
 						case "line":
 						default:
-							chart = new Chart($widget[0].getContext('2d')).Line(data, options);
+							$widget.data('chart', new Chart($widget[0].getContext('2d')).Line(data, options));
 							break;
 					}
 
-					$widget.data('chart', chart);
 				});
 			});
 
@@ -660,20 +655,19 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 					switch ('pie') {
 						case "Pie":
 						case "pie":
-							chart = new Chart($widget[0].getContext('2d')).Pie(data, options);
+							$widget.data('chart', new Chart($widget[0].getContext('2d')).Pie(data, options));
 							break;
 						case "Donut":
 						case "donut":
-							chart = new Chart($widget[0].getContext('2d')).Pie(data, options);
+							$widget.data('chart', new Chart($widget[0].getContext('2d')).Pie(data, options));
 							break;
 						case "Line":
 						case "line":
 						default:
-							chart = new Chart($widget[0].getContext('2d')).Line(data, options);
+							$widget.data('chart', new Chart($widget[0].getContext('2d')).Line(data, options));
 							break;
 					}
 
-					$widget.data('chart', chart);
 				});
 			});
 
