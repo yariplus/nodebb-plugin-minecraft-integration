@@ -7,8 +7,8 @@
 		<tbody>
 		<!-- BEGIN players -->
 		<tr>
-			<td width="20px">
-				<img class="mi-avatar user-img" src="data:image/png;base64,{players.avatar}" title="{players.name}" data-uuid="{players.id}" data-placement="top" data-toggle="tooltip" rel="tooltip">
+			<td>
+				<img class="mi-avatar not-responsive" src="data:image/png;base64,{players.avatar}" title="{players.name}" data-uuid="{players.id}" data-placement="top" data-toggle="tooltip" rel="tooltip">
 			</td>
 			<td style="vertical-align:middle">
 				<span class="score" style="<!-- IF players.color -->color:{players.color}<!-- ENDIF players.color -->">
