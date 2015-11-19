@@ -446,7 +446,9 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 	}
 
 	MinecraftIntegration.updateCharts = function (status) {
+
 		$('[data-widget="mi-players-graph"][data-sid="' + status.sid + '"]').each(function (i, $widget) {
+
 			$widget = $($widget).find('.mi-canvas');
 			if (!$widget.length) return;
 
@@ -461,45 +463,24 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 		});
 	};
 
+	// Setup charts
 	MinecraftIntegration.setGraphs = function (status) {
-		// TODO: Need to clean this up.
 
+		// Require chart.js
 		require(['/vendor/chart.js/chart.min.js'], function (Chart) {
 
+			// MEMO: We gets pings separately because graphs will be able to specify different ranges.
+			// TODO: Need to DRY this.
+
 			$('[data-widget="mi-players-graph"][data-sid="' + status.sid + '"]').each(function (i, $widget) {
+
 				$widget = $($widget).find('.mi-canvas');
 
 				socket.emit('plugins.MinecraftIntegration.getRecentPings', {sid: status.sid}, function (err, pings) {
-					if (typeof pings !== 'object') return;
 
-					var scaleMax = 10, date, hours, minutes, meridiem;
+					if (err) return MinecraftIntegration.log(err);
 
-					var options = {
-						showScale: false,
-						scaleShowGridLines : true,
-						scaleGridLineColor : "rgba(0,0,0,.05)",
-						scaleGridLineWidth : 1,
-						scaleShowHorizontalLines: true,
-						scaleShowVerticalLines: true,
-						scaleOverride : true,
-						scaleStepWidth : 1,
-						scaleStartValue : 0,
-						bezierCurve : false,
-						bezierCurveTension : 0.4,
-						pointDot : true,
-						pointDotRadius : 2,
-						pointDotStrokeWidth : 1,
-						pointHitDetectionRadius : 4,
-						datasetStroke : true,
-						datasetStrokeWidth : 2,
-						datasetFill : true,
-						scaleBeginAtZero: true,
-						responsive: true,
-						tooltipTemplate: "<%if (label){%><%=label%>: <%}%><%= value %> Players Online",
-						backgroundColor: "#ffffff"
-					};
-
-					var data = {
+					var	data = {
 						labels: [ ],
 						datasets: [
 							{
@@ -515,70 +496,76 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 						]
 					};
 
-					for (var stamp in pings) {
+					var	scaleMax = 10, date, hours, minutes, meridiem;
+
+					for	(var stamp in pings) {
 						date = new Date(parseInt(stamp,10));
 						hours = date.getHours() < 13 ? (date.getHours() === 0 ? 12 : date.getHours()) : date.getHours() - 12;
 						minutes = (date.getMinutes() < 10 ? "0" : "") + date.getMinutes();
 						meridiem = date.getHours() < 12 ? "AM" : "PM";
+
 						data.labels.unshift(hours + ":" + minutes + " " + meridiem);
 						data.datasets[0].data.unshift(pings[stamp].players.length);
+
 						if (pings[stamp].players.length > scaleMax) scaleMax = pings[stamp].players.length;
 					}
 
-					options.scaleSteps = scaleMax + 1;
+					if ($widget.data('chart')) {
 
-					switch ('line') {
-						case "Pie":
-						case "pie":
-							$widget.data('chart', new Chart($widget[0].getContext('2d')).Pie(data, options));
-							break;
-						case "Donut":
-						case "donut":
-							$widget.data('chart', new Chart($widget[0].getContext('2d')).Pie(data, options));
-							break;
-						case "Line":
-						case "line":
-						default:
-							$widget.data('chart', new Chart($widget[0].getContext('2d')).Line(data, options));
-							break;
+						var	chart = $widget.data('chart');
+
+						for (var i in data.labels) {
+							if (!chart.datasets[0].points[i]) continue;
+
+							chart.datasets[0].points[i].label = data.labels[i];
+							chart.datasets[0].points[i].value = data.datasets[0].data[i];
+						}
+
+						chart.update();
+
+					}else{
+
+						var	options = {
+							showScale: false,
+							scaleShowGridLines : true,
+							scaleGridLineColor : "rgba(0,0,0,.05)",
+							scaleGridLineWidth : 1,
+							scaleShowHorizontalLines: true,
+							scaleShowVerticalLines: true,
+							scaleOverride : true,
+							scaleStepWidth : 1,
+							scaleStartValue : 0,
+							bezierCurve : false,
+							bezierCurveTension : 0.4,
+							pointDot : true,
+							pointDotRadius : 2,
+							pointDotStrokeWidth : 1,
+							pointHitDetectionRadius : 4,
+							datasetStroke : true,
+							datasetStrokeWidth : 2,
+							datasetFill : true,
+							scaleBeginAtZero: true,
+							responsive: true,
+							tooltipTemplate: "<%if (label){%><%=label%>: <%}%><%= value %> Players Online",
+							backgroundColor: "#ffffff",
+							scaleSteps: scaleMax + 1
+						};
+
+						$widget.data('chart', new Chart($widget[0].getContext('2d')).Line(data, options));
+
 					}
 
 				});
+
 			});
 
 			$('[data-widget="mi-tps-graph"][data-sid="' + status.sid + '"]').each(function (i, $widget) {
+
 				$widget = $($widget).find('.mi-canvas');
 
 				socket.emit('plugins.MinecraftIntegration.getRecentPings', {sid: status.sid}, function (err, pings) {
 
-					if (typeof pings !== 'object') return;
-
-					var date, hours, minutes, meridiem;
-
-					var options = {
-						showScale: false,
-						scaleShowGridLines : true,
-						scaleGridLineColor : "rgba(0,0,0,.05)",
-						scaleGridLineWidth : 1,
-						scaleShowHorizontalLines: true,
-						scaleShowVerticalLines: true,
-						scaleOverride : true,
-						scaleStepWidth : 1,
-						scaleStartValue : 14,
-						bezierCurve : false,
-						bezierCurveTension : 0.4,
-						pointDot : true,
-						pointDotRadius : 2,
-						pointDotStrokeWidth : 1,
-						pointHitDetectionRadius : 4,
-						datasetStroke : true,
-						datasetStrokeWidth : 2,
-						datasetFill : true,
-						scaleBeginAtZero: true,
-						responsive: true,
-						tooltipTemplate: "<%if (label){%><%=label%><%}%>: <%= value %> TPS",
-						backgroundColor: "#ffffff"
-					};
+					if (err) return MinecraftIntegration.log(err);
 
 					var data = {
 						labels: [ ],
@@ -595,6 +582,8 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 							}
 						]
 					};
+
+					var date, hours, minutes, meridiem;
 
 					for (var stamp in pings) {
 						date = new Date(parseInt(stamp,10));
@@ -605,34 +594,63 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 						data.datasets[0].data.unshift(pings[stamp].tps);
 					}
 
-					options.scaleSteps = 6;
+					if ($widget.data('chart')) {
 
-					switch ('line') {
-						case "Pie":
-						case "pie":
-							$widget.data('chart', new Chart($widget[0].getContext('2d')).Pie(data, options));
-							break;
-						case "Donut":
-						case "donut":
-							$widget.data('chart', new Chart($widget[0].getContext('2d')).Pie(data, options));
-							break;
-						case "Line":
-						case "line":
-						default:
-							$widget.data('chart', new Chart($widget[0].getContext('2d')).Line(data, options));
-							break;
+						var	chart = $widget.data('chart');
+
+						for (var i in data.labels) {
+							if (!chart.datasets[0].points[i]) continue;
+
+							chart.datasets[0].points[i].label = data.labels[i];
+							chart.datasets[0].points[i].value = data.datasets[0].data[i];
+						}
+
+						chart.update();
+
+					}else{
+
+						var options = {
+							showScale: false,
+							scaleShowGridLines : true,
+							scaleGridLineColor : "rgba(0,0,0,.05)",
+							scaleGridLineWidth : 1,
+							scaleShowHorizontalLines: true,
+							scaleShowVerticalLines: true,
+							scaleOverride : true,
+							scaleStepWidth : 1,
+							scaleStartValue : 14,
+							bezierCurve : false,
+							bezierCurveTension : 0.4,
+							pointDot : true,
+							pointDotRadius : 2,
+							pointDotStrokeWidth : 1,
+							pointHitDetectionRadius : 4,
+							datasetStroke : true,
+							datasetStrokeWidth : 2,
+							datasetFill : true,
+							scaleBeginAtZero: true,
+							responsive: true,
+							tooltipTemplate: "<%if (label){%><%=label%><%}%>: <%= value %> TPS",
+							backgroundColor: "#ffffff",
+							scaleSteps: 7
+						};
+
+						$widget.data('chart', new Chart($widget[0].getContext('2d')).Line(data, options));
+
 					}
 
 				});
+
 			});
 
 			$('[data-widget="mi-top-graph"][data-sid="' + status.sid + '"]').each(function (i, $widget) {
-				$widget = $($widget).find('.mi-canvas');
+
+				var	$canvas = $($widget).find('.mi-canvas'),
+					chart = $canvas.data('chart');
 
 				socket.emit('plugins.MinecraftIntegration.getTopPlayersByPlaytimes', {show: 10}, function (err, players) {
-					if (typeof players !== 'object') return;
 
-					var time;
+					if (err) return MinecraftIntegration.log(err);
 
 					var options = {
 						responsive: true,
@@ -641,105 +659,116 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 
 					var data = [ ];
 
-					for (var i in players) {
-						// TODO: Increment time.
+					if (chart) {
 
-						data.unshift({
-							value: parseInt(players[i].playtime, 10),
-							color: "#5B94DE",
-							highlight: "#AADDFF",
-							label: players[i].playername || players[i].name
-						});
-					}
+						for (var i in players) {
 
-					switch ('pie') {
-						case "Pie":
-						case "pie":
-							$widget.data('chart', new Chart($widget[0].getContext('2d')).Pie(data, options));
-							break;
-						case "Donut":
-						case "donut":
-							$widget.data('chart', new Chart($widget[0].getContext('2d')).Pie(data, options));
-							break;
-						case "Line":
-						case "line":
-						default:
-							$widget.data('chart', new Chart($widget[0].getContext('2d')).Line(data, options));
-							break;
+							if (!chart.segments[i]) continue;
+
+							chart.segments[i].value = parseInt(players[i].playtime, 10);
+							chart.segments[i].label = players[i].playername || players[i].name;
+
+						}
+
+						chart.update();
+
+					}else{
+
+						for (var i in players) {
+							data.push({
+								value: parseInt(players[i].playtime, 10),
+								color: "#5B94DE",
+								highlight: "#AADDFF",
+								label: players[i].playername || players[i].name
+							});
+						}
+
+						$canvas.data('chart', new Chart($canvas[0].getContext('2d')).Pie(data, options));
+
 					}
 
 				});
+
 			});
 
 		});
+
 	};
 
+	// Do initial setup.
 	$(window).on('action:widgets.loaded', function (event) {
+
+		// Find servers to be setup.
 		var sids = [ ];
+
+		// Loop through widget containers.
+		$('.mi-container').each(function(){
+
+			var	$this = $(this),
+				$parent = $this.parent(),
+				sid = $this.attr('data-sid');
+
+			// Add paddings based on container.
+			if (!$parent.is('[widget-area]')) {
+				$parent.css('padding-top', '0').css('padding-left', '0').css('padding-right', '0').css('padding-bottom', '0');
+			}else{
+				$parent.css('padding-top', '10px').css('padding-bottom', '10px');
+			}
+
+			// If not in server list, add it.
+			if (!~sids.indexOf(sid)) sids.push(sid);
+
+		});
+
+		// ???
+		resizeCanvases();
+
+		sids.forEach(function (sid) {
+
+			socket.emit('plugins.MinecraftIntegration.getServerStatus', {sid: sid}, function (err, status) {
+				MinecraftIntegration.setPlayers(status);
+				MinecraftIntegration.setGraphs(status);
+			});
+
+			var widgetsChat = $('[data-widget="mi-chat"][data-sid="' + sid + '"]');
+
+			if (widgetsChat.length) {
+				socket.emit('plugins.MinecraftIntegration.getChat', {sid: sid}, function (err, data) {
+					widgetsChat.each(function (i, $chatwidget) {
+						$chatwidget = $($chatwidget);
+						var $chatbox    = $chatwidget.find('div');
+
+						for (var i in data.chats) {
+							$chatbox.append("<span>" + data.chats[i].name + ": " + data.chats[i].message + "</span><br>");
+						}
+
+						$chatwidget.find('button').click(function (e) {
+							if (app.user.uid === 0) return;
+							var $this = $(this);
+
+							socket.emit('plugins.MinecraftIntegration.eventWebChat', {sid: $chatwidget.attr('data-sid'), name: app.user.username, message: $this.parent().prev().children('input').val()});
+							$this.parent().prev().children('input').val('');
+						});
+
+						$chatwidget.find('input').keyup(function(e){
+							if (app.user.uid === 0) return;
+							if(e.keyCode == 13)
+							{
+								var $this = $(this);
+
+								socket.emit('plugins.MinecraftIntegration.eventWebChat', {sid: $chatwidget.attr('data-sid'), name: app.user.username, message: $this.val()});
+								$this.val('');
+							}
+						});
+
+						$chatbox.scrollTop(100000);
+					});
+				});
+			}
+		});
 
 		resizeCanvases();
 
-		require(['/vendor/chart.js/chart.min.js'], function (Chart) {
-			$('.mi-container').each(function (i, el) {
-				var $this = $(el),
-					$parent = $this.parent(),
-					sid = $this.attr('data-sid');
-
-				if (!$parent.is('[widget-area]')) {
-					$parent.css('padding-top', '0').css('padding-left', '0').css('padding-right', '0').css('padding-bottom', '0');
-				}
-
-				if (sids.indexOf(sid) < 0) {
-					sids.push(sid);
-				}
-			});
-
-			sids.forEach(function (sid) {
-
-				socket.emit('plugins.MinecraftIntegration.getServerStatus', {sid: sid}, function (err, status) {
-					MinecraftIntegration.setPlayers(status);
-					MinecraftIntegration.setGraphs(status);
-				});
-
-				var widgetsChat = $('[data-widget="mi-chat"][data-sid="' + sid + '"]');
-
-				if (widgetsChat.length) {
-					socket.emit('plugins.MinecraftIntegration.getChat', {sid: sid}, function (err, data) {
-						widgetsChat.each(function (i, $chatwidget) {
-							$chatwidget = $($chatwidget);
-							var $chatbox    = $chatwidget.find('div');
-
-							for (var i in data.chats) {
-								$chatbox.append("<span>" + data.chats[i].name + ": " + data.chats[i].message + "</span><br>");
-							}
-
-							$chatwidget.find('button').click(function (e) {
-								if (app.user.uid === 0) return;
-								var $this = $(this);
-
-								socket.emit('plugins.MinecraftIntegration.eventWebChat', {sid: $chatwidget.attr('data-sid'), name: app.user.username, message: $this.parent().prev().children('input').val()});
-								$this.parent().prev().children('input').val('');
-							});
-
-							$chatwidget.find('input').keyup(function(e){
-								if (app.user.uid === 0) return;
-								if(e.keyCode == 13)
-								{
-									var $this = $(this);
-
-									socket.emit('plugins.MinecraftIntegration.eventWebChat', {sid: $chatwidget.attr('data-sid'), name: app.user.username, message: $this.val()});
-									$this.val('');
-								}
-							});
-
-							$chatbox.scrollTop(100000);
-						});
-					});
-				}
-			});
-
-			resizeCanvases();
-		});
 	});
 
 	////////////////
