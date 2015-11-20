@@ -467,25 +467,29 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 	MinecraftIntegration.setGraphs = function (status) {
 
 		// Require chart.js
-		require(['/vendor/chart.js/chart.min.js'], function (Chart) {
+		require(['/vendor/chart.js/chart.min.js', MinecraftIntegration.__MIDIR + 'js/vendor/rainbowvis.js'], function (Chart) {
 
 			// MEMO: We gets pings separately because graphs will be able to specify different ranges.
 			// TODO: Need to DRY this.
 
-			$('[data-widget="mi-players-graph"][data-sid="' + status.sid + '"]').each(function (i, $widget) {
+			$('[data-widget="mi-players-graph"][data-sid="' + status.sid + '"]').each(function (i, widget) {
 
-				$widget = $($widget).find('.mi-canvas');
+				var	$widget = $(widget),
+					$canvas = $widget.find('.mi-canvas'),
+					chart = $canvas.data('chart');
 
 				socket.emit('plugins.MinecraftIntegration.getRecentPings', {sid: status.sid}, function (err, pings) {
 
 					if (err) return MinecraftIntegration.log(err);
+
+					var fillColor = $widget.attr('data-chart-color-fill') ? '#' + $widget.attr('data-chart-color-fill') : "rgba(151,187,205,1)";
 
 					var	data = {
 						labels: [ ],
 						datasets: [
 							{
 								label: "",
-								fillColor: "rgba(151,187,205,1)",
+								fillColor: fillColor,
 								strokeColor: "rgba(151,187,205,1)",
 								pointColor: "rgba(151,187,205,1)",
 								pointStrokeColor: "#fff",
@@ -551,7 +555,7 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 							scaleSteps: scaleMax + 1
 						};
 
-						$widget.data('chart', new Chart($widget[0].getContext('2d')).Line(data, options));
+						$widget.data('chart', new Chart($canvas[0].getContext('2d')).Line(data, options));
 
 					}
 
@@ -559,20 +563,24 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 
 			});
 
-			$('[data-widget="mi-tps-graph"][data-sid="' + status.sid + '"]').each(function (i, $widget) {
+			$('[data-widget="mi-tps-graph"][data-sid="' + status.sid + '"]').each(function (i, widget) {
 
-				$widget = $($widget).find('.mi-canvas');
+				var	$widget = $(widget),
+					$canvas = $widget.find('.mi-canvas'),
+					chart = $canvas.data('chart');
 
 				socket.emit('plugins.MinecraftIntegration.getRecentPings', {sid: status.sid}, function (err, pings) {
 
 					if (err) return MinecraftIntegration.log(err);
+
+					var fillColor = $widget.attr('data-chart-color-fill') ? '#' + $widget.attr('data-chart-color-fill') : "rgba(151,187,205,1)";
 
 					var data = {
 						labels: [ ],
 						datasets: [
 							{
 								label: "",
-								fillColor: "rgba(151,187,205,1)",
+								fillColor: fillColor,
 								strokeColor: "rgba(151,187,205,1)",
 								pointColor: "rgba(151,187,205,1)",
 								pointStrokeColor: "#fff",
@@ -635,7 +643,7 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 							scaleSteps: 7
 						};
 
-						$widget.data('chart', new Chart($widget[0].getContext('2d')).Line(data, options));
+						$widget.data('chart', new Chart($canvas[0].getContext('2d')).Line(data, options));
 
 					}
 
@@ -643,21 +651,36 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 
 			});
 
-			$('[data-widget="mi-top-graph"][data-sid="' + status.sid + '"]').each(function (i, $widget) {
+			$('[data-widget="mi-top-graph"][data-sid="' + status.sid + '"]').each(function (i, widget) {
 
-				var	$canvas = $($widget).find('.mi-canvas'),
+				var	$widget = $(widget),
+					$canvas = $widget.find('.mi-canvas'),
 					chart = $canvas.data('chart');
 
 				socket.emit('plugins.MinecraftIntegration.getTopPlayersByPlaytimes', {show: 10}, function (err, players) {
 
 					if (err) return MinecraftIntegration.log(err);
+					if (!players.length) return;
+
+					var rainbow = null, data = [ ];
 
 					var options = {
 						responsive: true,
 						tooltipTemplate: "<%if (label){%><%=label%><%}%>: <%= value %>"
 					};
 
-					var data = [ ];
+					if (Rainbow) {
+
+						rainbow = new Rainbow();
+
+						var	chartColorStart = $widget.attr('data-chart-color-start'),
+							chartColorEnd = $widget.attr('data-chart-color-end');
+
+							console.log(chartColorStart + ":" + chartColorStart);
+						rainbow.setNumberRange(0, ( players.length - 1 ) || 1);
+						rainbow.setSpectrum(chartColorStart, chartColorEnd);
+
+					}
 
 					if (chart) {
 
@@ -667,6 +690,7 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 
 							chart.segments[i].value = parseInt(players[i].playtime, 10);
 							chart.segments[i].label = players[i].playername || players[i].name;
+							if (rainbow) chart.segments[i].fillColor = '#' + rainbow.colourAt(i);
 
 						}
 
@@ -675,9 +699,13 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 					}else{
 
 						for (var i in players) {
+
+							var color = "#5B94DE";
+							if (rainbow) color = '#' + rainbow.colourAt(i);
+
 							data.push({
 								value: parseInt(players[i].playtime, 10),
-								color: "#5B94DE",
+								color: color,
 								highlight: "#AADDFF",
 								label: players[i].playername || players[i].name
 							});

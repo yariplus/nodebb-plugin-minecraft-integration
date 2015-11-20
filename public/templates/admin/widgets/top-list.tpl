@@ -8,6 +8,8 @@
     <input type="hidden" class="ajaxSelectSibling" name="sid">
 </div>
 
+<!--
+
 <div class="form-group">
     <label>Statistic</label>
     <select class="form-control">
@@ -18,6 +20,8 @@
     </select>
     <input type="hidden" class="ajaxSelectSibling" name="statistic">
 </div>
+
+-->
 
 <div class="form-group">
     <label>Max&nbsp;Players</label>
@@ -56,26 +60,17 @@
     <input type="hidden" class="ajaxSelectSibling" name="show">
 </div>
 
-<div class="form-group">
-    <label class="control-label">Title&nbsp;Color</label>
-    <div>
-        <input type="text" class="form-control ajaxInputColorPicker" name="color-title">
-    </div>
-</div>
+<label class="control-label">Title Color</label>
+<input type="text" class="form-control ajaxInputColorPicker" name="colorTitle" />
 
-<div class="form-group">
-    <label class="control-label">Text&nbsp;Color</label>
-    <div>
-        <input type="text" class="form-control ajaxInputColorPicker" name="color-text">
-    </div>
-</div>
+<label>Text Color</label>
+<input type="text" class="form-control ajaxInputColorPicker" name="colorText" />
 
-<div class="form-group">
-	<div class="checkbox">
-		<label>
-			<input type="checkbox" name="show-colors"> [[mi:show-colors]]
-		</label>
-	</div>
+<div class="checkbox">
+	<label>
+		<input type="checkbox" name="showColors" />
+		[[mi:show-colors]]
+	</label>
 </div>
 
 <div class="form-group">
