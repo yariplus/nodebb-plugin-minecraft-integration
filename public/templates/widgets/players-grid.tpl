@@ -1,8 +1,11 @@
-<div class="mi-container" data-widget="mi-players-grid" data-sid="{sid}"
-	<!-- IF !show-avatar-borders -->data-show-avatar-borders="off"<!-- ENDIF !show-avatar-borders -->
-	data-avatar-border-start="#{avatar-border-start}"
-	data-avatar-border-end="#{avatar-border-end}"
-	data-avatar-border-style="{avatar-border-style}">
+<div class="mi-container"
+	data-widget="mi-players-grid"
+	data-sid="{sid}"
+	data-colors="{useColors}"
+	data-color-start="{colorStart}"
+	data-color-end="{colorEnd}"
+	data-border="{border}">
+
 	<table class="table widget-table">
 		<tbody>
 			<tr>
@@ -10,4 +13,5 @@
 			</tr>
 		</tbody>
 	</table>
+
 </div>

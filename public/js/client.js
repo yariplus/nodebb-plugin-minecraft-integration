@@ -1,5 +1,5 @@
 // Global
-MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
+MinecraftIntegration = { templates: { }, avatars: { } };
 
 // TODO: This still needs a ton of work.
 (function(){
@@ -55,31 +55,46 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 
 	// When avatars change, render new effects.
 	MinecraftIntegration.setAvatarBorders = function ($widget) {
+
 		var	$avatars = $widget.find('.mi-avatar'),
 			$scores  = $widget.find('.score');
 
-		if ($avatars.length === 0 || $widget.is('[data-show-avatar-borders="off"]')) return console.log("No avatar borders", $widget.data('widget'), $avatars.length, $widget.is('[data-show-avatar-borders="off"]'));
-		if (!($widget.data('color-start') || $widget.attr('data-avatar-border-start'))) return console.log("No colors", $widget.data('widget'));
+		if ($avatars.length === 0) return;
+		if ($widget.is(':not([data-colors="on"])')) return;
 
-		require([MinecraftIntegration.__MIDIR + 'js/vendor/rainbowvis.js'], function () {
-			if (Rainbow) {
-				var rainbow = new Rainbow();
-				rainbow.setNumberRange(0, $avatars.length > 1 ? $avatars.length - 1 : $avatars.length);
+		var rainbow = getRainbow($widget, $avatars.length > 1 ? $avatars.length - 1 : $avatars.length);
 
-				rainbow.setSpectrum($widget.attr('data-color-start') || $widget.attr('data-avatar-border-start') || 'white', $widget.attr('data-color-end') || $widget.attr('data-avatar-border-end') || 'white');
+		if (!rainbow) return;
 
-				$avatars.each(function (i, el) {
-					$(el).css('border-style', $widget.attr('data-avatar-border-style') || 'solid');
-					$(el).css('border-color', '#' + rainbow.colourAt(i));
-				});
-				$scores.each(function (i, el) {
-					$(el).css('color', '#' + rainbow.colourAt(i));
-				});
-			}else{
-				return MinecraftIntegration.log("Failed loading Rainbow-vis");
-			}
+		$avatars.each(function (i, el) {
+			$(el).css('border-style', $widget.attr('data-border') || 'none');
+			$(el).css('border-color', '#' + rainbow.colourAt(i));
 		});
+
+		$scores.each(function (i, el) {
+			$(el).css('color', '#' + rainbow.colourAt(i));
+		});
+
 	};
+
+	function getRainbow($widget, range) {
+
+		if (!Rainbow) return null;
+
+		var	rainbow = new Rainbow();
+
+		var	colorStart = $widget.attr('data-color-start') || "white",
+			colorEnd   = $widget.attr('data-color-end')   || "white";
+
+		colorStart = colorStart.slice(0, 1) === '#' ? colorStart.slice(1) : colorStart;
+		colorEnd   = colorEnd.slice(0, 1) === '#'   ? colorEnd.slice(1) : colorStart;
+
+		rainbow.setNumberRange(0, range);
+		rainbow.setSpectrum(colorStart, colorEnd);
+
+		return rainbow;
+
+	}
 
 	// Wrap avatar in profile link if user is registered.
 	function wrapAvatar($avatar) {
@@ -233,6 +248,7 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 			});
 
 			$('[data-widget="mi-top-list"][data-sid="' + data.sid + '"]').each(function (i, $widget) {
+
 				$widget = $($widget);
 
 				var $avatars = $widget.find('.mi-avatar');
@@ -467,7 +483,7 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 	MinecraftIntegration.setGraphs = function (status) {
 
 		// Require chart.js
-		require(['/vendor/chart.js/chart.min.js', MinecraftIntegration.__MIDIR + 'js/vendor/rainbowvis.js'], function (Chart) {
+		require(['/vendor/chart.js/chart.min.js'], function (Chart) {
 
 			// MEMO: We gets pings separately because graphs will be able to specify different ranges.
 			// TODO: Need to DRY this.
@@ -482,7 +498,7 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 
 					if (err) return MinecraftIntegration.log(err);
 
-					var fillColor = $widget.attr('data-chart-color-fill') ? '#' + $widget.attr('data-chart-color-fill') : "rgba(151,187,205,1)";
+					var fillColor = $widget.attr('data-chart-color-fill') ? $widget.attr('data-chart-color-fill') : "rgba(151,187,205,1)";
 
 					var	data = {
 						labels: [ ],
@@ -573,7 +589,7 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 
 					if (err) return MinecraftIntegration.log(err);
 
-					var fillColor = $widget.attr('data-chart-color-fill') ? '#' + $widget.attr('data-chart-color-fill') : "rgba(151,187,205,1)";
+					var fillColor = $widget.attr('data-chart-color-fill') ? $widget.attr('data-chart-color-fill') : "rgba(151,187,205,1)";
 
 					var data = {
 						labels: [ ],
@@ -662,25 +678,14 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 					if (err) return MinecraftIntegration.log(err);
 					if (!players.length) return;
 
-					var rainbow = null, data = [ ];
+					var	data = [ ];
+
+					var rainbow = getRainbow($widget, players.length > 1 ? players.length - 1 : 1);
 
 					var options = {
 						responsive: true,
 						tooltipTemplate: "<%if (label){%><%=label%><%}%>: <%= value %>"
 					};
-
-					if (Rainbow) {
-
-						rainbow = new Rainbow();
-
-						var	chartColorStart = $widget.attr('data-chart-color-start'),
-							chartColorEnd = $widget.attr('data-chart-color-end');
-
-							console.log(chartColorStart + ":" + chartColorStart);
-						rainbow.setNumberRange(0, ( players.length - 1 ) || 1);
-						rainbow.setSpectrum(chartColorStart, chartColorEnd);
-
-					}
 
 					if (chart) {
 
@@ -726,254 +731,95 @@ MinecraftIntegration = { templates: { }, API: { }, avatarEls: { } };
 	// Do initial setup.
 	$(window).on('action:widgets.loaded', function (event) {
 
-		// Find servers to be setup.
-		var sids = [ ];
+		// Requires
+		require([MinecraftIntegration.__MIDIR + 'js/vendor/rainbowvis.js'], function () {
 
-		// Loop through widget containers.
-		$('.mi-container').each(function(){
+			// Find servers to be setup.
+			var sids = [ ];
 
-			var	$this = $(this),
-				$parent = $this.parent(),
-				sid = $this.attr('data-sid');
+			// Loop through widget containers.
+			$('.mi-container').each(function(){
 
-			// Add paddings based on container.
-			if (!$parent.is('[widget-area]')) {
-				$parent.css('padding-top', '0').css('padding-left', '0').css('padding-right', '0').css('padding-bottom', '0');
-			}else{
-				$parent.css('padding-top', '10px').css('padding-bottom', '10px');
-			}
+				var	$this = $(this),
+					$parent = $this.parent(),
+					sid = $this.attr('data-sid');
 
-			// If not in server list, add it.
-			if (!~sids.indexOf(sid)) sids.push(sid);
+				// Add paddings based on container.
+				if (!$parent.is('[widget-area]')) {
+					$parent.css('padding-top', '0').css('padding-left', '0').css('padding-right', '0').css('padding-bottom', '0');
+				}else{
+					$parent.css('padding-top', '10px').css('padding-bottom', '10px');
+				}
 
-		});
+				// If not in server list, add it.
+				if (!~sids.indexOf(sid)) sids.push(sid);
 
-		// ???
-		resizeCanvases();
-
-		sids.forEach(function (sid) {
-
-			socket.emit('plugins.MinecraftIntegration.getServerStatus', {sid: sid}, function (err, status) {
-				MinecraftIntegration.setPlayers(status);
-				MinecraftIntegration.setGraphs(status);
 			});
 
-			var widgetsChat = $('[data-widget="mi-chat"][data-sid="' + sid + '"]');
+			// ???
+			resizeCanvases();
 
-			if (widgetsChat.length) {
-				socket.emit('plugins.MinecraftIntegration.getChat', {sid: sid}, function (err, data) {
-					widgetsChat.each(function (i, $chatwidget) {
-						$chatwidget = $($chatwidget);
-						var $chatbox    = $chatwidget.find('div');
+			sids.forEach(function (sid) {
 
-						for (var i in data.chats) {
-							$chatbox.append("<span>" + data.chats[i].name + ": " + data.chats[i].message + "</span><br>");
-						}
+				socket.emit('plugins.MinecraftIntegration.getServerStatus', {sid: sid}, function (err, status) {
+					MinecraftIntegration.setPlayers(status);
+					MinecraftIntegration.setGraphs(status);
+				});
 
-						$chatwidget.find('button').click(function (e) {
-							if (app.user.uid === 0) return;
-							var $this = $(this);
+				var widgetsChat = $('[data-widget="mi-chat"][data-sid="' + sid + '"]');
 
-							socket.emit('plugins.MinecraftIntegration.eventWebChat', {sid: $chatwidget.attr('data-sid'), name: app.user.username, message: $this.parent().prev().children('input').val()});
-							$this.parent().prev().children('input').val('');
-						});
+				if (widgetsChat.length) {
+					socket.emit('plugins.MinecraftIntegration.getChat', {sid: sid}, function (err, data) {
+						widgetsChat.each(function (i, $chatwidget) {
+							$chatwidget = $($chatwidget);
+							var $chatbox    = $chatwidget.find('div');
 
-						$chatwidget.find('input').keyup(function(e){
-							if (app.user.uid === 0) return;
-							if(e.keyCode == 13)
-							{
+							for (var i in data.chats) {
+								$chatbox.append("<span>" + data.chats[i].name + ": " + data.chats[i].message + "</span><br>");
+							}
+
+							$chatwidget.find('button').click(function (e) {
+								if (app.user.uid === 0) return;
 								var $this = $(this);
 
-								socket.emit('plugins.MinecraftIntegration.eventWebChat', {sid: $chatwidget.attr('data-sid'), name: app.user.username, message: $this.val()});
-								$this.val('');
-							}
+								socket.emit('plugins.MinecraftIntegration.eventWebChat', {sid: $chatwidget.attr('data-sid'), name: app.user.username, message: $this.parent().prev().children('input').val()});
+								$this.parent().prev().children('input').val('');
+							});
+
+							$chatwidget.find('input').keyup(function(e){
+								if (app.user.uid === 0) return;
+								if(e.keyCode == 13)
+								{
+									var $this = $(this);
+
+									socket.emit('plugins.MinecraftIntegration.eventWebChat', {sid: $chatwidget.attr('data-sid'), name: app.user.username, message: $this.val()});
+									$this.val('');
+								}
+							});
+
+							$chatbox.scrollTop(100000);
 						});
-
-						$chatbox.scrollTop(100000);
 					});
-				});
-			}
-		});
+				}
+			});
 
-		resizeCanvases();
+			resizeCanvases();
+
+		});
 
 	});
 
-	////////////////
-	// Widget ACP //
-	////////////////
-
-	var miIDcounter = 1;
-
 	$(window).on('action:ajaxify.end', function (event, url) {
+
 		url = url.url.split('?')[0].split('#')[0];
 
 		switch (url) {
 			case 'admin/extend/widgets':
-				setTimeout(function(){ $(window).trigger('action:widgets.adminDataLoaded'); }, 2500);
+				require([MinecraftIntegration.__MIDIR + 'js/acp-widgets.js'], function (module) {
+					module.init();
+				});
 				break;
 		}
-	});
-
-	$(window).on('action:widgets.adminDataLoaded', function (event, data) {
-		function formatTitle($panel) {
-			var $title = $panel.find('>.panel-heading strong'),
-				title = $panel.find('>.panel-body [name="title"]').val();
-
-			if (!title) {
-				$title.html($title.text().split(' - ')[0]);
-				return;
-			}
-
-			if ($panel.data('motd') === void 0) {
-				$.get('/api/minecraft-integration/server/' + $panel.find('[name="sid"]').val() + "?v=" + config['cache-buster'], function (server) {
-					if (server && server.motd && server.name) {
-						$panel.data('motd', server.motd);
-						$panel.data('name', server.name);
-					}else{
-						$panel.data('motd', '');
-						$panel.data('name', '');
-					}
-					formatTitle($panel);
-				});
-			}
-
-			title = title.replace(/\{\{motd\}\}/g, $panel.data('motd') || $panel.find('[name="sid"]').val());
-			title = title.replace(/\{\{name\}\}/g, $panel.data('name'));
-			title = title.replace(/[§&][0123456789abcdefklmnorABCDEFKLMNOR]/g, '');
-
-			$title.html($title.text().split(' - ')[0] + ' - ' + title);
-		}
-
-		function initPanel($panel) {
-			var $heading = $panel.find('>.panel-heading'),
-				$body = $heading.next();
-
-			if ($body.hasClass('mcwe-ajaxed')) {
-				return;
-			}else{
-				$body.addClass('mcwe-ajaxed');
-			}
-
-			if ($body.find('[name="sid"]').val()) {
-				$.get('/api/minecraft-integration/server/' + $body.find('[name="sid"]').val() + "?v=" + config['cache-buster'], function (server) {
-					if (server && server.motd && server.name) {
-						$panel.data('motd', server.motd);
-						$panel.data('name', server.name);
-					}else{
-						$panel.data('motd', '');
-						$panel.data('name', '');
-					}
-					formatTitle($panel);
-				});
-			}
-
-			$body.find('[name="title"]').on('input', function (e) {
-				formatTitle($panel);
-			});
-
-			$body.find('input.ajaxSelectSibling').each(function(index){
-				var MCWESN = $(this);
-				if (MCWESN.val()) {
-					MCWESN.prev().val($(this).val());
-				}else{
-					var first = MCWESN.prev().find('option:first'),
-						selected = MCWESN.prev().find('option:selected');
-					if (selected) {
-						MCWESN.val( selected.val() );
-					}else{
-						if (first) {
-							MCWESN.val( first.val() );
-							MCWESN.prev().val( first.val() );
-						}
-					}
-				}
-				MCWESN.prev().on('change', function(){
-					MCWESN.val($(this).val());
-					$.get('/api/minecraft-integration/server/' + $body.find('[name="sid"]').val() + "?v=" + config['cache-buster'], function (server) {
-						if (server && server.motd && server.name) {
-							$panel.data('motd', server.motd);
-							$panel.data('name', server.name);
-						}else{
-							$panel.data('motd', '');
-							$panel.data('name', '');
-						}
-						formatTitle($panel);
-					});
-				});
-			});
-
-			$body.find('input.ajaxInputColorPicker').each(function(index){
-				if ($(this).val() === '') $(this).val('000000');
-				var MCWECP = $(this);
-				var id = 'ajaxInputColorPicker' + miIDcounter;
-				MCWECP.attr('id',id);
-				$('#'+id).ColorPicker({
-					color: MCWECP.val() || '#000000',
-					onChange: function(hsb, hex) {
-						MCWECP.val(hex);
-						MCWECP.css('color', '#' + hex);
-
-						if(MCWECP.is('[preview]')) {
-							MCWECP.parents('.panel-body').find('.mcWidgetPreview').find(MCWECP.attr('preview')).each(function(){$(this).css('color', '#' + MCWECP.val())});
-						}
-					},
-					onShow: function(colpkr) {
-						$(colpkr).css('z-index', 1051);
-					}
-				}).css('color', '#' + $(this).val()).bind('keyup', function(){
-					$(this).ColorPickerSetColor($(this).val());
-					$(this).css('color', '#' + $(this).val());
-				});
-				if(MCWECP.is('[preview]')) {
-					MCWECP.parents('.panel-body').find('.mcWidgetPreview').find(MCWECP.attr('preview')).each(function(){$(this).css('color', '#' + MCWECP.val())});
-				}
-				miIDcounter++;
-			});
-		}
-
-		$('.widget-area').on('mouseup', '> .panel > .panel-heading', function (e) {
-			var $heading = $(this),
-				$panel = $heading.parent(),
-				$body = $heading.next(),
-				widget = $panel.data('widget');
-
-			if ($heading.parent().is('.ui-sortable-helper') || $(e.target).closest('.delete-widget').length) return;
-
-			switch (widget) {
-				case 'mi-chat':
-				case 'mi-directory':
-				case 'mi-gallery':
-				case 'mi-map':
-				case 'mi-ping-graph':
-				case 'mi-players-graph':
-				case 'mi-players-grid':
-				case 'mi-status':
-				case 'mi-top-graph':
-				case 'mi-top-list':
-				case 'mi-tps-graph':
-					initPanel($panel);
-					break;
-			}
-		});
-
-		$('.widget-area >[data-widget]').each(function (i, el) {
-			switch ($(el).data('widget')) {
-				case 'mi-chat':
-				case 'mi-directory':
-				case 'mi-gallery':
-				case 'mi-map':
-				case 'mi-ping-graph':
-				case 'mi-players-graph':
-				case 'mi-players-grid':
-				case 'mi-status':
-				case 'mi-top-graph':
-				case 'mi-top-list':
-				case 'mi-tps-graph':
-					initPanel($(el));
-					break;
-			}
-		});
 	});
 
 }());

@@ -1,16 +1,7 @@
+<!-- IMPORT admin/widgets/partials/server-select.tpl -->
 
-<label>Server</label>
-<select class="form-control">
-	<!-- BEGIN servers -->
-	<option value="{servers.sid}">{servers.name}</option>
-	<!-- END servers -->
-</select>
-<input type="hidden" class="ajaxSelectSibling" name="sid" />
-
-<br>
-
-<label>Max&nbsp;Players</label>
-<select class="form-control">
+<label>[[mi:max-players]]</label>
+<select class="form-control" name="showTopPlayers">
 	<option value="1">1</option>
 	<option value="2">2</option>
 	<option value="3">3</option>
@@ -42,24 +33,27 @@
 	<option value="29">29</option>
 	<option value="30">30</option>
 </select>
-<input type="hidden" class="ajaxSelectSibling" name="showTopPlayers" />
 
 <br>
 
-<label>Graph Starting Color</label>
-<input type="text" class="form-control ajaxInputColorPicker" name="chartColorStart" />
+<!-- IMPORT admin/widgets/partials/style-colors-check.tpl -->
+
+<label>[[mi:graph-color-start]]</label>
+<input type="text" class="form-control ajaxInputColorPicker" name="colorStart" />
 
 <br>
 
-<label>Graph Ending Color</label>
-<input type="text" class="form-control ajaxInputColorPicker" name="chartColorEnd" />
+<label>[[mi:graph-color-end]]</label>
+<input type="text" class="form-control ajaxInputColorPicker" name="colorEnd" />
 
 <br>
 
-<label>Title Color</label>
+<label>[[mi:color-title]]</label>
 <input type="text" class="form-control ajaxInputColorPicker" name="colorTitle" />
 
 <br>
 
-<label>Text Color</label>
+<label>[[mi:color-text]]</label>
 <input type="text" class="form-control ajaxInputColorPicker" name="colorText" />
+
+<br>

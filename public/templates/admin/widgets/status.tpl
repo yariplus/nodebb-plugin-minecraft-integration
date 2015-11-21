@@ -1,79 +1,10 @@
-<div class="well" style="overflow:hidden;margin-bottom:15px;display:none;">
-<div class="mcWidgetPreview" style="width:380px;">
-<div class="panel panel-default">
-<div class="panel-heading">Server Name</div>
-<div style="padding: 0px;" class="panel-body">
-<div class="widgetFillContainer">
-    <table class="table table-striped widgetTable">
-    <tbody>
-    <tr>
-        <td class="td-label">
-            <span class="mcWidgetLabel">
-                <strong>Status</strong>
-            </span>
-        </td>
-        <td>
-            <span class="mcWidgetText">
-                <a class="fa fa-check-circle text-success has-tooltip" data-placement="top" data-title="Pinged server at 0.0.0.0:25565"></a>&nbsp;<strong><span class="text-success">Online</span></strong>
-            </span>
-        </td>
-    </tr>
-    <tr>
-        <td class="td-label">
-            <span class="mcWidgetLabel">
-                <strong>Address</strong>
-            </span>
-        </td>
-        <td>
-            <span class="mcWidgetText">
-                play.minecraft.net (0.0.0.0)
-            </span>
-        </td>
-    </tr>
-        <tr>
-        <td class="td-label">
-            <span class="mcWidgetLabel">
-                <strong>Version</strong>
-            </span>
-        </td>
-        <td>
-            <span class="mcWidgetText">
-                1.8&nbsp;<a class="fa fa-plug text-info has-popover" data-html="true" data-title="<h6><b>Plugin List</b></h6>" data-placement="bottom" data-content="<h6>Essentials, NoCheatPlus, RandomLocation</h6>"></a>
-            </span>
-        </td>
-    </tr>
-        <tr>
-        <td class="td-label">
-            <span class="mcWidgetLabel">
-                <strong>Players</strong>
-            </span>
-        </td>
-        <td>
-            <span class="mcWidgetText">
-                <img class="has-tooltip mcAvatar" data-original-title="yariplus" src="http://cravatar.eu/avatar/yariplus/40" data-placement="top" data-toggle="tooltip" rel="tooltip" title="yariplus" style="margin-right:5px; margin-bottom:5px; border-style:; border-width: 6px; border-radius: 4px; border-color:;">
-                <img class="has-tooltip mcAvatar" data-original-title="rikkyyxd" src="http://cravatar.eu/avatar/rikkyyxd/40" data-placement="top" data-toggle="tooltip" rel="tooltip" title="rikkyyxd" style="margin-right:5px; margin-bottom:5px; border-style:; border-width: 6px; border-radius: 4px; border-color:;">
-                <img class="has-tooltip mcAvatar" data-original-title="jazma1503" src="http://cravatar.eu/avatar/jazma1503/40" data-placement="top" data-toggle="tooltip" rel="tooltip" title="jazma1503" style="margin-right:5px; margin-bottom:5px; border-style:; border-width: 6px; border-radius: 4px; border-color:;">
-            </span>
-        </td>
-    </tr>
-    </tbody>
-    </table>
-</div></div></div></div></div>
-
-<div class="form-group">
-    <label>Server</label>
-    <select class="form-control">
-        <!-- BEGIN servers -->
-        <option value="{servers.sid}">{servers.name}</option>
-        <!-- END servers -->
-    </select>
-    <input type="hidden" class="ajaxSelectSibling" name="sid">
-</div>
+<!-- IMPORT admin/widgets/partials/server-select.tpl -->
 
 <div class="mi-accordion">
     <div class="panel panel-success">
         <div class="panel-heading" data-target=".mi-display-options" data-toggle="collapse">
-            <span class="panel-title">[[mi:display_options]]</span>
+            <i class="fa fa-fw fa-angle-down"></i>
+			<span class="panel-title">[[mi:display_options]]</span>
         </div>
         <div class="panel-body collapse mi-display-options">
             <div class="form-group">
@@ -118,6 +49,9 @@
             <span class="panel-title">[[mi:style_options]]</span>
         </div>
         <div class="panel-body collapse mi-style-options">
+
+			<!-- IMPORT admin/widgets/partials/style-colors-check.tpl -->
+
             <div class="form-group">
                 <label class="control-label">Title&nbsp;Color</label>
                 <input type="text" class="form-control ajaxInputColorPicker" name="colorTitle" preview=".panel-heading">
@@ -135,42 +69,7 @@
                 <input type="text" class="form-control ajaxInputColorPicker" name="colorText" preview=".mcWidgetText">
             </div>
 
-			<div class="form-group">
-				<div class="checkbox">
-					<label>
-						<input type="checkbox" name="show-avatar-borders"> [[mi:show-avatar-borders]]
-					</label>
-				</div>
-			</div>
-
-			<div class="form-group">
-				<label>[[mi:avatar-border-style]]</label>
-				<select class="form-control">
-					<option value="double" selected="selected">Double</option>
-					<option value="ridge">Ridge</option>
-					<option value="groove">Groove</option>
-					<option value="inset">Inset</option>
-					<option value="outset">Outset</option>
-					<option value="solid">Solid</option>
-					<option value="dashed">Dashed</option>
-					<option value="dotted">Dotted</option>
-				</select>
-				<input type="hidden" class="ajaxSelectSibling" name="avatar-border-style">
-			</div>
-
-			<div class="form-group">
-				<label class="control-label">[[mi:avatar-border-start]]</label>
-				<div>
-					<input type="text" class="form-control ajaxInputColorPicker" name="avatar-border-start">
-				</div>
-			</div>
-
-			<div class="form-group">
-				<label class="control-label">[[mi:avatar-border-end]]</label>
-				<div>
-					<input type="text" class="form-control ajaxInputColorPicker" name="avatar-border-end">
-				</div>
-			</div>
+			<!-- IMPORT admin/widgets/partials/style-avatar-borders.tpl -->
 
         </div>
     </div>

@@ -1,25 +1,36 @@
-<div class="mi-container" data-widget="mi-top-list" data-sid="{sid}"
-	<!-- IF show-colors -->data-show-colors="on"<!-- ENDIF show-colors -->
-	data-color-start="<!-- IF color-start -->#{color-start}<!-- ENDIF color-start -->"
-	data-color-end="<!-- IF color-end -->#{color-end}<!-- ENDIF color-end -->"
-	data-border-style="{border-style}">
+<div class="mi-container"
+	data-sid="{sid}"
+	data-widget="mi-top-list"
+	data-colors="{useColors}"
+	data-color-start="{colorStart}"
+	data-color-end="{colorEnd}"
+	data-border="{border}">
+
 	<table class="table widget-table">
 		<tbody>
-		<!-- BEGIN players -->
-		<tr>
-			<td>
-				<img class="mi-avatar not-responsive" src="data:image/png;base64,{players.avatar}" title="{players.name}" data-uuid="{players.id}" data-placement="top" data-toggle="tooltip" rel="tooltip">
-			</td>
-			<td style="vertical-align:middle">
-				<span class="score" style="<!-- IF players.color -->color:{players.color}<!-- ENDIF players.color -->">
-					<strong>
-						{players.playername}
-					</strong>
-					~ <span class="mi-score">{players.score}</span> {statname}
-				</span>
-			</td>
-		</tr>
-		<!-- END players -->
+			<!-- BEGIN players -->
+			<tr>
+				<td>
+
+					<img class="mi-avatar not-responsive"
+						src="data:image/png;base64,{players.avatar}"
+						title="{players.name}"
+						data-uuid="{players.id}"
+						data-toggle="tooltip"
+						data-placement="top"
+						rel="tooltip">
+
+				</td>
+				<td style="vertical-align:middle">
+
+					<span class="score">
+						<strong>{players.playername}</strong> ~ <span class="mi-score">{players.score}</span> {statname}
+					</span>
+
+				</td>
+			</tr>
+			<!-- END players -->
 		</tbody>
 	</table>
+
 </div>
