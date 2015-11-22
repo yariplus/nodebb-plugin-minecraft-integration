@@ -1,37 +1,31 @@
 <form id="minecraft-integration" autocomplete="off">
-	<h1>
-		<img src="/plugins/nodebb-plugin-minecraft-integration/public/images/Grass.png">
-		[[mi:minecraft_integration]]
-	</h1>
 	<div class="row">
 		<div class="col-lg-9">
 			<div role="tabpanel">
 				<ul class="nav nav-tabs" role="tablist">
-					<li role="presentation" class="active"><a href="#mi-tab-servers" aria-controls="mi-tab-servers" role="tab" data-toggle="tab">[[mi:active_servers]]</a></li>
-					<li role="presentation"><a href="#mi-tab-settings" aria-controls="mi-tab-settings" role="tab" data-toggle="tab">[[mi:general_settings]]</a></li>
-					<li role="presentation"><a href="#mi-tab-users" aria-controls="mi-tab-users" role="tab" data-toggle="tab">Registered Users</a></li>
-					<li role="presentation"><a href="#mi-tab-avatars" aria-controls="mi-tab-avatars" role="tab" data-toggle="tab">Cached Avatars</a></li>
-					<li role="presentation"><a href="#mi-tab-players" aria-controls="mi-tab-players" role="tab" data-toggle="tab">Cached Players</a></li>
-					<li role="presentation"><a href="#mi-tab-maintenance" aria-controls="mi-tab-maintenance" role="tab" data-toggle="tab">Maintenance</a></li>
+					<li role="presentation" class="active"><a href="#mi-tab-servers" aria-controls="mi-tab-servers" role="tab" data-toggle="tab">[[mi:servers]]</a></li>
+					<li role="presentation"><a href="#mi-tab-settings"    aria-controls="mi-tab-settings"    role="tab" data-toggle="tab">[[mi:settings]]</a></li>
+					<li role="presentation"><a href="#mi-tab-users"       aria-controls="mi-tab-users"       role="tab" data-toggle="tab">[[mi:registered-users]]</a></li>
+					<li role="presentation"><a href="#mi-tab-avatars"     aria-controls="mi-tab-avatars"     role="tab" data-toggle="tab">[[mi:avatars]]</a></li>
+					<li role="presentation"><a href="#mi-tab-players"     aria-controls="mi-tab-players"     role="tab" data-toggle="tab">[[mi:players]]</a></li>
+					<li role="presentation"><a href="#mi-tab-maintenance" aria-controls="mi-tab-maintenance" role="tab" data-toggle="tab">[[mi:maintenance]]</a></li>
 				</ul>
 				<div class="tab-content">
+
 					<div role="tabpanel" class="tab-pane active" id="mi-tab-servers">
 						<div class="panel panel-primary">
 							<div class="panel-body">
-								<div class="info bg-info alert">
-									<i class="fa fa-question"></i>
-									<span>Servers listed here are pinged every minute and widgets are updated. If the NodeBB-Integration plugin is installed on the server, widgets are updated in real-time instead.</span>
-								</div>
-								<div class="panel-group" id="server-list">
-								</div>
+								<div class="panel-group" id="server-list"></div>
 								<button id="mia-add-server" type="button" class="btn btn-success"><i class="fa fa-plus fa-fw"></i> [[mi:add_server]]</button>
 								<button id="mia-view-servers" type="button" class="btn btn-warning"><i class="fa fa-cog fa-fw"></i> [[mi:view_servers]]</button>
 							</div>
 						</div>
 					</div>
+
 					<div role="tabpanel" class="tab-pane" id="mi-tab-settings">
 						<div class="panel panel-primary">
 							<div class="panel-body">
+
 								<div class="row input-row">
 									<div class="col-sm-7 col-xs-12 input-field">
 										<label for="avatarCDN">[[mi:avatar_cdn]]</label>
@@ -75,6 +69,7 @@
 							</div>
 						</div>
 					</div>
+
 					<div role="tabpanel" class="tab-pane" id="mi-tab-users">
 						<div class="panel panel-primary">
 							<table class="table table-striped">
@@ -91,6 +86,7 @@
 							</table>
 						</div>
 					</div>
+
 					<div role="tabpanel" class="tab-pane" id="mi-tab-avatars">
 						<div class="panel panel-primary">
 							<table class="table table-striped">
@@ -107,6 +103,7 @@
 							</table>
 						</div>
 					</div>
+
 					<div role="tabpanel" class="tab-pane" id="mi-tab-players">
 						<div class="panel panel-primary">
 							<table class="table table-striped">
@@ -125,6 +122,7 @@
 							</table>
 						</div>
 					</div>
+
 					<div role="tabpanel" class="tab-pane" id="mi-tab-maintenance">
 						<div class="panel panel-primary">
 							<table class="table table-striped">
@@ -138,6 +136,7 @@
 							</table>
 						</div>
 					</div>
+
 				</div>
 			</div>
 		</div>

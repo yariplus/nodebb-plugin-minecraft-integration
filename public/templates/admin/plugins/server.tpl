@@ -21,13 +21,6 @@
             </div>
             <div class="col-sm-5 help-text" data-help="[[mi:help_server_address]]"></div>
         </div>
-        <div class="row input-row">
-            <div class="col-sm-7 col-xs-12 input-field">
-                <label class="control-label">[[mi:query_port]] <small>([[mi:optional]])</small></label>
-                <input name="query-port" class="form-control" type="text" placeholder=""/>
-            </div>
-            <div class="col-sm-5 help-text" data-help="[[mi:help_query_port]]"></div>
-        </div>
 		<div class="row input-row">
 			<div class="col-sm-7 col-xs-12 input-field">
 				<label for="api-key">API Key</label>
