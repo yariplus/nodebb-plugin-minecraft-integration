@@ -1,13 +1,13 @@
 <!-- IMPORT admin/widgets/partials/server-select.tpl -->
 
-<label>[[mi:use-statistic]]</label>
+<label>[[mi:use_statistic]]</label>
 <select class="form-control" name="statistic">
 	<option value="online" selected="selected">Online Time</option>
 </select>
 
 <br>
 
-<label>[[mi:max-players]]</label>
+<label>[[mi:max_players]]</label>
 <select class="form-control" name="show">
 	<option value="1">1</option>
 	<option value="2">2</option>
@@ -46,7 +46,7 @@
 <!-- IMPORT admin/widgets/partials/style-colors-check.tpl -->
 <!-- IMPORT admin/widgets/partials/style-color-title.tpl -->
 
-<label>[[mi:text-color]]</label>
+<label>[[mi:color_text]]</label>
 <input type="text" class="form-control ajaxInputColorPicker" name="colorText" />
 
 <br>

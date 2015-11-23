@@ -1,7 +1,7 @@
 <div class="checkbox">
 	<label>
 		<input type="checkbox" name="useColors" />
-		[[mi:show-colors]]
+		[[mi:use_custom_colors]]
 	</label>
 </div>
 

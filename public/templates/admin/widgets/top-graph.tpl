@@ -1,6 +1,6 @@
 <!-- IMPORT admin/widgets/partials/server-select.tpl -->
 
-<label>[[mi:max-players]]</label>
+<label>[[mi:max_players]]</label>
 <select class="form-control" name="showTopPlayers">
 	<option value="1">1</option>
 	<option value="2">2</option>
@@ -38,22 +38,22 @@
 
 <!-- IMPORT admin/widgets/partials/style-colors-check.tpl -->
 
-<label>[[mi:graph-color-start]]</label>
+<label>[[mi:graph_color_min]]</label>
 <input type="text" class="form-control ajaxInputColorPicker" name="colorStart" />
 
 <br>
 
-<label>[[mi:graph-color-end]]</label>
+<label>[[mi:graph_color_max]]</label>
 <input type="text" class="form-control ajaxInputColorPicker" name="colorEnd" />
 
 <br>
 
-<label>[[mi:color-title]]</label>
+<label>[[mi:color_title]]</label>
 <input type="text" class="form-control ajaxInputColorPicker" name="colorTitle" />
 
 <br>
 
-<label>[[mi:color-text]]</label>
+<label>[[mi:color_text]]</label>
 <input type="text" class="form-control ajaxInputColorPicker" name="colorText" />
 
 <br>

@@ -3,7 +3,7 @@
 <!-- IMPORT admin/widgets/partials/style-color-title.tpl -->
 <!-- IMPORT admin/widgets/partials/style-avatar-borders.tpl -->
 
-<label>MOTD Color</label>
+<label>[[mi:color_MOTD]]</label>
 <input type="text" class="form-control ajaxInputColorPicker" name="colorMOTD" preview=".mcWidgetMOTD" />
 
 <br>

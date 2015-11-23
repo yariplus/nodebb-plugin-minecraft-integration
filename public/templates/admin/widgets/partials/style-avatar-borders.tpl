@@ -1,4 +1,4 @@
-<label>[[mi:avatar-border-style]]</label>
+<label>[[mi:border_style]]</label>
 <select class="form-control" name="border">
 	<option value="none" selected="selected">None</option>
 	<option value="double">Double</option>
@@ -13,12 +13,12 @@
 
 <br>
 
-<label>[[mi:color-start]]</label>
+<label>[[mi:border_start]]</label>
 <input type="text" class="form-control ajaxInputColorPicker" name="colorStart" />
 
 <br>
 
-<label>[[mi:color-end]]</label>
+<label>[[mi:border_end]]</label>
 <input type="text" class="form-control ajaxInputColorPicker" name="colorEnd" />
 
 <br>
