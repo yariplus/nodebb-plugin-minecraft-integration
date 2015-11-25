@@ -4,42 +4,37 @@
 
 **[https://community.nodebb.org/topic/3559](https://community.nodebb.org/topic/3559 "NodeBB Forums - Minecraft Integration")**
 
-The Minecraft Integration project aims to reproduce and enhance widgets and features found on sites such as Enjin (XenForo-based) for use on a NodeBB forum. This plugin can be used alone, but widgets and features are enhanced when used with [minecraft-plugin-nodebb-integration](https://github.com/yariplus/bukkit-plugin-nodebb-integration/releases/download/v0.0.1/bukkit-nodebb-integration-0.0.1.jar).
+The Minecraft Integration project aims to reproduce and enhance widgets and features found on sites such as Enjin (XenForo-based) for use on a NodeBB forum.
 
-Minecraft Integration is an evolution of my previous plugin [nodebb-widget-minecraft-essentials], repositories are redirected to this new project.
+This plugin requires the Bukkit plugin [nodebb-integration](https://github.com/yariplus/bukkit-plugin-nodebb-integration/releases/.
 
-Compatible with NodeBB v0.7.0 and up. (I will ensure previous NodeBB version compatibility on request!)
+Compatible with NodeBB v0.9.0 and up.
 
 ## Installation
 
-Two methods of installation:
-1. Search for "nodebb-plugin-minecraft-integration" on the ACP Install Plugins page and click install.
-or
-2. Use npm from the command line in your NodeBB base directory: `npm install nodebb-plugin-minecraft-integration`. Then activate the plugin in the ACP Install Plugins page.
+Install using the Install Plugins page on the NodeBB Admin control panel.
 
-## Usage
+## Setup
 
-Go to the **Installed Plugins->Minecraft Integration** page and to cofigure the plugin and enter your server's information.
+After installing the plugin and reloading your NodeBB, go to the **Plugins->Minecraft Integration** page in the Admin control panel and add a new server.
 
-![](http://puu.sh/inZMb/f06bdd48c1.png)
+Copy the server's API key.
+
+On your Minecraft server console, enter the command `/nodebb key {APIkey}`
+
+The server will now connect to your forum and send it information every minute or when an event occurs.
 
 ### Server Configuration
 
 #### Server Name
-This is the text displayed on widgets to identify the server. Minecraft formatting codes and Bukkit formatting codes are accepted here.
+This name is used by the plugin to identify the server.
 
 #### Server Address
-This is the address users use in game to connect to the server. Supports any type of address. Defaults to "0.0.0.0:25565".
+This is the address users use in game to connect to the server.
 
-#### Query Port
-This is the port to which the the plugin will send ServerQuery requests and ServerListPing requests. Defaults to 25565. (Does not have to be the actual server query port. For example, if you are using a bungee proxy, this can be the port for a child server instead of the proxy port.)
+##### API Key
 
-#### NodeBB-Integration Address
-The address for your [minecraft-plugin-nodebb-integration] instance, if used. Defaults to "http://localhost:25665".
-
-##### Server Configuration Example
-
-![Server Example](http://puu.sh/inZS9/0c710bcf2f.png)
+This key is used to connect your Minecraft server to the forum.
 
 ## Widgets
 
