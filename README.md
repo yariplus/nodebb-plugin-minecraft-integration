@@ -6,13 +6,15 @@
 
 The Minecraft Integration project aims to reproduce and enhance widgets and features found on sites such as Enjin (XenForo-based) for use on a NodeBB forum.
 
-This plugin requires the Bukkit plugin [nodebb-integration](https://github.com/yariplus/bukkit-plugin-nodebb-integration/releases/.
+**This plugin requires the Bukkit plugin [nodebb-integration](https://github.com/yariplus/bukkit-plugin-nodebb-integration/releases/ "Download page for nodebb-integration").**
 
 Compatible with NodeBB v0.9.0 and up.
 
 ## Installation
 
-Install using the Install Plugins page on the NodeBB Admin control panel.
+1. Install the forum plugin using the Install Plugins page on the NodeBB Admin control panel.
+
+2. Install the Bukkit plugin [nodebb-integration](https://github.com/yariplus/bukkit-plugin-nodebb-integration/releases/ "Download page for nodebb-integration") on your Minecraft server.
 
 ## Setup
 
@@ -32,7 +34,7 @@ This name is used by the plugin to identify the server.
 #### Server Address
 This is the address users use in game to connect to the server.
 
-##### API Key
+#### API Key
 
 This key is used to connect your Minecraft server to the forum.
 
