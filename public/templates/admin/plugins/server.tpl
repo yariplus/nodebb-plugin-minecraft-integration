@@ -48,5 +48,8 @@
             </div>
 			<div class="col-sm-5 help-text" data-help="[[mi:help_hide_plugins]]"></div>
         </div>
+		<div>
+			<button type="button" class="save btn btn-success">Save</button>
+		</div>
     </div>
 </div>
