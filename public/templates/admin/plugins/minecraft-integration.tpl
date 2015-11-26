@@ -1,5 +1,5 @@
-
 <div role="tabpanel">
+
 	<ul class="nav nav-tabs" role="tablist">
 		<li role="presentation" class="active"><a href="#mi-tab-servers" aria-controls="mi-tab-servers" role="tab" data-toggle="tab">[[mi:servers]]</a></li>
 		<li role="presentation"><a href="#mi-tab-settings"    aria-controls="mi-tab-settings"    role="tab" data-toggle="tab">[[mi:settings]]</a></li>
@@ -8,6 +8,7 @@
 		<li role="presentation"><a href="#mi-tab-players"     aria-controls="mi-tab-players"     role="tab" data-toggle="tab">[[mi:players]]</a></li>
 		<li role="presentation"><a href="#mi-tab-maintenance" aria-controls="mi-tab-maintenance" role="tab" data-toggle="tab">[[mi:maintenance]]</a></li>
 	</ul>
+
 	<div class="tab-content">
 
 		<div role="tabpanel" class="tab-pane active" id="mi-tab-servers">
@@ -15,7 +16,6 @@
 				<div class="panel-body">
 					<div class="panel-group" id="server-list"></div>
 					<button id="mia-add-server" type="button" class="btn btn-success"><i class="fa fa-plus fa-fw"></i> [[mi:add_server]]</button>
-					<button id="mia-view-servers" type="button" class="btn btn-warning"><i class="fa fa-cog fa-fw"></i> [[mi:view_servers]]</button>
 				</div>
 			</div>
 		</div>
@@ -145,23 +145,5 @@
 		</div>
 
 	</div>
-</div>
 
-<div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" id="mia-modal-servers">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title">[[mi:minecraft_servers]]</h4>
-			</div>
-			<div class="modal-body">
-				<table class="table">
-					<tbody></tbody>
-				</table>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-default" data-dismiss="modal">[[mi:close]]</button>
-			</div>
-		</div>
-	</div>
 </div>

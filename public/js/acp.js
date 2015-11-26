@@ -2,7 +2,7 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 
 	"use strict";
 
-	var miACP = { }, $form, $serverList, $modal, $modalBody, $serverTemplate, $modalTemplate;
+	var miACP = { }, $form, $serverList, $serverTemplate;
 
 	miACP.load = function () {
 
@@ -10,8 +10,6 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 
 		$form = $('#minecraft-integration');
 		$serverList = $('#server-list');
-		$modal = $form.find('#mia-modal-servers');
-		$modalBody = $modal.find('.modal-body').find('tbody');
 
 		// Tables
 		var	$elTableUsers   = $('#miTableUsers'),
@@ -76,38 +74,7 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 
 		}
 
-		function toggleServer(serverNum) {
-			var $server = $serverList.children().filter(function () {
-				return $(this).data('server-num') === serverNum;
-			});
-			if ($server.length) {
-				$server.remove();
-			}else{
-				addServer(serverNum, settings.cfg._.servers[serverNum]);
-			}
-
-			var $modalBtn = $modalBody.children().filter(function () {
-				return $(this).data('server-num') === serverNum;
-			}).find('.mia-toggle-activation');
-			if ($modalBtn.hasClass('btn-success')) {
-				$modalBtn.addClass('btn-warning').removeClass('btn-success').text('Deactivate');
-			}else{
-				$modalBtn.addClass('btn-success').removeClass('btn-warning').text('Activate');
-			}
-		}
-
-		function populateServer($server, server) {
-			$server.find('[name=name]').val(server.name);
-			$server.find('[name=address]').val(server.address);
-			$server.find('[name=query-port]').val(server.queryPort);
-			$server.find('[name=rcon-port]').val(server.rconPort);
-			$server.find('[name=rcon-pass]').val(server.rconPass);
-			$server.find('[name=api-key]').val(server.APIKey);
-			$server.find('[name=hide-plugins]').prop( "checked", server.hidePlugins);
-			$server.find('a').text(server.name);
-		}
-
-		// Add a server to the active list.
+		// Add a server to the list.
 		function addServer(sid, server) {
 
 			MinecraftIntegration.log("Adding " + (server ? "" : "new ") + "server: " + sid);
@@ -130,7 +97,11 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 			$server.appendTo($serverList);
 
 			if (server) {
-				populateServer($server, server);
+				$server.find('[name=name]').val(server.name);
+				$server.find('[name=address]').val(server.address);
+				$server.find('[name=api-key]').val(server.APIKey);
+				$server.find('[name=hide-plugins]').prop( "checked", server.hidePlugins);
+				$server.find('a').text(server.name);
 			}else{
 				$server.find('[data-toggle="collapse"]').removeClass('collapsed');
 				$server.find('.collapse').addClass('in');
@@ -138,16 +109,6 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 				setTimeout(function () { $server.find('[name="name"]').focus(); }, 200);
 			}
 			return;
-		}
-
-		function addServerToModal(server) {
-			var $serverListing = $modalTemplate.clone();
-			$serverListing.data('server-num', server.serverNum);
-			$serverListing.find('span').text(server.name);
-			if (server.active) {
-				$serverListing.find('.mia-toggle-activation').addClass('btn-warning').removeClass('btn-success').text('Deactivate');
-			}
-			$serverListing.appendTo($modalBody);
 		}
 
 		function regenKey($input) {
@@ -168,10 +129,6 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 						socket.emit('admin.settings.resetMinecraftIntegration');
 					}
 				});
-			}).on('click', '#mia-reset', function (e) {
-				$serverList.empty();
-				$modalBody.empty();
-				populateFields();
 			}).on('click', '.mia-toggle-activation', function (e) {
 				toggleServer($(e.target).closest('tr').data('server-num'));
 			}).on('click', '.regen-key', function (e) {
@@ -261,9 +218,6 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 
 				addServer(sid);
 
-			}).on('click', '#mia-view-servers', function (e) {
-				//$modalBody.empty();
-				$modal.modal('show');
 			}).on('click', '.save', function (e) {
 
 				if (!validateAll()) return;
@@ -274,8 +228,7 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 					name        : $server.find('[name=name]').val(),
 					address     : $server.find('[name=address]').val(),
 					APIKey      : $server.find('[name=api-key]').val(),
-					hidePlugins : $server.find('[name=hide-plugins]').is(':checked'),
-					active      : true
+					hidePlugins : $server.find('[name=hide-plugins]').is(':checked')
 				};
 
 				socket.emit('admin.MinecraftIntegration.setServerConfig', {sid: $server.data('sid') + '', config: config}, function (err) {
@@ -302,13 +255,7 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 				//activate($(this).attr('name'), $(this));
 			}).on('input', '[name="name"]', function() {
 				var $this = $(this), $server = $this.closest('.panel'), serverNum = $server.data('server-num');
-				$server.find('a').first().text($this.val() || 'Unnamed Server (Will be removed if left unnamed.)');
-				var $serverListing = $modalBody.children().filter(function () {
-					return $(this).data('server-num') === serverNum;
-				});
-				if ($serverListing.length) {
-					$serverListing.find('span').text($this.val());
-				}
+				$server.find('a').first().text($this.val() || 'Unnamed Server');
 			}).submit(validateAll);
 
 			$('[name=avatarCDN]').change(function(){
@@ -360,15 +307,11 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 
 			$.get(MinecraftIntegration.__MIDIR + '/templates/admin/plugins/server.tpl' + "?v=" + config['cache-buster'], function(template) {
 				translator.translate(template, function (translatedTemplate) {
+
 					$serverTemplate = $($.parseHTML(translatedTemplate));
-					$modalTemplate = $($.parseHTML('<tr><td><span></span></td><td style="width:0px;text-align:right;"><button type="button" class="btn btn-success mia-toggle-activation pointer">Activate</button></td></tr>'));
 
 					servers.forEach(function (server) {
-
-						addServerToModal({serverNum: server.sid, name: server.config.name, active: server.config.active});
-
-						if (server.config.active) addServer(server.sid, server.config);
-
+						addServer(server.sid, server.config);
 					});
 
 				});
