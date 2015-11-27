@@ -1,6 +1,6 @@
 "use strict";
 
-var	MinecraftIntegration = {
+var	MinecraftIntegration = module.exports = {
 		Widgets: require('./lib/widgets'),
 		Hooks: require('./lib/hooks')
 	},
@@ -14,21 +14,11 @@ var	MinecraftIntegration = {
 	Updater = require('./lib/updater'),
 	Views   = require('./lib/views');
 
-MinecraftIntegration.load = function (data, next) {
-	if (arguments.length === 2) {
-		// NodeBB version >=0.6.0
-		NodeBB.app        = data.app;
-		NodeBB.router     = data.router;
-		NodeBB.middleware = data.middleware;
-	}else if(arguments.length === 4 && typeof arguments[3] === 'function') {
-		// NodeBB version <=0.5.0
-		NodeBB.app        = data;
-		NodeBB.router     = data;
-		NodeBB.middleware = next;
-		next              = arguments[3];
-	}else{
-		return console.log("MinecraftIntegration: " + "Failed to load plugin. Invalid arguments found for app.load(). Are you sure you're using a compatible version of NodeBB?");
-	}
+MinecraftIntegration.load = function (params, next) {
+
+	NodeBB.app        = params.app;
+	NodeBB.router     = params.router;
+	NodeBB.middleware = params.middleware;
 
 	NodeBB.init();
 	API.init();
@@ -39,6 +29,5 @@ MinecraftIntegration.load = function (data, next) {
 	setTimeout(Updater.updateServers, 10000);
 
 	next();
-};
 
-module.exports = MinecraftIntegration;
+};
