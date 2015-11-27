@@ -80,20 +80,20 @@ define(function(){
 		function initPanel($panel) {
 
 			var	$heading = $panel.find('>.panel-heading'),
-				$body = $heading.next();
+				$body = $heading.next(),
+				$server = $body.find('[name="sid"]'),
+				sid = $server.val($server.val() || '0').val();
 
-			if ($body.find('[name="sid"]').val()) {
-				$.get('/api/minecraft-integration/server/' + $body.find('[name="sid"]').val() + "?v=" + config['cache-buster'], function (server) {
-					if (server && server.motd && server.name) {
-						$panel.data('motd', server.motd);
-						$panel.data('name', server.name);
-					}else{
-						$panel.data('motd', '');
-						$panel.data('name', '');
-					}
-					formatTitle($panel);
-				});
-			}
+			$.get('/api/minecraft-integration/server/' + sid + "?v=" + config['cache-buster'], function (server) {
+				if (server && server.motd && server.name) {
+					$panel.data('motd', server.motd);
+					$panel.data('name', server.name);
+				}else{
+					$panel.data('motd', '');
+					$panel.data('name', '');
+				}
+				formatTitle($panel);
+			});
 
 			$body.find('[name="title"]').on('input', function (e) {
 				formatTitle($panel);

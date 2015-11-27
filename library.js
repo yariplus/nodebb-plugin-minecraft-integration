@@ -25,9 +25,25 @@ MinecraftIntegration.load = function (params, next) {
 	Views.init();
 	Admin.init();
 
-	setTimeout(Config.logSettings, 5000);
-	setTimeout(Updater.updateServers, 10000);
+	// Add a default server.
+	NodeBB.db.getObject('mi:server:0:config', function (err, config) {
 
-	next();
+		if (err) return next(new Error(err));
+
+		config = config || {};
+		config.name        = config.name    || "A Minecraft Server";
+		config.address     = config.address || (require('nconf').get('url') + ":25565");
+		config.APIKey      = config.APIKey  || Utils.getKey(),
+		config.hidePlugins = !!config.hidePlugins;
+
+		NodeBB.db.setObject('mi:server:0:config', config);
+		NodeBB.db.sortedSetAdd('mi:servers', Date.now(), '0');
+
+		setTimeout(Config.logSettings, 5000);
+		setTimeout(Updater.updateServers, 10000);
+
+		next();
+
+	});
 
 };
