@@ -1,4 +1,4 @@
-<div role="tabpanel">
+<div id="minecraft-integration-admin" role="tabpanel">
 
 	<ul class="nav nav-tabs" role="tablist">
 		<li role="presentation" class="active"><a href="#mi-tab-servers" aria-controls="mi-tab-servers" role="tab" data-toggle="tab">[[mi:servers]]</a></li>
