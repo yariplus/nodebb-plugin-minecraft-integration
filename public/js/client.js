@@ -24,23 +24,28 @@ MinecraftIntegration = { templates: { }, avatars: { } };
 	MinecraftIntegration.log("Loading...");
 	MinecraftIntegration.__MIDIR = "/plugins/nodebb-plugin-minecraft-integration/public/";
 
+	// Vault Prefixes
+	function addPrefix($el, prefix) {
+		$el.find('.username>a').prepend('<span class="prefix" style="text-shadow: 0.5px 0.5px rgba(0,0,0,0.5);">' + prefix + '</span><br>');
+		$el.find('[itemprop="author"]').prepend('<span class="prefix" style="text-shadow: 0.5px 0.5px rgba(0,0,0,0.5);">' + prefix + '</span>&nbsp&nbsp');
+	}
 	function addPrefixes(event, data) {
 
 		if (ajaxify.data.prefixes) {
 
 			$('[data-pid]:not([data-prefix])').each(function () {
-				var $el = $(this);
-				var prefix = ajaxify.data.prefixes[$el.attr("data-uid")];
-				if (!prefix) {
-					socket.emit('plugins.MinecraftIntegration.getPrefix', {uid:$el.attr("data-uid")}, function (err, data) {
-						$el.attr("data-prefix", data.prefix);
-						if (data.prefix) $el.find(".username>a").prepend('<span class="prefix" style="text-shadow: 0.5px 0.5px rgba(0,0,0,0.5);">' + data.prefix + '</span><br>');
-					});
-				}else{
-					$el.attr("data-prefix", prefix);
-					$el.find('.username>a').prepend('<span class="prefix" style="text-shadow: 0.5px 0.5px rgba(0,0,0,0.5);">' + prefix + '</span><br>');
-					$el.find('[itemprop="author"]').prepend('<span class="prefix" style="text-shadow: 0.5px 0.5px rgba(0,0,0,0.5);">' + prefix + '</span>&nbsp&nbsp');
-				}
+
+				var $el = $(this), prefix = ajaxify.data.prefixes[$el.attr("data-uid")];
+
+				$el.attr("data-prefix", "true");
+
+				if (prefix) return addPrefix($el, prefix);
+				if (prefix === null) return;
+
+				socket.emit('plugins.MinecraftIntegration.getPrefix', {uid:$el.attr("data-uid")}, function (err, data) {
+					if (data.prefix) addPrefix($el, data.prefix);
+				});
+
 			});
 		}
 	}
