@@ -6,7 +6,13 @@ MinecraftIntegration = { templates: { }, avatars: { } };
 
 	"use strict";
 
+	// TODO: Add config var.
+	MinecraftIntegration.debug = false;
+
 	MinecraftIntegration.log = function (memo, object) {
+
+		if (!MinecraftIntegration.debug) return;
+
 		if (typeof memo === 'object') {
 			console.dir(memo);
 		}else{
