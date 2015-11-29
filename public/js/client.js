@@ -269,24 +269,33 @@ MinecraftIntegration = { templates: { }, avatars: { } };
 
 				$widget = $($widget);
 
-				var $avatars = $widget.find('.mi-avatar');
+				var	$avatars = $widget.find('.mi-avatar'),
+					pendingPlayers = $avatars.length;
+
 				$avatars.each(function (i, $avatar) {
+
 					$avatar = $($avatar);
+
 					var id = $avatar.data('uuid');
 
-					if (id) {
-						socket.emit('plugins.MinecraftIntegration.getPlayer', {id: id}, function (err, playerData) {
-							var playtime = parseInt(playerData.playtime, 10);
-							if (playtime > 60) {
-								playtime = Math.floor(playtime / 60).toString() + " Hours, " + (playtime % 60).toString();
-							}
-							$avatar.parent().parent().find('.mi-score').html(playtime);
-						});
-						wrapAvatar($avatar);
-					}
+					if (!id) return --pendingPlayers;
+
+					socket.emit('plugins.MinecraftIntegration.getPlayer', {id: id}, function (err, playerData) {
+
+						var playtime = parseInt(playerData.playtime, 10);
+						if (playtime > 60) {
+							playtime = Math.floor(playtime / 60).toString() + " Hours, " + (playtime % 60).toString();
+						}
+						$avatar.parent().parent().find('.mi-score').html(playtime);
+
+						if (!--pendingPlayers) MinecraftIntegration.setAvatarBorders($widget);
+
+					});
+
+					wrapAvatar($avatar);
+
 				});
 
-				MinecraftIntegration.setAvatarBorders($widget);
 			});
 		});
 	};
