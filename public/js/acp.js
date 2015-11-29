@@ -118,7 +118,7 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 			$server.find('[name="address"]').val(server ? server.config.address : '');
 			$server.find('[name="api-key"]').val(server ? server.config.APIKey  : regenKey($server.find('[name="api-key"]'), true));
 
-			$server.find('[name="hide-plugins"]').prop("checked", server ? server.config.hidePlugins : false);
+			$server.find('[name="hide-plugins"]').prop("checked", server ? parseInt(server.config.hidePlugins, 10) : false);
 
 			if (!server) {
 				$server.find('.panel-body').collapse('toggle');
@@ -240,7 +240,7 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 					name        : $server.find('[name=name]').val(),
 					address     : $server.find('[name=address]').val(),
 					APIKey      : $server.find('[name=api-key]').val(),
-					hidePlugins : $server.find('[name=hide-plugins]').is(':checked')
+					hidePlugins : $server.find('[name=hide-plugins]').is(':checked') ? 1 : 0
 				};
 
 				socket.emit('admin.MinecraftIntegration.setServerConfig', {sid: $server.attr('data-sid'), config: config}, function (err) {
