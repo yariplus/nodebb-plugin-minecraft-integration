@@ -6,11 +6,12 @@ MinecraftIntegration = { templates: { }, avatars: { } };
 
 	"use strict";
 
-	MinecraftIntegration.log = function (memo) {
+	MinecraftIntegration.log = function (memo, object) {
 		if (typeof memo === 'object') {
-			console.log(memo);
+			console.dir(memo);
 		}else{
 			console.log("[Minecraft Integration] " + memo);
+			console.dir(object);
 		}
 	};
 
@@ -779,11 +780,22 @@ MinecraftIntegration = { templates: { }, avatars: { } };
 							}
 
 							$chatwidget.find('button').click(function (e) {
+
 								if (app.user.uid === 0) return;
+
 								var $this = $(this);
 
-								socket.emit('plugins.MinecraftIntegration.eventWebChat', {sid: $chatwidget.attr('data-sid'), name: app.user.username, message: $this.parent().prev().children('input').val()});
+								var chatData = {
+									sid: $chatwidget.attr('data-sid'),
+									name: app.user.username,
+									message: $this.parent().prev().children('input').val()
+								};
+
+								socket.emit('plugins.MinecraftIntegration.eventWebChat', chatData);
+
+								MinecraftIntegration.log("Sending chat: ", chatData);
 								$this.parent().prev().children('input').val('');
+
 							});
 
 							$chatwidget.find('input').keyup(function(e){
