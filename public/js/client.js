@@ -286,7 +286,7 @@ MinecraftIntegration = { templates: { }, avatars: { } };
 						if (playtime > 60) {
 							playtime = Math.floor(playtime / 60).toString() + " Hours, " + (playtime % 60).toString();
 						}
-						$avatar.parent().parent().find('.mi-score').html(playtime);
+						$avatar.closest('tr').find('.mi-score').html(playtime);
 
 						if (!--pendingPlayers) MinecraftIntegration.setAvatarBorders($widget);
 
