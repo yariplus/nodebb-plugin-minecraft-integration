@@ -419,6 +419,8 @@ MinecraftIntegration = { templates: { }, avatars: { } };
 			.text("Offline");
 			$widget.find(".mc-playercount").hide();
 		}
+
+		$widget.find(".mc-statusicon").attr('data-original-title', data.updateTime ? "Last pinged at " + data.updateTime : "");
 	});
 
 	socket.on('mi.PlayerChat', function (data) {
