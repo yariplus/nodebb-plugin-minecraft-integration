@@ -11,7 +11,7 @@ MinecraftIntegration = { templates: { }, avatars: { } };
 			console.dir(memo);
 		}else{
 			console.log("[Minecraft Integration] " + memo);
-			console.dir(object);
+			if (object) console.dir(object);
 		}
 	};
 
@@ -116,6 +116,7 @@ MinecraftIntegration = { templates: { }, avatars: { } };
 	// When a new status update is received, refresh widgets that track players.
 	// TODO: This does too many things, separate into more functions based on each task.
 	MinecraftIntegration.setPlayers = function (data) {
+
 		if (!(data && data.sid !== void 0 && Array.isArray(data.players))) {
 			MinecraftIntegration.log("Received invalid status data.");
 			MinecraftIntegration.log(data);
@@ -197,12 +198,17 @@ MinecraftIntegration = { templates: { }, avatars: { } };
 
 							$avatar.fadeToggle(600, 'linear');
 
+							// Set avatar borders if complete.
+							if (!--pendingPlayers) MinecraftIntegration.setAvatarBorders($widget);
+
 						});
 
-					}
+					}else{
 
-					// Set avatar borders if complete.
-					if (!--pendingPlayers) MinecraftIntegration.setAvatarBorders($widget);
+						// Set avatar borders if complete.
+						if (!--pendingPlayers) MinecraftIntegration.setAvatarBorders($widget);
+
+					}
 
 				});
 
@@ -319,6 +325,8 @@ MinecraftIntegration = { templates: { }, avatars: { } };
 
 					$avatar.fadeToggle(600, 'linear');
 
+					MinecraftIntegration.setAvatarBorders($widget);
+
 				});
 
 				// Update player count.
@@ -369,12 +377,14 @@ MinecraftIntegration = { templates: { }, avatars: { } };
 	});
 
 	socket.on('mi.status', function (data) {
-		MinecraftIntegration.log("Received Status Ping from " + data.name + ":");
-		MinecraftIntegration.log(data);
+
+		MinecraftIntegration.log("Received Status Ping", data);
+
 		MinecraftIntegration.setPlayers(data);
 		MinecraftIntegration.setGraphs(data);
 
 		var $widget = $('[data-sid="' + data.sid + '"]');
+
 		if (parseInt(data.isServerOnline, 10)) {
 			$widget.find(".mc-statusicon")
 			.addClass("fa-check-circle")
@@ -763,6 +773,7 @@ MinecraftIntegration = { templates: { }, avatars: { } };
 			sids.forEach(function (sid) {
 
 				socket.emit('plugins.MinecraftIntegration.getServerStatus', {sid: sid}, function (err, status) {
+					MinecraftIntegration.log("Got initial status", status);
 					MinecraftIntegration.setPlayers(status);
 					MinecraftIntegration.setGraphs(status);
 				});
