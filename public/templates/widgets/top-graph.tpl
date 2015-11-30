@@ -4,6 +4,6 @@
 	data-color-start="{colorStart}"
 	data-color-end="{colorEnd}">
 
-    <canvas id="canvasTopPlayers{sid}" class="mi-canvas" style="border:1px solid #000000;" data-height-ratio="2"></canvas>
+    <canvas id="canvasTopPlayers{sid}" class="mi-canvas" data-height-ratio="2"></canvas>
 
 </div>
