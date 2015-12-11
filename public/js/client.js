@@ -795,6 +795,7 @@ MinecraftIntegration = { templates: { }, avatars: { } };
 			sids.forEach(function (sid) {
 
 				socket.emit('plugins.MinecraftIntegration.getServerStatus', {sid: sid}, function (err, status) {
+					if (err || !status) return MinecraftIntegration.log("No Status");
 					MinecraftIntegration.log("Got initial status", status);
 					MinecraftIntegration.setPlayers(status);
 					MinecraftIntegration.setGraphs(status);
