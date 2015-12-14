@@ -358,7 +358,8 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 
 		socket.emit('plugins.MinecraftIntegration.getPlayers', { }, function (err, players) {
 			players.forEach(function(player){
-				player.idf = formatUuid(player.id);
+				player.idf    = formatUuid(player.id);
+				player.prefix = player.prefix || "No Prefix"
 				$elTablePlayers.append(parseTpl(tplTablePlayers, player));
 			});
 		});
