@@ -26,8 +26,8 @@ MinecraftIntegration = { templates: { }, avatars: { } };
 
 	// Vault Prefixes
 	function addPrefix($el, prefix) {
-		$el.find('.username>a').prepend('<span class="prefix" style="text-shadow: 0.5px 0.5px rgba(0,0,0,0.5);">' + prefix + '</span><br>');
-		$el.find('[itemprop="author"]').prepend('<span class="prefix" style="text-shadow: 0.5px 0.5px rgba(0,0,0,0.5);">' + prefix + '</span>&nbsp&nbsp');
+		$el.find('.username>a').prepend('<span class="prefix">' + prefix + '</span><br>');
+		$el.find('[itemprop="author"]').prepend('<span class="prefix">' + prefix + '</span>&nbsp&nbsp');
 	}
 	function addPrefixes(event, data) {
 
