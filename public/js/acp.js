@@ -2,14 +2,29 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 
 	"use strict";
 
-	var miACP = { }, $form, $serverList, $serverTemplate;
+	var miACP = { },
+		$form,
+		$tabServers,
+		$tabSettings,
+		$tabUsers,
+		$tabAvatars,
+		$tabPlayers,
+		$tabMaintenance,
+		$serverList,
+		$serverTemplate;
 
 	miACP.load = function () {
 
 		MinecraftIntegration.log("Loading admin data...");
 
-		$form = $('#minecraft-integration');
-		$serverList = $('#server-list');
+		$form           = $('#minecraft-integration');
+		$tabServers     = $('#mi-tab-servers');
+		$tabSettings    = $('#mi-tab-settings');
+		$tabUsers       = $('#mi-tab-users');
+		$tabAvatars     = $('#mi-tab-avatars');
+		$tabPlayers     = $('#mi-tab-players');
+		$tabMaintenance = $('#mi-tab-maintenance');
+		$serverList     = $('#server-list');
 
 		// Tables
 		var	$elTableUsers   = $('#miTableUsers'),
@@ -142,7 +157,7 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 			MinecraftIntegration.log("Adding buttons");
 
 			$form.on('click', '.fa-times', function (e) {
-				toggleServer($(e.target).closest('.panel').data('server-num'));
+				// toggleServer($(e.target).closest('.panel').data('server-num'));
 			}).on('click', '#mia-delete', function (e) {
 				bootbox.confirm('Are you sure?<p class="text-danger strong">This will delete all data from all Minecraft servers.</p>', function(result) {
 					if (result) {
@@ -151,11 +166,10 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 				});
 			}).on('click', '.mia-toggle-activation', function (e) {
 				toggleServer($(e.target).closest('tr').data('server-num'));
-			}).on('click', '.regen-key', function (e) {
-				regenKey($(this).closest('.input-row').find('input'));
+			});
 
 			// Avatars
-			}).on('click', '.mi-btn-delete-avatar', function (e) {
+			$tabAvatars.on('click', '.mi-btn-delete-avatar', function (e) {
 				var	$this = $(this).closest('tr');
 
 				socket.emit('admin.MinecraftIntegration.deleteAvatar', {name: $this.attr('data-player')}, function (err) {
@@ -172,9 +186,10 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 						$avatar.fadeIn(600);
 					});
 				});
+			});
 
 			// Players
-			}).on('click', '.mi-btn-delete-player', function (e) {
+			$tabPlayers.on('click', '.mi-btn-delete-player', function (e) {
 				var	$this = $(this).closest('tr');
 
 				socket.emit('admin.MinecraftIntegration.deletePlayer', {id: $this.attr('data-uuid')}, function (err) {
@@ -205,9 +220,10 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 						});
 					}
 				});
+			});
 
 			// Users
-			}).on('click', '.mi-btn-delete-user', function (e) {
+			$tabUsers.on('click', '.mi-btn-delete-user', function (e) {
 				var	$this = $(this).closest('tr');
 
 				socket.emit('admin.MinecraftIntegration.deleteUser', {uid: $this.attr('data-uid')}, function (err) {
@@ -228,7 +244,8 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 				});
 			});
 
-			$('#mi-tab-servers').on('click', '#mia-add-server', function (e) {
+			// Servers
+			$tabServers.on('click', '#mia-add-server', function (e) {
 				addServer();
 			}).on('click', '.save', function (e) {
 
@@ -265,6 +282,8 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 			}).on('input', '[name="name"]', function() {
 				var $this = $(this), $server = $this.closest('.panel'), serverNum = $server.data('server-num');
 				$server.find('a').first().text($this.val() || 'A Minecraft Server ' + sid);
+			}).on('click', '.regen-key', function (e) {
+				regenKey($(this).closest('.input-row').find('input'));
 			});
 		}
 

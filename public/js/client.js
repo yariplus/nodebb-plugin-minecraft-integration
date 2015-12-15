@@ -6,6 +6,8 @@ MinecraftIntegration = { templates: { }, avatars: { } };
 
 	"use strict";
 
+	console.log("Loading Minecraft Integration...");
+
 	// TODO: Add config var.
 	MinecraftIntegration.debug = false;
 
@@ -21,7 +23,6 @@ MinecraftIntegration = { templates: { }, avatars: { } };
 		}
 	};
 
-	MinecraftIntegration.log("Loading...");
 	MinecraftIntegration.__MIDIR = "/plugins/nodebb-plugin-minecraft-integration/public/";
 
 	// Vault Prefixes

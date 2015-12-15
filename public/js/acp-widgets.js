@@ -13,6 +13,7 @@ define(function(){
 		var	cid = 0;
 
 		// Do widget pre-init for existing widgets.
+		// TEMP:
 		// Since the loading is asynchronous, I poll for 5 seconds.
 		var	tries = 0;
 		var	preinit = function(){

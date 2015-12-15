@@ -28,7 +28,7 @@
   "readmeFilename": "README.md",
   "dependencies": {
     "async": "*",
-    "jimp": "^0.2.19",
+    "jimp": "*",
     "validator": "^4.2.1"
   },
   "nbbpm": {
