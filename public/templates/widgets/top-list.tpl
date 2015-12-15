@@ -13,7 +13,7 @@
 				<td>
 
 					<img class="mi-avatar not-responsive"
-						src="data:image/png;base64,{players.avatar}"
+						src="/api/minecraft-integration/avatar/{players.name}/64"
 						title="{players.name}"
 						data-uuid="{players.id}"
 						data-toggle="tooltip"

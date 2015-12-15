@@ -370,7 +370,7 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 		socket.emit('plugins.MinecraftIntegration.getAvatars', { }, function (err, data) {
 			for (var i = 0; i < data.length; i++) {
 				$elTableAvatars.append(
-					$('<tr data-player="' + data[i].name + '"><td class="compact"><img class="mi-avatar" src="data:image/png;base64,' + data[i]['base64'] + '" width="40px" height="40px"></td><td class="compact" style="vertical-align: middle;">' + data[i].name + '</td><td class="no-break">' + formatUuid(data[i].id) + '</td><td class="compact squish"><button type="button" class="btn btn-info mi-btn-refresh-avatar">Refresh</button></td><td class="compact"><button type="button" class="btn btn-danger mi-btn-delete-avatar">Delete</button></td></tr>')
+					$('<tr data-player="' + data[i].name + '"><td class="compact"><img class="mi-avatar" src="/api/minecraft-integration/avatar/' + data[i].name + '/64" width="40px" height="40px"></td><td class="compact" style="vertical-align: middle;">' + data[i].name + '</td><td class="no-break">' + formatUuid(data[i].id) + '</td><td class="compact squish"><button type="button" class="btn btn-info mi-btn-refresh-avatar">Refresh</button></td><td class="compact"><button type="button" class="btn btn-danger mi-btn-delete-avatar">Delete</button></td></tr>')
 				);
 			}
 		});

@@ -9,7 +9,7 @@ MinecraftIntegration = { templates: { }, avatars: { } };
 	console.log("Loading Minecraft Integration...");
 
 	// TODO: Add config var.
-	MinecraftIntegration.debug = false;
+	//MinecraftIntegration.debug = false;
 
 	MinecraftIntegration.log = function (memo, object) {
 
@@ -52,6 +52,10 @@ MinecraftIntegration = { templates: { }, avatars: { } };
 	}
 	$(window).on('action:posts.loaded',          addPrefixes);
 	$(window).on('action:ajaxify.contentLoaded', addPrefixes);
+
+	function getAvatarUrl(name) {
+		return "/api/minecraft-integration/avatar/" + name + "/64";
+	}
 
 	MinecraftIntegration.getTemplate = function (template, callback) {
 		if (MinecraftIntegration.templates[template]) {
@@ -175,50 +179,50 @@ MinecraftIntegration = { templates: { }, avatars: { } };
 				data.players.forEach(function (player) {
 
 					var found = false;
+					var $avatars = $();
 
 					$widget.find('.mi-avatar').each(function () {
 						var $avatar = $(this);
 
 						if ($avatar.data('uuid') === player.id) {
+							$avatars = $avatars.add($avatar);
 							found = true;
 						}
 					});
 
 					if (!found) {
 
-						socket.emit('plugins.MinecraftIntegration.getAvatar', {name: player.name}, function (err, avatar) {
+						var $avatar = $(avatarTemplate
+						.replace("{url}", getAvatarUrl(player.name))
+						.replace("{players.name}", player.name)
+						.replace("{name}", player.name)
+						.replace("{styleGlory}", "")
+						.replace("{players.glory}", ""));
 
-							if (err) return MinecraftIntegration.log(err);
-							if (!avatar) return MinecraftIntegration.log("No avatar found for " + player.name);
+						$avatar.css("display", "none");
+						$avatar.data('uuid', player.id);
 
-							var html = avatarTemplate
-							.replace("{url}", "data:image/png;base64," + avatar)
-							.replace("{players.name}", player.name)
-							.replace("{name}", player.name)
-							.replace("{styleGlory}", "")
-							.replace("{players.glory}", "");
+						$avatar.appendTo($widget.find('.mi-avatars'));
 
-							var $avatar = $(html);
+						// Wrap avatar in profile link if user is registered.
+						wrapAvatar($avatar);
 
-							$avatar.css("display", "none");
-							$avatar.data('uuid', player.id);
+						$avatars = $avatars.add($avatar);
 
-							$avatar.appendTo($widget.find('.mi-avatars'));
-
-							// Wrap avatar in profile link if user is registered.
-							wrapAvatar($avatar);
-
-							$avatar.fadeToggle(600, 'linear');
-
-							// Set avatar borders if complete.
-							if (!--pendingPlayers) MinecraftIntegration.setAvatarBorders($widget);
-
+						$avatar.load(function(){
+							if (!--pendingPlayers) {
+								$avatars.fadeIn(600, 'linear');
+								MinecraftIntegration.setAvatarBorders($widget);
+							}
 						});
 
 					}else{
 
 						// Set avatar borders if complete.
-						if (!--pendingPlayers) MinecraftIntegration.setAvatarBorders($widget);
+						if (!--pendingPlayers) {
+							$avatars.fadeIn(600, 'linear');
+							MinecraftIntegration.setAvatarBorders($widget);
+						}
 
 					}
 
@@ -318,40 +322,36 @@ MinecraftIntegration = { templates: { }, avatars: { } };
 				var $widget = $(this);
 
 				// Add the player only if they are not already listed.
+				var found = false;
 				$widget.find('.mi-avatar').each(function(){
-					if ($(this).data('uuid') === player.id) return;
+					if ($(this).data('uuid') === player.id) return found = true;
 				});
+				if (found) return;
 
-				socket.emit('plugins.MinecraftIntegration.getAvatar', {name: player.name}, function (err, avatar) {
+				var $avatar = $(avatarTemplate
+				.replace("{url}", getAvatarUrl(player.name))
+				.replace("{players.name}", player.name)
+				.replace("{name}", player.name)
+				.replace("{styleGlory}", "")
+				.replace("{players.glory}", ""));
 
-					if (err) return MinecraftIntegration.log(err);
-					if (!avatar) return MinecraftIntegration.log("No avatar found for " + player.name);
+				$avatar.css("display", "none");
+				$avatar.data('uuid', player.id);
 
-					var html = avatarTemplate
-					.replace("{url}", "data:image/png;base64," + avatar)
-					.replace("{players.name}", player.name)
-					.replace("{name}", player.name)
-					.replace("{styleGlory}", "")
-					.replace("{players.glory}", "");
+				$avatar.appendTo($widget.find('.mi-avatars'));
 
-					var $avatar = $(html);
+				// Wrap avatar in profile link if user is registered.
+				wrapAvatar($avatar);
 
-					$avatar.css("display", "none");
-					$avatar.data('uuid', player.id);
+				$avatar.load(function(){
 
-					$avatar.appendTo($widget.find('.mi-avatars'));
-
-					// Wrap avatar in profile link if user is registered.
-					wrapAvatar($avatar);
-
-					$avatar.fadeToggle(600, 'linear');
-
+					$avatar.fadeIn(600, 'linear');
 					MinecraftIntegration.setAvatarBorders($widget);
 
-				});
+					// Update player count.
+					$widget.find(".online-players").text(parseInt($widget.find(".online-players").text(), 10) + 1);
 
-				// Update player count.
-				$widget.find(".online-players").text(parseInt($widget.find(".online-players").text(), 10) + 1);
+				});
 
 			});
 
