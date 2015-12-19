@@ -1,18 +1,21 @@
 "use strict";
 
-var	MinecraftIntegration = module.exports = {
-		Widgets: require('./lib/widgets'),
-		Hooks: require('./lib/hooks')
-	},
+var	Admin   = require('./lib/admin')
+,	API     = require('./lib/api')
+,	Backend = require('./lib/backend')
+,	Config  = require('./lib/config')
+,	NodeBB  = require('./lib/nodebb')
+,	Utils   = require('./lib/utils')
+,	Updater = require('./lib/updater')
+,	Views   = require('./lib/views')
 
-	Admin   = require('./lib/admin'),
-	API     = require('./lib/api'),
-	Backend = require('./lib/backend'),
-	Config  = require('./lib/config'),
-	NodeBB  = require('./lib/nodebb'),
-	Utils   = require('./lib/utils'),
-	Updater = require('./lib/updater'),
-	Views   = require('./lib/views');
+,	MinecraftIntegration = module.exports =
+{
+	Widgets: require('./lib/widgets'),
+	Hooks: require('./lib/hooks')
+}
+
+NodeBB.emitter.once('nodebb:ready', Views.modifyTemplates);
 
 MinecraftIntegration.load = function (params, next) {
 
