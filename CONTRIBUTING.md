@@ -1,1 +1,0 @@
-To get started, <a href="https://www.clahub.com/agreements/yariplus/nodebb-widget-minecraft-essentials">sign the Contributor License Agreement</a>. 
