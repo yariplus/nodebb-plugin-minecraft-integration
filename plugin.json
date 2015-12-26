@@ -8,6 +8,7 @@
 		"public/less/style.less"
 	],
 	"scripts": [
+		"public/js/vendor/moment.min.js",
 		"public/js/client.js"
 	],
 	"hooks": [

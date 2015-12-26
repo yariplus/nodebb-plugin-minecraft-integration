@@ -148,6 +148,12 @@ MinecraftIntegration = { templates: { } };
 				// Re-wrap
 				$widget = $($widget);
 
+				// Update Icon Time
+				var	updateTime = data.updateTime || Date.now();
+				$widget.find(".mc-statusicon")
+					.attr('data-original-title', moment(parseInt(updateTime, 10)).format('MMM Do h:mma'))
+					.attr('data-title', moment(parseInt(updateTime, 10)).format('MMM Do h:mma'));
+
 				// Loop avatars and remove players no longer on the server.
 				$widget.find('.mi-avatar').each(function (i, el) {
 
@@ -418,8 +424,6 @@ MinecraftIntegration = { templates: { } };
 			.text("Offline");
 			$widget.find(".mc-playercount").hide();
 		}
-
-		$widget.find(".mc-statusicon").attr('data-original-title', data.updateTime ? "Last pinged at " + data.updateTime : "");
 	});
 
 	socket.on('mi.PlayerChat', function (data) {
