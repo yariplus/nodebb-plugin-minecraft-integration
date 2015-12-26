@@ -100,9 +100,8 @@
 					</span>
 				</td>
 				<td>
-					<span style="color:{colorText}">
-						{address} <!-- IF showIP -->[{host}<!-- IF port -->:{port}<!-- ENDIF port --><!-- ENDIF showIP --><!-- IF showIP -->]<!-- ENDIF showIP -->
-					</span>
+					<span class="mi-serveraddress" style="color:{colorText}">{address}</span>
+					<i class="fa fa-copy mi-serveraddresscopy" data-clipboard-action="copy" data-clipboard-text="{address}"></i>
 				</td>
 			</tr>
 

@@ -847,6 +847,29 @@ MinecraftIntegration = { templates: { } };
 
 		});
 
+		require(['https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.5/clipboard.min.js'], function (Clipboard)
+		{
+			var	clipboard = new Clipboard('.mi-serveraddresscopy');
+
+			$('.mi-serveraddresscopy')
+				.mouseout(function () {
+					$(this).tooltip('destroy');
+					$(this).removeClass('mi-highlight');
+					$(this).prev().removeClass('mi-highlight');
+				})
+				.mouseenter(function () {
+					$(this).addClass('mi-highlight');
+					console.log($(this).parent().find('.mi-serveraddress'));
+					$(this).prev().addClass('mi-highlight');
+				})
+				.removeClass('hide');
+
+			clipboard.on('success', function(e) {
+				e.clearSelection();
+				$(e.trigger).tooltip({title:'Copied!',placement:'bottom'});
+				$(e.trigger).tooltip('show');
+			});
+		});
 	});
 
 	$(window).on('action:ajaxify.end', function (event, url) {
