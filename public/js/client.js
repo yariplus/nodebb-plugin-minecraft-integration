@@ -114,8 +114,8 @@ MinecraftIntegration = { templates: { } };
 	function wrapAvatar($avatar) {
 		if (!$avatar.parent().is('a')) {
 			socket.emit('plugins.MinecraftIntegration.getRegisteredUser', {id: $avatar.data('uuid')}, function (err, userData) {
-				if (!err && userData && userData.username) {
-					$avatar.wrap('<a href="/user/' + userData.username + '"></a>');
+				if (!err && userData && userData.userslug) {
+					$avatar.wrap('<a href="/user/' + userData.userslug + '"></a>');
 				}else{
 					$avatar.wrap('<a></a>');
 				}
