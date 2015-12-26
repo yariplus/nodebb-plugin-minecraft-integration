@@ -37,6 +37,7 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 			$('[name=custom-cdn]').val(settings.cfg._.customCDN);
 			$('[name=avatarSize]').val(settings.cfg._.avatarSize);
 			$('[name=avatarStyle]').val(settings.cfg._.avatarStyle);
+			$('[name=debug]').prop('checked', parseInt(settings.cfg._.debug, 10));
 		}
 
 		function validateAll(e) {
@@ -156,8 +157,73 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 
 			MinecraftIntegration.log("Adding buttons");
 
-			$form.on('click', '.fa-times', function (e) {
+			// Servers
+			$tabServers.on('click', '#mia-add-server', function (e) {
+				addServer();
+			}).on('click', '.save', function (e) {
+
+				if (!validateAll()) return;
+
+				var $server = $(this).closest('.panel');
+
+				var config = {
+					name        : $server.find('[name=name]').val(),
+					address     : $server.find('[name=address]').val(),
+					APIKey      : $server.find('[name=api-key]').val(),
+					hidePlugins : $server.find('[name=hide-plugins]').is(':checked') ? 1 : 0
+				};
+
+				socket.emit('admin.MinecraftIntegration.setServerConfig', {sid: $server.attr('data-sid'), config: config}, function (err) {
+					if (err) {
+						app.alertError(err);
+					}else{
+						app.alertSuccess("Saved settings for " + config.name);
+						MinecraftIntegration.log("Save settings", config);
+					}
+				});
+			}).on('focus', '.form-control', function() {
+				var parent = $(this).closest('.input-row');
+
+				$('.input-row.active').removeClass('active');
+				parent.addClass('active').removeClass('error');
+
+				var help = parent.find('.help-text');
+				help.html(help.attr('data-help'));
+			}).on('blur change', '[name]', function() {
+				// activate($(this).attr('name'), $(this));
+			}).on('input', '[name="name"]', function() {
+				var $this = $(this), $server = $this.closest('.panel'), serverNum = $server.data('server-num');
+				$server.find('a').first().text($this.val() || 'A Minecraft Server ' + sid);
+			}).on('click', '.regen-key', function (e) {
+				regenKey($(this).closest('.input-row').find('input'));
+			}).on('click', '.fa-times', function (e) {
 				// toggleServer($(e.target).closest('.panel').data('server-num'));
+			});
+
+			// Settings
+			$tabSettings.on('click', '.save', function (e) {
+				e.preventDefault();
+				if (!validateAll()) return;
+
+				settings.cfg._.avatarCDN   = $('[name=avatarCDN]').val()   || "mojang";
+				settings.cfg._.customCDN   = $('[name=custom-cdn]').val()  || "";
+				settings.cfg._.avatarSize  = $('[name=avatarSize]').val()  || "40";
+				settings.cfg._.avatarStyle = $('[name=avatarStyle]').val() || "flat";
+				settings.cfg._.debug       = $('[name=debug]').prop( "checked" ) ? 1 : 0;
+
+				settings.helper.persistSettings('minecraft-integration', settings.cfg, true, function(){
+					socket.emit('admin.settings.syncMinecraftIntegration');
+				});
+			}).on('focus', '.form-control', function() {
+				var parent = $(this).closest('.input-row');
+
+				$('.input-row.active').removeClass('active');
+				parent.addClass('active').removeClass('error');
+
+				var help = parent.find('.help-text');
+				help.html(help.attr('data-help'));
+			}).on('blur change', '[name]', function() {
+				// activate($(this).attr('name'), $(this));
 			}).on('click', '#mia-delete', function (e) {
 				bootbox.confirm('Are you sure?<p class="text-danger strong">This will delete all data from all Minecraft servers.</p>', function(result) {
 					if (result) {
@@ -208,7 +274,20 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 						$name.fadeIn(600);
 					});
 				});
-			}).on('click', '#mi-btn-reset-avatars', function (e) {
+			});
+
+			// Users
+			$tabUsers.on('click', '.mi-btn-delete-user', function (e) {
+				var	$this = $(this).closest('tr');
+
+				socket.emit('admin.MinecraftIntegration.deleteUser', {uid: $this.attr('data-uid')}, function (err) {
+					if (err) return MinecraftIntegration.log(err);
+					$this.fadeOut(600, $this.remove);
+				});
+			})
+
+			// Maintenance
+			$tabMaintenance.on('click', '#mi-btn-reset-avatars', function (e) {
 				bootbox.confirm("Are you sure?<br/><br/>This will remove all avatars from the database.", function (result) {
 					if (result) {
 						socket.emit('admin.MinecraftIntegration.resetCachedAvatars', { }, function () {
@@ -220,70 +299,6 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 						});
 					}
 				});
-			});
-
-			// Users
-			$tabUsers.on('click', '.mi-btn-delete-user', function (e) {
-				var	$this = $(this).closest('tr');
-
-				socket.emit('admin.MinecraftIntegration.deleteUser', {uid: $this.attr('data-uid')}, function (err) {
-					if (err) return MinecraftIntegration.log(err);
-					$this.fadeOut(600, $this.remove);
-				});
-			}).on('click', '.save', function (e) {
-				e.preventDefault();
-				if (!validateAll()) return;
-
-				settings.cfg._.avatarCDN   = $('[name=avatarCDN]').val()   || "mojang";
-				settings.cfg._.customCDN   = $('[name=custom-cdn]').val()  || "";
-				settings.cfg._.avatarSize  = $('[name=avatarSize]').val()  || "40";
-				settings.cfg._.avatarStyle = $('[name=avatarStyle]').val() || "flat";
-
-				settings.helper.persistSettings('minecraft-integration', settings.cfg, true, function(){
-					socket.emit('admin.settings.syncMinecraftIntegration');
-				});
-			});
-
-			// Servers
-			$tabServers.on('click', '#mia-add-server', function (e) {
-				addServer();
-			}).on('click', '.save', function (e) {
-
-				if (!validateAll()) return;
-
-				var $server = $(this).closest('.panel');
-
-				var config = {
-					name        : $server.find('[name=name]').val(),
-					address     : $server.find('[name=address]').val(),
-					APIKey      : $server.find('[name=api-key]').val(),
-					hidePlugins : $server.find('[name=hide-plugins]').is(':checked') ? 1 : 0
-				};
-
-				socket.emit('admin.MinecraftIntegration.setServerConfig', {sid: $server.attr('data-sid'), config: config}, function (err) {
-					if (err) {
-						app.alertError(err);
-					}else{
-						app.alertSuccess("Saved settings for " + config.name);
-						MinecraftIntegration.log("Save settings", config);
-					}
-				});
-
-			}).on('focus', '.form-control', function() {
-				var parent = $(this).closest('.input-row');
-
-				$('.input-row.active').removeClass('active');
-				parent.addClass('active').removeClass('error');
-
-				var help = parent.find('.help-text');
-				help.html(help.attr('data-help'));
-			}).on('blur change', '[name]', function() {
-				//activate($(this).attr('name'), $(this));
-			}).on('input', '[name="name"]', function() {
-				var $this = $(this), $server = $this.closest('.panel'), serverNum = $server.data('server-num');
-				$server.find('a').first().text($this.val() || 'A Minecraft Server ' + sid);
-			}).on('click', '.regen-key', function (e) {
-				regenKey($(this).closest('.input-row').find('input'));
 			});
 		}
 

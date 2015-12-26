@@ -71,6 +71,22 @@
 							<button type="button" class="save btn btn-success">Save Settings</button>
 						</div>
 
+						<br><br>
+
+						<div class="row input-row">
+							<div class="col-sm-7 col-xs-12 input-field">
+								<label class="control-label">
+									<input name="debug" class="form-control" type="checkbox">
+									Debug Mode
+								</label>
+							</div>
+							<div class="col-sm-5 help-text" data-help="This will log a huge amount of data from the plugin."></div>
+						</div>
+
+						<div>
+							<button type="button" class="save btn btn-success">Save Settings</button>
+						</div>
+
 					</form>
 
 				</div>

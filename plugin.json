@@ -26,10 +26,11 @@
 		{ "hook": "filter:widget.render:mi-top-graph",     "method": "Widgets.renderTopGraph" },
 		{ "hook": "filter:widget.render:mi-top-list",      "method": "Widgets.renderTopList" },
 		{ "hook": "filter:widget.render:mi-tps-graph",     "method": "Widgets.renderTPSGraph" },
-		{ "hook": "filter:topic.build",                    "method": "Hooks.filter.topic.build"},
-		{ "hook": "filter:post.getPosts",                  "method": "Hooks.filter.post.getPosts"},
-		{ "hook": "filter:post.get",                       "method": "Hooks.filter.post.get"},
-		{ "hook": "filter:user.account",                   "method": "Hooks.filter.user.account"}
+		{ "hook": "filter:topic.build",                    "method": "Hooks.filter.topic.build" },
+		{ "hook": "filter:post.getPosts",                  "method": "Hooks.filter.post.getPosts" },
+		{ "hook": "filter:post.get",                       "method": "Hooks.filter.post.get" },
+		{ "hook": "filter:user.account",                   "method": "Hooks.filter.user.account" },
+		{ "hook": "filter:config.get",                     "method": "Hooks.filter.config.get" }
 	],
 	"templates": "./public/templates",
 	"staticDirs": {

@@ -10,10 +10,10 @@ var	Admin   = require('./lib/admin')
 ,	Views   = require('./lib/views')
 
 ,	MinecraftIntegration = module.exports =
-{
-	Widgets: require('./lib/widgets'),
-	Hooks: require('./lib/hooks')
-}
+	{
+		Widgets: require('./lib/widgets'),
+		Hooks: require('./lib/hooks')
+	};
 
 NodeBB.emitter.once('nodebb:ready', Views.modifyTemplates);
 
