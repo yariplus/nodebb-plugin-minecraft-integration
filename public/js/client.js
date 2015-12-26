@@ -1,5 +1,5 @@
 // Global
-MinecraftIntegration = { templates: { }, avatars: { } };
+MinecraftIntegration = { templates: { } };
 
 // TODO: This still needs a ton of work.
 (function(){
@@ -8,12 +8,9 @@ MinecraftIntegration = { templates: { }, avatars: { } };
 
 	console.log("Loading Minecraft Integration...");
 
-	// TODO: Add config var.
-	//MinecraftIntegration.debug = false;
-
 	MinecraftIntegration.log = function (memo, object) {
 
-		if (!MinecraftIntegration.debug) return;
+		if (!(config.MinecraftIntegration && config.MinecraftIntegration.debug)) return;
 
 		if (typeof memo === 'object') {
 			console.dir(memo);
@@ -161,10 +158,12 @@ MinecraftIntegration = { templates: { }, avatars: { } };
 					for (var i in data.players) {
 						if (data.players[i].id && data.players[i].name) {
 							if ($avatar.data('uuid') === data.players[i].id) return;
+							MinecraftIntegration.log("Kept " + data.players[i].name);
 						}
 					}
 
 					// Otherwise, fade it out.
+					MinecraftIntegration.log("Fading " + $avatar.attr('data-original-title'));
 					if ($avatar.parent().is('a')) $avatar = $avatar.parent();
 					$avatar.fadeToggle(600, 'linear', function () {
 						$avatar.remove();
@@ -179,14 +178,13 @@ MinecraftIntegration = { templates: { }, avatars: { } };
 				data.players.forEach(function (player) {
 
 					var found = false;
-					var $avatars = $();
 
 					$widget.find('.mi-avatar').each(function () {
 						var $avatar = $(this);
 
 						if ($avatar.data('uuid') === player.id) {
-							$avatars = $avatars.add($avatar);
 							found = true;
+							MinecraftIntegration.log("Found " + player.name);
 						}
 					});
 
@@ -207,23 +205,14 @@ MinecraftIntegration = { templates: { }, avatars: { } };
 						// Wrap avatar in profile link if user is registered.
 						wrapAvatar($avatar);
 
-						$avatars = $avatars.add($avatar);
-
 						$avatar.load(function(){
-							if (!--pendingPlayers) {
-								$avatars.fadeIn(600, 'linear');
-								MinecraftIntegration.setAvatarBorders($widget);
-							}
+							MinecraftIntegration.log("Fading in " + player.name);
+							$avatar.fadeIn(600, 'linear');
+							if (!--pendingPlayers) MinecraftIntegration.setAvatarBorders($widget);
 						});
-
 					}else{
-
 						// Set avatar borders if complete.
-						if (!--pendingPlayers) {
-							$avatars.fadeIn(600, 'linear');
-							MinecraftIntegration.setAvatarBorders($widget);
-						}
-
+						if (!--pendingPlayers) MinecraftIntegration.setAvatarBorders($widget);
 					}
 
 				});
