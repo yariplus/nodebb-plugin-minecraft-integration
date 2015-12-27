@@ -73,7 +73,7 @@ define(function(){
 
 			title = title.replace(/\{\{motd\}\}/g, $panel.data('motd') || $panel.find('[name="sid"]').val());
 			title = title.replace(/\{\{name\}\}/g, $panel.data('name'));
-			title = title.replace(/[??&][0123456789abcdefklmnorABCDEFKLMNOR]/g, '');
+			title = title.replace(/(\\u00A7|[§&])[0123456789abcdefklmnorABCDEFKLMNOR]/g, '');
 
 			$title.html($title.text().split(' - ')[0] + ' - ' + title);
 		}
