@@ -1,3 +1,3 @@
-<div class="mi-container" data-widget="mi-players-graph" data-sid="{sid}" data-chart-color-fill="{chartColorFill}">
-    <canvas id="canvasOnlinePlayers{sid}" data-height-ratio="3" class="mi-canvas"></canvas>
+<div class="mi-container mi-chart-wrapper" data-widget="mi-players-graph" data-sid="{sid}" data-chart-color-fill="{chartColorFill}" data-ratio="short">
+    <div id="canvasOnlinePlayers{sid}" class="mi-chart"></div>
 </div>
