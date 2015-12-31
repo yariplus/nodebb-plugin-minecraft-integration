@@ -718,7 +718,7 @@ MinecraftIntegration = { templates: { } };
 
 				var i = 0;
 				for	(var stamp in pings) {
-					data.addRow(humanTime(stamp), pings[stamp].tps]);
+					data.addRow([humanTime(stamp), pings[stamp].tps]);
 				}
 
 				var options = {
