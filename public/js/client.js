@@ -435,6 +435,13 @@ MinecraftIntegration = { templates: { } };
 		});
 	});
 
+	function onPlayerVotes(data)
+	{
+		MinecraftIntegration.log(data);
+	}
+
+	socket.on('mi.PlayerVotes', onPlayerVotes);
+
 	define('admin/plugins/minecraft-integration', function () {
 		MinecraftIntegration.init = function () {
 			require([MinecraftIntegration.__MIDIR + 'js/acp.js'], function (miACP) {
