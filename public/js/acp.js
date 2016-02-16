@@ -1,4 +1,4 @@
-define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/validator.min.js"], function (settings, translator, validator) {
+define(['settings', 'translator', MinecraftIntegration.staticDir + "js/vendor/validator.min.js"], function (settings, translator, validator) {
 
 	"use strict";
 
@@ -350,7 +350,7 @@ define(['settings', 'translator', MinecraftIntegration.__MIDIR + "js/vendor/vali
 			MinecraftIntegration.log('Servers recieved');
 			MinecraftIntegration.log(servers);
 
-			$.get(MinecraftIntegration.__MIDIR + '/templates/admin/plugins/server.tpl' + "?v=" + config['cache-buster'], function(template) {
+			$.get(MinecraftIntegration.staticDir + '/templates/admin/plugins/server.tpl' + "?v=" + config['cache-buster'], function(template) {
 				translator.translate(template, function (translatedTemplate) {
 					$serverTemplate = $($.parseHTML(translatedTemplate));
 					servers.forEach(addServer);

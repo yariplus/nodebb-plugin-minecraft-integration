@@ -1,14 +1,6 @@
 // Global
-MinecraftIntegration = { templates: { } };
-
-// TODO: This still needs a ton of work.
-(function(){
-
-	"use strict";
-
-	console.log("Loading Minecraft Integration...");
-
-	MinecraftIntegration.log = function (memo, object) {
+MinecraftIntegration = {
+	log: function (memo, object) {
 
 		if (!(config.MinecraftIntegration && config.MinecraftIntegration.debug)) return;
 
@@ -18,9 +10,17 @@ MinecraftIntegration = { templates: { } };
 			console.log("[Minecraft Integration] " + memo);
 			if (object) console.dir(object);
 		}
-	};
+	},
+	staticDir: "/plugins/nodebb-plugin-minecraft-integration/public/",
+	templates: { }
+};
 
-	MinecraftIntegration.__MIDIR = "/plugins/nodebb-plugin-minecraft-integration/public/";
+// TODO: This still needs a ton of work.
+(function(){
+
+	"use strict";
+
+	console.log("Loading Minecraft Integration...");
 
 	// Vault Prefixes
 	function addPrefix($el, prefix) {
@@ -59,7 +59,7 @@ MinecraftIntegration = { templates: { } };
 			callback(null, MinecraftIntegration.templates[template]);
 		}else{
 			MinecraftIntegration.log("Getting template: " + template);
-			$.get(MinecraftIntegration.__MIDIR + "templates/" + template + "?v=" + config['cache-buster'], function(data) {
+			$.get(MinecraftIntegration.staticDir + "templates/" + template + "?v=" + config['cache-buster'], function(data) {
 				MinecraftIntegration.templates[template] = data;
 				MinecraftIntegration.log("Got template: " + MinecraftIntegration.templates[template]);
 				callback(null, data);
@@ -454,14 +454,28 @@ MinecraftIntegration = { templates: { } };
 
 	socket.on('mi.PlayerVotes', onPlayerVotes);
 
+	// DEPRECIATED: 0.9.x Compat
 	define('admin/plugins/minecraft-integration', function () {
 		MinecraftIntegration.init = function () {
-			require([MinecraftIntegration.__MIDIR + 'js/acp.js'], function (miACP) {
+			require([MinecraftIntegration.staticDir + 'js/acp.js'], function (miACP) {
 				miACP.load();
 			});
 		};
 
 		return MinecraftIntegration;
+	});
+
+	$(window).on('action:ajaxify.end', function (event, url) {
+
+		url = url.url.split('?')[0].split('#')[0];
+
+		switch (url) {
+			case 'admin/extend/widgets':
+				require([MinecraftIntegration.staticDir + 'js/acp-widgets.js'], function (module) {
+					module.init();
+				});
+				break;
+		}
 	});
 
 	$(document).ready(function() {
@@ -536,7 +550,7 @@ MinecraftIntegration = { templates: { } };
 	$(window).on('action:widgets.loaded', function (event) {
 
 		// Requires
-		require([MinecraftIntegration.__MIDIR + 'js/vendor/rainbowvis.js'], function () {
+		require([MinecraftIntegration.staticDir + 'js/vendor/rainbowvis.js'], function () {
 
 			// Find servers to be setup.
 			var sids = [ ];
@@ -646,19 +660,6 @@ MinecraftIntegration = { templates: { } };
 				$(e.trigger).tooltip('show');
 			});
 		});
-	});
-
-	$(window).on('action:ajaxify.end', function (event, url) {
-
-		url = url.url.split('?')[0].split('#')[0];
-
-		switch (url) {
-			case 'admin/extend/widgets':
-				require([MinecraftIntegration.__MIDIR + 'js/acp-widgets.js'], function (module) {
-					module.init();
-				});
-				break;
-		}
 	});
 
 	function humanTime(stamp)

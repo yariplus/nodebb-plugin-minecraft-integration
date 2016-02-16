@@ -67,16 +67,10 @@
 							<div class="col-sm-5 help-text" data-help="[[mi:help_avatar_style]]"></div>
 						</div>
 
-						<div>
-							<button type="button" class="save btn btn-success">Save Settings</button>
-						</div>
-
-						<br><br>
-
 						<div class="row input-row">
 							<div class="col-sm-7 col-xs-12 input-field">
 								<label class="control-label">
-									<input name="debug" class="form-control" type="checkbox">
+									<input name="debug" class="" type="checkbox" style="width:16px;height:16px;">
 									Debug Mode
 								</label>
 							</div>

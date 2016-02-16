@@ -42,7 +42,7 @@
         <div class="row input-row">
             <div class="col-sm-7 col-xs-12 input-field">
                 <label class="control-label">
-                    <input name="hide-plugins" class="form-control" type="checkbox">
+                    <input name="hide-plugins" class="" type="checkbox" style="width:16px;height:16px;">
                     Hide Plugins
                 </label>
             </div>
