@@ -197,7 +197,14 @@ define(['settings', 'translator', MinecraftIntegration.staticDir + "js/vendor/va
 			}).on('click', '.regen-key', function (e) {
 				regenKey($(this).closest('.input-row').find('input'));
 			}).on('click', '.fa-times', function (e) {
-				// toggleServer($(e.target).closest('.panel').data('server-num'));
+				var $this = $(this), $server = $this.closest('.panel'), sid = $server.attr('data-sid'), name = $server.find('[name="name"]').val();
+				bootbox.confirm('<p>Are you sure?</p><p class="strong">This will delete all data from ' + name + ' (SID:'+sid+').</p><p class="text-danger strong">This cannot be undone.</p>', function(result) {
+					if (result) {
+						socket.emit('admin.MinecraftIntegration.deleteServer', {sid: sid}, function (err) {
+							if (!err) $server.remove();
+						});
+					}
+				});
 			});
 
 			// Settings
