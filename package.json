@@ -1,38 +1,38 @@
 {
-	"name": "nodebb-plugin-minecraft-integration",
-	"version": "0.7.0-beta.2",
-	"description": "NodeBB plugin to integrate your forum with your Minecraft Server using widgets, user syncing, group/rank syncing, sso, bukkit/bungeecord/sponge communication, and more.",
-	"main": "library.js",
-	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/yariplus/nodebb-plugin-minecraft-integration"
-	},
-	"keywords": [
-		"nodebb",
-		"plugin",
-		"widget",
-		"minecraft"
-	],
-	"author": {
-		"name": "yariplus",
-		"email": "tafike@gmail.com"
-	},
-	"license": "(CC0 OR MIT)",
-	"bugs": {
-		"url": "https://github.com/yariplus/nodebb-plugin-minecraft-integration/issues"
-	},
-	"readme": "",
-	"readmeFilename": "README.md",
-	"dependencies": {
-		"async": "*",
-		"jimp": "*",
-		"validator": "^4.2.1"
-	},
-	"nbbpm": {
-		"compatibility": "^0.8.0 || ^0.9.0 || ^1.0.0"
-	},
-	"homepage": "https://github.com/yariplus/nodebb-plugin-minecraft-integration"
+  "name": "nodebb-plugin-minecraft-integration",
+  "version": "0.7.0-beta.3",
+  "description": "NodeBB plugin to integrate your forum with your Minecraft Server using widgets, user syncing, group/rank syncing, sso, bukkit/bungeecord/sponge communication, and more.",
+  "main": "library.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yariplus/nodebb-plugin-minecraft-integration"
+  },
+  "keywords": [
+    "nodebb",
+    "plugin",
+    "widget",
+    "minecraft"
+  ],
+  "author": {
+    "name": "yariplus",
+    "email": "tafike@gmail.com"
+  },
+  "license": "(CC0 OR MIT)",
+  "bugs": {
+    "url": "https://github.com/yariplus/nodebb-plugin-minecraft-integration/issues"
+  },
+  "readme": "",
+  "readmeFilename": "README.md",
+  "dependencies": {
+    "async": "*",
+    "jimp": "*",
+    "validator": "^4.2.1"
+  },
+  "nbbpm": {
+    "compatibility": "^0.8.0 || ^0.9.0 || ^1.0.0"
+  },
+  "homepage": "https://github.com/yariplus/nodebb-plugin-minecraft-integration"
 }
