@@ -353,7 +353,10 @@ MinecraftIntegration = { templates: { } };
 		});
 	};
 
+	// Remove a single player from widgets.
 	MinecraftIntegration.removePlayer = function (data) {
+
+		// TODO: Better selectors.
 		$('[data-sid="' + data.sid + '"]').each(function (i, el) {
 			var $widget = $(el);
 
@@ -361,8 +364,14 @@ MinecraftIntegration = { templates: { } };
 				case 'mi-status':
 				case 'mi-players-grid':
 
-					// Remove players no longer on the server.
+					// Store if the player is actually on the list.
+					var found = false;
+
+					// Remove the player who is no longer on the server.
 					$widget.find('.mi-avatar').each(function (i, el) {
+
+						found = true;
+
 						var $avatar = $(el);
 
 						if ($avatar.data('uuid') !== data.player.id) return;
@@ -374,8 +383,11 @@ MinecraftIntegration = { templates: { } };
 						});
 					});
 
-					$widget.find(".online-players").text(parseInt($widget.find(".online-players").text(), 10) - 1);
+					// If they were on the list, decrease the player count.
+					if (found) $widget.find(".online-players").text(parseInt($widget.find(".online-players").text(), 10) - 1);
 
+					// Don't leave tooltips behind.
+					// TODO: Only remove MI tooltips.
 					$('.tooltip').remove();
 				break;
 			}
