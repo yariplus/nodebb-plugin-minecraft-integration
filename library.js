@@ -23,6 +23,8 @@ MinecraftIntegration.load = function (params, next) {
 	NodeBB.router     = params.router;
 	NodeBB.middleware = params.middleware;
 
+	NodeBB.app.set('json spaces', 4);
+
 	NodeBB.init();
 	API.init();
 	Views.init();
