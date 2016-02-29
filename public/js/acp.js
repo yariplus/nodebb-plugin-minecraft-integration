@@ -108,10 +108,10 @@ define(['settings', 'translator', MinecraftIntegration.staticDir + "js/vendor/va
 			$(e.delegateTarget).find('.panel-body').collapse('toggle');
 		}
 
-		// Add a server to the list.
+		// Add a server config to the list.
 		function addServer(server) {
 
-			MinecraftIntegration.log("Adding " + (server ? "" : "new ") + "server.", server ? server : null);
+			MinecraftIntegration.log("Adding " + (server ? "existing" : "new ") + "server config.", server ? server : null);
 
 			var	sid     = server ? server.sid : getNextSid(),
 				$server = $serverTemplate.clone();
@@ -128,13 +128,13 @@ define(['settings', 'translator', MinecraftIntegration.staticDir + "js/vendor/va
 				}
 			});
 
-			$server.find('a').text(server ? server.config.name : 'A Minecraft Server ' + sid);
+			$server.find('a').text(server ? server.name : 'A Minecraft Server ' + sid);
 
-			$server.find('[name="name"]').val(server    ? server.config.name    : 'A Minecraft Server ' + sid);
-			$server.find('[name="address"]').val(server ? server.config.address : '');
-			$server.find('[name="api-key"]').val(server ? server.config.APIKey  : regenKey($server.find('[name="api-key"]'), true));
+			$server.find('[name="name"]').val(server    ? server.name    : 'A Minecraft Server ' + sid);
+			$server.find('[name="address"]').val(server ? server.address : '');
+			$server.find('[name="api-key"]').val(server ? server.APIKey  : regenKey($server.find('[name="api-key"]'), true));
 
-			$server.find('[name="hide-plugins"]').prop("checked", server ? parseInt(server.config.hidePlugins, 10) : false);
+			$server.find('[name="hide-plugins"]').prop("checked", server ? parseInt(server.hidePlugins, 10) : false);
 
 			if (!server) {
 				$server.find('.panel-body').collapse('toggle');
@@ -350,11 +350,11 @@ define(['settings', 'translator', MinecraftIntegration.staticDir + "js/vendor/va
 
 		});
 
-		socket.emit('admin.MinecraftIntegration.getServersConfig', function (err, servers) {
+		socket.emit('admin.MinecraftIntegration.getServersConfig', {}, function (err, servers) {
 
 			if (err) return MinecraftIntegration.log('Error getting servers:', err);
 
-			MinecraftIntegration.log('Servers recieved');
+			MinecraftIntegration.log('Got server configurations.');
 			MinecraftIntegration.log(servers);
 
 			$.get(MinecraftIntegration.staticDir + '/templates/admin/plugins/server.tpl' + "?v=" + config['cache-buster'], function(template) {
