@@ -23,8 +23,37 @@ MinecraftIntegration = {};
 				if (!(data && data.key)) return log("Received invalid response to resetPlayerKey call.");
 
 				$('[name="player-key"]').html('key-' + data.key);
+				$('.copyPlayerKey').attr('data-clipboard-text', 'key-' + data.key);
 			});
 		});
+	});
+
+	$(window).on('action:ajaxify.end', function (event, url) {
+
+		url = url.url.split('?')[0].split('#')[0];
+
+		// Minecraft profile page.
+		if (url.match(/user\/[^\/]*\/minecraft/)) {
+
+			var key = $('[name="player-key"]').html();
+
+			$('.copyPlayerKey').attr('data-clipboard-text', key);
+
+			require(['//cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.5/clipboard.min.js'], function (Clipboard) {
+				var clipboard = new Clipboard('.copyPlayerKey');
+
+				$('.copyPlayerKey')
+					.mouseout(function () {
+						$(this).tooltip('destroy');
+					});
+
+				clipboard.on('success', function(e) {
+					e.clearSelection();
+					$(e.trigger).tooltip({title:'Copied!',placement:'bottom'});
+					$(e.trigger).tooltip('show');
+				});
+			});
+		}
 	});
 
 	$(window).on('action:widgets.loaded', function(){
