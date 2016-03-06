@@ -5,7 +5,7 @@
 		<tbody>
 			<tr>
 				<td>
-					<div name="player-key">{playerKey}</div>
+					<div name="player-key">key-{playerKey}</div>
 				</td>
 
 				<td class="compact" style="display:none;">
