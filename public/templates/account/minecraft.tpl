@@ -1,3 +1,4 @@
+<div>
 <!-- IF isSelf -->
 	<label for="player-key">Player Key</label>
 	<table class="table">
@@ -25,3 +26,5 @@ Last Online: {minecraftProfile.lastonline}<br />
 Total Playtime: {minecraftProfile.playtime}<br />
 <!-- ENDIF minecraftProfile.playtime -->
 <!-- ENDIF hide -->
+
+</div>
