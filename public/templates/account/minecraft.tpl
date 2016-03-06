@@ -5,7 +5,8 @@
 		<tbody>
 			<tr>
 				<td>
-					<div name="player-key">key-{playerKey}</div>
+					<span name="player-key">key-{playerKey}</span>
+					<div class="btn btn-default resetPlayerKey">Reset</div>
 				</td>
 
 				<td class="compact" style="display:none;">

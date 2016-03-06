@@ -16,6 +16,17 @@ MinecraftIntegration = {};
 	MinecraftIntegration.staticDir = "/plugins/nodebb-plugin-minecraft-integration/public/";
 	MinecraftIntegration.templates = { };
 
+	$(function(){
+		$('body').on('click', '.resetPlayerKey', function () {
+			socket.emit('plugins.MinecraftIntegration.resetPlayerKey', {uid: app.user.uid}, function (err, data) {
+				if (err) return log(err.message);
+				if (!(data && data.key)) return log("Received invalid response to resetPlayerKey call.");
+
+				$('[name="player-key"]').html('key-' + data.key);
+			});
+		});
+	});
+
 	$(window).on('action:widgets.loaded', function(){
 		var scripts = [
 			MinecraftIntegration.staticDir + 'js/vendor/rainbowvis.js',
