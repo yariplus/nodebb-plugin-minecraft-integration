@@ -143,6 +143,7 @@ MinecraftIntegration = {};
 				$el.find('[itemprop="author"]').prepend('<span class="prefix">' + prefix + '</span>&nbsp&nbsp');
 			}
 			function addPrefixes(event, data) {
+				if (!config.MinecraftIntegration.showPrefixes) return;
 
 				if (ajaxify.data.prefixes) {
 
@@ -618,182 +619,56 @@ MinecraftIntegration = {};
 
 			// Setup charts
 			MinecraftIntegration.setGraphs = function (status) {
-
-				if (!window.google)
-				{
-					// Require google charts.
-					require(['https://www.google.com/jsapi'], function ()
-					{
-						// Load the Visualization API and the piechart package.
-						google.load('visualization', '1.0', {'callback':'console.log();','packages':['corechart']});
-						google.setOnLoadCallback(function(){
-							setGraphs(status);
-						});
-					});
-				}
-				else
-				{
-					setGraphs(status);
-				}
+				//setGraphs(status);
 			};
 
-			function humanTime(stamp)
-			{
+			function humanTime(stamp) {
+
 				var	date     = new Date(parseInt(stamp,10))
 				,	hours    = date.getHours() < 13 ? (date.getHours() === 0 ? 12 : date.getHours()) : date.getHours() - 12
 				,	minutes  = (date.getMinutes() < 10 ? "0" : "") + date.getMinutes()
 				,	meridiem = date.getHours() < 12 ? "AM" : "PM";
 
 				return hours + ":" + minutes + " " + meridiem;
+
 			}
 
-			function setGraphs(status)
-			{
-				$('[data-widget="mi-players-graph"][data-sid="' + status.sid + '"]').each(function (i, widget)
-				{
-					var	$widget   = $(widget)
-					,	$chart    = $widget.find('.mi-chart')
-					,	chart     = $chart.data('chart')
-					,	fillColor = $widget.attr('data-chart-color-fill') ? $widget.attr('data-chart-color-fill') : "rgba(151,187,205,1)";
+			function setGraphs(status) {
+
+				$('[data-widget="mi-players-graph"][data-sid="' + status.sid + '"]').each(function (i, widget) {
+
+					var	$widget   = $(widget),
+						$chart    = $widget.find('.mi-chart'),
+						chart     = $chart.data('chart'),
+						fillColor = $widget.attr('data-chart-color-fill') ? $widget.attr('data-chart-color-fill') : "rgba(151,187,205,1)";
 
 					socket.emit('plugins.MinecraftIntegration.getRecentPings', {sid: status.sid}, function (err, pings) {
-
-						if (err) return log(err);
-
-						var	data = new google.visualization.DataTable();
-
-						data.addColumn('number', 'stamp');
-						data.addColumn('number', 'players');
-						data.addColumn({type: 'string', role: 'tooltip', 'p': {'html': true}});
-
-						var	i = 1;
-						for	(var stamp in pings) {
-							var	tooltip = '<div style="padding:2px;padding-bottom:4px;display:inline-block;max-width:'+(6*24)+';width:'+(pings[stamp].players.length*24+5)+'px;">';
-							pings[stamp].players.forEach(function(player){
-								tooltip += '<img src="/api/minecraft-integration/avatar/'+player.name+'/64" width="24px" height="24px" style="display:inline;">';
-							});
-							tooltip += '</div>';
-							data.addRow([i++, pings[stamp].players.length, tooltip]);
-						}
-
-						var options = {
-							title: '',
-							legend: { position: 'none' },
-							hAxis: { textPosition: 'none' },
-							vAxis: { textPosition: 'none' },
-							chartArea: { width: '100%', height: '90%'},
-							tooltip: {isHtml: true},
-						};
-
-						chart = new google.visualization.LineChart($chart[0]);
-
-						chart.draw(data, options);
-
-						$chart.data('chart', chart);
-						$chart.data('chart-data', data);
-						$chart.data('chart-options', options);
+						// TODO
 					});
 				});
 
-				$('[data-widget="mi-tps-graph"][data-sid="' + status.sid + '"]').each(function (i, widget)
-				{
-					var	$widget   = $(widget)
-					,	$chart    = $widget.find('.mi-chart')
-					,	chart     = $chart.data('chart')
-					,	fillColor = $widget.attr('data-chart-color-fill') ? $widget.attr('data-chart-color-fill') : "rgba(151,187,205,1)";
+				$('[data-widget="mi-tps-graph"][data-sid="' + status.sid + '"]').each(function (i, widget) {
+
+					var	$widget   = $(widget),
+						$chart    = $widget.find('.mi-chart'),
+						chart     = $chart.data('chart'),
+						fillColor = $widget.attr('data-chart-color-fill') ? $widget.attr('data-chart-color-fill') : "rgba(151,187,205,1)";
 
 					socket.emit('plugins.MinecraftIntegration.getRecentPings', {sid: status.sid}, function (err, pings) {
-
-						if (err) return log(err);
-
-						var	data = new google.visualization.DataTable();
-
-						data.addColumn('string', 'stamp');
-						data.addColumn('string', 'tps');
-
-						var i = 0;
-						for	(var stamp in pings) {
-							data.addRow([humanTime(stamp), pings[stamp].tps]);
-						}
-
-						var options = {
-							title: '',
-							legend: { position: 'none' },
-							hAxis: { textPosition: 'none' },
-							vAxis: {
-								textPosition: 'none',
-								maxValue: '20'
-								},
-							chartArea: { width: '100%', height: '90%'}
-						};
-
-						chart = new google.visualization.LineChart($chart[0]);
-
-						chart.draw(data, options);
-
-						$chart.data('chart', chart);
-						$chart.data('chart-data', data);
-						$chart.data('chart-options', options);
-
+						// TODO
 					});
 
 				});
 
 				$('[data-widget="mi-top-graph"][data-sid="' + status.sid + '"]').each(function (i, widget) {
-			/*
+
 					var	$widget = $(widget),
 						$canvas = $widget.find('.mi-canvas'),
 						chart = $canvas.data('chart');
 
 					socket.emit('plugins.MinecraftIntegration.getTopPlayersByPlaytimes', {show: 10}, function (err, players) {
-
-						if (err) return log(err);
-						if (!players.length) return;
-
-						var	data = [ ];
-
-						var rainbow = getRainbow($widget, players.length > 1 ? players.length - 1 : 1);
-
-						var options = {
-							responsive: true,
-							tooltipTemplate: "<%if (label){%><%=label%><%}%>: <%= value %>"
-						};
-
-						if (chart) {
-
-							for (var i in players) {
-
-								if (!chart.segments[i]) continue;
-
-								chart.segments[i].value = parseInt(players[i].playtime, 10);
-								chart.segments[i].label = players[i].playername || players[i].name;
-								if (rainbow) chart.segments[i].fillColor = '#' + rainbow.colourAt(i);
-
-							}
-
-							chart.update();
-
-						}else{
-
-							for (var i in players) {
-
-								var color = "#5B94DE";
-								if (rainbow) color = '#' + rainbow.colourAt(i);
-
-								data.push({
-									value: parseInt(players[i].playtime, 10),
-									color: color,
-									highlight: "#AADDFF",
-									label: players[i].playername || players[i].name
-								});
-							}
-
-							$canvas.data('chart', new Chart($canvas[0].getContext('2d')).Pie(data, options));
-
-						}
-
+						// TODO
 					});
-			*/
 				});
 			}
 		});
