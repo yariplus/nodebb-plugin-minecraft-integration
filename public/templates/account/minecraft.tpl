@@ -4,6 +4,16 @@
 	<div name="player-key">key-{playerKey}</div>
 	<div class="btn btn-primary copyPlayerKey" data-clipboard-action="copy">Copy</div>
 	<div class="btn btn-danger resetPlayerKey">Reset</div><br><br>
+
+	<label>Your linked players.</label><br>
+	<!-- IF hasPlayers -->
+	<!-- ELSE -->
+	<div>You have no players linked.</div>
+	<!-- ENDIF hasPlayers -->
+
+	<!-- BEGIN players -->
+	<p>{players.id}</p>
+	<!-- END players -->
 <!-- ENDIF isSelf -->
 
 <!-- IF hide -->

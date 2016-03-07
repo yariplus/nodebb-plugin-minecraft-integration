@@ -381,7 +381,7 @@ define(['settings', 'translator', MinecraftIntegration.staticDir + "js/vendor/va
 		}
 
 		// Populate tables.
-		socket.emit('plugins.MinecraftIntegration.getRegisteredUsers', {fields: ['picture']}, function (err, data) {
+		socket.emit('plugins.MinecraftIntegration.getUsers', {fields: ['picture']}, function (err, data) {
 			for (var i = 0; i < data.length; i++) {
 				$elTableUsers.append(
 					$('<tr data-uid="' + data[i].uid + '" data-uuid="' + data[i].yuuid + '"><td class="compact no-break"><a href="/user/' + data[i].username + '" target="_blank"><img class="userpic" src="' + data[i].picture + '" width="40px" height="40px">&nbsp;&nbsp;' + data[i].username + '</a></td><td class="compact no-break">'+ formatUuid(data[i].yuuid) + '</td><td><span class="name">' + data[i].name + '</span></td><td class="compact squish"><button type="button" class="btn btn-info mi-btn-refresh-player">Refresh</button></td><td class="compact"><button type="button" class="btn btn-danger mi-btn-delete-user">Delete</button></td></tr>')
