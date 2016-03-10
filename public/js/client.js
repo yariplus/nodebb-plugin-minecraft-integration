@@ -269,7 +269,7 @@ MinecraftIntegration = {};
 			// Wrap avatar in profile link if user is registered.
 			function wrapAvatar($avatar) {
 				if (!$avatar.parent().is('a')) {
-					socket.emit('plugins.MinecraftIntegration.getRegisteredUser', {id: $avatar.data('uuid')}, function (err, userData) {
+					socket.emit('plugins.MinecraftIntegration.getUser', {id: $avatar.data('uuid')}, function (err, userData) {
 						if (!err && userData && userData.userslug) {
 							$avatar.wrap('<a href="/user/' + userData.userslug + '"></a>');
 						}else{
