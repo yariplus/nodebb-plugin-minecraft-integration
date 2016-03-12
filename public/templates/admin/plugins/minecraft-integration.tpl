@@ -70,6 +70,16 @@
 						<div class="row input-row">
 							<div class="col-sm-7 col-xs-12 input-field">
 								<label class="control-label">
+									<input name="showPrefixes" class="" type="checkbox" style="width:16px;height:16px;">
+									Show Prefixes
+								</label>
+							</div>
+							<div class="col-sm-5 help-text" data-help="Show vault prefixes next to forum names."></div>
+						</div>
+
+						<div class="row input-row">
+							<div class="col-sm-7 col-xs-12 input-field">
+								<label class="control-label">
 									<input name="debug" class="" type="checkbox" style="width:16px;height:16px;">
 									Debug Mode
 								</label>

@@ -37,6 +37,7 @@ define(['settings', 'translator', MinecraftIntegration.staticDir + "js/vendor/va
 			$('[name=custom-cdn]').val(settings.cfg._.customCDN);
 			$('[name=avatarSize]').val(settings.cfg._.avatarSize);
 			$('[name=avatarStyle]').val(settings.cfg._.avatarStyle);
+			$('[name=showPrefixes]').prop('checked', parseInt(settings.cfg._.showPrefixes, 10));
 			$('[name=debug]').prop('checked', parseInt(settings.cfg._.debug, 10));
 		}
 
@@ -216,6 +217,7 @@ define(['settings', 'translator', MinecraftIntegration.staticDir + "js/vendor/va
 				settings.cfg._.customCDN   = $('[name=custom-cdn]').val()  || "";
 				settings.cfg._.avatarSize  = $('[name=avatarSize]').val()  || "40";
 				settings.cfg._.avatarStyle = $('[name=avatarStyle]').val() || "flat";
+				settings.cfg._.showPrefixes = $('[name=showPrefixes]').prop( "checked" ) ? 1 : 0;
 				settings.cfg._.debug       = $('[name=debug]').prop( "checked" ) ? 1 : 0;
 
 				settings.helper.persistSettings('minecraft-integration', settings.cfg, true, function(){
