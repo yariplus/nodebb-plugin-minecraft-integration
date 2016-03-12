@@ -203,8 +203,9 @@ MinecraftIntegration = {};
 					});
 				}
 			}
-			$(window).on('action:posts.loaded',          addPrefixes);
-			$(window).on('action:ajaxify.contentLoaded', addPrefixes);
+			$(window).on('action:posts.loaded', addPrefixes);
+			$(window).on('action:ajaxify.end',  addPrefixes);
+			addPrefixes();
 
 			function getAvatarUrl(name) {
 				return "/api/minecraft-integration/avatar/" + name + "/64";
