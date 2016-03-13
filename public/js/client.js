@@ -1,6 +1,10 @@
-MinecraftIntegration = {};
+;(function(){
 
-(function(){
+	"use strict";
+
+	var widgets = [];
+	var staticDir = "/plugins/nodebb-plugin-minecraft-integration/public/";
+	var templates = {};
 
 	function log(memo, object) {
 
@@ -14,8 +18,18 @@ MinecraftIntegration = {};
 		}
 	}
 
-	MinecraftIntegration.staticDir = "/plugins/nodebb-plugin-minecraft-integration/public/";
-	MinecraftIntegration.templates = { };
+	function getTemplate(template, cb) {
+
+		if (templates[template]) return cb(null, templates[template]);
+		log("Getting template: " + template);
+
+		$.get(staticDir + "templates/" + template + "?v=" + config['cache-buster'], function(templateData) {
+			log("Got template: " + templateData);
+			templates[template] = templateData;
+			cb(null, templateData);
+		});
+
+	}
 
 	$('body').on('click', '.resetPlayerKey', function () {
 		socket.emit('plugins.MinecraftIntegration.resetPlayerKey', {uid: app.user.uid}, function (err, data) {
@@ -57,7 +71,7 @@ MinecraftIntegration = {};
 
 	$(window).on('action:widgets.loaded', function(){
 		var scripts = [
-			MinecraftIntegration.staticDir + 'js/vendor/rainbowvis.js',
+			staticDir + 'js/vendor/rainbowvis.js',
 			'//cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.5/clipboard.min.js',
 			'//d3js.org/d3.v3.min.js'
 		];
@@ -102,8 +116,8 @@ MinecraftIntegration = {};
 				socket.emit('plugins.MinecraftIntegration.getServerStatus', {sid: sid}, function (err, status) {
 					if (err || !status) return log("No Status");
 					log("Got initial status", status);
-					MinecraftIntegration.setPlayers(status);
-					MinecraftIntegration.setGraphs(status);
+					setPlayers(status);
+					setGraphs(status);
 				});
 
 				var widgetsChat = $('[data-widget="mi-chat"][data-sid="' + sid + '"]');
@@ -206,47 +220,6 @@ MinecraftIntegration = {};
 			$(window).on('action:ajaxify.end',  addPrefixes);
 			addPrefixes();
 
-			function getAvatarUrl(name) {
-				return "/api/minecraft-integration/avatar/" + name + "/64";
-			}
-
-			MinecraftIntegration.getTemplate = function (template, callback) {
-				if (MinecraftIntegration.templates[template]) {
-					callback(null, MinecraftIntegration.templates[template]);
-				}else{
-					log("Getting template: " + template);
-					$.get(MinecraftIntegration.staticDir + "templates/" + template + "?v=" + config['cache-buster'], function(data) {
-						MinecraftIntegration.templates[template] = data;
-						log("Got template: " + MinecraftIntegration.templates[template]);
-						callback(null, data);
-					});
-				}
-			};
-
-			// When avatars change, render new effects.
-			MinecraftIntegration.setAvatarBorders = function ($widget) {
-
-				var	$avatars = $widget.find('.mi-avatar'),
-					$scores  = $widget.find('.score');
-
-				if ($avatars.length === 0) return;
-				if ($widget.is(':not([data-colors="on"])')) return;
-
-				var rainbow = getRainbow($widget, $avatars.length > 1 ? $avatars.length - 1 : $avatars.length);
-
-				if (!rainbow) return;
-
-				$avatars.each(function (i, el) {
-					$(el).css('border-style', $widget.attr('data-border') || 'none');
-					$(el).css('border-color', '#' + rainbow.colourAt(i));
-				});
-
-				$scores.each(function (i, el) {
-					$(el).css('color', '#' + rainbow.colourAt(i));
-				});
-
-			};
-
 			function getRainbow($widget, range) {
 
 				if (!Rainbow) return null;
@@ -265,290 +238,6 @@ MinecraftIntegration = {};
 				return rainbow;
 
 			}
-
-			// Wrap avatar in profile link if user is registered.
-			function wrapAvatar($avatar) {
-				if (!$avatar.parent().is('a')) {
-					socket.emit('plugins.MinecraftIntegration.getUser', {id: $avatar.data('uuid')}, function (err, userData) {
-						if (!err && userData && userData.userslug) {
-							$avatar.wrap('<a href="/user/' + userData.userslug + '"></a>');
-						}else{
-							$avatar.wrap('<a></a>');
-						}
-						$avatar.parent().click(function () {
-							$('.tooltip').remove();
-						});
-					});
-				}
-			}
-
-			// When a new status update is received, refresh widgets that track players.
-			// TODO: This does too many things, separate into more functions based on each task.
-			MinecraftIntegration.setPlayers = function (data) {
-
-				if (!(data && data.sid !== void 0 && Array.isArray(data.players))) {
-					log("Received invalid status data.");
-					log(data);
-					return;
-				}
-
-				MinecraftIntegration.getTemplate("partials/playerAvatars.tpl", function (err, avatarTemplate) {
-
-					if (err) return log(err);
-					if (!avatarTemplate) return log("Avatar Template was null.");
-
-					// Loop widgets with a current players display.
-					// TODO: Don't select widgets that have avatars turned off.
-					$('[data-widget="mi-status"][data-sid="' + data.sid + '"], [data-widget="mi-players-grid"][data-sid="' + data.sid + '"]').each(function (i, $widget) {
-
-						// Re-wrap
-						$widget = $($widget);
-
-						// Update Icon Time
-						var	updateTime = data.updateTime || Date.now();
-						$widget.find(".mc-statusicon")
-							.attr('data-original-title', moment(parseInt(updateTime, 10)).format('MMM Do h:mma'))
-							.attr('data-title', moment(parseInt(updateTime, 10)).format('MMM Do h:mma'));
-
-						// Loop avatars and remove players no longer on the server.
-						$widget.find('.mi-avatar').each(function (i, el) {
-
-							// Re-wrap
-							var $avatar = $(el);
-
-							// If the player's online, return.
-							for (var i in data.players) {
-								if (data.players[i].id && data.players[i].name) {
-									if ($avatar.data('uuid') === data.players[i].id) return;
-									log("Kept " + data.players[i].name);
-								}
-							}
-
-							// Otherwise, fade it out.
-							log("Fading " + $avatar.attr('data-original-title'));
-							if ($avatar.parent().is('a')) $avatar = $avatar.parent();
-							$avatar.fadeToggle(600, 'linear', function () {
-								$avatar.remove();
-							});
-
-						});
-
-						// Track number of players left to add.
-						var pendingPlayers = data.players.length;
-
-						// Add players now on the server.
-						data.players.forEach(function (player) {
-
-							var found = false;
-
-							$widget.find('.mi-avatar').each(function () {
-								var $avatar = $(this);
-
-								if ($avatar.data('uuid') === player.id) {
-									found = true;
-									log("Found " + player.name);
-								}
-							});
-
-							if (!found) {
-
-								var $avatar = $(avatarTemplate
-								.replace("{url}", getAvatarUrl(player.name))
-								.replace("{players.name}", player.name)
-								.replace("{name}", player.name)
-								.replace("{styleGlory}", "")
-								.replace("{players.glory}", ""));
-
-								$avatar.css("display", "none");
-								$avatar.data('uuid', player.id);
-
-								$avatar.appendTo($widget.find('.mi-avatars'));
-
-								// Wrap avatar in profile link if user is registered.
-								wrapAvatar($avatar);
-
-								$avatar.load(function(){
-									log("Fading in " + player.name);
-									$avatar.fadeIn(600, 'linear');
-									if (!--pendingPlayers) MinecraftIntegration.setAvatarBorders($widget);
-								});
-							}else{
-								// Set avatar borders if complete.
-								if (!--pendingPlayers) MinecraftIntegration.setAvatarBorders($widget);
-							}
-
-						});
-
-						// Set player count text.
-						$widget.find(".online-players").text(data.players.length);
-
-						var $popover;
-
-						if ($widget.attr('data-widget') === 'mi-status') {
-							$popover = $widget.find('a.fa-plug');
-							if ($popover.length && Array.isArray(data.pluginList) && data.pluginList.length) {
-								var html = '<table class="table table-plugin-list"><tbody>';
-
-								for (var i = 0; i < data.pluginList.length; i++) {
-									html += '<tr><td>' + data.pluginList[i].name + '</td></tr>';
-								}
-
-								html += '</tbody></table>';
-								$popover.attr('data-content', html);
-								$popover.popover({
-									container: 'body',
-									viewport: { selector: 'body', padding: 20 },
-									template: '<div class="popover plugin-list"><div class="arrow"></div><div class="popover-inner"><h1 class="popover-title"></h1><div class="popover-content"><p></p></div></div></div>'
-								});
-							}
-
-							$popover = $widget.find('a.fa-gavel');
-							if ($popover.length && data.modList) {
-								var html = '<table class="table table-mod-list"><tbody>';
-
-								for (var i in data.modList) {
-									html += '<tr><td>' + data.modList[i].modid + '</td></tr>';
-								}
-
-								html += '</tbody></table>';
-								$popover.attr('data-content', html);
-								$popover.popover({
-									container: 'body',
-									viewport: { selector: 'body', padding: 20 },
-									template: '<div class="popover mod-list"><div class="arrow"></div><div class="popover-inner"><h1 class="popover-title"></h1><div class="popover-content"><p></p></div></div></div>'
-								});
-							}
-						}
-					});
-
-					$('[data-widget="mi-top-list"][data-sid="' + data.sid + '"]').each(function (i, $widget) {
-
-						$widget = $($widget);
-
-						var	$avatars = $widget.find('.mi-avatar'),
-							pendingPlayers = $avatars.length;
-
-						$avatars.each(function (i, $avatar) {
-
-							$avatar = $($avatar);
-
-							var id = $avatar.data('uuid');
-
-							if (!id) return --pendingPlayers;
-
-							socket.emit('plugins.MinecraftIntegration.getPlayer', {id: id}, function (err, playerData) {
-
-								var playtime = parseInt(playerData.playtime, 10);
-								if (playtime > 60) {
-									playtime = Math.floor(playtime / 60).toString() + " Hours, " + (playtime % 60).toString();
-								}
-								$avatar.closest('tr').find('.mi-score').html(playtime);
-
-								if (!--pendingPlayers) MinecraftIntegration.setAvatarBorders($widget);
-
-							});
-
-							wrapAvatar($avatar);
-
-						});
-
-					});
-				});
-			};
-
-			MinecraftIntegration.addPlayer = function (data) {
-
-				var player = data.player;
-
-				MinecraftIntegration.getTemplate("partials/playerAvatars.tpl", function (err, avatarTemplate) {
-
-					// Asserts
-					if (err) return log(err);
-					if (!avatarTemplate) return log("Avatar Template was null.");
-
-					// Loop widgets with a current players display.
-					// TODO: Don't select widgets that have avatars turned off.
-					$('[data-widget="mi-status"][data-sid="' + data.sid + '"], [data-widget="mi-players-grid"][data-sid="' + data.sid + '"]').each(function (i, $widget) {
-
-						var $widget = $(this);
-
-						// Add the player only if they are not already listed.
-						var found = false;
-						$widget.find('.mi-avatar').each(function(){
-							if ($(this).data('uuid') === player.id) return found = true;
-						});
-						if (found) return;
-
-						var $avatar = $(avatarTemplate
-						.replace("{url}", getAvatarUrl(player.name))
-						.replace("{players.name}", player.name)
-						.replace("{name}", player.name)
-						.replace("{styleGlory}", "")
-						.replace("{players.glory}", ""));
-
-						$avatar.css("display", "none");
-						$avatar.data('uuid', player.id);
-
-						$avatar.appendTo($widget.find('.mi-avatars'));
-
-						// Wrap avatar in profile link if user is registered.
-						wrapAvatar($avatar);
-
-						$avatar.load(function(){
-
-							$avatar.fadeIn(600, 'linear');
-							MinecraftIntegration.setAvatarBorders($widget);
-
-							// Update player count.
-							$widget.find(".online-players").text(parseInt($widget.find(".online-players").text(), 10) + 1);
-
-						});
-
-					});
-
-				});
-			};
-
-			// Remove a single player from widgets.
-			MinecraftIntegration.removePlayer = function (data) {
-
-				// TODO: Better selectors.
-				$('[data-sid="' + data.sid + '"]').each(function (i, el) {
-					var $widget = $(el);
-
-					switch ($widget.attr('data-widget')) {
-						case 'mi-status':
-						case 'mi-players-grid':
-
-							// Store if the player is actually on the list.
-							var found = false;
-
-							// Remove the player who is no longer on the server.
-							$widget.find('.mi-avatar').each(function (i, el) {
-
-								found = true;
-
-								var $avatar = $(el);
-
-								if ($avatar.data('uuid') !== data.player.id) return;
-
-								if ($avatar.parent().is('a')) $avatar = $avatar.parent();
-								$avatar.fadeToggle(600, 'linear', function () {
-									$avatar.remove();
-									MinecraftIntegration.setAvatarBorders($widget);
-								});
-							});
-
-							// If they were on the list, decrease the player count.
-							if (found) $widget.find(".online-players").text(parseInt($widget.find(".online-players").text(), 10) - 1);
-
-							// Don't leave tooltips behind.
-							// TODO: Only remove MI tooltips.
-							$('.tooltip').remove();
-						break;
-					}
-				});
-			};
 
 			var rtime = new Date();
 			var timeout = false;
@@ -584,14 +273,6 @@ MinecraftIntegration = {};
 					chart.draw(data, options);
 				});
 			}
-
-			MinecraftIntegration.updateCharts = function (status) {
-			};
-
-			// Setup charts
-			MinecraftIntegration.setGraphs = function (status) {
-				//setGraphs(status);
-			};
 
 			function humanTime(stamp) {
 
@@ -653,20 +334,20 @@ MinecraftIntegration = {};
 	socket.on('mi.PlayerVotes', onPlayerVotes);
 
 	function onPlayerJoin(data) {
-		MinecraftIntegration.addPlayer(data);
-		MinecraftIntegration.updateCharts(data);
+		addPlayer(data);
+		updateCharts(data);
 	}
 
 	function onPlayerQuit(data) {
-		MinecraftIntegration.removePlayer(data);
-		MinecraftIntegration.updateCharts(data);
+		removePlayer(data);
+		updateCharts(data);
 	}
 
 	function onStatus(data) {
 		log("Received Status Ping", data);
 
-		MinecraftIntegration.setPlayers(data);
-		MinecraftIntegration.setGraphs(data);
+		setPlayers(data);
+		setGraphs(data);
 
 		var $widget = $('[data-sid="' + data.sid + '"]');
 
@@ -706,6 +387,319 @@ MinecraftIntegration = {};
 
 	function onPlayerVotes(data) {
 		log(data);
+	}
+
+	function setPlayers(data) {
+		if (!(data && data.sid !== void 0 && Array.isArray(data.players))) {
+			log("Received invalid status data.");
+			log(data);
+			return;
+		}
+
+		getTemplate("partials/playerAvatars.tpl", function (err, avatarTemplate) {
+
+			if (err) return log(err);
+			if (!avatarTemplate) return log("Avatar Template was null.");
+
+			// Loop widgets with a current players display.
+			// TODO: Don't select widgets that have avatars turned off.
+			$('[data-widget="mi-status"][data-sid="' + data.sid + '"], [data-widget="mi-players-grid"][data-sid="' + data.sid + '"]').each(function (i, $widget) {
+
+				// Re-wrap
+				$widget = $($widget);
+
+				// Update Icon Time
+				var	updateTime = data.updateTime || Date.now();
+				$widget.find(".mc-statusicon")
+					.attr('data-original-title', moment(parseInt(updateTime, 10)).format('MMM Do h:mma'))
+					.attr('data-title', moment(parseInt(updateTime, 10)).format('MMM Do h:mma'));
+
+				// Loop avatars and remove players no longer on the server.
+				$widget.find('.mi-avatar').each(function (i, el) {
+
+					// Re-wrap
+					var $avatar = $(el);
+
+					// If the player's online, return.
+					for (var i in data.players) {
+						if (data.players[i].id && data.players[i].name) {
+							if ($avatar.data('uuid') === data.players[i].id) return;
+							log("Kept " + data.players[i].name);
+						}
+					}
+
+					// Otherwise, fade it out.
+					log("Fading " + $avatar.attr('data-original-title'));
+					if ($avatar.parent().is('a')) $avatar = $avatar.parent();
+					$avatar.fadeToggle(600, 'linear', function () {
+						$avatar.remove();
+					});
+
+				});
+
+				// Track number of players left to add.
+				var pendingPlayers = data.players.length;
+
+				// Add players now on the server.
+				data.players.forEach(function (player) {
+
+					var found = false;
+
+					$widget.find('.mi-avatar').each(function () {
+						var $avatar = $(this);
+
+						if ($avatar.data('uuid') === player.id) {
+							found = true;
+							log("Found " + player.name);
+						}
+					});
+
+					if (!found) {
+
+						var $avatar = $(avatarTemplate
+						.replace("{url}", getAvatarUrl(player.name))
+						.replace("{players.name}", player.name)
+						.replace("{name}", player.name)
+						.replace("{styleGlory}", "")
+						.replace("{players.glory}", ""));
+
+						$avatar.css("display", "none");
+						$avatar.data('uuid', player.id);
+
+						$avatar.appendTo($widget.find('.mi-avatars'));
+
+						// Wrap avatar in profile link if user is registered.
+						wrapAvatar($avatar);
+
+						$avatar.load(function(){
+							log("Fading in " + player.name);
+							$avatar.fadeIn(600, 'linear');
+							if (!--pendingPlayers) setAvatarBorders($widget);
+						});
+					}else{
+						// Set avatar borders if complete.
+						if (!--pendingPlayers) setAvatarBorders($widget);
+					}
+
+				});
+
+				// Set player count text.
+				$widget.find(".online-players").text(data.players.length);
+
+				var $popover;
+
+				if ($widget.attr('data-widget') === 'mi-status') {
+					$popover = $widget.find('a.fa-plug');
+					if ($popover.length && Array.isArray(data.pluginList) && data.pluginList.length) {
+						var html = '<table class="table table-plugin-list"><tbody>';
+
+						for (var i = 0; i < data.pluginList.length; i++) {
+							html += '<tr><td>' + data.pluginList[i].name + '</td></tr>';
+						}
+
+						html += '</tbody></table>';
+						$popover.attr('data-content', html);
+						$popover.popover({
+							container: 'body',
+							viewport: { selector: 'body', padding: 20 },
+							template: '<div class="popover plugin-list"><div class="arrow"></div><div class="popover-inner"><h1 class="popover-title"></h1><div class="popover-content"><p></p></div></div></div>'
+						});
+					}
+
+					$popover = $widget.find('a.fa-gavel');
+					if ($popover.length && data.modList) {
+						var html = '<table class="table table-mod-list"><tbody>';
+
+						for (var i in data.modList) {
+							html += '<tr><td>' + data.modList[i].modid + '</td></tr>';
+						}
+
+						html += '</tbody></table>';
+						$popover.attr('data-content', html);
+						$popover.popover({
+							container: 'body',
+							viewport: { selector: 'body', padding: 20 },
+							template: '<div class="popover mod-list"><div class="arrow"></div><div class="popover-inner"><h1 class="popover-title"></h1><div class="popover-content"><p></p></div></div></div>'
+						});
+					}
+				}
+			});
+
+			$('[data-widget="mi-top-list"][data-sid="' + data.sid + '"]').each(function (i, $widget) {
+
+				$widget = $($widget);
+
+				var	$avatars = $widget.find('.mi-avatar'),
+					pendingPlayers = $avatars.length;
+
+				$avatars.each(function (i, $avatar) {
+
+					$avatar = $($avatar);
+
+					var id = $avatar.data('uuid');
+
+					if (!id) return --pendingPlayers;
+
+					socket.emit('plugins.MinecraftIntegration.getPlayer', {id: id}, function (err, playerData) {
+
+						var playtime = parseInt(playerData.playtime, 10);
+						if (playtime > 60) {
+							playtime = Math.floor(playtime / 60).toString() + " Hours, " + (playtime % 60).toString();
+						}
+						$avatar.closest('tr').find('.mi-score').html(playtime);
+
+						if (!--pendingPlayers) setAvatarBorders($widget);
+
+					});
+
+					wrapAvatar($avatar);
+
+				});
+
+			});
+		});
+	}
+
+	function addPlayer(data) {
+		var player = data.player;
+
+		getTemplate("partials/playerAvatars.tpl", function (err, avatarTemplate) {
+
+			// Asserts
+			if (err) return log(err);
+			if (!avatarTemplate) return log("Avatar Template was null.");
+
+			// Loop widgets with a current players display.
+			// TODO: Don't select widgets that have avatars turned off.
+			$('[data-widget="mi-status"][data-sid="' + data.sid + '"], [data-widget="mi-players-grid"][data-sid="' + data.sid + '"]').each(function (i, $widget) {
+
+				var $widget = $(this);
+
+				// Add the player only if they are not already listed.
+				var found = false;
+				$widget.find('.mi-avatar').each(function(){
+					if ($(this).data('uuid') === player.id) return found = true;
+				});
+				if (found) return;
+
+				var $avatar = $(avatarTemplate
+				.replace("{url}", getAvatarUrl(player.name))
+				.replace("{players.name}", player.name)
+				.replace("{name}", player.name)
+				.replace("{styleGlory}", "")
+				.replace("{players.glory}", ""));
+
+				$avatar.css("display", "none");
+				$avatar.data('uuid', player.id);
+
+				$avatar.appendTo($widget.find('.mi-avatars'));
+
+				// Wrap avatar in profile link if user is registered.
+				wrapAvatar($avatar);
+
+				$avatar.load(function(){
+
+					$avatar.fadeIn(600, 'linear');
+					setAvatarBorders($widget);
+
+					// Update player count.
+					$widget.find(".online-players").text(parseInt($widget.find(".online-players").text(), 10) + 1);
+
+				});
+
+			});
+
+		});
+	}
+
+	// Remove a single player from widgets.
+	function removePlayer(data) {
+
+		// TODO: Better selectors.
+		$('[data-sid="' + data.sid + '"]').each(function (i, el) {
+			var $widget = $(el);
+
+			switch ($widget.attr('data-widget')) {
+				case 'mi-status':
+				case 'mi-players-grid':
+
+					// Store if the player is actually on the list.
+					var found = false;
+
+					// Remove the player who is no longer on the server.
+					$widget.find('.mi-avatar').each(function (i, el) {
+
+						found = true;
+
+						var $avatar = $(el);
+
+						if ($avatar.data('uuid') !== data.player.id) return;
+
+						if ($avatar.parent().is('a')) $avatar = $avatar.parent();
+						$avatar.fadeToggle(600, 'linear', function () {
+							$avatar.remove();
+							setAvatarBorders($widget);
+						});
+					});
+
+					// If they were on the list, decrease the player count.
+					if (found) $widget.find(".online-players").text(parseInt($widget.find(".online-players").text(), 10) - 1);
+
+					// Don't leave tooltips behind.
+					// TODO: Only remove MI tooltips.
+					$('.tooltip').remove();
+				break;
+			}
+		});
+	}
+
+	// When avatars change, render new effects.
+	function setAvatarBorders($widget) {
+		var	$avatars = $widget.find('.mi-avatar'),
+			$scores  = $widget.find('.score');
+
+		if ($avatars.length === 0) return;
+		if ($widget.is(':not([data-colors="on"])')) return;
+
+		var rainbow = getRainbow($widget, $avatars.length > 1 ? $avatars.length - 1 : $avatars.length);
+
+		if (!rainbow) return;
+
+		$avatars.each(function (i, el) {
+			$(el).css('border-style', $widget.attr('data-border') || 'none');
+			$(el).css('border-color', '#' + rainbow.colourAt(i));
+		});
+
+		$scores.each(function (i, el) {
+			$(el).css('color', '#' + rainbow.colourAt(i));
+		});
+
+	}
+
+	function updateCharts(status) {
+	}
+
+	function setGraphs(status) {
+	}
+
+	function getAvatarUrl(name) {
+		return "/api/minecraft-integration/avatar/" + name + "/64";
+	}
+
+	// Wrap avatar in profile link if user is registered.
+	function wrapAvatar($avatar) {
+		if (!$avatar.parent().is('a')) {
+			socket.emit('plugins.MinecraftIntegration.getUser', {id: $avatar.data('uuid')}, function (err, userData) {
+				if (!err && userData && userData.userslug) {
+					$avatar.wrap('<a href="/user/' + userData.userslug + '"></a>');
+				}else{
+					$avatar.wrap('<a></a>');
+				}
+				$avatar.parent().click(function () {
+					$('.tooltip').remove();
+				});
+			});
+		}
 	}
 
 }());
