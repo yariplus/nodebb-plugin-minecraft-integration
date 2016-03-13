@@ -1,6 +1,7 @@
 MinecraftIntegration = {};
 
 (function(){
+
 	function log(memo, object) {
 
 		if (!(config.MinecraftIntegration && config.MinecraftIntegration.debug)) return;
@@ -16,15 +17,13 @@ MinecraftIntegration = {};
 	MinecraftIntegration.staticDir = "/plugins/nodebb-plugin-minecraft-integration/public/";
 	MinecraftIntegration.templates = { };
 
-	$(function(){
-		$('body').on('click', '.resetPlayerKey', function () {
-			socket.emit('plugins.MinecraftIntegration.resetPlayerKey', {uid: app.user.uid}, function (err, data) {
-				if (err) return log(err.message);
-				if (!(data && data.key)) return log("Received invalid response to resetPlayerKey call.");
+	$('body').on('click', '.resetPlayerKey', function () {
+		socket.emit('plugins.MinecraftIntegration.resetPlayerKey', {uid: app.user.uid}, function (err, data) {
+			if (err) return log(err.message);
+			if (!(data && data.key)) return log("Received invalid response to resetPlayerKey call.");
 
-				$('[name="player-key"]').html('key-' + data.key);
-				$('.copyPlayerKey').attr('data-clipboard-text', 'key-' + data.key);
-			});
+			$('[name="player-key"]').html('key-' + data.key);
+			$('.copyPlayerKey').attr('data-clipboard-text', 'key-' + data.key);
 		});
 	});
 
@@ -551,75 +550,6 @@ MinecraftIntegration = {};
 				});
 			};
 
-			socket.on('mi.PlayerJoin', function (data) {
-				MinecraftIntegration.addPlayer(data);
-				MinecraftIntegration.updateCharts(data);
-			});
-
-			socket.on('mi.PlayerQuit', function (data) {
-				MinecraftIntegration.removePlayer(data);
-				MinecraftIntegration.updateCharts(data);
-			});
-
-			socket.on('mi.status', function (data) {
-
-				log("Received Status Ping", data);
-
-				MinecraftIntegration.setPlayers(data);
-				MinecraftIntegration.setGraphs(data);
-
-				var $widget = $('[data-sid="' + data.sid + '"]');
-
-				if (parseInt(data.isServerOnline, 10)) {
-					$widget.find(".mc-statusicon")
-					.addClass("fa-check-circle")
-					.addClass("text-success")
-					.removeClass("fa-exclamation-circle")
-					.removeClass("text-danger");
-					$widget.find(".mc-statustext")
-					.addClass("text-success")
-					.removeClass("text-danger")
-					.text("Online");
-					$widget.find(".mc-playercount").show();
-				}else{
-					$widget.find(".mc-statusicon")
-					.removeClass("fa-check-circle")
-					.removeClass("text-success")
-					.addClass("fa-exclamation-circle")
-					.addClass("text-danger");
-					$widget.find(".mc-statustext")
-					.removeClass("text-success")
-					.addClass("text-danger")
-					.text("Offline");
-					$widget.find(".mc-playercount").hide();
-				}
-			});
-
-			socket.on('mi.PlayerChat', function (data) {
-				$('[data-widget="mi-chat"][data-sid="' + data.sid + '"]').each(function (i, $widget) {
-					$widget = $($widget);
-
-					$widget.find('div').append("<span>" + data.chat.name + ": " + data.chat.message + "</span><br>");
-					$widget.find('div').scrollTop(100000);
-				});
-			});
-
-			function onPlayerVotes(data)
-			{
-				log(data);
-			}
-
-			socket.on('mi.PlayerVotes', onPlayerVotes);
-
-			$(function(){
-				var $body = $('body');
-				$body.tooltip({
-					selector: '.has-tooltip, .mi-avatar',
-					container: 'body',
-					viewport: { selector: 'body', padding: 20 }
-				});
-			});
-
 			var rtime = new Date();
 			var timeout = false;
 			var delta = 300;
@@ -713,5 +643,69 @@ MinecraftIntegration = {};
 				});
 			}
 		});
+
 	});
+
+	socket.on('mi.PlayerJoin',  onPlayerJoin);
+	socket.on('mi.PlayerQuit',  onPlayerQuit);
+	socket.on('mi.status',      onStatus);
+	socket.on('mi.PlayerChat',  onPlayerChat);
+	socket.on('mi.PlayerVotes', onPlayerVotes);
+
+	function onPlayerJoin(data) {
+		MinecraftIntegration.addPlayer(data);
+		MinecraftIntegration.updateCharts(data);
+	}
+
+	function onPlayerQuit(data) {
+		MinecraftIntegration.removePlayer(data);
+		MinecraftIntegration.updateCharts(data);
+	}
+
+	function onStatus(data) {
+		log("Received Status Ping", data);
+
+		MinecraftIntegration.setPlayers(data);
+		MinecraftIntegration.setGraphs(data);
+
+		var $widget = $('[data-sid="' + data.sid + '"]');
+
+		if (parseInt(data.isServerOnline, 10)) {
+			$widget.find(".mc-statusicon")
+			.addClass("fa-check-circle")
+			.addClass("text-success")
+			.removeClass("fa-exclamation-circle")
+			.removeClass("text-danger");
+			$widget.find(".mc-statustext")
+			.addClass("text-success")
+			.removeClass("text-danger")
+			.text("Online");
+			$widget.find(".mc-playercount").show();
+		}else{
+			$widget.find(".mc-statusicon")
+			.removeClass("fa-check-circle")
+			.removeClass("text-success")
+			.addClass("fa-exclamation-circle")
+			.addClass("text-danger");
+			$widget.find(".mc-statustext")
+			.removeClass("text-success")
+			.addClass("text-danger")
+			.text("Offline");
+			$widget.find(".mc-playercount").hide();
+		}
+	}
+
+	function onPlayerChat(data) {
+		$('[data-widget="mi-chat"][data-sid="' + data.sid + '"]').each(function (i, $widget) {
+			$widget = $($widget);
+
+			$widget.find('div').append("<span>" + data.chat.name + ": " + data.chat.message + "</span><br>");
+			$widget.find('div').scrollTop(100000);
+		});
+	}
+
+	function onPlayerVotes(data) {
+		log(data);
+	}
+
 }());
