@@ -1,25 +1,22 @@
-;(function(){
-
+$(function(){
 	"use strict";
 
-	var widgets = [];
-	var staticDir = "/plugins/nodebb-plugin-minecraft-integration/public/";
+	console.log("Loading Minecraft Integration...");
+
+	var servers = {};
 	var templates = {};
+	var staticDir = "/plugins/nodebb-plugin-minecraft-integration/public/";
 
 	function log(memo, object) {
-
 		if (!(config.MinecraftIntegration && config.MinecraftIntegration.debug)) return;
 
-		if (typeof memo === 'object') {
-			console.dir(memo);
-		}else{
-			console.log("[Minecraft Integration] " + memo);
-			if (object) console.dir(object);
-		}
+		if (typeof memo === 'object') return console.dir(memo);
+
+		console.log("[Minecraft Integration] " + memo);
+		if (object) console.dir(object);
 	}
 
 	function getTemplate(template, cb) {
-
 		if (templates[template]) return cb(null, templates[template]);
 		log("Getting template: " + template);
 
@@ -28,25 +25,11 @@
 			templates[template] = templateData;
 			cb(null, templateData);
 		});
-
 	}
 
-	$('body').on('click', '.resetPlayerKey', function () {
-		socket.emit('plugins.MinecraftIntegration.resetPlayerKey', {uid: app.user.uid}, function (err, data) {
-			if (err) return log(err.message);
-			if (!(data && data.key)) return log("Received invalid response to resetPlayerKey call.");
-
-			$('[name="player-key"]').html('key-' + data.key);
-			$('.copyPlayerKey').attr('data-clipboard-text', 'key-' + data.key);
-		});
-	});
-
-	$(window).on('action:ajaxify.end', function (event, url) {
-
-		url = url.url.split('?')[0].split('#')[0];
-
+	$(window).on('action:ajaxify.end', function (event, data) {
 		// Minecraft profile page.
-		if (url.match(/user\/[^\/]*\/minecraft/)) {
+		if (data.url.match(/user\/[^\/]*\/minecraft/)) {
 
 			var key = $('[name="player-key"]').html();
 
@@ -55,10 +38,9 @@
 			require(['//cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.5/clipboard.min.js'], function (Clipboard) {
 				var clipboard = new Clipboard('.copyPlayerKey');
 
-				$('.copyPlayerKey')
-					.mouseout(function () {
-						$(this).tooltip('destroy');
-					});
+				$('.copyPlayerKey').mouseout(function () {
+					$(this).tooltip('destroy');
+				});
 
 				clipboard.on('success', function(e) {
 					e.clearSelection();
@@ -66,265 +48,114 @@
 					$(e.trigger).tooltip('show');
 				});
 			});
+
+			$('.resetPlayerKey').click(function(){
+				socket.emit('plugins.MinecraftIntegration.resetPlayerKey', {uid: app.user.uid}, function (err, data) {
+					if (err) return log(err.message);
+					if (!(data && data.key)) return log("Received invalid response to resetPlayerKey call.");
+
+					$('[name="player-key"]').html('key-' + data.key);
+					$('.copyPlayerKey').attr('data-clipboard-text', 'key-' + data.key);
+				});
+			});
 		}
 	});
 
+	var prepare = {
+		'mi-chat': function(widget){
+			socket.emit('plugins.MinecraftIntegration.getChat', {sid: widget.sid}, function (err, data) {
+				var $chatwidget = widget.el;
+				var $chatbox = $chatwidget.find('div');
+
+				for (var i in data.chats) {
+					$chatbox.append("<span>" + data.chats[i].name + ": " + data.chats[i].message + "</span><br>");
+				}
+
+				$chatwidget.find('button').click(function (e) {
+
+					if (app.user.uid === 0) return;
+
+					var $this = $(this);
+
+					var chatData = {
+						sid: $chatwidget.attr('data-sid'),
+						name: app.user.username,
+						message: $this.parent().prev().children('input').val()
+					};
+
+					socket.emit('plugins.MinecraftIntegration.eventWebChat', chatData);
+
+					log("Sending chat: ", chatData);
+					$this.parent().prev().children('input').val('');
+
+				});
+
+				$chatwidget.find('input').keyup(function(e){
+					if (app.user.uid === 0) return;
+					if(e.keyCode == 13)
+					{
+						var $this = $(this);
+
+						socket.emit('plugins.MinecraftIntegration.eventWebChat', {sid: $chatwidget.attr('data-sid'), name: app.user.username, message: $this.val()});
+						$this.val('');
+					}
+				});
+
+				$chatbox.scrollTop(100000);
+			});
+		},
+		'mi-directory': function(){},
+		'mi-gallery': function(){},
+		'mi-map': function(){},
+		'mi-ping-graph': function(){},
+		'mi-players-graph': function(){},
+		'mi-players-grid': function(){},
+		'mi-status': function(widget){
+			socket.emit('plugins.MinecraftIntegration.getServerStatus', {sid: widget.sid}, function (err, status) {
+				if (err || !status) return;
+				setPlayers(status);
+				setGraphs(status);
+			});
+		},
+		'mi-top-graph': function(){},
+		'mi-top-list': function(){},
+		'mi-tps-graph': function(){},
+		'mi-vote-list': function(){}
+	};
+
 	$(window).on('action:widgets.loaded', function(){
-		var scripts = [
-			staticDir + 'js/vendor/rainbowvis.js',
-			'//cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.5/clipboard.min.js',
-			'//d3js.org/d3.v3.min.js'
-		];
+		// Store widgets
+		$('.mi-container').each(function(){
+			var $this = $(this);
+			var $parent = $this.parent();
+			var wid = $this.attr('data-widget');
+			var sid = $this.attr('data-sid');
 
-		require(scripts, function (Rainbow, Clipboard, d3) {
-			"use strict";
+			// Add padding based on parent.
+			if (!$parent.is('[widget-area]')) {
+				$parent.css('padding-top', '0').css('padding-left', '0').css('padding-right', '0').css('padding-bottom', '0');
+			}else{
+				$parent.css('padding-top', '10px').css('padding-bottom', '10px');
+			}
 
-			console.log("Loading Minecraft Integration...");
-
-			// Do initial setup.
-
-			// Find servers to be setup.
-			var sids = [ ];
-			log("Preparing widgets.");
-
-			// Loop through widget containers.
-			$('.mi-container').each(function(){
-
-				var	$this = $(this),
-					$parent = $this.parent(),
-					sid = $this.attr('data-sid');
-
-				log("Preparing widgets for " + sid);
-
-				// Add paddings based on container.
-				if (!$parent.is('[widget-area]')) {
-					$parent.css('padding-top', '0').css('padding-left', '0').css('padding-right', '0').css('padding-bottom', '0');
-				}else{
-					$parent.css('padding-top', '10px').css('padding-bottom', '10px');
-				}
-
-				// If not in server list, add it.
-				if (!~sids.indexOf(sid)) sids.push(sid);
-
+			servers[sid] = servers[sid] || {};
+			servers[sid][wid] = servers[sid][wid] || [];
+			servers[sid][wid].push({
+				el: $this,
+				sid: sid
 			});
-
-			// ???
-			resizeCanvases();
-
-			sids.forEach(function (sid) {
-
-				socket.emit('plugins.MinecraftIntegration.getServerStatus', {sid: sid}, function (err, status) {
-					if (err || !status) return log("No Status");
-					log("Got initial status", status);
-					setPlayers(status);
-					setGraphs(status);
-				});
-
-				var widgetsChat = $('[data-widget="mi-chat"][data-sid="' + sid + '"]');
-
-				if (widgetsChat.length) {
-					socket.emit('plugins.MinecraftIntegration.getChat', {sid: sid}, function (err, data) {
-						widgetsChat.each(function (i, $chatwidget) {
-							$chatwidget = $($chatwidget);
-							var $chatbox    = $chatwidget.find('div');
-
-							for (var i in data.chats) {
-								$chatbox.append("<span>" + data.chats[i].name + ": " + data.chats[i].message + "</span><br>");
-							}
-
-							$chatwidget.find('button').click(function (e) {
-
-								if (app.user.uid === 0) return;
-
-								var $this = $(this);
-
-								var chatData = {
-									sid: $chatwidget.attr('data-sid'),
-									name: app.user.username,
-									message: $this.parent().prev().children('input').val()
-								};
-
-								socket.emit('plugins.MinecraftIntegration.eventWebChat', chatData);
-
-								log("Sending chat: ", chatData);
-								$this.parent().prev().children('input').val('');
-
-							});
-
-							$chatwidget.find('input').keyup(function(e){
-								if (app.user.uid === 0) return;
-								if(e.keyCode == 13)
-								{
-									var $this = $(this);
-
-									socket.emit('plugins.MinecraftIntegration.eventWebChat', {sid: $chatwidget.attr('data-sid'), name: app.user.username, message: $this.val()});
-									$this.val('');
-								}
-							});
-
-							$chatbox.scrollTop(100000);
-						});
-					});
-				}
-			});
-
-			resizeCanvases();
-
-			var	clipboard = new Clipboard('.mi-serveraddresscopy');
-
-			$('.mi-serveraddresscopy')
-				.mouseout(function () {
-					$(this).tooltip('destroy');
-					$(this).removeClass('mi-highlight');
-					$(this).prev().removeClass('mi-highlight');
-				})
-				.mouseenter(function () {
-					$(this).addClass('mi-highlight');
-					$(this).prev().addClass('mi-highlight');
-				})
-				.removeClass('hide');
-
-			clipboard.on('success', function(e) {
-				e.clearSelection();
-				$(e.trigger).tooltip({title:'Copied!',placement:'bottom'});
-				$(e.trigger).tooltip('show');
-			});
-
-			// Vault Prefixes
-			function addPrefix($el, prefix) {
-				$el.find('.username>a').prepend('<span class="prefix">' + prefix + '</span><br>');
-				$el.find('[itemprop="author"]').prepend('<span class="prefix">' + prefix + '</span>&nbsp&nbsp');
-			}
-			function addPrefixes(event, data) {
-				if (!config.MinecraftIntegration.showPrefixes) return;
-
-				if (ajaxify.data.prefixes) {
-
-					$('[data-pid]:not([data-prefix])').each(function () {
-
-						var $el = $(this), prefix = ajaxify.data.prefixes[$el.attr("data-uid")];
-
-						$el.attr("data-prefix", "true");
-
-						if (prefix) return addPrefix($el, prefix);
-						if (prefix === null) return;
-
-						socket.emit('plugins.MinecraftIntegration.getPrefix', {uid:$el.attr("data-uid")}, function (err, data) {
-							if (data.prefix) addPrefix($el, data.prefix);
-						});
-
-					});
-				}
-			}
-			$(window).on('action:posts.loaded', addPrefixes);
-			$(window).on('action:ajaxify.end',  addPrefixes);
-			addPrefixes();
-
-			function getRainbow($widget, range) {
-
-				if (!Rainbow) return null;
-
-				var	rainbow = new Rainbow();
-
-				var	colorStart = $widget.attr('data-color-start') || "white",
-					colorEnd   = $widget.attr('data-color-end')   || "white";
-
-				colorStart = colorStart.slice(0, 1) === '#' ? colorStart.slice(1) : colorStart;
-				colorEnd   = colorEnd.slice(0, 1) === '#'   ? colorEnd.slice(1) : colorStart;
-
-				rainbow.setNumberRange(0, range);
-				rainbow.setSpectrum(colorStart, colorEnd);
-
-				return rainbow;
-
-			}
-
-			var rtime = new Date();
-			var timeout = false;
-			var delta = 300;
-			$(window).resize(function() {
-				rtime = new Date();
-				if (timeout === false) {
-					timeout = true;
-					setTimeout(resizeend, delta);
-				}
-			});
-
-			function resizeend() {
-				if (new Date() - rtime < delta) {
-					setTimeout(resizeend, delta);
-				} else {
-					timeout = false;
-					resizeCanvases();
-				}
-			}
-
-			function resizeCanvases()
-			{
-				$('.mi-chart').each(function()
-				{
-					var	$this   = $(this)
-					,	chart   = $this.data('chart')
-					,	data    = $this.data('chart-data')
-					,	options = $this.data('chart-options');
-
-					if (!chart) return;
-
-					chart.draw(data, options);
-				});
-			}
-
-			function humanTime(stamp) {
-
-				var	date     = new Date(parseInt(stamp,10))
-				,	hours    = date.getHours() < 13 ? (date.getHours() === 0 ? 12 : date.getHours()) : date.getHours() - 12
-				,	minutes  = (date.getMinutes() < 10 ? "0" : "") + date.getMinutes()
-				,	meridiem = date.getHours() < 12 ? "AM" : "PM";
-
-				return hours + ":" + minutes + " " + meridiem;
-
-			}
-
-			function setGraphs(status) {
-
-				$('[data-widget="mi-players-graph"][data-sid="' + status.sid + '"]').each(function (i, widget) {
-
-					var	$widget   = $(widget),
-						$chart    = $widget.find('.mi-chart'),
-						chart     = $chart.data('chart'),
-						fillColor = $widget.attr('data-chart-color-fill') ? $widget.attr('data-chart-color-fill') : "rgba(151,187,205,1)";
-
-					socket.emit('plugins.MinecraftIntegration.getRecentPings', {sid: status.sid}, function (err, pings) {
-						// TODO
-					});
-				});
-
-				$('[data-widget="mi-tps-graph"][data-sid="' + status.sid + '"]').each(function (i, widget) {
-
-					var	$widget   = $(widget),
-						$chart    = $widget.find('.mi-chart'),
-						chart     = $chart.data('chart'),
-						fillColor = $widget.attr('data-chart-color-fill') ? $widget.attr('data-chart-color-fill') : "rgba(151,187,205,1)";
-
-					socket.emit('plugins.MinecraftIntegration.getRecentPings', {sid: status.sid}, function (err, pings) {
-						// TODO
-					});
-
-				});
-
-				$('[data-widget="mi-top-graph"][data-sid="' + status.sid + '"]').each(function (i, widget) {
-
-					var	$widget = $(widget),
-						$canvas = $widget.find('.mi-canvas'),
-						chart = $canvas.data('chart');
-
-					socket.emit('plugins.MinecraftIntegration.getTopPlayersByPlaytimes', {show: 10}, function (err, players) {
-						// TODO
-					});
-				});
-			}
 		});
 
+		log("Preparing widgets...");
+
+		for (var sid in servers) {
+			for (var wid in servers[sid]) {
+				servers[sid][wid].forEach(function(widget){
+					console.log(wid);
+					prepare[wid](widget);
+				});
+			}
+		}
 	});
 
 	socket.on('mi.PlayerJoin',  onPlayerJoin);
@@ -614,7 +445,6 @@
 
 	// Remove a single player from widgets.
 	function removePlayer(data) {
-
 		// TODO: Better selectors.
 		$('[data-sid="' + data.sid + '"]').each(function (i, el) {
 			var $widget = $(el);
@@ -673,7 +503,6 @@
 		$scores.each(function (i, el) {
 			$(el).css('color', '#' + rainbow.colourAt(i));
 		});
-
 	}
 
 	function updateCharts(status) {
@@ -702,4 +531,129 @@
 		}
 	}
 
-}());
+	// Delay window resize response based on delta delay.
+	(function(){
+		var delta = 300;
+		var rtime = new Date();
+		var timeout = false;
+		$(window).resize(function() {
+			rtime = new Date();
+			if (timeout === false) {
+				timeout = true;
+				setTimeout(resizeend, delta);
+			}
+		});
+		function resizeend() {
+			if (new Date() - rtime < delta) {
+				setTimeout(resizeend, delta);
+			} else {
+				timeout = false;
+				// Do thing.
+			}
+		}
+	}());
+
+	// Vault Prefixes
+	if (config.MinecraftIntegration.showPrefixes) {
+		$(window).on('action:posts.loaded', addPrefixes);
+		$(window).on('action:ajaxify.end',  addPrefixes);
+		addPrefixes();
+	}
+	function addPrefix($el, prefix) {
+		$el.find('.username>a').prepend('<span class="prefix">' + prefix + '</span><br>');
+		$el.find('[itemprop="author"]').prepend('<span class="prefix">' + prefix + '</span>&nbsp&nbsp');
+	}
+	function addPrefixes(event, data) {
+		if (ajaxify.data && ajaxify.data.prefixes) {
+			$('[data-pid]:not([data-prefix])').each(function () {
+				var $el = $(this), prefix = ajaxify.data.prefixes[$el.attr("data-uid")];
+
+				$el.attr("data-prefix", "true");
+
+				if (prefix) return addPrefix($el, prefix);
+				if (prefix === null) return;
+
+				socket.emit('plugins.MinecraftIntegration.getPrefix', {uid:$el.attr("data-uid")}, function (err, data) {
+					if (data.prefix) addPrefix($el, data.prefix);
+				});
+
+			});
+		}
+	}
+
+	require(['//cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.5/clipboard.min.js'], function (Clipboard) {
+		var	clipboard = new Clipboard('.mi-serveraddresscopy');
+		$('.mi-serveraddresscopy')
+			.mouseout(function () {
+				$(this).tooltip('destroy');
+				$(this).removeClass('mi-highlight');
+				$(this).prev().removeClass('mi-highlight');
+			})
+			.mouseenter(function () {
+				$(this).addClass('mi-highlight');
+				$(this).prev().addClass('mi-highlight');
+			})
+			.removeClass('hide');
+		clipboard.on('success', function(e) {
+			e.clearSelection();
+			$(e.trigger).tooltip({title:'Copied!',placement:'bottom'});
+			$(e.trigger).tooltip('show');
+		});
+	});
+
+	function getRainbow($widget, range, cb) {
+		require([staticDir + 'js/vendor/rainbowvis.js'], function (Rainbow) {
+			var	rainbow = new Rainbow();
+			var	colorStart = $widget.attr('data-color-start') || "white",
+				colorEnd   = $widget.attr('data-color-end')   || "white";
+
+			colorStart = colorStart.slice(0, 1) === '#' ? colorStart.slice(1) : colorStart;
+			colorEnd   = colorEnd.slice(0, 1) === '#'   ? colorEnd.slice(1) : colorStart;
+
+			rainbow.setNumberRange(0, range);
+			rainbow.setSpectrum(colorStart, colorEnd);
+
+			cb(rainbow);
+		});
+	}
+
+	function humanTime(stamp) {
+		var	date     = new Date(parseInt(stamp,10))
+		,	hours    = date.getHours() < 13 ? (date.getHours() === 0 ? 12 : date.getHours()) : date.getHours() - 12
+		,	minutes  = (date.getMinutes() < 10 ? "0" : "") + date.getMinutes()
+		,	meridiem = date.getHours() < 12 ? "AM" : "PM";
+
+		return hours + ":" + minutes + " " + meridiem;
+	}
+
+	function setGraphs(status) {
+		$('[data-widget="mi-players-graph"][data-sid="' + status.sid + '"]').each(function (i, widget) {
+			var	$widget   = $(widget),
+				$chart    = $widget.find('.mi-chart'),
+				chart     = $chart.data('chart'),
+				fillColor = $widget.attr('data-chart-color-fill') ? $widget.attr('data-chart-color-fill') : "rgba(151,187,205,1)";
+			socket.emit('plugins.MinecraftIntegration.getRecentPings', {sid: status.sid}, function (err, pings) {
+				// TODO
+			});
+		});
+
+		$('[data-widget="mi-tps-graph"][data-sid="' + status.sid + '"]').each(function (i, widget) {
+			var	$widget   = $(widget),
+				$chart    = $widget.find('.mi-chart'),
+				chart     = $chart.data('chart'),
+				fillColor = $widget.attr('data-chart-color-fill') ? $widget.attr('data-chart-color-fill') : "rgba(151,187,205,1)";
+			socket.emit('plugins.MinecraftIntegration.getRecentPings', {sid: status.sid}, function (err, pings) {
+				// TODO
+			});
+		});
+
+		$('[data-widget="mi-top-graph"][data-sid="' + status.sid + '"]').each(function (i, widget) {
+			var	$widget = $(widget),
+				$canvas = $widget.find('.mi-canvas'),
+				chart = $canvas.data('chart');
+			socket.emit('plugins.MinecraftIntegration.getTopPlayersByPlaytimes', {show: 10}, function (err, players) {
+				// TODO
+			});
+		});
+	}
+});
