@@ -1,19 +1,20 @@
 "use strict";
 
-var	Admin   = require('./lib/admin')
-,	API     = require('./lib/api')
-,	Backend = require('./lib/backend')
-,	Config  = require('./lib/config')
-,	NodeBB  = require('./lib/nodebb')
-,	Utils   = require('./lib/utils')
-,	Updater = require('./lib/updater')
-,	Views   = require('./lib/views')
+var	Admin   = require('./lib/admin');
+var API     = require('./lib/api');
+var Backend = require('./lib/backend');
+var Config  = require('./lib/config');
+var NodeBB  = require('./lib/nodebb');
+var Utils   = require('./lib/utils');
+var Updater = require('./lib/updater');
+var Views   = require('./lib/views');
 
-,	MinecraftIntegration = module.exports =
-	{
-		Widgets: require('./lib/widgets'),
-		Hooks: require('./lib/hooks')
-	};
+var routes = require('./lib/routes');
+
+var MinecraftIntegration = module.exports = {
+	Widgets: require('./lib/widgets'),
+	Hooks: require('./lib/hooks')
+};
 
 NodeBB.emitter.once('nodebb:ready', Views.modifyTemplates);
 
@@ -29,6 +30,8 @@ MinecraftIntegration.load = function (params, next) {
 	API.init();
 	Views.init();
 	Admin.init();
+
+	routes();
 
 	// Add a default server.
 	NodeBB.db.getObject('mi:server:0:config', function (err, config) {
