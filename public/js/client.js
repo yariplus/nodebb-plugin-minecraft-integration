@@ -27,6 +27,106 @@ $(function(){
 		});
 	}
 
+	function prepareChat(widget) {
+		socket.emit('plugins.MinecraftIntegration.getChat', {sid: widget.sid}, function (err, data) {
+			var $chatwidget = widget.el;
+			var $chatbox = $chatwidget.find('div');
+
+			for (var i in data.chats) {
+				$chatbox.append("<span>" + data.chats[i].name + ": " + data.chats[i].message + "</span><br>");
+			}
+
+			$chatwidget.find('button').click(function (e) {
+
+				if (app.user.uid === 0) return;
+
+				var $this = $(this);
+
+				var chatData = {
+					sid: $chatwidget.attr('data-sid'),
+					name: app.user.username,
+					message: $this.parent().prev().children('input').val()
+				};
+
+				socket.emit('plugins.MinecraftIntegration.eventWebChat', chatData);
+
+				log("Sending chat: ", chatData);
+				$this.parent().prev().children('input').val('');
+
+			});
+
+			$chatwidget.find('input').keyup(function(e){
+				if (app.user.uid === 0) return;
+				if(e.keyCode == 13)
+				{
+					var $this = $(this);
+
+					socket.emit('plugins.MinecraftIntegration.eventWebChat', {sid: $chatwidget.attr('data-sid'), name: app.user.username, message: $this.val()});
+					$this.val('');
+				}
+			});
+
+			$chatbox.scrollTop(100000);
+		});
+	}
+
+	function prepareDirectory() {
+	}
+
+	function prepareGallery() {
+	}
+
+	function prepareMap() {
+	}
+
+	function preparePingGraph() {
+	}
+
+	function preparePlayersGraph(widget) {
+		log("PREPARING PLAYERS GRAPH");
+		socket.emit('plugins.MinecraftIntegration.getRecentPings', {sid: widget.sid}, function (err, pings) {
+
+		});
+	}
+
+	function preparePlayersGrid() {
+	}
+
+	function prepareStatus(widget) {
+		socket.emit('plugins.MinecraftIntegration.getServerStatus', {sid: widget.sid}, function (err, status) {
+			if (err || !status) return;
+			setPlayers(status);
+			setGraphs(status);
+		});
+	}
+
+	function prepareTopGraph() {
+	}
+
+	function prepareTopList() {
+	}
+
+	function prepareTPSGraph() {
+	}
+
+	function prepareVoteList() {
+	}
+
+	var prepareWidget = {
+		'mi-chat'          : prepareChat,
+		'mi-directory'     : prepareDirectory,
+		'mi-gallery'       : prepareGallery,
+		'mi-map'           : prepareMap,
+		'mi-ping-graph'    : preparePingGraph,
+		'mi-players-graph' : preparePlayersGraph,
+		'mi-players-grid'  : preparePlayersGrid,
+		'mi-status'        : prepareStatus,
+		'mi-top-graph'     : prepareTopGraph,
+		'mi-top-list'      : prepareTopList,
+		'mi-tps-graph'     : prepareTPSGraph,
+		'mi-vote-list'     : prepareVoteList
+	};
+
 	$(window).on('action:ajaxify.end', function (event, data) {
 		// Minecraft profile page.
 		if (data.url.match(/user\/[^\/]*\/minecraft/)) {
@@ -61,68 +161,6 @@ $(function(){
 		}
 	});
 
-	var prepare = {
-		'mi-chat': function(widget){
-			socket.emit('plugins.MinecraftIntegration.getChat', {sid: widget.sid}, function (err, data) {
-				var $chatwidget = widget.el;
-				var $chatbox = $chatwidget.find('div');
-
-				for (var i in data.chats) {
-					$chatbox.append("<span>" + data.chats[i].name + ": " + data.chats[i].message + "</span><br>");
-				}
-
-				$chatwidget.find('button').click(function (e) {
-
-					if (app.user.uid === 0) return;
-
-					var $this = $(this);
-
-					var chatData = {
-						sid: $chatwidget.attr('data-sid'),
-						name: app.user.username,
-						message: $this.parent().prev().children('input').val()
-					};
-
-					socket.emit('plugins.MinecraftIntegration.eventWebChat', chatData);
-
-					log("Sending chat: ", chatData);
-					$this.parent().prev().children('input').val('');
-
-				});
-
-				$chatwidget.find('input').keyup(function(e){
-					if (app.user.uid === 0) return;
-					if(e.keyCode == 13)
-					{
-						var $this = $(this);
-
-						socket.emit('plugins.MinecraftIntegration.eventWebChat', {sid: $chatwidget.attr('data-sid'), name: app.user.username, message: $this.val()});
-						$this.val('');
-					}
-				});
-
-				$chatbox.scrollTop(100000);
-			});
-		},
-		'mi-directory': function(){},
-		'mi-gallery': function(){},
-		'mi-map': function(){},
-		'mi-ping-graph': function(){},
-		'mi-players-graph': function(){},
-		'mi-players-grid': function(){},
-		'mi-status': function(widget){
-			socket.emit('plugins.MinecraftIntegration.getServerStatus', {sid: widget.sid}, function (err, status) {
-				if (err || !status) return;
-				setPlayers(status);
-				setGraphs(status);
-			});
-		},
-		'mi-top-graph': function(){},
-		'mi-top-list': function(){},
-		'mi-tps-graph': function(){},
-		'mi-vote-list': function(){}
-	};
-
 	$(window).on('action:widgets.loaded', function(){
 		// Store widgets
 		$('.mi-container').each(function(){
@@ -151,8 +189,8 @@ $(function(){
 		for (var sid in servers) {
 			for (var wid in servers[sid]) {
 				servers[sid][wid].forEach(function(widget){
-					console.log(wid);
-					prepare[wid](widget);
+					log("Preparing " + wid + " for server " + sid);
+					prepareWidget[wid](widget);
 				});
 			}
 		}
