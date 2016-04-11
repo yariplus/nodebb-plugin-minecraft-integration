@@ -29,6 +29,11 @@ $(function(){
 
 	function prepareChat(widget) {
 		socket.emit('plugins.MinecraftIntegration.getChat', {sid: widget.sid}, function (err, data) {
+			if (err || !data) {
+				log("Bad chat data.");
+				console.log(err);
+				return;
+			}
 			var $chatwidget = widget.el;
 			var $chatbox = $chatwidget.find('div');
 
