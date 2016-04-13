@@ -6,6 +6,7 @@ $(function(){
 	var servers = {};
 	var templates = {};
 	var staticDir = "/plugins/nodebb-plugin-minecraft-integration/public/";
+	var charts = [];
 
 	function log(memo, object) {
 		if (!(config.MinecraftIntegration && config.MinecraftIntegration.debug)) return;
@@ -90,7 +91,10 @@ $(function(){
 	function preparePlayersGraph(widget) {
 		log("PREPARING PLAYERS GRAPH");
 		socket.emit('plugins.MinecraftIntegration.getRecentPings', {sid: widget.sid}, function (err, pings) {
-
+			console.log(pings);
+			newLineGraph(widget.el, pings, null, function(err, chart) {
+				charts.push(chart);
+			});
 		});
 	}
 
@@ -190,6 +194,7 @@ $(function(){
 		});
 
 		log("Preparing widgets...");
+		var charts = [];
 
 		for (var sid in servers) {
 			for (var wid in servers[sid]) {
@@ -199,6 +204,8 @@ $(function(){
 				});
 			}
 		}
+
+		resizeEnd();
 	});
 
 	socket.on('mi.PlayerJoin',  onPlayerJoin);
@@ -576,7 +583,7 @@ $(function(){
 
 	// Delay window resize response based on delta delay.
 	(function(){
-		var delta = 300;
+		var delta = 150;
 		var rtime = new Date();
 		var timeout = false;
 		$(window).resize(function() {
@@ -592,9 +599,23 @@ $(function(){
 			} else {
 				timeout = false;
 				// Do thing.
+				resizeEnd();
 			}
 		}
 	}());
+
+	function resizeEnd() {
+		charts.forEach(function (chart) {
+			resizeChart(chart);
+		});
+
+		$('[data-ratio]').each(function(){
+			var $el = $(this);
+			var ratio = $el.data('ratio');
+			$el.css('height', $el.width() * ratio);
+			$el.css('max-height', $el.width() * ratio);
+		});
+	}
 
 	// Vault Prefixes
 	if (config.MinecraftIntegration.showPrefixes) {
@@ -700,3 +721,91 @@ $(function(){
 		});
 	}
 });
+
+// TEMP
+function newLineGraph(el, data, options, cb) {
+	defaultOptions = {
+		margin: {top: 30, right: 20, bottom: 30, left: 50}
+	};
+	options = options || defaultOptions;
+
+	require(['https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.16/d3.min.js'], function (d3) {
+
+		var chart = {el: el};
+
+		chart.margin = options.margin || defaultOptions.margin;
+		chart.width  = el.width()  - chart.margin.left - chart.margin.right;
+		chart.height = el.height() - chart.margin.top  - chart.margin.bottom;
+		chart.xRange = d3.time.scale().range([0, chart.width]);
+		chart.yRange = d3.scale.linear().range([chart.height, 0]);
+		chart.xAxis = d3.svg.axis().scale(chart.xRange).orient("bottom").ticks(5);
+		chart.yAxis = d3.svg.axis().scale(chart.yRange).orient("left").ticks(5);
+
+		// Parse the date / time
+		// var parseDate = d3.time.format("%d-%b-%y").parse;
+
+		// Define the line
+		var valueline = d3.svg.line()
+			.x(function(d) { return chart.xRange(d.timestamp); })
+			.y(function(d) { return chart.yRange(d.tps); });
+
+		data.forEach(function(d) {
+			// d.date = parseDate(d.date);
+			// d.close = +d.close;
+		});
+
+		// Scale the range of the data
+		chart.xRange.domain(d3.extent(data, function(d) { return d.timestamp; }));
+		chart.yRange.domain([0, d3.max(data, function(d) { return d.tps; })]);
+
+		var line = chart.line = valueline(data);
+
+		// Adds the svg canvas
+		var svg = chart.svg = d3.select(el[0])
+			.append("svg")
+				.attr("width",  chart.width  + chart.margin.left + chart.margin.right)
+				.attr("height", chart.height + chart.margin.top  + chart.margin.bottom)
+			.append("g")
+				.attr("transform", "translate(" + chart.margin.left + "," + chart.margin.top + ")");
+
+		svg.append("path")
+			.attr("class", "line")
+			.attr("d", line);
+
+		// Add the X Axis
+		svg.append("g")
+			.attr("class", "x axis")
+			.attr("transform", "translate(0," + chart.height + ")")
+			.call(chart.xAxis);
+
+		// Add the Y Axis
+		svg.append("g")
+			.attr("class", "y axis")
+			.call(chart.yAxis);
+
+		el.find('.axis').css('font-size', el.width()/26);
+
+		cb(null, chart);
+	});
+}
+
+function resizeChart(chart) {
+	require(['https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.16/d3.min.js'], function (d3) {
+
+		chart.width  = chart.el.width()  - chart.margin.left - chart.margin.right;
+		chart.height = chart.el.height() - chart.margin.top  - chart.margin.bottom;
+
+		/* Update the range of the scale with new width/height */
+		chart.xRange = d3.time.scale().range([0, chart.width]);
+		chart.yRange = d3.scale.linear().range([chart.height, 0]);
+		chart.xAxis = d3.svg.axis().scale(chart.xRange).orient("bottom").ticks(5);
+		chart.yAxis = d3.svg.axis().scale(chart.yRange).orient("left").ticks(5);
+
+		/* Update the axis with the new scale */
+		chart.svg.select('.x.axis').attr("transform", "translate(0," + chart.height + ")").call(chart.xAxis);
+		chart.svg.select('.y.axis').call(chart.yAxis);
+
+		/* Force D3 to recalculate and update the line */
+		chart.svg.selectAll('.line').attr("d", chart.line);
+	});
+}
