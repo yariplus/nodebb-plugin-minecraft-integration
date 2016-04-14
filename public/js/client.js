@@ -92,9 +92,7 @@ $(function(){
 		log("PREPARING PLAYERS GRAPH");
 		socket.emit('plugins.MinecraftIntegration.getRecentPings', {sid: widget.sid}, function (err, pings) {
 			console.log(pings);
-			newLineGraph(widget.el, pings, null, function(err, chart) {
-				charts.push(chart);
-			});
+			new miGraph(widget.el, pings);
 		});
 	}
 
@@ -720,92 +718,130 @@ $(function(){
 			});
 		});
 	}
-});
 
-// TEMP
-function newLineGraph(el, data, options, cb) {
-	defaultOptions = {
-		margin: {top: 30, right: 20, bottom: 30, left: 50}
-	};
-	options = options || defaultOptions;
+	// Chart Object
+	function miGraph(el, data, options, cb) {
+		var self = this;
 
-	require(['https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.16/d3.min.js'], function (d3) {
+		self.el = el;
 
-		var chart = {el: el};
+		var defaultOptions = {
+			margin: {top: 30, right: 20, bottom: 30, left: 50}
+		};
+		options = options || defaultOptions;
 
-		chart.margin = options.margin || defaultOptions.margin;
-		chart.width  = el.width()  - chart.margin.left - chart.margin.right;
-		chart.height = el.height() - chart.margin.top  - chart.margin.bottom;
-		chart.xRange = d3.time.scale().range([0, chart.width]);
-		chart.yRange = d3.scale.linear().range([chart.height, 0]);
-		chart.xAxis = d3.svg.axis().scale(chart.xRange).orient("bottom").ticks(5);
-		chart.yAxis = d3.svg.axis().scale(chart.yRange).orient("left").ticks(5);
+		require(['https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.16/d3.min.js'], function (d3) {
+			self.margin = options.margin || defaultOptions.margin;
+			self.width  = el.width()  - self.margin.left - self.margin.right;
+			self.height = el.height() - self.margin.top  - self.margin.bottom;
+			self.xRange = d3.time.scale().range([0, self.width]);
+			self.yRange = d3.scale.linear().range([self.height, 0]);
+			self.xAxis = d3.svg.axis().scale(self.xRange).orient("bottom").ticks(5);
+			self.yAxis = d3.svg.axis().scale(self.yRange).orient("left").ticks(5);
 
-		// Parse the date / time
-		// var parseDate = d3.time.format("%d-%b-%y").parse;
+			// Parse the date / time
+			// var parseDate = d3.time.format("%d-%b-%y").parse;
 
-		// Define the line
-		var valueline = d3.svg.line()
-			.x(function(d) { return chart.xRange(d.timestamp); })
-			.y(function(d) { return chart.yRange(d.tps); });
+			// Define the line
+			var valueline = d3.svg.line()
+				.x(function(d) { return self.xRange(d.timestamp); })
+				.y(function(d) { return self.yRange(d.tps); });
 
-		data.forEach(function(d) {
-			// d.date = parseDate(d.date);
-			// d.close = +d.close;
+			data.forEach(function(d) {
+				// d.date = parseDate(d.date);
+				// d.close = +d.close;
+			});
+
+			// Scale the range of the data
+			self.xRange.domain(d3.extent(data, function(d) { return d.timestamp; }));
+			self.yRange.domain([0, d3.max(data, function(d) { return d.tps; })]);
+
+			var line = self.line = valueline(data);
+
+			// Adds the svg canvas
+			var svg = self.svg = d3.select(el[0])
+				.append("svg")
+					.attr("width",  self.width  + self.margin.left + self.margin.right)
+					.attr("height", self.height + self.margin.top  + self.margin.bottom)
+				.append("g")
+					.attr("transform", "translate(" + self.margin.left + "," + self.margin.top + ")");
+
+			svg.append("path")
+				.attr("class", "line")
+				.attr("d", line);
+
+			// Add the X Axis
+			svg.append("g")
+				.attr("class", "x axis")
+				.attr("transform", "translate(0," + self.height + ")")
+				.call(self.xAxis);
+
+			// Add the Y Axis
+			svg.append("g")
+				.attr("class", "y axis")
+				.call(self.yAxis);
+
+			el.find('.axis').css('font-size', el.width()/26);
+
+			charts.push(self);
 		});
+	}
 
-		// Scale the range of the data
-		chart.xRange.domain(d3.extent(data, function(d) { return d.timestamp; }));
-		chart.yRange.domain([0, d3.max(data, function(d) { return d.tps; })]);
+	miChart.prototype.resize = function(){
+		var self = this;
+		require(['https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.16/d3.min.js'], function (d3) {
+			self.width  = self.el.width()  - self.margin.left - self.margin.right;
+			self.height = self.el.height() - self.margin.top  - self.margin.bottom;
 
-		var line = chart.line = valueline(data);
+			/* Update the range of the scale with new width/height */
+			self.xRange = d3.time.scale().range([0, self.width]);
+			self.yRange = d3.scale.linear().range([self.height, 0]);
+			self.xAxis = d3.svg.axis().scale(self.xRange).orient("bottom").ticks(5);
+			self.yAxis = d3.svg.axis().scale(self.yRange).orient("left").ticks(5);
 
-		// Adds the svg canvas
-		var svg = chart.svg = d3.select(el[0])
-			.append("svg")
-				.attr("width",  chart.width  + chart.margin.left + chart.margin.right)
-				.attr("height", chart.height + chart.margin.top  + chart.margin.bottom)
-			.append("g")
-				.attr("transform", "translate(" + chart.margin.left + "," + chart.margin.top + ")");
+			/* Update the axis with the new scale */
+			self.svg.select('.x.axis').attr("transform", "translate(0," + self.height + ")").call(self.xAxis);
+			self.svg.select('.y.axis').call(self.yAxis);
 
-		svg.append("path")
-			.attr("class", "line")
-			.attr("d", line);
+			/* Force D3 to recalculate and update the line */
+			self.svg.selectAll('.line').attr("d", self.line);
+		});
+	};
 
-		// Add the X Axis
-		svg.append("g")
-			.attr("class", "x axis")
-			.attr("transform", "translate(0," + chart.height + ")")
-			.call(chart.xAxis);
+	miChart.prototype.render = function(){
+		var self = this;
+		require(['https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.16/d3.min.js'], function (d3) {
+			self.updateDimensions();
 
-		// Add the Y Axis
-		svg.append("g")
-			.attr("class", "y axis")
-			.call(chart.yAxis);
+			//update x and y scales to new dimensions
+			// x.range([0, width]);
+			// y.range([height, 0]);
 
-		el.find('.axis').css('font-size', el.width()/26);
+			//update svg elements to new dimensions
+			// svg
+				// .attr('width', width + margin.right + margin.left)
+				// .attr('height', height + margin.top + margin.bottom);
+			// chartWrapper.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
-		cb(null, chart);
-	});
-}
+			//update the axis and line
+			// xAxis.scale(x);
+			// yAxis.scale(y);
 
-function resizeChart(chart) {
-	require(['https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.16/d3.min.js'], function (d3) {
+			// svg.select('.x.axis')
+			// .attr('transform', 'translate(0,' + height + ')')
+			// .call(xAxis);
 
-		chart.width  = chart.el.width()  - chart.margin.left - chart.margin.right;
-		chart.height = chart.el.height() - chart.margin.top  - chart.margin.bottom;
+			// svg.select('.y.axis')
+			// .call(yAxis);
 
-		/* Update the range of the scale with new width/height */
-		chart.xRange = d3.time.scale().range([0, chart.width]);
-		chart.yRange = d3.scale.linear().range([chart.height, 0]);
-		chart.xAxis = d3.svg.axis().scale(chart.xRange).orient("bottom").ticks(5);
-		chart.yAxis = d3.svg.axis().scale(chart.yRange).orient("left").ticks(5);
+			// path.attr('d', line);
+		});
+	};
 
-		/* Update the axis with the new scale */
-		chart.svg.select('.x.axis').attr("transform", "translate(0," + chart.height + ")").call(chart.xAxis);
-		chart.svg.select('.y.axis').call(chart.yAxis);
-
-		/* Force D3 to recalculate and update the line */
-		chart.svg.selectAll('.line').attr("d", chart.line);
-	});
-}
+	miChart.prototype.buildScales = function(){};
+	miChart.prototype.buildAxis = function(){};
+	miChart.prototype.buildSVG = function(){};
+	miChart.prototype.buildContainerGroups = function(){};
+	miChart.prototype.drawBars = function(){};
+	miChart.prototype.drawAxis = function(){};
+});
