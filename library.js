@@ -1,5 +1,7 @@
 "use strict";
 
+var analytics = require('./lib/analytics');
+
 var	Admin   = require('./lib/admin');
 var API     = require('./lib/api');
 var Backend = require('./lib/backend');
