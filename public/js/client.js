@@ -353,6 +353,7 @@ $(function(){
 
 						$avatar.load(function(){
 							log("Fading in " + player.name);
+							$avatar.tooltip({ container: 'body' });
 							$avatar.fadeIn(600, 'linear');
 							if (!--pendingPlayers) setAvatarBorders($widget);
 						});
@@ -478,7 +479,7 @@ $(function(){
 				wrapAvatar($avatar);
 
 				$avatar.load(function(){
-					$avatar.tooltip();
+					$avatar.tooltip({ container: 'body' });
 					$avatar.fadeIn(600, 'linear');
 					setAvatarBorders($widget);
 
