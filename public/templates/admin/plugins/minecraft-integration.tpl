@@ -167,3 +167,76 @@
 	</div>
 
 </div>
+
+
+<br>
+
+<div class="alert alert-info clearfix beg">
+	<div class="h1">Hello!</div>
+	<p>I'm <a href="https://github.com/yariplus">yariplus</a>, creator of this fine plugin. If you found this plugin useful, consider supporting me by making a financial contribution using one of the services below. And thanks for using my plugins!</p>
+	<div>
+		<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top" class="pay">
+			<input type="hidden" name="cmd" value="_s-xclick">
+			<input type="hidden" name="hosted_button_id" value="DQP2MAQGKT7KC">
+			<input type="image" src="https://www.paypalobjects.com/webstatic/en_US/btn/btn_donate_pp_142x27.png" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+			<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+		</form>
+		<a href="https://www.patreon.com/yariplus">
+			<img src="https://s3.amazonaws.com/patreon_public_assets/toolbox/patreon.png" width="82px" class="ptr">
+		</a>
+	</div>
+</div>
+
+<div class="alert alert-warning clearfix beg">
+	<p>Having trouble using this plugin? <a href="https://github.com/yariplus/nodebb-plugin-minecraft-integration/issues/new">Open an issue here.</a></p>
+	<p>Interested in having me make a custom Minecraft or NodeBB plugin for you? Email me at tafike@gmail.com</p>
+</div>
+
+<br><br>
+
+<style>
+
+#minecraft-widgets .tooltip-inner {
+	max-width: 300px;
+	color: #757575;
+	background: #fff;
+	border: 1px #727272 solid;
+	border-radius: 10px;
+}
+
+.beg .h1 {
+	margin-top: 0;
+	color: white;
+}
+
+.beg p {
+	margin-bottom: 15px;
+}
+
+.pay {
+	display: inline-block;
+}
+
+.pay input {
+	border-radius: 4px;
+}
+
+.ptr {
+	border-radius: 4px;
+	vertical-align: baseline;
+	margin-left: 5px;
+	background: white none repeat scroll 0% 0%;
+	padding: 5px;
+	display: inline-block;
+	outline: medium none;
+	cursor: pointer;
+	text-align: center;
+	text-decoration: none;
+	-webkit-border-radius: 20px;
+	-moz-border-radius: 20px;
+	-webkit-box-shadow: inset 1px -4px 2px rgba(0, 0, 0, 0.2)
+	-moz-box-shadow: inset 1px -4px 2px rgba(0, 0, 0, 0.2);
+	box-shadow: inset 1px -4px 2px rgba(0, 0, 0, 0.2);
+}
+
+</style>

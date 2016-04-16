@@ -92,7 +92,7 @@ $(function(){
 		log("PREPARING PLAYERS GRAPH");
 		socket.emit('plugins.MinecraftIntegration.getRecentPings', {sid: widget.sid}, function (err, pings) {
 			console.log(pings);
-			new miGraph(widget.el, pings);
+			new miChart(widget.el, pings);
 		});
 	}
 
@@ -110,7 +110,8 @@ $(function(){
 	function prepareTopGraph() {
 	}
 
-	function prepareTopList() {
+	function prepareTopList(widget) {
+		widget.el.find('img').tooltip();
 	}
 
 	function prepareTPSGraph() {
@@ -477,7 +478,7 @@ $(function(){
 				wrapAvatar($avatar);
 
 				$avatar.load(function(){
-
+					$avatar.tooltip();
 					$avatar.fadeIn(600, 'linear');
 					setAvatarBorders($widget);
 
@@ -720,7 +721,7 @@ $(function(){
 	}
 
 	// Chart Object
-	function miGraph(el, data, options, cb) {
+	function miChart(el, data, options, cb) {
 		var self = this;
 
 		self.el = el;
