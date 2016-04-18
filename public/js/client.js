@@ -606,7 +606,7 @@ $(function(){
 
 	function resizeEnd() {
 		charts.forEach(function (chart) {
-			resizeChart(chart);
+			//resizeChart(chart);
 		});
 
 		$('[data-ratio]').each(function(){
@@ -723,6 +723,7 @@ $(function(){
 
 	// Chart Object
 	function miChart(el, data, options, cb) {
+		if (!data || !el) return;
 		var self = this;
 
 		self.el = el;
