@@ -107,7 +107,6 @@ $(function(){
 		socket.emit('plugins.MinecraftIntegration.getServerStatus', {sid: widget.sid}, function (err, status) {
 			if (err || !status) return;
 			setPlayers(status);
-			setGraphs(status);
 		});
 	}
 
@@ -241,7 +240,6 @@ $(function(){
 		log("Received Status Ping", data);
 
 		setPlayers(data);
-		setGraphs(data);
 
 		var $widget = $('[data-sid="' + data.sid + '"]');
 
@@ -569,12 +567,6 @@ $(function(){
 		});
 	}
 
-	function updateCharts(status) {
-	}
-
-	function setGraphs(status) {
-	}
-
 	function getAvatarUrl(name) {
 		return "/api/minecraft-integration/avatar/" + name + "/64";
 	}
@@ -702,36 +694,5 @@ $(function(){
 		,	meridiem = date.getHours() < 12 ? "AM" : "PM";
 
 		return hours + ":" + minutes + " " + meridiem;
-	}
-
-	function setGraphs(status) {
-		$('[data-widget="mi-players-graph"][data-sid="' + status.sid + '"]').each(function (i, widget) {
-			var	$widget   = $(widget),
-				$chart    = $widget.find('.mi-chart'),
-				chart     = $chart.data('chart'),
-				fillColor = $widget.attr('data-chart-color-fill') ? $widget.attr('data-chart-color-fill') : "rgba(151,187,205,1)";
-			socket.emit('plugins.MinecraftIntegration.getRecentPings', {sid: status.sid}, function (err, pings) {
-				// TODO
-			});
-		});
-
-		$('[data-widget="mi-tps-graph"][data-sid="' + status.sid + '"]').each(function (i, widget) {
-			var	$widget   = $(widget),
-				$chart    = $widget.find('.mi-chart'),
-				chart     = $chart.data('chart'),
-				fillColor = $widget.attr('data-chart-color-fill') ? $widget.attr('data-chart-color-fill') : "rgba(151,187,205,1)";
-			socket.emit('plugins.MinecraftIntegration.getRecentPings', {sid: status.sid}, function (err, pings) {
-				// TODO
-			});
-		});
-
-		$('[data-widget="mi-top-graph"][data-sid="' + status.sid + '"]').each(function (i, widget) {
-			var	$widget = $(widget),
-				$canvas = $widget.find('.mi-canvas'),
-				chart = $canvas.data('chart');
-			socket.emit('plugins.MinecraftIntegration.getTopPlayersByPlaytimes', {show: 10}, function (err, players) {
-				// TODO
-			});
-		});
 	}
 });
