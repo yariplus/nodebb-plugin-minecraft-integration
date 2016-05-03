@@ -1,28 +1,25 @@
-# Minecraft Integration
+# NodeBB Minecraft Integration
 
 **For support, visit the project's topic on the NodeBB Forums.**
 
 **[https://community.nodebb.org/topic/3559](https://community.nodebb.org/topic/3559 "NodeBB Forums - Minecraft Integration")**
 
-The Minecraft Integration project aims to reproduce and enhance widgets and features found on sites such as Enjin (XenForo-based) for use on a NodeBB forum.
+The Minecraft Integration project aims to reproduce and enhance widgets and features found on sites such as Enjin for use on a NodeBB forum.
 
-**This plugin requires the Bukkit plugin [nodebb-integration](https://github.com/yariplus/bukkit-plugin-nodebb-integration/releases/ "Download page for nodebb-integration").**
+## Requirements
 
-Compatible with NodeBB v0.9.0 and up.
+ - A NodeBB forum v0.9.0 or greater.
+ - A Minecraft server with the [NodeBB Integration plugin](https://github.com/yariplus/bukkit-plugin-nodebb-integration/releases/ "Download page for nodebb-integration") installed.
 
 ## Installation
 
-1. Install the forum plugin using the Install Plugins page on the NodeBB Admin control panel.
-
-2. Install the Bukkit plugin [nodebb-integration](https://github.com/yariplus/bukkit-plugin-nodebb-integration/releases/ "Download page for nodebb-integration") on your Minecraft server.
+Install the plugin by using the Install Plugins page on the NodeBB Admin Control Panel.
 
 ## Setup
 
-After installing the plugin and reloading your NodeBB, go to the **Plugins->Minecraft Integration** page in the Admin control panel and add a new server.
-
-Copy the server's API key.
-
-On your Minecraft server console, enter the command `/nodebb key {APIkey}`
+1. After installing the plugin and reloading your NodeBB, go to the **Plugins->Minecraft Integration** page in the Admin control panel and add a new server, fill out the required info, and save.
+2. Copy the server's API key.
+3. On your Minecraft server console, enter the command `/nodebb key {APIkey}`
 
 The server will now connect to your forum and send it information every minute or when an event occurs.
 
@@ -44,37 +41,37 @@ This key is used to connect your Minecraft server to the forum.
 
 Shows MOTD, min/max players, version, online player avatars, and other information about the Minecraft server. Displays everything in a pretty table. Custom rows can be added for things such as Mod Pack downloads, donation links, or any other html you wish to add.
 
-![Server Status Widget Sample Image](http://yariplus.x10.mx/images/widgetServerStatus.png "Server Status Widget Sample Image")
+![Server Status Widget Sample Image](http://relm.radiofreederp.com/images/widgetServerStatus.png "Server Status Widget Sample Image")
 
 ### Mini Map Widget
 
 Displays a Dynmap or Overviewer mini-map with configurable start location. (World/MapType/Coordinate).
 
-![Dynmap Mini Map Sample Image](http://yariplus.x10.mx/images/widgetDynmapMiniMap.png "Dynmap Mini Map Sample Image")
+![Dynmap Mini Map Sample Image](http://relm.radiofreederp.com/images/widgetDynmapMiniMap.png "Dynmap Mini Map Sample Image")
 
 ### Online Players Graph Widget
 
 A graph showing the number of player on the server recently. (Last 30 pings)
 
-![Online Players Graph Sample Image](http://yariplus.x10.mx/images/widgetOnlinePlayersGraph.png "Online Players Graph Sample Image")
+![Online Players Graph Sample Image](http://relm.radiofreederp.com/images/widgetOnlinePlayersGraph.png "Online Players Graph Sample Image")
 
 ### Online Players Grid Widget
 
 A grid of avatars of players currently on the server.
 
-![Online Players Grid Sample Image](http://yariplus.x10.mx/images/widgetOnlinePlayersGrid.png "Online Players Grid Sample Image")
+![Online Players Grid Sample Image](http://relm.radiofreederp.com/images/widgetOnlinePlayersGrid.png "Online Players Grid Sample Image")
 
 ### Top Players List Widget
 
 Displays user avatars in a list representing the top players' approximate play time.
 
-![Top Players List Sample Image](http://yariplus.x10.mx/images/widgetTopPlayersList.png "Top Players List Sample Image")
+![Top Players List Sample Image](http://relm.radiofreederp.com/images/widgetTopPlayersList.png "Top Players List Sample Image")
 
 ### Top Players Graph Widget
 
 A graphic chart (Pie) representing the top players' approximate play time.
 
-![Top Players Graph Sample Image](http://yariplus.x10.mx/images/widgetTopPlayersGraph.png "Top Players Graph Sample Image")
+![Top Players Graph Sample Image](http://relm.radiofreederp.com/images/widgetTopPlayersGraph.png "Top Players Graph Sample Image")
 
 ### TPS Graph Widget
 
