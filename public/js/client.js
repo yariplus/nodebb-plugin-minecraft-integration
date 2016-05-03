@@ -76,27 +76,31 @@ $(function(){
 		});
 	}
 
-	function prepareDirectory() {
+	function prepareDirectory(widget) {
 	}
 
-	function prepareGallery() {
+	function prepareGallery(widget) {
 	}
 
-	function prepareMap() {
+	function prepareMap(widget) {
 	}
 
-	function preparePingGraph() {
+	function preparePingGraph(widget) {
 	}
 
 	function preparePlayersGraph(widget) {
 		log("PREPARING PLAYERS GRAPH");
 		socket.emit('plugins.MinecraftIntegration.getRecentPings', {sid: widget.sid}, function (err, pings) {
-			console.log(pings);
-			new miChart(widget.el, pings);
+			new miChart(widget.el, pings, {
+				getValueY: function(d){ return d.players.length; },
+				minY: 5,
+				bufferY: 2,
+				maxY: 33
+			});
 		});
 	}
 
-	function preparePlayersGrid() {
+	function preparePlayersGrid(widget) {
 	}
 
 	function prepareStatus(widget) {
@@ -107,17 +111,25 @@ $(function(){
 		});
 	}
 
-	function prepareTopGraph() {
+	function prepareTopGraph(widget) {
 	}
 
 	function prepareTopList(widget) {
 		widget.el.find('img').tooltip();
 	}
 
-	function prepareTPSGraph() {
+	function prepareTPSGraph(widget) {
+		log("PREPARING TPS GRAPH");
+		socket.emit('plugins.MinecraftIntegration.getRecentPings', {sid: widget.sid}, function (err, pings) {
+			new miChart(widget.el, pings, {
+				getValueY: function(d){ return d.tps; },
+				minY: 20,
+				maxY: 20
+			});
+		});
 	}
 
-	function prepareVoteList() {
+	function prepareVoteList(widget) {
 	}
 
 	var prepareWidget = {
@@ -721,20 +733,27 @@ $(function(){
 		});
 	}
 
+	var defaultChartOptions = {
+		margin: {top: 30, right: 20, bottom: 30, left: 50},
+		getValueX: function(d){ return d.timestamp; },
+		getValueY: function(d){ return d.tps; },
+		minY: 5,
+		bufferY: 2,
+		maxY: 33
+	};
+
 	// Chart Object
 	function miChart(el, data, options, cb) {
-		if (!data || !el) return;
 		var self = this;
 
 		self.el = el;
 
-		var defaultOptions = {
-			margin: {top: 30, right: 20, bottom: 30, left: 50}
-		};
-		options = options || defaultOptions;
+		options = options || defaultChartOptions;
+
+		for (var p in defaultChartOptions) { options[p] = options[p] || defaultChartOptions[p] }
 
 		require(['https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.16/d3.min.js'], function (d3) {
-			self.margin = options.margin || defaultOptions.margin;
+			self.margin = options.margin;
 			self.width  = el.width()  - self.margin.left - self.margin.right;
 			self.height = el.height() - self.margin.top  - self.margin.bottom;
 			self.xRange = d3.time.scale().range([0, self.width]);
@@ -747,8 +766,8 @@ $(function(){
 
 			// Define the line
 			var valueline = d3.svg.line()
-				.x(function(d) { return self.xRange(d.timestamp); })
-				.y(function(d) { return self.yRange(d.tps); });
+				.x(function(d) { return self.xRange(options.getValueX(d)); })
+				.y(function(d) { return self.yRange(options.getValueY(d)); });
 
 			data.forEach(function(d) {
 				// d.date = parseDate(d.date);
@@ -756,8 +775,8 @@ $(function(){
 			});
 
 			// Scale the range of the data
-			self.xRange.domain(d3.extent(data, function(d) { return d.timestamp; }));
-			self.yRange.domain([0, d3.max(data, function(d) { return d.tps; })]);
+			self.xRange.domain(d3.extent(data, options.getValueX));
+			self.yRange.domain([0, Math.min(options.maxY, Math.max(d3.max(data, options.getValueY), options.minY) + options.bufferY)]);
 
 			var line = self.line = valueline(data);
 
