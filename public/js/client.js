@@ -90,13 +90,16 @@ $(function(){
 
 	function preparePlayersGraph(widget) {
 		log("PREPARING PLAYERS GRAPH");
-		socket.emit('plugins.MinecraftIntegration.getRecentPings', {sid: widget.sid}, function (err, pings) {
-			new miChart(widget.el, pings, {
+		socket.emit('plugins.MinecraftIntegration.getRecentPings', {sid: widget.sid, last: 20}, function (err, pings) {
+			charts.push(new miChart({
+				type: 'bar',
+				el: widget.el,
+				data: pings,
 				getValueY: function(d){ return d.players.length; },
 				minY: 5,
 				bufferY: 2,
 				maxY: 33
-			});
+			}));
 		});
 	}
 
@@ -120,11 +123,13 @@ $(function(){
 	function prepareTPSGraph(widget) {
 		log("PREPARING TPS GRAPH");
 		socket.emit('plugins.MinecraftIntegration.getRecentPings', {sid: widget.sid}, function (err, pings) {
-			new miChart(widget.el, pings, {
+			charts.push(new miChart({
+				el: widget.el,
+				data: pings,
 				getValueY: function(d){ return d.tps; },
 				minY: 20,
 				maxY: 20
-			});
+			}));
 		});
 	}
 
@@ -205,7 +210,7 @@ $(function(){
 			});
 
 			log("Preparing widgets...");
-			var charts = [];
+			charts = [];
 
 			for (var sid in servers) {
 				for (var wid in servers[sid]) {
@@ -612,15 +617,15 @@ $(function(){
 
 	function resizeEnd() {
 		charts.forEach(function (chart) {
-			//resizeChart(chart);
+			chart.resize();
 		});
 
-		$('[data-ratio]').each(function(){
-			var $el = $(this);
-			var ratio = $el.data('ratio');
-			$el.css('height', $el.width() * ratio);
-			$el.css('max-height', $el.width() * ratio);
-		});
+		// $('[data-ratio]').each(function(){
+			// var $el = $(this);
+			// var ratio = $el.data('ratio');
+			// $el.css('height', $el.width() * ratio);
+			// $el.css('max-height', $el.width() * ratio);
+		// });
 	}
 
 	// Vault Prefixes

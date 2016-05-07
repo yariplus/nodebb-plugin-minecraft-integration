@@ -416,16 +416,62 @@ body.modal-open {
 	line-height: 1.42857143;
 }
 
-path {
-    stroke: steelblue;
-    stroke-width: 2;
-    fill: none;
+.michart-container {
+	display: inline-block;
+    position: relative;
+    width: 100%;
+    padding-bottom: 75%; /* aspect ratio */
+    vertical-align: top;
+    overflow: hidden;
+
+	.michart-content {
+		display: inline-block;
+		position: absolute;
+		top: 0;
+		left: 0;
+
+		.axis {
+			font-size: 26px;
+		}
+
+		.bar {
+			stroke-width: 0;
+			fill: green;
+		}
+
+		.bar:hover {
+			fill: lightgreen;
+		}
+
+		path {
+			stroke: steelblue;
+			stroke-width: 2;
+			fill: none;
+		}
+
+		.axis path,
+		.axis line {
+			fill: none;
+			stroke: grey;
+			stroke-width: 3;
+			shape-rendering: crispEdges;
+		}
+	}
 }
 
-.axis path,
-.axis line {
-    fill: none;
-    stroke: grey;
-    stroke-width: 1;
-    shape-rendering: crispEdges;
+.tooltip.michart {
+	.tooltip-inner {
+		max-width: 300px;
+		color: #757575;
+		background: #fff;
+		border: 1px #727272 solid;
+		border-radius: 10px;
+
+		hr {
+			margin-top: 2px;
+			margin-bottom: 2px;
+			border: 0;
+			border-top: 1px solid #eee;
+		}
+	}
 }

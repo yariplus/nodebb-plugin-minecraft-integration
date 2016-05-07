@@ -1,22 +1,33 @@
 define(['./d3.min.js'], function(d3){
-	var defaultChartOptions = {
-		margin: {top: 30, right: 30, bottom: 30, left: 30},
+	var defaultParams = {
+		margin: {top: 0.05, right: 0.05, bottom: 0.05, left: 0.05},
 		getValueX: function(d){ return d.timestamp; },
 		getValueY: function(d){ return d.tps; },
 		minY: 5,
-		bufferY: 2,
-		maxY: 33
+		bufferY: 1,
+		maxY: 33,
+		type: 'line',
+		data: {},
+		el: null
 	};
 
 	// Chart Object
-	function miChart(el, data, options, cb) {
+	function miChart(params, cb) {
 		var self = this;
-		self.el = el;
-		self.data = data;
+		params = params || {};
 
-		options = options || {};
-		for (var p in defaultChartOptions) { self[p] = options[p] || defaultChartOptions[p] }
+		for (var p in defaultParams) { self[p] = params[p] || defaultParams[p] }
 
+		make[self.type](self);
+	}
+
+	var make = {
+		line: lineChart,
+		bar: barChart,
+		pie: pieChart
+	}
+
+	function lineChart(self) {
 		self.buildContainerGroups();
 		self.buildSVG();
 		self.buildScales();
@@ -24,58 +35,71 @@ define(['./d3.min.js'], function(d3){
 		self.drawLine();
 		self.drawAxis();
 
-		self.el.find('.axis').css('font-size', el.width()/26);
+		self.el.find('.axis').css('font-size', self.el.width()/28);
+	}
 
-		charts.push(self);
+	function barChart(self) {
+		self.buildContainerGroups();
+		self.buildSVG();
+		self.buildScales();
+		self.drawBars();
+
+		self.el.find('.axis').css('font-size', self.el.width()/28);
+
+		self.el.find('.bar').tooltip({
+			container: 'body',
+			html: true,
+			template: '<div class="tooltip michart" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'
+		});
+	}
+
+	function pieChart(self) {
+		// TODO
 	}
 
 	miChart.prototype.resize = function(){
+		// TODO: Resize components based on new resolution when appropriate.
+		return;
 		var self = this;
 
-		self.width  = self.el.width()  - self.margin.left - self.margin.right;
-		self.height = self.el.height() - self.margin.top  - self.margin.bottom;
+		self.buildContainerGroups();
+		self.svg.attr("viewBox", "0 0 " + self.el.width() + " " + (self.el.width()*self.el.data('ratio')))
 
-		/* Update the range of the scale with new width/height */
-		self.xScale = d3.time.scale().range([0, self.width]);
-		self.yScale = d3.scale.linear().range([self.height, 0]);
-		self.xAxis = d3.svg.axis().scale(self.xScale).orient("bottom").ticks(5);
-		self.yAxis = d3.svg.axis().scale(self.yScale).orient("left").ticks(5);
-
-		/* Update the axis with the new scale */
-		self.svg.select('.x.axis').attr("transform", "translate(0," + self.height + ")").call(self.xAxis);
-		self.svg.select('.y.axis').call(self.yAxis);
-
-		/* Force D3 to recalculate and update the line */
-		self.svg.selectAll('.line').attr("d", self.line);
+		self.el.find('.axis').css('font-size', self.el.width()/26);
 	};
 
-	miChart.prototype.render = function(){
+	miChart.prototype.marginLeft   = function(){return (this.el.width())*(this.margin.left);};
+	miChart.prototype.marginRight  = function(){return (this.el.width())*(this.margin.right);};
+	miChart.prototype.marginTop    = function(){return (this.el.width()*this.el.data('ratio'))*(this.margin.top);};
+	miChart.prototype.marginBottom = function(){return (this.el.width()*this.el.data('ratio'))*(this.margin.bottom);};
+
+	miChart.prototype.buildContainerGroups = function(){
 		var self = this;
 
-		self.updateDimensions();
+		// Define container.
+		self.width  = (self.el.width())      - self.marginLeft() - self.marginRight();
+		self.height = (self.el.width()*self.el.data('ratio')) - self.marginTop() - self.marginBottom();
 
-		//update x and y scales to new dimensions
-		// x.range([0, width]);
-		// y.range([height, 0]);
+		self.el.css("padding-bottom", self.el.data('ratio')*100 + "%");
+	};
 
-		//update svg elements to new dimensions
-		// svg
-			// .attr('width', width + margin.right + margin.left)
-			// .attr('height', height + margin.top + margin.bottom);
-		// chartWrapper.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+	miChart.prototype.buildSVG = function(){
+		var self = this;
 
-		//update the axis and line
-		// xAxis.scale(x);
-		// yAxis.scale(y);
+		// Adds the svg canvas
+		self.svg = d3.select(self.el[0]).classed("michart-container", true).append("svg").classed("michart-content", true);
+		self.wrapper = self.svg.append("g");
 
-		// svg.select('.x.axis')
-		// .attr('transform', 'translate(0,' + height + ')')
-		// .call(xAxis);
+		self.svg
+			.attr("preserveAspectRatio", "xMinYMin meet")
+			.attr("viewBox", "0 0 " + self.el.width() + " " + (self.el.width()*self.el.data('ratio')));
 
-		// svg.select('.y.axis')
-		// .call(yAxis);
+		self.wrapper
+			.attr("transform", "translate(" + self.marginLeft() + "," + self.marginTop() + ")");
+	};
 
-		// path.attr('d', line);
+	miChart.prototype.sizeSVG = function(){
+		var self = this;
 	};
 
 	miChart.prototype.buildScales = function(){
@@ -87,41 +111,14 @@ define(['./d3.min.js'], function(d3){
 
 		// Scale the range of the data.
 		self.xScale.domain(d3.extent(self.data, self.getValueX));
-		self.yScale.domain([0, Math.min(self.maxY, Math.max(d3.max(self.data, self.getValueY), self.minY) + self.bufferY)]);
+		self.yScale.domain([0, Math.min(self.maxY, Math.max(d3.max(self.data, self.getValueY) + self.bufferY, self.minY))]);
 	};
 
 	miChart.prototype.buildAxis = function(){
 		var self = this;
 
-		self.xAxis = d3.svg.axis().scale(self.xScale).orient("bottom").ticks(5);
-		self.yAxis = d3.svg.axis().scale(self.yScale).orient("left").ticks(5);
-	};
-
-	miChart.prototype.buildSVG = function(){
-		var self = this;
-
-		// Adds the svg canvas
-		self.svg = d3.select(self.el[0])
-			.append("svg")
-				.attr("width",  self.width  + self.margin.left + self.margin.right)
-				.attr("height", self.height + self.margin.top  + self.margin.bottom)
-			.append("g")
-				.attr("transform", "translate(" + self.margin.left + "," + self.margin.top + ")");
-	};
-
-	miChart.prototype.buildContainerGroups = function(){
-		var self = this;
-
-		// Define container.
-		self.margin = self.margin;
-		self.width  = self.el.width()  - self.margin.left - self.margin.right;
-		self.height = self.el.height() - self.margin.top  - self.margin.bottom;
-	};
-
-	miChart.prototype.drawBars = function(){
-		var self = this;
-
-		// TODO
+		self.xAxis = d3.svg.axis().scale(self.xScale).orient("bottom").ticks(0);
+		self.yAxis = d3.svg.axis().scale(self.yScale).orient("left").ticks(0);
 	};
 
 	miChart.prototype.drawLine = function(){
@@ -134,23 +131,47 @@ define(['./d3.min.js'], function(d3){
 
 		var line = self.line = valueline(self.data);
 
-		self.svg.append("path")
+		self.wrapper.append("path")
 			.attr("class", "line")
 			.attr("d", line);
+	};
+
+	miChart.prototype.drawBars = function(){
+		var self = this;
+
+		self.wrapper.selectAll(".bar")
+			.data(self.data)
+			.enter().append("rect")
+			.attr("class", "bar")
+			.attr("x", function(d, i) { return i * (self.width / self.data.length); })
+			.attr("width", (self.width - self.marginRight()) / self.data.length)
+			.attr("y", function(d) { return self.yScale(self.getValueY(d)); })
+			.attr("height", function(d) { return self.height - self.yScale(self.getValueY(d)); })
+			.attr("data-toggle", "tooltip")
+			.attr("data-placement", "top")
+			.attr("title", function(d, i) {
+				var players = self.getValueY(d);
+				var content = "<b>" + players + " Player" + (players === 1 ? '' : 's') + " Online</b><hr>";
+				for (var p in self.data[i].players) {
+					content += '<img src="' + config.relative_path + '/api/minecraft-integration/avatar/' + self.data[i].players[p].name + '/32" width="32" height="32" />';
+				}
+				return content;
+			});
 	};
 
 	miChart.prototype.drawAxis = function(){
 		var self = this;
 
 		// Add the X Axis
-		self.svg.append("g")
+		self.wrapper.append("g")
 			.attr("class", "x axis")
 			.attr("transform", "translate(0," + self.height + ")")
 			.call(self.xAxis);
 
 		// Add the Y Axis
-		self.svg.append("g")
+		self.wrapper.append("g")
 			.attr("class", "y axis")
+			.attr("transform", "translate("+ (self.width - self.marginBottom) + ",0)")
 			.call(self.yAxis);
 	};
 
