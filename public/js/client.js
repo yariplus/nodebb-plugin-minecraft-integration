@@ -114,6 +114,16 @@ $(function(){
 	}
 
 	function prepareTopGraph(widget) {
+		log("PREPARING TOP GRAPH");
+		socket.emit('plugins.MinecraftIntegration.getTopPlayersByPlaytimes', {sid: widget.sid, show: 10}, function (err, players) {
+			charts.push(new miChart({
+				type: 'pie',
+				el: widget.el,
+				data: players,
+				getValueX: function(d){ return d.name; },
+				getValueY: function(d){ return d.playtime; }
+			}));
+		});
 	}
 
 	function prepareTopList(widget) {

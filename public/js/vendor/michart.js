@@ -18,6 +18,9 @@ define(['./d3.min.js'], function(d3){
 
 		for (var p in defaultParams) { self[p] = params[p] || defaultParams[p] }
 
+		// Conventional padding hack.
+		self.el.css("padding-bottom", self.el.data('ratio')*100 + "%");
+
 		make[self.type](self);
 	}
 
@@ -28,8 +31,8 @@ define(['./d3.min.js'], function(d3){
 	}
 
 	function lineChart(self) {
-		self.buildContainerGroups();
-		self.buildSVG();
+		self.useConventionalMargins(self);
+		self.buildSVG(self);
 		self.buildScales();
 		self.buildAxis();
 		self.drawLine();
@@ -39,8 +42,8 @@ define(['./d3.min.js'], function(d3){
 	}
 
 	function barChart(self) {
-		self.buildContainerGroups();
-		self.buildSVG();
+		self.useConventionalMargins(self);
+		self.buildSVG(self);
 		self.buildScales();
 		self.drawBars();
 
@@ -54,38 +57,39 @@ define(['./d3.min.js'], function(d3){
 	}
 
 	function pieChart(self) {
-		// TODO
+		self.useNoMargins(self);
+		self.buildSVG(self);
+		self.drawPie(self);
+
+		self.el.find('.arc path').tooltip({
+			container: 'body',
+			html: true,
+			template: '<div class="tooltip michart" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'
+		});
 	}
 
 	miChart.prototype.resize = function(){
 		// TODO: Resize components based on new resolution when appropriate.
 		return;
-		var self = this;
-
-		self.buildContainerGroups();
-		self.svg.attr("viewBox", "0 0 " + self.el.width() + " " + (self.el.width()*self.el.data('ratio')))
-
-		self.el.find('.axis').css('font-size', self.el.width()/26);
 	};
 
 	miChart.prototype.marginLeft   = function(){return (this.el.width())*(this.margin.left);};
 	miChart.prototype.marginRight  = function(){return (this.el.width())*(this.margin.right);};
-	miChart.prototype.marginTop    = function(){return (this.el.width()*this.el.data('ratio'))*(this.margin.top);};
+	miChart.prototype.marginTop    = function(){console.log(this.margin);return (this.el.width()*this.el.data('ratio'))*(this.margin.top);};
 	miChart.prototype.marginBottom = function(){return (this.el.width()*this.el.data('ratio'))*(this.margin.bottom);};
 
-	miChart.prototype.buildContainerGroups = function(){
-		var self = this;
-
-		// Define container.
+	miChart.prototype.useConventionalMargins = function(self){
 		self.width  = (self.el.width())      - self.marginLeft() - self.marginRight();
 		self.height = (self.el.width()*self.el.data('ratio')) - self.marginTop() - self.marginBottom();
-
-		self.el.css("padding-bottom", self.el.data('ratio')*100 + "%");
 	};
 
-	miChart.prototype.buildSVG = function(){
-		var self = this;
+	miChart.prototype.useNoMargins = function(self){
+		self.width  = self.el.width();
+		self.height = self.el.width() * self.el.data('ratio');
+		self.margin = {left: 0, right: 0, top: 0, bottom: 0};
+	};
 
+	miChart.prototype.buildSVG = function(self){
 		// Adds the svg canvas
 		self.svg = d3.select(self.el[0]).classed("michart-container", true).append("svg").classed("michart-content", true);
 		self.wrapper = self.svg.append("g");
@@ -152,12 +156,34 @@ define(['./d3.min.js'], function(d3){
 			.attr("title", function(d, i) {
 				var players = self.getValueY(d);
 				var content = "<b>" + players + " Player" + (players === 1 ? '' : 's') + " Online</b><hr>";
-				for (var p in self.data[i].players) {
-					content += '<img src="' + config.relative_path + '/api/minecraft-integration/avatar/' + self.data[i].players[p].name + '/32" width="32" height="32" />';
+				for (var p in d.players) {
+					content += '<img src="' + config.relative_path + '/api/minecraft-integration/avatar/' + d.players[p].name + '/32" width="32" height="32" />';
 				}
 				return content;
 			});
 	};
+
+	// TEMP
+	var color = d3.scale.ordinal().range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00","#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00","#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
+
+	miChart.prototype.drawPie = function(self){
+		var g = self.wrapper.selectAll(".arc")
+			.data(d3.layout.pie().sort(null).value(self.getValueY)(self.data))
+			.enter().append("g")
+			.attr("class", "arc");
+
+		g.append("path")
+			.attr("d", d3.svg.arc().outerRadius(Math.min(self.width, self.height) / 2 - 10).innerRadius(0))
+			.style("fill", function(d, i) { return color(i); })
+			.attr("data-toggle", "tooltip")
+			.attr("data-placement", "top")
+			.attr("title", function(d, i) {
+				var content = '<b>' + d.data.name + '</b><br><img src="' + config.relative_path + '/api/minecraft-integration/avatar/' + d.data.name + '/32" width="32" height="32" /><br>' + d.data.playtime;
+				return content;
+			});
+
+		self.wrapper.attr("transform", "translate(" + self.width/2 + "," + self.height/2 + ")");
+	}
 
 	miChart.prototype.drawAxis = function(){
 		var self = this;
@@ -171,7 +197,7 @@ define(['./d3.min.js'], function(d3){
 		// Add the Y Axis
 		self.wrapper.append("g")
 			.attr("class", "y axis")
-			.attr("transform", "translate("+ (self.width - self.marginBottom) + ",0)")
+			.attr("transform", "translate(0,0)")
 			.call(self.yAxis);
 	};
 
