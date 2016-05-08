@@ -10,8 +10,7 @@
 		<tbody>
 			<!-- BEGIN players -->
 			<tr>
-				<td>
-
+				<td style="width:0">
 					<img class="mi-avatar not-responsive"
 						src="/api/minecraft-integration/avatar/{players.name}/64"
 						title="{players.name}"
@@ -19,14 +18,9 @@
 						data-toggle="tooltip"
 						data-placement="top"
 						rel="tooltip">
-
 				</td>
-				<td style="vertical-align:middle">
-
-					<span class="score">
-						<strong>{players.playername}</strong> ~ <span class="mi-score">{players.score}</span> {statname}
-					</span>
-
+				<td style="vertical-align:middle" class="text-xs-left">
+					<span class="score"><span class="mi-score">{players.score}</span>{statname}</span>
 				</td>
 			</tr>
 			<!-- END players -->
