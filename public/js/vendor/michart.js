@@ -91,15 +91,14 @@ define(['./d3.min.js'], function(d3){
 
 	miChart.prototype.buildSVG = function(self){
 		// Adds the svg canvas
-		self.svg = d3.select(self.el[0]).classed("michart-container", true).append("svg").classed("michart-content", true);
-		self.wrapper = self.svg.append("g");
+		self.wrapper = d3.select(self.el[0]).classed("michart-container", true).append("svg").classed("michart-content", true);
+		self.svg = self.wrapper.append("g");
 
-		self.svg
+		self.wrapper
 			.attr("preserveAspectRatio", "xMinYMin meet")
 			.attr("viewBox", "0 0 " + self.el.width() + " " + (self.el.width()*self.el.data('ratio')));
 
-		self.wrapper
-			.attr("transform", "translate(" + self.marginLeft() + "," + self.marginTop() + ")");
+		self.svg.attr("transform", "translate(" + self.marginLeft() + "," + self.marginTop() + ")");
 	};
 
 	miChart.prototype.sizeSVG = function(){
@@ -135,7 +134,7 @@ define(['./d3.min.js'], function(d3){
 
 		var line = self.line = valueline(self.data);
 
-		self.wrapper.append("path")
+		self.svg.append("path")
 			.attr("class", "line")
 			.attr("d", line);
 	};
@@ -143,7 +142,7 @@ define(['./d3.min.js'], function(d3){
 	miChart.prototype.drawBars = function(){
 		var self = this;
 
-		self.wrapper.selectAll(".bar")
+		self.svg.selectAll(".bar")
 			.data(self.data)
 			.enter().append("rect")
 			.attr("class", "bar")
@@ -167,7 +166,7 @@ define(['./d3.min.js'], function(d3){
 	var color = d3.scale.ordinal().range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00","#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00","#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
 
 	miChart.prototype.drawPie = function(self){
-		var g = self.wrapper.selectAll(".arc")
+		var g = self.svg.selectAll(".arc")
 			.data(d3.layout.pie().sort(null).value(self.getValueY)(self.data))
 			.enter().append("g")
 			.attr("class", "arc");
@@ -182,20 +181,20 @@ define(['./d3.min.js'], function(d3){
 				return content;
 			});
 
-		self.wrapper.attr("transform", "translate(" + self.width/2 + "," + self.height/2 + ")");
+		self.svg.attr("transform", "translate(" + self.width/2 + "," + self.height/2 + ")");
 	}
 
 	miChart.prototype.drawAxis = function(){
 		var self = this;
 
 		// Add the X Axis
-		self.wrapper.append("g")
+		self.svg.append("g")
 			.attr("class", "x axis")
 			.attr("transform", "translate(0," + self.height + ")")
 			.call(self.xAxis);
 
 		// Add the Y Axis
-		self.wrapper.append("g")
+		self.svg.append("g")
 			.attr("class", "y axis")
 			.attr("transform", "translate(0,0)")
 			.call(self.yAxis);
