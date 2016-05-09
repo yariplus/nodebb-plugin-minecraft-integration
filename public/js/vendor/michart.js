@@ -154,7 +154,7 @@ define(['./d3.min.js'], function(d3){
 			.attr("data-placement", "top")
 			.attr("title", function(d, i) {
 				var players = self.getValueY(d);
-				var content = "<b>" + players + " Player" + (players === 1 ? '' : 's') + " Online</b><hr>";
+				var content = "<b>" + d.humanTime + "</b> " + players + " Player" + (players === 1 ? '' : 's') + " Online</b><hr>";
 				for (var p in d.players) {
 					content += '<img src="' + config.relative_path + '/api/minecraft-integration/avatar/' + d.players[p].name + '/32" width="32" height="32" />';
 				}
