@@ -3,9 +3,9 @@ define(['./d3.min.js'], function(d3){
 		margin: {top: 0.05, right: 0.05, bottom: 0.05, left: 0.05},
 		getValueX: function(d){ return d.timestamp; },
 		getValueY: function(d){ return d.tps; },
-		minY: 5,
+		minY: 0,
 		bufferY: 1,
-		maxY: 33,
+		maxY: 999999999,
 		type: 'line',
 		data: {},
 		el: null
@@ -114,7 +114,8 @@ define(['./d3.min.js'], function(d3){
 
 		// Scale the range of the data.
 		self.xScale.domain(d3.extent(self.data, self.getValueX));
-		self.yScale.domain([0, Math.min(self.maxY, Math.max(d3.max(self.data, self.getValueY) + self.bufferY, self.minY))]);
+		console.log([Math.max(0, self.minY), Math.min(self.maxY, d3.max(self.data, self.getValueY) + self.bufferY)]);
+		self.yScale.domain([Math.max(0, self.minY), Math.min(self.maxY, d3.max(self.data, self.getValueY) + self.bufferY)]);
 	};
 
 	miChart.prototype.buildAxis = function(){
@@ -148,15 +149,18 @@ define(['./d3.min.js'], function(d3){
 			.attr("class", "bar")
 			.attr("x", function(d, i) { return i * (self.width / self.data.length); })
 			.attr("width", (self.width - self.marginRight()) / self.data.length)
-			.attr("y", function(d) { return self.yScale(self.getValueY(d)); })
-			.attr("height", function(d) { return self.height - self.yScale(self.getValueY(d)); })
+			.attr("y", function(d) { return Math.min(self.yScale(self.getValueY(d)), self.yScale((self.minY+self.bufferY)/100)); })
+			.attr("height", function(d) { return self.height - Math.min(self.yScale(self.getValueY(d)), self.yScale((self.minY+self.bufferY)/100)); })
 			.attr("data-toggle", "tooltip")
 			.attr("data-placement", "top")
 			.attr("title", function(d, i) {
 				var players = self.getValueY(d);
-				var content = "<b>" + d.humanTime + "</b> " + players + " Player" + (players === 1 ? '' : 's') + " Online</b><hr>";
-				for (var p in d.players) {
-					content += '<img src="' + config.relative_path + '/api/minecraft-integration/avatar/' + d.players[p].name + '/32" width="32" height="32" />';
+				var content = '<b>' + d.humanTime + '</b> ' + players + ' Player' + (players === 1 ? '' : 's') + ' Online</b>';
+				if (d.players.length) {
+					content += '<hr>'
+					for (var p in d.players) {
+						content += '<img src="' + config.relative_path + '/api/minecraft-integration/avatar/' + d.players[p].name + '/32" width="32" height="32" />';
+					}
 				}
 				return content;
 			});
@@ -177,7 +181,7 @@ define(['./d3.min.js'], function(d3){
 			.attr("data-toggle", "tooltip")
 			.attr("data-placement", "top")
 			.attr("title", function(d, i) {
-				var content = '<b>' + d.data.name + '</b><br><img src="' + config.relative_path + '/api/minecraft-integration/avatar/' + d.data.name + '/32" width="32" height="32" /><br>' + d.data.playtime;
+				var content = '<b>' + d.data.name + '</b><br><img src="' + config.relative_path + '/api/minecraft-integration/avatar/' + d.data.name + '/32" width="32" height="32" /><br>' + d.data.playtimeHuman;
 				return content;
 			});
 

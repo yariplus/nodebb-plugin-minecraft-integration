@@ -96,7 +96,7 @@ $(function(){
 				el: widget.el,
 				data: pings,
 				getValueY: function(d){ return d.players.length; },
-				minY: 5,
+				minY: 0,
 				bufferY: 2,
 				maxY: 33
 			}));
@@ -137,7 +137,7 @@ $(function(){
 				el: widget.el,
 				data: pings,
 				getValueY: function(d){ return d.tps; },
-				minY: 20,
+				minY: 15,
 				maxY: 20
 			}));
 		});
