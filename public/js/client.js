@@ -90,16 +90,20 @@ $(function(){
 
 	function preparePlayersGraph(widget) {
 		log("PREPARING PLAYERS GRAPH");
-		socket.emit('plugins.MinecraftIntegration.getRecentPings', {sid: widget.sid, last: 20}, function (err, pings) {
-			charts.push(new miChart({
-				type: 'bar',
-				el: widget.el,
-				data: pings,
-				getValueY: function(d){ return d.players.length; },
-				minY: 0,
-				bufferY: 2,
-				maxY: 33
-			}));
+		var pings = widget.el.data('pings');
+		charts.push(new miChart({
+			type: 'bar',
+			el: widget.el,
+			data: pings,
+			getValueY: function(d){ return d.players.length; },
+			minY: 0,
+			bufferY: 2,
+			maxY: 33
+		}));
+		widget.el.find('.bar').tooltip({
+			container: 'body',
+			html: true,
+			template: '<div class="tooltip michart" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'
 		});
 	}
 
@@ -123,6 +127,11 @@ $(function(){
 				getValueX: function(d){ return d.name; },
 				getValueY: function(d){ return d.playtime; }
 			}));
+			widget.el.find('.arc path').tooltip({
+				container: 'body',
+				html: true,
+				template: '<div class="tooltip michart" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'
+			});
 		});
 	}
 

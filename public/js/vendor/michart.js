@@ -1,4 +1,14 @@
-define(['./d3.min.js'], function(d3){
+(function (root, factory) {
+	if(typeof define === "function" && define.amd) {
+		define(["./d3.min.js"], function(d3){
+			return (root.miChart = factory(d3));
+		});
+	} else if(typeof module === "object" && module.exports) {
+		module.exports = (root.miChart = factory(require("d3")));
+	} else {
+		root.miChart = factory(root.postal);
+	}
+}(this, function(d3) {
 	var defaultParams = {
 		margin: {top: 0.05, right: 0.05, bottom: 0.05, left: 0.05},
 		getValueX: function(d){ return d.timestamp; },
@@ -8,7 +18,7 @@ define(['./d3.min.js'], function(d3){
 		maxY: 999999999,
 		type: 'line',
 		data: {},
-		el: null
+		el: d3.select('div')
 	};
 
 	// Chart Object
@@ -17,9 +27,12 @@ define(['./d3.min.js'], function(d3){
 		params = params || {};
 
 		for (var p in defaultParams) { self[p] = params[p] || defaultParams[p] }
+		self.el = params.el ? d3.select(params.el[0]) : self.el;
+		self.ratio = self.el.node().dataset.ratio;
 
 		// Conventional padding hack.
-		self.el.css("padding-bottom", self.el.data('ratio')*100 + "%");
+		self.el.style("padding-bottom", self.ratio*100 + "%");
+		console.log('there');
 
 		make[self.type](self);
 	}
@@ -38,7 +51,7 @@ define(['./d3.min.js'], function(d3){
 		self.drawLine();
 		self.drawAxis();
 
-		self.el.find('.axis').css('font-size', self.el.width()/28);
+		self.svg.selectAll('.axis').style('font-size', self.el.node().getBoundingClientRect().width/28);
 	}
 
 	function barChart(self) {
@@ -47,13 +60,13 @@ define(['./d3.min.js'], function(d3){
 		self.buildScales();
 		self.drawBars();
 
-		self.el.find('.axis').css('font-size', self.el.width()/28);
+		self.el.selectAll('.axis').style('font-size', self.el.node().getBoundingClientRect().width/28);
 
-		self.el.find('.bar').tooltip({
-			container: 'body',
-			html: true,
-			template: '<div class="tooltip michart" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'
-		});
+		// self.el.find('.bar').tooltip({
+			// container: 'body',
+			// html: true,
+			// template: '<div class="tooltip michart" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'
+		// });
 	}
 
 	function pieChart(self) {
@@ -61,11 +74,11 @@ define(['./d3.min.js'], function(d3){
 		self.buildSVG(self);
 		self.drawPie(self);
 
-		self.el.find('.arc path').tooltip({
-			container: 'body',
-			html: true,
-			template: '<div class="tooltip michart" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'
-		});
+		// self.el.find('.arc path').tooltip({
+			// container: 'body',
+			// html: true,
+			// template: '<div class="tooltip michart" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'
+		// });
 	}
 
 	miChart.prototype.resize = function(){
@@ -73,30 +86,30 @@ define(['./d3.min.js'], function(d3){
 		return;
 	};
 
-	miChart.prototype.marginLeft   = function(){return (this.el.width())*(this.margin.left);};
-	miChart.prototype.marginRight  = function(){return (this.el.width())*(this.margin.right);};
-	miChart.prototype.marginTop    = function(){console.log(this.margin);return (this.el.width()*this.el.data('ratio'))*(this.margin.top);};
-	miChart.prototype.marginBottom = function(){return (this.el.width()*this.el.data('ratio'))*(this.margin.bottom);};
+	miChart.prototype.marginLeft   = function(){return (this.el.node().getBoundingClientRect().width)*(this.margin.left);};
+	miChart.prototype.marginRight  = function(){return (this.el.node().getBoundingClientRect().width)*(this.margin.right);};
+	miChart.prototype.marginTop    = function(){console.log(this.margin);return (this.el.node().getBoundingClientRect().width*this.ratio)*(this.margin.top);};
+	miChart.prototype.marginBottom = function(){return (this.el.node().getBoundingClientRect().width*this.ratio)*(this.margin.bottom);};
 
 	miChart.prototype.useConventionalMargins = function(self){
-		self.width  = (self.el.width())      - self.marginLeft() - self.marginRight();
-		self.height = (self.el.width()*self.el.data('ratio')) - self.marginTop() - self.marginBottom();
+		self.width  = (self.el.node().getBoundingClientRect().width)      - self.marginLeft() - self.marginRight();
+		self.height = (self.el.node().getBoundingClientRect().width*self.ratio) - self.marginTop() - self.marginBottom();
 	};
 
 	miChart.prototype.useNoMargins = function(self){
-		self.width  = self.el.width();
-		self.height = self.el.width() * self.el.data('ratio');
+		self.width  = self.el.node().getBoundingClientRect().width;
+		self.height = self.el.node().getBoundingClientRect().width * self.ratio;
 		self.margin = {left: 0, right: 0, top: 0, bottom: 0};
 	};
 
 	miChart.prototype.buildSVG = function(self){
 		// Adds the svg canvas
-		self.wrapper = d3.select(self.el[0]).classed("michart-container", true).append("svg").classed("michart-content", true);
+		self.wrapper = self.el.classed("michart-container", true).append("svg").classed("michart-content", true);
 		self.svg = self.wrapper.append("g");
 
 		self.wrapper
 			.attr("preserveAspectRatio", "xMinYMin meet")
-			.attr("viewBox", "0 0 " + self.el.width() + " " + (self.el.width()*self.el.data('ratio')));
+			.attr("viewBox", "0 0 " + self.el.node().getBoundingClientRect().width + " " + (self.el.node().getBoundingClientRect().width*self.ratio));
 
 		self.svg.attr("transform", "translate(" + self.marginLeft() + "," + self.marginTop() + ")");
 	};
@@ -161,7 +174,7 @@ define(['./d3.min.js'], function(d3){
 					for (var p in d.players) {
 						content += '<img src="' + config.relative_path + '/api/minecraft-integration/avatar/' + d.players[p].name + '/32" width="32" height="32" />';
 					}
-				}
+				} 
 				return content;
 			});
 	};
@@ -207,4 +220,4 @@ define(['./d3.min.js'], function(d3){
 	window.miChart = miChart;
 
 	return miChart;
-});
+}));
