@@ -1,14 +1,14 @@
 (function (root, factory) {
 	if(typeof define === "function" && define.amd) {
 		define(["./d3.min.js"], function(d3){
-			return (root.miChart = factory(d3));
+			return (root.miChart = factory(root, d3));
 		});
 	} else if(typeof module === "object" && module.exports) {
-		module.exports = (root.miChart = factory(require("d3")));
+		module.exports = (root.miChart = factory({config: {relative_path: require.main.require("nconf").get("relative_path")}}, require("d3")));
 	} else {
 		root.miChart = factory(root.postal);
 	}
-}(this, function(d3) {
+}(this, function(root, d3) {
 	var defaultParams = {
 		margin: {top: 0.05, right: 0.05, bottom: 0.05, left: 0.05},
 		getValueX: function(d){ return d.timestamp; },
@@ -18,7 +18,8 @@
 		maxY: 999999999,
 		type: 'line',
 		data: {},
-		el: d3.select('div')
+		ratio: 0.6,
+		el: null
 	};
 
 	// Chart Object
@@ -26,13 +27,18 @@
 		var self = this;
 		params = params || {};
 
+		if (!params.el) {
+			params.el = d3.select(module.parent.exports.document.body).append('div:div');
+		}else{
+			params.el = d3.select(params.el).append('div:div');
+		}
+
 		for (var p in defaultParams) { self[p] = params[p] || defaultParams[p] }
-		self.el = params.el ? d3.select(params.el[0]) : self.el;
-		self.ratio = self.el.node().dataset.ratio;
+
+		self.clientWidth = self.el.node().getBoundingClientRect().width || 275 * 4;
 
 		// Conventional padding hack.
 		self.el.style("padding-bottom", self.ratio*100 + "%");
-		console.log('there');
 
 		make[self.type](self);
 	}
@@ -51,7 +57,7 @@
 		self.drawLine();
 		self.drawAxis();
 
-		self.svg.selectAll('.axis').style('font-size', self.el.node().getBoundingClientRect().width/28);
+		self.svg.selectAll('.axis').style('font-size', self.clientWidth/28);
 	}
 
 	function barChart(self) {
@@ -60,7 +66,7 @@
 		self.buildScales();
 		self.drawBars();
 
-		self.el.selectAll('.axis').style('font-size', self.el.node().getBoundingClientRect().width/28);
+		self.el.selectAll('.axis').style('font-size', self.clientWidth/28);
 
 		// self.el.find('.bar').tooltip({
 			// container: 'body',
@@ -86,19 +92,19 @@
 		return;
 	};
 
-	miChart.prototype.marginLeft   = function(){return (this.el.node().getBoundingClientRect().width)*(this.margin.left);};
-	miChart.prototype.marginRight  = function(){return (this.el.node().getBoundingClientRect().width)*(this.margin.right);};
-	miChart.prototype.marginTop    = function(){console.log(this.margin);return (this.el.node().getBoundingClientRect().width*this.ratio)*(this.margin.top);};
-	miChart.prototype.marginBottom = function(){return (this.el.node().getBoundingClientRect().width*this.ratio)*(this.margin.bottom);};
+	miChart.prototype.marginLeft   = function(){return (this.clientWidth)*(this.margin.left);};
+	miChart.prototype.marginRight  = function(){return (this.clientWidth)*(this.margin.right);};
+	miChart.prototype.marginTop    = function(){console.log(this.margin);return (this.clientWidth*this.ratio)*(this.margin.top);};
+	miChart.prototype.marginBottom = function(){return (this.clientWidth*this.ratio)*(this.margin.bottom);};
 
 	miChart.prototype.useConventionalMargins = function(self){
-		self.width  = (self.el.node().getBoundingClientRect().width)      - self.marginLeft() - self.marginRight();
-		self.height = (self.el.node().getBoundingClientRect().width*self.ratio) - self.marginTop() - self.marginBottom();
+		self.width  = (self.clientWidth)      - self.marginLeft() - self.marginRight();
+		self.height = (self.clientWidth*self.ratio) - self.marginTop() - self.marginBottom();
 	};
 
 	miChart.prototype.useNoMargins = function(self){
-		self.width  = self.el.node().getBoundingClientRect().width;
-		self.height = self.el.node().getBoundingClientRect().width * self.ratio;
+		self.width  = self.clientWidth;
+		self.height = self.clientWidth * self.ratio;
 		self.margin = {left: 0, right: 0, top: 0, bottom: 0};
 	};
 
@@ -109,7 +115,7 @@
 
 		self.wrapper
 			.attr("preserveAspectRatio", "xMinYMin meet")
-			.attr("viewBox", "0 0 " + self.el.node().getBoundingClientRect().width + " " + (self.el.node().getBoundingClientRect().width*self.ratio));
+			.attr("viewBox", "0 0 " + self.clientWidth + " " + (self.clientWidth*self.ratio));
 
 		self.svg.attr("transform", "translate(" + self.marginLeft() + "," + self.marginTop() + ")");
 	};
@@ -172,7 +178,7 @@
 				if (d.players.length) {
 					content += '<hr>'
 					for (var p in d.players) {
-						content += '<img src="' + config.relative_path + '/api/minecraft-integration/avatar/' + d.players[p].name + '/32" width="32" height="32" />';
+						content += '<img src="' + root.config.relative_path + '/api/minecraft-integration/avatar/' + d.players[p].name + '/32" width="32" height="32" />';
 					}
 				} 
 				return content;
@@ -216,8 +222,6 @@
 			.attr("transform", "translate(0,0)")
 			.call(self.yAxis);
 	};
-
-	window.miChart = miChart;
 
 	return miChart;
 }));

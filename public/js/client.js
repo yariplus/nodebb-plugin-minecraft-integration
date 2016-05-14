@@ -91,15 +91,6 @@ $(function(){
 	function preparePlayersGraph(widget) {
 		log("PREPARING PLAYERS GRAPH");
 		var pings = widget.el.data('pings');
-		charts.push(new miChart({
-			type: 'bar',
-			el: widget.el,
-			data: pings,
-			getValueY: function(d){ return d.players.length; },
-			minY: 0,
-			bufferY: 2,
-			maxY: 33
-		}));
 		widget.el.find('.bar').tooltip({
 			container: 'body',
 			html: true,
@@ -122,7 +113,7 @@ $(function(){
 		socket.emit('plugins.MinecraftIntegration.getTopPlayersByPlaytimes', {sid: widget.sid, show: 10}, function (err, players) {
 			charts.push(new miChart({
 				type: 'pie',
-				el: widget.el,
+				el: widget.el[0],
 				data: players,
 				getValueX: function(d){ return d.name; },
 				getValueY: function(d){ return d.playtime; }
@@ -143,7 +134,7 @@ $(function(){
 		log("PREPARING TPS GRAPH");
 		socket.emit('plugins.MinecraftIntegration.getRecentPings', {sid: widget.sid}, function (err, pings) {
 			charts.push(new miChart({
-				el: widget.el,
+				el: widget.el[0],
 				data: pings,
 				getValueY: function(d){ return d.tps; },
 				minY: 15,
