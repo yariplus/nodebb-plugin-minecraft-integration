@@ -94,7 +94,7 @@
 
 	miChart.prototype.marginLeft   = function(){return (this.clientWidth)*(this.margin.left);};
 	miChart.prototype.marginRight  = function(){return (this.clientWidth)*(this.margin.right);};
-	miChart.prototype.marginTop    = function(){console.log(this.margin);return (this.clientWidth*this.ratio)*(this.margin.top);};
+	miChart.prototype.marginTop    = function(){return (this.clientWidth*this.ratio)*(this.margin.top);};
 	miChart.prototype.marginBottom = function(){return (this.clientWidth*this.ratio)*(this.margin.bottom);};
 
 	miChart.prototype.useConventionalMargins = function(self){
@@ -133,7 +133,7 @@
 
 		// Scale the range of the data.
 		self.xScale.domain(d3.extent(self.data, self.getValueX));
-		console.log([Math.max(0, self.minY), Math.min(self.maxY, d3.max(self.data, self.getValueY) + self.bufferY)]);
+
 		self.yScale.domain([Math.max(0, self.minY), Math.min(self.maxY, d3.max(self.data, self.getValueY) + self.bufferY)]);
 	};
 

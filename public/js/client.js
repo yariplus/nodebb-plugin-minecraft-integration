@@ -204,13 +204,6 @@ $(function(){
 				var wid = $this.attr('data-widget');
 				var sid = $this.attr('data-sid');
 
-				// Add padding based on parent.
-				if (!$parent.is('[widget-area]')) {
-					$parent.css('padding-top', '0').css('padding-left', '0').css('padding-right', '0').css('padding-bottom', '0');
-				}else{
-					$parent.css('padding-top', '10px').css('padding-bottom', '10px');
-				}
-
 				servers[sid] = servers[sid] || {};
 				servers[sid][wid] = servers[sid][wid] || [];
 				servers[sid][wid].push({
