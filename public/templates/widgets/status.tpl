@@ -130,11 +130,11 @@
 				<td>
 					<span style="color:{colorText}">
 						{version}
-						<!-- IF status.hasPlugins -->&nbsp;<a class="fa fa-plug text-info" data-popover="plugin-list" data-html="true" data-title="[[mi:plugin_list]]" data-placement="bottom"></a><!-- ENDIF status.hasPlugins -->
-						<!-- IF status.hasMods -->&nbsp;<a class="fa fa-gavel text-danger" data-popover="mod-list" data-html="true" data-title="[[mi:mod_list]]" data-placement="bottom"></a><!-- ENDIF status.hasMods -->
-						<!-- IF status.hasModPack -->&nbsp;<a class="fa fa-gift" data-popover="mod-list" data-html="true" data-title="[[mi:mod_pack_info]]" data-placement="bottom"></a><!-- ENDIF status.hasModPack -->
-						<!-- IF status.hasSponge -->&nbsp;<a class="fa fa-life-ring" data-popover="mod-list" data-html="true" data-title="[[mi:sponge_mods]]" data-placement="bottom"></a><!-- ENDIF status.hasSponge -->
-						<!-- IF status.hasBungeecord -->&nbsp;<a class="fa fa-arrows-alt" data-popover="mod-list" data-html="true" data-title="[[mi:hub_list]]" data-placement="bottom"></a><!-- ENDIF status.hasBungeecord -->
+						<!-- IF hasPlugins -->&nbsp;<a class="fa fa-plug text-info" data-popover="plugin-list" data-html="true" data-title="[[mi:plugin_list]]" data-placement="bottom"></a><!-- ENDIF hasPlugins -->
+						<!-- IF hasMods -->&nbsp;<a class="fa fa-gavel text-danger" data-popover="mod-list" data-html="true" data-title="[[mi:mod_list]]" data-placement="bottom"></a><!-- ENDIF hasMods -->
+						<!-- IF hasModPack -->&nbsp;<a class="fa fa-gift" data-popover="mod-list" data-html="true" data-title="[[mi:mod_pack_info]]" data-placement="bottom"></a><!-- ENDIF hasModPack -->
+						<!-- IF hasSponge -->&nbsp;<a class="fa fa-life-ring" data-popover="mod-list" data-html="true" data-title="[[mi:sponge_mods]]" data-placement="bottom"></a><!-- ENDIF hasSponge -->
+						<!-- IF hasBungeecord -->&nbsp;<a class="fa fa-arrows-alt" data-popover="mod-list" data-html="true" data-title="[[mi:hub_list]]" data-placement="bottom"></a><!-- ENDIF hasBungeecord -->
 					</span>
 				</td>
 			</tr>
