@@ -251,7 +251,7 @@ $(function(){
 
 		var $widget = $('[data-sid="' + data.sid + '"]');
 
-		if (parseInt(data.isServerOnline, 10)) {
+		if (data.isServerOnline) {
 			$widget.find(".mc-statusicon")
 			.addClass("fa-check-circle")
 			.addClass("text-success")
@@ -591,13 +591,6 @@ $(function(){
 		charts.forEach(function (chart) {
 			chart.resize();
 		});
-
-		// $('[data-ratio]').each(function(){
-			// var $el = $(this);
-			// var ratio = $el.data('ratio');
-			// $el.css('height', $el.width() * ratio);
-			// $el.css('max-height', $el.width() * ratio);
-		// });
 	}
 
 	// Vault Prefixes
@@ -662,14 +655,5 @@ $(function(){
 
 			cb(rainbow);
 		});
-	}
-
-	function humanTime(stamp) {
-		var	date     = new Date(parseInt(stamp,10))
-		,	hours    = date.getHours() < 13 ? (date.getHours() === 0 ? 12 : date.getHours()) : date.getHours() - 12
-		,	minutes  = (date.getMinutes() < 10 ? "0" : "") + date.getMinutes()
-		,	meridiem = date.getHours() < 12 ? "AM" : "PM";
-
-		return hours + ":" + minutes + " " + meridiem;
 	}
 });
