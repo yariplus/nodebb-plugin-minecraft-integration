@@ -3,7 +3,7 @@
 <div class="mi-accordion">
     <div class="panel panel-success">
         <div class="panel-heading" data-target=".mi-display-options" data-toggle="collapse">
-            <i class="fa fa-fw fa-angle-down"></i>
+            <i class="fa fa-fw fa-chevron-circle-down"></i>
 			<span class="panel-title">[[mi:display_options]]</span>
         </div>
         <div class="panel-body collapse mi-display-options">
@@ -44,8 +44,10 @@
             </div>
         </div>
     </div>
+
     <div class="panel panel-success">
         <div class="panel-heading" data-target=".mi-style-options" data-toggle="collapse">
+			<i class="fa fa-fw fa-chevron-circle-down"></i>
             <span class="panel-title">[[mi:style_options]]</span>
         </div>
         <div class="panel-body collapse mi-style-options">
@@ -76,6 +78,7 @@
 
     <div class="panel panel-success">
         <div class="panel-heading" data-target=".mi-map-options" data-toggle="collapse">
+			<i class="fa fa-fw fa-chevron-circle-down"></i>
             <span class="panel-title">[[mi:map_options]]</span>
         </div>
 
