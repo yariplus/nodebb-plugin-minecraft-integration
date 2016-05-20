@@ -80,6 +80,16 @@
 						<div class="row input-row">
 							<div class="col-sm-7 col-xs-12 input-field">
 								<label class="control-label">
+									<input name="usePrimaryPrefixOnly" class="" type="checkbox" style="width:16px;height:16px;">
+									Use primary prefix only.
+								</label>
+							</div>
+							<div class="col-sm-5 help-text" data-help=""></div>
+						</div>
+
+						<div class="row input-row">
+							<div class="col-sm-7 col-xs-12 input-field">
+								<label class="control-label">
 									<input name="debug" class="" type="checkbox" style="width:16px;height:16px;">
 									Debug Mode
 								</label>
