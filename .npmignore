@@ -1,4 +1,33 @@
-sftp-config.json
-node_modules/
-npm-debug.log
-.gitattributes
+# Logs
+logs
+*.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+
+# Coverage directory used by istanbul
+coverage
+
+# node-waf configuration
+.lock-wscript
+
+# Compiled binary addons (http://nodejs.org/api/addons.html)
+build/Release
+
+# Dependency directory
+# https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git
+node_modules
+
+# Source Files
+*.es6
+
+# Tests
+test
+
+# Dot Files
+.*
+
+# Bashisms
+*.sh

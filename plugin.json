@@ -1,45 +1,45 @@
 {
-	"id": "nodebb-plugin-minecraft-integration",
-	"name": "Minecraft Integration",
-	"description": "NodeBB plugin to integrate your forum with your Minecraft Server using widgets, user syncing, group/rank syncing, sso, bukkit/bungeecord/sponge communication, and more.",
-	"url": "https://github.com/yariplus/nodebb-plugin-minecraft-integration",
-	"library": "library.js",
-	"less": [
-		"public/less/style.less"
-	],
-	"scripts": [
-		"public/js/vendor/moment.min.js",
-		"public/js/client.js"
-	],
-	"acpScripts": [
-		"public/js/admin.js"
-	],
-	"hooks": [
-		{ "hook": "static:app.load", "method": "load" },
-		{ "hook": "filter:widgets.getWidgets",             "method": "Hooks.filter.widgets.getWidgets" },
-		{ "hook": "filter:admin.header.build",             "method": "Hooks.filter.admin.header.build" },
-		{ "hook": "filter:user.profileLinks",              "method": "Hooks.filter.user.profileLinks" },
-		{ "hook": "filter:widget.render:mi-chat",          "method": "Widgets.renderChat" },
-		{ "hook": "filter:widget.render:mi-directory",     "method": "Widgets.renderDirectory" },
-		{ "hook": "filter:widget.render:mi-gallery",       "method": "Widgets.renderGallery" },
-		{ "hook": "filter:widget.render:mi-map",           "method": "Widgets.renderMap" },
-		{ "hook": "filter:widget.render:mi-ping-graph",    "method": "Widgets.renderPingGraph" },
-		{ "hook": "filter:widget.render:mi-players-graph", "method": "Widgets.renderPlayersGraph" },
-		{ "hook": "filter:widget.render:mi-players-grid",  "method": "Widgets.renderPlayersGrid" },
-		{ "hook": "filter:widget.render:mi-status",        "method": "Widgets.renderStatus" },
-		{ "hook": "filter:widget.render:mi-top-graph",     "method": "Widgets.renderTopGraph" },
-		{ "hook": "filter:widget.render:mi-top-list",      "method": "Widgets.renderTopList" },
-		{ "hook": "filter:widget.render:mi-tps-graph",     "method": "Widgets.renderTPSGraph" },
-		{ "hook": "filter:widget.render:mi-vote-list",     "method": "Widgets.renderVoteList" },
-		{ "hook": "filter:topic.build",                    "method": "Hooks.filter.topic.build" },
-		{ "hook": "filter:post.getPosts",                  "method": "Hooks.filter.post.getPosts" },
-		{ "hook": "filter:post.get",                       "method": "Hooks.filter.post.get" },
-		{ "hook": "filter:user.account",                   "method": "Hooks.filter.user.account" },
-		{ "hook": "filter:config.get",                     "method": "Hooks.filter.config.get" }
-	],
-	"templates": "public/templates",
-	"staticDirs": {
-		"public": "public"
-	},
-	"languages": "public/language"
+  "id": "nodebb-plugin-minecraft-integration",
+  "name": "Minecraft Integration",
+  "description": "NodeBB plugin to integrate your forum with your Minecraft Server using widgets, user syncing, group/rank syncing, sso, bukkit/bungeecord/sponge communication, and more.",
+  "url": "https://github.com/yariplus/nodebb-plugin-minecraft-integration",
+  "library": "library.js",
+  "less": [
+    "public/less/style.less"
+  ],
+  "scripts": [
+    "public/js/vendor/moment.min.js",
+    "public/js/client.js"
+  ],
+  "acpScripts": [
+    "public/js/admin.js"
+  ],
+  "hooks": [
+    { "hook": "static:app.load",                       "method": "load" },
+    { "hook": "filter:widgets.getWidgets",             "method": "Hooks.filter.widgets.getWidgets" },
+    { "hook": "filter:admin.header.build",             "method": "Hooks.filter.admin.header.build" },
+    { "hook": "filter:user.profileLinks",              "method": "Hooks.filter.user.profileLinks" },
+    { "hook": "filter:widget.render:mi-chat",          "method": "Widgets.renderChat" },
+    { "hook": "filter:widget.render:mi-directory",     "method": "Widgets.renderDirectory" },
+    { "hook": "filter:widget.render:mi-gallery",       "method": "Widgets.renderGallery" },
+    { "hook": "filter:widget.render:mi-map",           "method": "Widgets.renderMap" },
+    { "hook": "filter:widget.render:mi-ping-graph",    "method": "Widgets.renderPingGraph" },
+    { "hook": "filter:widget.render:mi-players-graph", "method": "Widgets.renderPlayersGraph" },
+    { "hook": "filter:widget.render:mi-players-grid",  "method": "Widgets.renderPlayersGrid" },
+    { "hook": "filter:widget.render:mi-status",        "method": "Widgets.renderStatus" },
+    { "hook": "filter:widget.render:mi-top-graph",     "method": "Widgets.renderTopGraph" },
+    { "hook": "filter:widget.render:mi-top-list",      "method": "Widgets.renderTopList" },
+    { "hook": "filter:widget.render:mi-tps-graph",     "method": "Widgets.renderTPSGraph" },
+    { "hook": "filter:widget.render:mi-vote-list",     "method": "Widgets.renderVoteList" },
+    { "hook": "filter:topic.build",                    "method": "Hooks.filter.topic.build" },
+    { "hook": "filter:post.getPosts",                  "method": "Hooks.filter.post.getPosts" },
+    { "hook": "filter:post.get",                       "method": "Hooks.filter.post.get" },
+    { "hook": "filter:user.account",                   "method": "Hooks.filter.user.account" },
+    { "hook": "filter:config.get",                     "method": "Hooks.filter.config.get" }
+  ],
+  "templates": "public/templates",
+  "staticDirs": {
+    "public": "public"
+  },
+  "languages": "public/language"
 }
