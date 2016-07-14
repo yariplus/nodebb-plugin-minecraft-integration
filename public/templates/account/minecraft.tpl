@@ -6,22 +6,23 @@
 	<table class="table table-striped">
 		<thead>
 			<tr>
-				<th>UUID</th>
-				<th>Player Name</th>
-				<th>Prefix</th>
-				<th>Play Time</th>
-				<th>Last Online</th>
-				<th>Actions</th>
+        <th class="mi-no-wrap"></th>
+				<th class="mi-no-wrap">Player</th>
+				<th class="mi-no-wrap">Prefix</th>
+				<th class="mi-no-wrap">Play Time</th>
+				<th class="mi-no-wrap">Last Online</th>
+				<th class="mi-full-width">Actions</th>
 			</tr>
 		</thead>
 		<tbody id="miTablePlayers">
 		<!-- BEGIN players -->
 			<tr data-uuid="{players.id}">
-				<td class="compact no-break">{players.id}</td>
-				<td><span class="name">{players.name}</span></td>
-				<td><span class="prefix">{players.prefix}</span></td>
-				<td>{players.playtime}</td><td>{players.lastonline}</td>
-				<td class="compact squish"><button type="button" class="btn btn-danger mi-btn-delete-player" style="display:none;">Unlink</button></td>
+        <td class="mi-no-wrap"><!-- IF players.isPrimary --><i class="fa fa-star-o mi-text-primary" aria-hidden="true"></i><!-- ELSE --><i class="fa fa-circle-o mi-text-o" aria-hidden="true"></i><!-- ENDIF players.isPrimary --></td>
+        <td class="mi-no-wrap"><img src="{config.relative_path}/api/minecraft-integration/avatar/{players.name}/64" title="{players.name}" data-placement="top" data-toggle="tooltip" rel="tooltip" class="mi-avatar" width="32" height="32" /></td>
+				<td class="mi-no-wrap"><span class="prefix">{players.prefix}</span></td>
+				<td class="mi-no-wrap">{players.playtime}</td>
+        <td class="mi-no-wrap">{players.lastonline}</td>
+				<td><button type="button" class="btn btn-danger mi-btn-delete-player" style="display:none;">Unlink</button></td>
 			</tr>
 			<!-- END players -->
 		</tbody>

@@ -545,7 +545,7 @@ $(function(){
 	}
 
 	function getAvatarUrl(name) {
-		return "/api/minecraft-integration/avatar/" + name + "/64";
+		return config.relative_path + "/api/minecraft-integration/avatar/" + name + "/64";
 	}
 
 	// Wrap avatar in profile link if user is registered.
@@ -613,7 +613,7 @@ $(function(){
 				if (prefix) return addPrefix($el, prefix);
 				if (prefix === null) return;
 
-				socket.emit('plugins.MinecraftIntegration.getPrefix', {uid:$el.attr("data-uid")}, function (err, data) {
+				socket.emit('plugins.MinecraftIntegration.getUserPrefix', {uid:$el.attr("data-uid")}, function (err, data) {
 					if (data.prefix) addPrefix($el, data.prefix);
 				});
 
