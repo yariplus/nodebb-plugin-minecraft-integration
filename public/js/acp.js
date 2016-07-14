@@ -372,6 +372,7 @@ define(['settings', 'translator', MinecraftIntegration.staticDir + "js/vendor/va
 
 		// Helpers
 		function formatUuid(yuuid) {
+      if (!yuuid) return null;
 			return yuuid.slice(0,8) + '-' + yuuid.slice(8, 12) + '-' + yuuid.slice(12, 16) + '-' + yuuid.slice(16, 20) + '-' + yuuid.slice(20, 32);
 		}
 
