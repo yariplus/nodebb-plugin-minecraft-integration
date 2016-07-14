@@ -21,7 +21,7 @@ build/Release
 node_modules
 
 # Distribution Files
-*.js
+#*.js
 
 # Tests
 !test/**/*.js
