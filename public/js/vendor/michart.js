@@ -128,8 +128,8 @@
 		var self = this;
 
 		// Create Scales.
-		self.xScale = d3.time.scale().range([0, self.width]);
-		self.yScale = d3.scale.linear().range([self.height, 0]);
+		self.xScale = d3.scaleTime([0, self.width]);
+		self.yScale = d3.scaleLinear([self.height, 0]);
 
 		// Scale the range of the data.
 		self.xScale.domain(d3.extent(self.data, self.getValueX));
@@ -140,15 +140,15 @@
 	miChart.prototype.buildAxis = function(){
 		var self = this;
 
-		self.xAxis = d3.svg.axis().scale(self.xScale).orient("bottom").ticks(0);
-		self.yAxis = d3.svg.axis().scale(self.yScale).orient("left").ticks(0);
+		self.xAxis = d3.axisBottom(self.xScale).ticks(0);
+		self.yAxis = d3.axisLeft(self.yScale).ticks(0);
 	};
 
 	miChart.prototype.drawLine = function(){
 		var self = this;
 
 		// Define the line
-		var valueline = d3.svg.line()
+		var valueline = d3.line()
 			.x(function(d) { return self.xScale(self.getValueX(d)); })
 			.y(function(d) { return self.yScale(self.getValueY(d)); });
 
@@ -186,16 +186,16 @@
 	};
 
 	// TEMP
-	var color = d3.scale.ordinal().range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00","#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00","#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
+	var color = d3.scaleOrdinal(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00","#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00","#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
 
 	miChart.prototype.drawPie = function(self){
 		var g = self.svg.selectAll(".arc")
-			.data(d3.layout.pie().sort(null).value(self.getValueY)(self.data))
+			.data(d3.pie().sort(null).value(self.getValueY)(self.data))
 			.enter().append("g")
 			.attr("class", "arc");
 
 		g.append("path")
-			.attr("d", d3.svg.arc().outerRadius(Math.min(self.width, self.height) / 2 - 10).innerRadius(0))
+			.attr("d", d3.arc().outerRadius(Math.min(self.width, self.height) / 2 - 10).innerRadius(0))
 			.style("fill", function(d, i) { return color(i); })
 			.attr("data-toggle", "tooltip")
 			.attr("data-placement", "top")
