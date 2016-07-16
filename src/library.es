@@ -19,7 +19,6 @@ import Hooks from './lib/hooks'
 export { Widgets, Hooks }
 
 export function load (params, next) {
-
   params.app.set('json spaces', 4)
 
   routes(params.app, params.middleware, params.router)
@@ -33,10 +32,10 @@ export function load (params, next) {
     if (err) return next(new Error(err))
 
     config = config || {}
-    config.name        = config.name        || "A Minecraft Server"
-    config.address     = config.address     || (`${require('nconf').get('url')}:25565`)
-    config.APIKey      = config.APIKey      || Utils.getKey()
-    config.hidePlugins = config.hidePlugins || "0"
+    config.name = config.name || 'A Minecraft Server'
+    config.address = config.address || (`${require('nconf').get('url')}:25565`)
+    config.APIKey = config.APIKey || Utils.getKey()
+    config.hidePlugins = config.hidePlugins || '0'
 
     db.setObject('mi:server:0:config', config)
     db.sortedSetAdd('mi:servers', Date.now(), '0')
