@@ -21,7 +21,7 @@ build/Release
 node_modules
 
 # Source Files
-*.es6
+*.es
 
 # Tests
 test

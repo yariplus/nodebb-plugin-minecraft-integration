@@ -6,7 +6,7 @@
   "scripts": {
     "compile": "babel src -d .",
     "pretest": "npm run compile",
-    "test": "nyc --require babel-register mocha test/**/*.es6"
+    "test": "nyc --require babel-register mocha test/**/*.es"
   },
   "repository": {
     "type": "git",
