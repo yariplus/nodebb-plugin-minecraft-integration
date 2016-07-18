@@ -1,7 +1,7 @@
 import Backend from '../backend'
-import miChart from '../../public/js/vendor/michart.js'
+//import miChart from '../../public/js/vendor/michart.js'
 
-export const document = require('jsdom').jsdom()
+//export const document = require('jsdom').jsdom()
 
 export function render (widget, callback) {
   Backend.getRecentPings({sid: widget.sid, last: 20}, (err, pings) => {
@@ -9,7 +9,7 @@ export function render (widget, callback) {
 
     widget.pings = JSON.stringify(pings)
     widget.chartColorFills = JSON.stringify([widget.chartColorFillMin, widget.chartColorFillMax])
-
+/*
     const chart = new miChart({
       type: 'bar',
       data: pings,
@@ -20,7 +20,7 @@ export function render (widget, callback) {
     })
 
     widget.svg = chart.el.node().outerHTML
-
+*/
     callback(null, widget)
   })
 }

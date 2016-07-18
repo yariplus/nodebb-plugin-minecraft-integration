@@ -7,8 +7,10 @@
   "less": [
     "public/less/style.less"
   ],
+  "css": [
+    "./vendor/rickshaw.min.css"
+  ],
   "scripts": [
-    "public/js/vendor/moment.min.js",
     "public/js/client.js"
   ],
   "acpScripts": [
@@ -39,7 +41,8 @@
   ],
   "templates": "public/templates",
   "staticDirs": {
-    "public": "public"
+    "public": "public",
+    "vendor": "vendor"
   },
   "languages": "public/language"
 }

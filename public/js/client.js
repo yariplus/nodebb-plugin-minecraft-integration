@@ -1,3 +1,14 @@
+(function(){
+  var rjsConfig = requirejs.s.contexts._.config
+  var pluginPath = '../../plugins/nodebb-plugin-minecraft-integration/'
+  var registerAMD = function (name, path) {
+    if (!rjsConfig.paths[name]) rjsConfig.paths[name] = pluginPath + path
+  }
+  registerAMD('moment', 'vendor/moment')
+  registerAMD('d3', 'vendor/d3.min')
+  registerAMD('rickshaw', 'vendor/rickshaw.min')
+}())
+
 $(function(){
 	"use strict";
 
@@ -111,18 +122,18 @@ $(function(){
 	function prepareTopGraph(widget) {
 		log("PREPARING TOP GRAPH");
 		socket.emit('plugins.MinecraftIntegration.getTopPlayersByPlaytimes', {sid: widget.sid, show: 10}, function (err, players) {
-			charts.push(new miChart({
-				type: 'pie',
-				el: widget.el[0],
-				data: players,
-				getValueX: function(d){ return d.name; },
-				getValueY: function(d){ return d.playtime; }
-			}));
-			widget.el.find('.arc path').tooltip({
-				container: 'body',
-				html: true,
-				template: '<div class="tooltip michart" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'
-			});
+			// charts.push(new miChart({
+				// type: 'pie',
+				// el: widget.el[0],
+				// data: players,
+				// getValueX: function(d){ return d.name; },
+				// getValueY: function(d){ return d.playtime; }
+			// }));
+			// widget.el.find('.arc path').tooltip({
+				// container: 'body',
+				// html: true,
+				// template: '<div class="tooltip michart" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'
+			// });
 		});
 	}
 
@@ -133,13 +144,13 @@ $(function(){
 	function prepareTPSGraph(widget) {
 		log("PREPARING TPS GRAPH");
 		socket.emit('plugins.MinecraftIntegration.getRecentPings', {sid: widget.sid}, function (err, pings) {
-			charts.push(new miChart({
-				el: widget.el[0],
-				data: pings,
-				getValueY: function(d){ return d.tps; },
-				minY: 15,
-				maxY: 20
-			}));
+			// charts.push(new miChart({
+				// el: widget.el[0],
+				// data: pings,
+				// getValueY: function(d){ return d.tps; },
+				// minY: 15,
+				// maxY: 20
+			// }));
 		});
 	}
 
@@ -196,7 +207,7 @@ $(function(){
 	});
 
 	$(window).on('action:widgets.loaded', function(){
-		require(['/plugins/nodebb-plugin-minecraft-integration/public/js/vendor/michart.js'], function () {
+		//require(['/plugins/nodebb-plugin-minecraft-integration/public/js/vendor/michart.js'], function () {
 			// Store widgets
 			$('.mi-container').each(function(){
 				var $this = $(this);
@@ -225,7 +236,7 @@ $(function(){
 			}
 
 			resizeEnd();
-		});
+		//});
 	});
 
 	socket.on('mi.PlayerJoin',  onPlayerJoin);
@@ -301,131 +312,132 @@ $(function(){
 			if (err) return log(err);
 			if (!avatarTemplate) return log("Avatar Template was null.");
 
-			// Loop widgets with a current players display.
-			// TODO: Don't select widgets that have avatars turned off.
-			$('[data-widget="mi-status"][data-sid="' + data.sid + '"], [data-widget="mi-players-grid"][data-sid="' + data.sid + '"]').each(function (i, $widget) {
+      require(['moment'], function (moment) {
+        // Loop widgets with a current players display.
+        // TODO: Don't select widgets that have avatars turned off.
+        $('[data-widget="mi-status"][data-sid="' + data.sid + '"], [data-widget="mi-players-grid"][data-sid="' + data.sid + '"]').each(function (i, $widget) {
 
-				// Re-wrap
-				$widget = $($widget);
+          // Re-wrap
+          $widget = $($widget);
 
-				// Update Icon Time
-				var	updateTime = data.updateTime || Date.now();
-				$widget.find(".mc-statusicon")
-					.attr('data-original-title', moment(parseInt(updateTime, 10)).format('MMM Do h:mma'))
-					.attr('data-title', moment(parseInt(updateTime, 10)).format('MMM Do h:mma'));
+          // Update Icon Time
+          var	updateTime = data.updateTime || Date.now();
+          $widget.find(".mc-statusicon")
+            .attr('data-original-title', moment(parseInt(updateTime, 10)).format('MMM Do h:mma'))
+            .attr('data-title', moment(parseInt(updateTime, 10)).format('MMM Do h:mma'));
 
-				// Loop avatars and remove players no longer on the server.
-				$widget.find('.mi-avatar').each(function (i, el) {
+          // Loop avatars and remove players no longer on the server.
+          $widget.find('.mi-avatar').each(function (i, el) {
 
-					// Re-wrap
-					var $avatar = $(el);
+            // Re-wrap
+            var $avatar = $(el);
 
-					// If the player's online, return.
-					for (var i in data.players) {
-						if (data.players[i].id && data.players[i].name) {
-							if ($avatar.data('uuid') === data.players[i].id) return;
-							log("Kept " + data.players[i].name);
-						}
-					}
+            // If the player's online, return.
+            for (var i in data.players) {
+              if (data.players[i].id && data.players[i].name) {
+                if ($avatar.data('uuid') === data.players[i].id) return;
+                log("Kept " + data.players[i].name);
+              }
+            }
 
-					// Otherwise, fade it out.
-					log("Fading " + $avatar.attr('data-original-title'));
-					if ($avatar.parent().is('a')) $avatar = $avatar.parent();
-					$avatar.fadeToggle(600, 'linear', function () {
-						$avatar.remove();
-					});
+            // Otherwise, fade it out.
+            log("Fading " + $avatar.attr('data-original-title'));
+            if ($avatar.parent().is('a')) $avatar = $avatar.parent();
+            $avatar.fadeToggle(600, 'linear', function () {
+              $avatar.remove();
+            });
 
-				});
+          });
 
-				// Track number of players left to add.
-				var pendingPlayers = data.players.length;
+          // Track number of players left to add.
+          var pendingPlayers = data.players.length;
 
-				// Add players now on the server.
-				data.players.forEach(function (player) {
+          // Add players now on the server.
+          data.players.forEach(function (player) {
 
-					var found = false;
+            var found = false;
 
-					$widget.find('.mi-avatar').each(function () {
-						var $avatar = $(this);
+            $widget.find('.mi-avatar').each(function () {
+              var $avatar = $(this);
 
-						if ($avatar.data('uuid') === player.id) {
-							found = true;
-							log("Found " + player.name);
-						}
-					});
+              if ($avatar.data('uuid') === player.id) {
+                found = true;
+                log("Found " + player.name);
+              }
+            });
 
-					if (!found) {
+            if (!found) {
 
-						var $avatar = $(avatarTemplate
-						.replace("{url}", getAvatarUrl(player.name))
-						.replace("{players.name}", player.name)
-						.replace("{name}", player.name)
-						.replace("{styleGlory}", "")
-						.replace("{players.glory}", ""));
+              var $avatar = $(avatarTemplate
+              .replace("{url}", getAvatarUrl(player.name))
+              .replace("{players.name}", player.name)
+              .replace("{name}", player.name)
+              .replace("{styleGlory}", "")
+              .replace("{players.glory}", ""));
 
-						$avatar.css("display", "none");
-						$avatar.data('uuid', player.id);
+              $avatar.css("display", "none");
+              $avatar.data('uuid', player.id);
 
-						$avatar.appendTo($widget.find('.mi-avatars'));
+              $avatar.appendTo($widget.find('.mi-avatars'));
 
-						// Wrap avatar in profile link if user is registered.
-						wrapAvatar($avatar);
+              // Wrap avatar in profile link if user is registered.
+              wrapAvatar($avatar);
 
-						$avatar.load(function(){
-							log("Fading in " + player.name);
-							$avatar.tooltip({ container: 'body' });
-							$avatar.fadeIn(600, 'linear');
-							if (!--pendingPlayers) setAvatarBorders($widget);
-						});
-					}else{
-						// Set avatar borders if complete.
-						if (!--pendingPlayers) setAvatarBorders($widget);
-					}
+              $avatar.load(function(){
+                log("Fading in " + player.name);
+                $avatar.tooltip({ container: 'body' });
+                $avatar.fadeIn(600, 'linear');
+                if (!--pendingPlayers) setAvatarBorders($widget);
+              });
+            }else{
+              // Set avatar borders if complete.
+              if (!--pendingPlayers) setAvatarBorders($widget);
+            }
 
-				});
+          });
 
-				// Set player count text.
-				$widget.find(".online-players").text(data.players.length);
+          // Set player count text.
+          $widget.find(".online-players").text(data.players.length);
 
-				var $popover;
+          var $popover;
 
-				if ($widget.attr('data-widget') === 'mi-status') {
-					$popover = $widget.find('a.fa-plug');
-					if ($popover.length && Array.isArray(data.pluginList) && data.pluginList.length) {
-						var html = '<table class="table table-plugin-list"><tbody>';
+          if ($widget.attr('data-widget') === 'mi-status') {
+            $popover = $widget.find('a.fa-plug');
+            if ($popover.length && Array.isArray(data.pluginList) && data.pluginList.length) {
+              var html = '<table class="table table-plugin-list"><tbody>';
 
-						for (var i = 0; i < data.pluginList.length; i++) {
-							html += '<tr><td>' + data.pluginList[i].name + '</td></tr>';
-						}
+              for (var i = 0; i < data.pluginList.length; i++) {
+                html += '<tr><td>' + data.pluginList[i].name + '</td></tr>';
+              }
 
-						html += '</tbody></table>';
-						$popover.attr('data-content', html);
-						$popover.popover({
-							container: 'body',
-							viewport: { selector: 'body', padding: 20 },
-							template: '<div class="popover plugin-list"><div class="arrow"></div><div class="popover-inner"><h1 class="popover-title"></h1><div class="popover-content"><p></p></div></div></div>'
-						});
-					}
+              html += '</tbody></table>';
+              $popover.attr('data-content', html);
+              $popover.popover({
+                container: 'body',
+                viewport: { selector: 'body', padding: 20 },
+                template: '<div class="popover plugin-list"><div class="arrow"></div><div class="popover-inner"><h1 class="popover-title"></h1><div class="popover-content"><p></p></div></div></div>'
+              });
+            }
 
-					$popover = $widget.find('a.fa-gavel');
-					if ($popover.length && data.modList) {
-						var html = '<table class="table table-mod-list"><tbody>';
+            $popover = $widget.find('a.fa-gavel');
+            if ($popover.length && data.modList) {
+              var html = '<table class="table table-mod-list"><tbody>';
 
-						for (var i in data.modList) {
-							html += '<tr><td>' + data.modList[i].modid + '</td></tr>';
-						}
+              for (var i in data.modList) {
+                html += '<tr><td>' + data.modList[i].modid + '</td></tr>';
+              }
 
-						html += '</tbody></table>';
-						$popover.attr('data-content', html);
-						$popover.popover({
-							container: 'body',
-							viewport: { selector: 'body', padding: 20 },
-							template: '<div class="popover mod-list"><div class="arrow"></div><div class="popover-inner"><h1 class="popover-title"></h1><div class="popover-content"><p></p></div></div></div>'
-						});
-					}
-				}
-			});
-
+              html += '</tbody></table>';
+              $popover.attr('data-content', html);
+              $popover.popover({
+                container: 'body',
+                viewport: { selector: 'body', padding: 20 },
+                template: '<div class="popover mod-list"><div class="arrow"></div><div class="popover-inner"><h1 class="popover-title"></h1><div class="popover-content"><p></p></div></div></div>'
+              });
+            }
+          }
+        });
+      })
 			// Re-arrange top-lists.
 		});
 	}
