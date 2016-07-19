@@ -32,3 +32,6 @@ library.js
 
 # Bashisms
 *.sh
+
+# Swagger
+*.jar
