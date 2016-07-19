@@ -1,0 +1,47 @@
+swagger: '2.0'
+info:
+  title: Minecraft Integration API
+  description: It's the Minecraft Integration API.
+  version: "1.0.0"
+schemes:
+  - https
+basePath: /api/minecraft-integration/
+produces:
+  - application/json
+paths:
+  /server/{sid}:
+    get:
+      summary: Server Info
+      description: |
+        Gets the current status of and general information on the server.
+      parameters:
+        - name: sid
+          in: path
+          description: Server ID or slug.
+          required: true
+          type: string
+      tags:
+        - Minecraft Server
+      responses:
+        200:
+          description: An array of products
+          schema:
+            $ref: '#/definitions/Server'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+definitions:
+  Server:
+    type: object
+    properties:
+      host:
+        type: string
+        description: The server host name.
+  Error:
+    type: object
+    properties:
+      message:
+        type: string
+      fields:
+        type: string
