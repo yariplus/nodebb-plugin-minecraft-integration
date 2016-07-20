@@ -3,18 +3,18 @@
   "name": "Minecraft Integration",
   "description": "NodeBB plugin to integrate your forum with your Minecraft Server using widgets, user syncing, group/rank syncing, sso, bukkit/bungeecord/sponge communication, and more.",
   "url": "https://github.com/yariplus/nodebb-plugin-minecraft-integration",
-  "library": "library.js",
+  "library": "dist/library/index.js",
   "less": [
     "public/less/style.less"
   ],
   "css": [
-    "./vendor/rickshaw.min.css"
+    "public/vendor/rickshaw.min.css"
   ],
   "scripts": [
-    "public/js/client.js"
+    "public/src/client.js"
   ],
   "acpScripts": [
-    "public/js/admin.js"
+    "public/src/admin.js"
   ],
   "hooks": [
     { "hook": "static:app.load",                       "method": "load" },
@@ -41,8 +41,7 @@
   ],
   "templates": "public/templates",
   "staticDirs": {
-    "public": "public",
-    "vendor": "vendor"
+    "vendor": "public/vendor"
   },
   "languages": "public/language"
 }
