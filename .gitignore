@@ -21,6 +21,7 @@ build/Release
 node_modules
 
 # Distribution Files
+public/src
 lib
 library.js
 
