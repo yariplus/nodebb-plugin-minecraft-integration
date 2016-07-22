@@ -1,320 +1,318 @@
-(function(){
+/* global app, ajaxify, config, requirejs, socket, $ */
+((() => {
   // Require vendor libs, copied from Mega.
-  var rjsConfig = requirejs.s.contexts._.config
-  var pluginPath = '../../plugins/nodebb-plugin-minecraft-integration/'
-  var registerAMD = function (name, path) {
+  const rjsConfig = requirejs.s.contexts._.config
+  const pluginPath = '../../plugins/nodebb-plugin-minecraft-integration/'
+  const registerAMD = (name, path) => {
     if (!rjsConfig.paths[name]) rjsConfig.paths[name] = pluginPath + path
   }
   registerAMD('moment', 'vendor/moment')
   registerAMD('d3', 'vendor/d3.min')
   registerAMD('rickshaw', 'vendor/rickshaw.min')
-}())
+})())
 
-$(function(){
-	"use strict";
+$(() => {
+  console.log('Loading Minecraft Integration...')
 
-	console.log("Loading Minecraft Integration...");
+  const servers = {}
+  const staticDir = '/plugins/nodebb-plugin-minecraft-integration/public/'
+  let charts = []
 
-	var servers = {};
-	var staticDir = "/plugins/nodebb-plugin-minecraft-integration/public/";
-	var charts = [];
+  function log (memo, object) {
+    if (!(config.MinecraftIntegration && config.MinecraftIntegration.debug)) return
 
-	function log(memo, object) {
-		if (!(config.MinecraftIntegration && config.MinecraftIntegration.debug)) return;
+    if (typeof memo === 'object') return console.dir(memo)
 
-		if (typeof memo === 'object') return console.dir(memo);
+    console.log(`[Minecraft Integration] ${memo}`)
+    if (object) console.dir(object)
+  }
 
-		console.log("[Minecraft Integration] " + memo);
-		if (object) console.dir(object);
-	}
+  function prepareChat (widget) {
+    socket.emit('plugins.MinecraftIntegration.getChat', {sid: widget.sid}, (err, data) => {
+      if (err || !data) {
+        log('Bad chat data.')
+        console.log(err)
+        return
+      }
+      const $chatwidget = widget.el
+      const $chatbox = $chatwidget.find('div')
 
-	function prepareChat(widget) {
-		socket.emit('plugins.MinecraftIntegration.getChat', {sid: widget.sid}, function (err, data) {
-			if (err || !data) {
-				log("Bad chat data.");
-				console.log(err);
-				return;
-			}
-			var $chatwidget = widget.el;
-			var $chatbox = $chatwidget.find('div');
+      for (const i in data.chats) {
+        $chatbox.append(`<span>${data.chats[i].name}: ${data.chats[i].message}</span><br>`)
+      }
 
-			for (var i in data.chats) {
-				$chatbox.append("<span>" + data.chats[i].name + ": " + data.chats[i].message + "</span><br>");
-			}
+      $chatwidget.find('button').click(function (e) {
+        if (app.user.uid === 0) return
 
-			$chatwidget.find('button').click(function (e) {
+        const $this = $(this)
 
-				if (app.user.uid === 0) return;
+        const chatData = {
+          sid: $chatwidget.attr('data-sid'),
+          name: app.user.username,
+          message: $this.parent().prev().children('input').val()
+        }
 
-				var $this = $(this);
+        socket.emit('plugins.MinecraftIntegration.eventWebChat', chatData)
 
-				var chatData = {
-					sid: $chatwidget.attr('data-sid'),
-					name: app.user.username,
-					message: $this.parent().prev().children('input').val()
-				};
+        log('Sending chat: ', chatData)
+        $this.parent().prev().children('input').val('')
+      })
 
-				socket.emit('plugins.MinecraftIntegration.eventWebChat', chatData);
+      $chatwidget.find('input').keyup(function (e) {
+        if (app.user.uid === 0) return
+        if (parseInt(e.keyCode, 10) === 13) {
+          const $this = $(this)
 
-				log("Sending chat: ", chatData);
-				$this.parent().prev().children('input').val('');
+          socket.emit('plugins.MinecraftIntegration.eventWebChat', {sid: $chatwidget.attr('data-sid'), name: app.user.username, message: $this.val()})
+          $this.val('')
+        }
+      })
 
-			});
+      $chatbox.scrollTop(100000)
+    })
+  }
 
-			$chatwidget.find('input').keyup(function(e){
-				if (app.user.uid === 0) return;
-				if(e.keyCode == 13)
-				{
-					var $this = $(this);
+  function prepareDirectory (widget) {
+  }
 
-					socket.emit('plugins.MinecraftIntegration.eventWebChat', {sid: $chatwidget.attr('data-sid'), name: app.user.username, message: $this.val()});
-					$this.val('');
-				}
-			});
+  function prepareGallery (widget) {
+  }
 
-			$chatbox.scrollTop(100000);
-		});
-	}
+  function prepareMap (widget) {
+  }
 
-	function prepareDirectory(widget) {
-	}
+  function preparePingGraph (widget) {
+  }
 
-	function prepareGallery(widget) {
-	}
+  function preparePlayersGraph (widget) {
+    log('PREPARING PLAYERS GRAPH')
+    // const pings = widget.el.data('pings')
+    widget.el.find('.bar').tooltip({
+      container: 'body',
+      html: true,
+      template: '<div class="tooltip michart" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'
+    })
+  }
 
-	function prepareMap(widget) {
-	}
+  function preparePlayersGrid (widget) {
+  }
 
-	function preparePingGraph(widget) {
-	}
+  function prepareStatus (widget) {
+    socket.emit('plugins.MinecraftIntegration.getServerStatus', {sid: widget.sid}, (err, status) => {
+      if (err || !status) return
+      setPlayers(status)
+    })
+  }
 
-	function preparePlayersGraph(widget) {
-		log("PREPARING PLAYERS GRAPH");
-		var pings = widget.el.data('pings');
-		widget.el.find('.bar').tooltip({
-			container: 'body',
-			html: true,
-			template: '<div class="tooltip michart" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'
-		});
-	}
+  function prepareTopGraph (widget) {
+    log('PREPARING TOP GRAPH')
+    socket.emit('plugins.MinecraftIntegration.getTopPlayersByPlaytimes', {sid: widget.sid, show: 10}, (err, players) => {
+      if (err || !players) return log('Couldn\'t retrieve top players.')
+      // charts.push(new miChart({
+        // type: 'pie',
+        // el: widget.el[0],
+        // data: players,
+        // getValueX: function (d){ return d.name },
+        // getValueY: function (d){ return d.playtime }
+      // }))
+      // widget.el.find('.arc path').tooltip({
+        // container: 'body',
+        // html: true,
+        // template: '<div class="tooltip michart" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'
+      // })
+    })
+  }
 
-	function preparePlayersGrid(widget) {
-	}
+  function prepareTopList (widget) {
+    widget.el.find('img').tooltip()
+  }
 
-	function prepareStatus(widget) {
-		socket.emit('plugins.MinecraftIntegration.getServerStatus', {sid: widget.sid}, function (err, status) {
-			if (err || !status) return;
-			setPlayers(status);
-		});
-	}
+  function prepareTPSGraph (widget) {
+    log('PREPARING TPS GRAPH')
+    socket.emit('plugins.MinecraftIntegration.getRecentPings', {sid: widget.sid}, (err, pings) => {
+      if (err || !pings) return log('ping error')
+      // charts.push(new miChart({
+        // el: widget.el[0],
+        // data: pings,
+        // getValueY: function (d){ return d.tps },
+        // minY: 15,
+        // maxY: 20
+      // }))
+    })
+  }
 
-	function prepareTopGraph(widget) {
-		log("PREPARING TOP GRAPH");
-		socket.emit('plugins.MinecraftIntegration.getTopPlayersByPlaytimes', {sid: widget.sid, show: 10}, function (err, players) {
-			// charts.push(new miChart({
-				// type: 'pie',
-				// el: widget.el[0],
-				// data: players,
-				// getValueX: function(d){ return d.name; },
-				// getValueY: function(d){ return d.playtime; }
-			// }));
-			// widget.el.find('.arc path').tooltip({
-				// container: 'body',
-				// html: true,
-				// template: '<div class="tooltip michart" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'
-			// });
-		});
-	}
+  function prepareVoteList (widget) {
+  }
 
-	function prepareTopList(widget) {
-		widget.el.find('img').tooltip();
-	}
+  const prepareWidget = {
+    'mi-chat': prepareChat,
+    'mi-directory': prepareDirectory,
+    'mi-gallery': prepareGallery,
+    'mi-map': prepareMap,
+    'mi-ping-graph': preparePingGraph,
+    'mi-players-graph': preparePlayersGraph,
+    'mi-players-grid': preparePlayersGrid,
+    'mi-status': prepareStatus,
+    'mi-top-graph': prepareTopGraph,
+    'mi-top-list': prepareTopList,
+    'mi-tps-graph': prepareTPSGraph,
+    'mi-vote-list': prepareVoteList
+  }
 
-	function prepareTPSGraph(widget) {
-		log("PREPARING TPS GRAPH");
-		socket.emit('plugins.MinecraftIntegration.getRecentPings', {sid: widget.sid}, function (err, pings) {
-			// charts.push(new miChart({
-				// el: widget.el[0],
-				// data: pings,
-				// getValueY: function(d){ return d.tps; },
-				// minY: 15,
-				// maxY: 20
-			// }));
-		});
-	}
+  $(window).on('action:ajaxify.end', (event, data) => {
+    // Minecraft profile page.
+    if (data.url.match(/user\/[^\/]*\/minecraft/)) {
+      const key = $('[name="player-key"]').html()
 
-	function prepareVoteList(widget) {
-	}
+      $('.copyPlayerKey').attr('data-clipboard-text', key)
 
-	var prepareWidget = {
-		'mi-chat'          : prepareChat,
-		'mi-directory'     : prepareDirectory,
-		'mi-gallery'       : prepareGallery,
-		'mi-map'           : prepareMap,
-		'mi-ping-graph'    : preparePingGraph,
-		'mi-players-graph' : preparePlayersGraph,
-		'mi-players-grid'  : preparePlayersGrid,
-		'mi-status'        : prepareStatus,
-		'mi-top-graph'     : prepareTopGraph,
-		'mi-top-list'      : prepareTopList,
-		'mi-tps-graph'     : prepareTPSGraph,
-		'mi-vote-list'     : prepareVoteList
-	};
+      require(['//cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.5/clipboard.min.js'], Clipboard => {
+        const clipboard = new Clipboard('.copyPlayerKey')
 
-	$(window).on('action:ajaxify.end', function (event, data) {
-		// Minecraft profile page.
-		if (data.url.match(/user\/[^\/]*\/minecraft/)) {
+        $('.copyPlayerKey').mouseout(function () {
+          $(this).tooltip('destroy')
+        })
 
-			var key = $('[name="player-key"]').html();
+        clipboard.on('success', e => {
+          e.clearSelection()
+          $(e.trigger).tooltip({
+            title: 'Copied!',
+            placement:'bottom'
+          })
+          $(e.trigger).tooltip('show')
+        })
+      })
 
-			$('.copyPlayerKey').attr('data-clipboard-text', key);
+      $('.resetPlayerKey').click(() => {
+        socket.emit('plugins.MinecraftIntegration.resetPlayerKey', {uid: app.user.uid}, (err, data) => {
+          if (err) return log(err.message)
+          if (!(data && data.key)) return log('Received invalid response to resetPlayerKey call.')
 
-			require(['//cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.5/clipboard.min.js'], function (Clipboard) {
-				var clipboard = new Clipboard('.copyPlayerKey');
+          $('[name="player-key"]').html(`key-${data.key}`)
+          $('.copyPlayerKey').attr('data-clipboard-text', `key-${data.key}`)
+        })
+      })
+    }
+  })
 
-				$('.copyPlayerKey').mouseout(function () {
-					$(this).tooltip('destroy');
-				});
+  $(window).on('action:widgets.loaded', () => {
+    // require(['/plugins/nodebb-plugin-minecraft-integration/public/js/vendor/michart.js'], function () {
+    // Store widgets
+    $('.mi-container').each(function (){
+      const $this = $(this)
+      const $parent = $this.parent()
+      const wid = $this.attr('data-widget')
+      const sid = $this.attr('data-sid')
 
-				clipboard.on('success', function(e) {
-					e.clearSelection();
-					$(e.trigger).tooltip({title:'Copied!',placement:'bottom'});
-					$(e.trigger).tooltip('show');
-				});
-			});
+      servers[sid] = servers[sid] || {}
+      servers[sid][wid] = servers[sid][wid] || []
+      servers[sid][wid].push({
+        el: $this,
+        sid
+      })
+    })
 
-			$('.resetPlayerKey').click(function(){
-				socket.emit('plugins.MinecraftIntegration.resetPlayerKey', {uid: app.user.uid}, function (err, data) {
-					if (err) return log(err.message);
-					if (!(data && data.key)) return log("Received invalid response to resetPlayerKey call.");
+    log('Preparing widgets...')
+    charts = []
 
-					$('[name="player-key"]').html('key-' + data.key);
-					$('.copyPlayerKey').attr('data-clipboard-text', 'key-' + data.key);
-				});
-			});
-		}
-	});
+    for (const sid in servers) {
+      for (const wid in servers[sid]) {
+        servers[sid][wid].forEach(widget => {
+          log(`Preparing ${wid} for server ${sid}`)
+          prepareWidget[wid](widget)
+        })
+      }
+    }
 
-	$(window).on('action:widgets.loaded', function(){
-		//require(['/plugins/nodebb-plugin-minecraft-integration/public/js/vendor/michart.js'], function () {
-			// Store widgets
-			$('.mi-container').each(function(){
-				var $this = $(this);
-				var $parent = $this.parent();
-				var wid = $this.attr('data-widget');
-				var sid = $this.attr('data-sid');
+    resizeEnd()
+    // })
+  })
 
-				servers[sid] = servers[sid] || {};
-				servers[sid][wid] = servers[sid][wid] || [];
-				servers[sid][wid].push({
-					el: $this,
-					sid: sid
-				});
-			});
+  socket.on('mi.PlayerJoin', onPlayerJoin)
+  socket.on('mi.PlayerQuit', onPlayerQuit)
+  socket.on('mi.status', onStatus)
+  socket.on('mi.PlayerChat', onPlayerChat)
+  socket.on('mi.PlayerVotes', onPlayerVotes)
 
-			log("Preparing widgets...");
-			charts = [];
+  function onPlayerJoin (data) {
+    addPlayer(data)
+    // updateCharts(data)
+  }
 
-			for (var sid in servers) {
-				for (var wid in servers[sid]) {
-					servers[sid][wid].forEach(function(widget){
-						log("Preparing " + wid + " for server " + sid);
-						prepareWidget[wid](widget);
-					});
-				}
-			}
+  function onPlayerQuit (data) {
+    removePlayer(data)
+    // updateCharts(data)
+  }
 
-			resizeEnd();
-		//});
-	});
+  function onStatus (data) {
+    log('Received Status Ping', data)
 
-	socket.on('mi.PlayerJoin',  onPlayerJoin);
-	socket.on('mi.PlayerQuit',  onPlayerQuit);
-	socket.on('mi.status',      onStatus);
-	socket.on('mi.PlayerChat',  onPlayerChat);
-	socket.on('mi.PlayerVotes', onPlayerVotes);
+    setPlayers(data)
 
-	function onPlayerJoin(data) {
-		addPlayer(data);
-		//updateCharts(data);
-	}
+    const $widget = $(`[data-sid="${data.sid}"]`)
 
-	function onPlayerQuit(data) {
-		removePlayer(data);
-		//updateCharts(data);
-	}
+    if (data.isServerOnline) {
+      $widget.find('.mc-statusicon')
+      .addClass('fa-check-circle')
+      .addClass('text-success')
+      .removeClass('fa-exclamation-circle')
+      .removeClass('text-danger')
+      $widget.find('.mc-statustext')
+      .addClass('text-success')
+      .removeClass('text-danger')
+      .text('Online')
+      $widget.find('.mc-playercount').show()
+    } else {
+      $widget.find('.mc-statusicon')
+      .removeClass('fa-check-circle')
+      .removeClass('text-success')
+      .addClass('fa-exclamation-circle')
+      .addClass('text-danger')
+      $widget.find('.mc-statustext')
+      .removeClass('text-success')
+      .addClass('text-danger')
+      .text('Offline')
+      $widget.find('.mc-playercount').hide()
+    }
+  }
 
-	function onStatus(data) {
-		log("Received Status Ping", data);
+  function onPlayerChat (data) {
+    $(`[data-widget="mi-chat"][data-sid="${data.sid}"]`).each((i, $widget) => {
+      $widget = $($widget)
 
-		setPlayers(data);
+      $widget.find('div').append(`<span>${data.chat.name}: ${data.chat.message}</span><br>`)
+      $widget.find('div').scrollTop(100000)
+    })
+  }
 
-		var $widget = $('[data-sid="' + data.sid + '"]');
+  function onPlayerVotes (data) {
+    log(data)
+  }
 
-		if (data.isServerOnline) {
-			$widget.find(".mc-statusicon")
-			.addClass("fa-check-circle")
-			.addClass("text-success")
-			.removeClass("fa-exclamation-circle")
-			.removeClass("text-danger");
-			$widget.find(".mc-statustext")
-			.addClass("text-success")
-			.removeClass("text-danger")
-			.text("Online");
-			$widget.find(".mc-playercount").show();
-		}else{
-			$widget.find(".mc-statusicon")
-			.removeClass("fa-check-circle")
-			.removeClass("text-success")
-			.addClass("fa-exclamation-circle")
-			.addClass("text-danger");
-			$widget.find(".mc-statustext")
-			.removeClass("text-success")
-			.addClass("text-danger")
-			.text("Offline");
-			$widget.find(".mc-playercount").hide();
-		}
-	}
+  function setPlayers (data) {
+    if (!(data && data.sid !== void 0 && Array.isArray(data.players))) {
+      log('Received invalid status data.')
+      log(data)
+      return
+    }
 
-	function onPlayerChat(data) {
-		$('[data-widget="mi-chat"][data-sid="' + data.sid + '"]').each(function (i, $widget) {
-			$widget = $($widget);
-
-			$widget.find('div').append("<span>" + data.chat.name + ": " + data.chat.message + "</span><br>");
-			$widget.find('div').scrollTop(100000);
-		});
-	}
-
-	function onPlayerVotes(data) {
-		log(data);
-	}
-
-	function setPlayers(data) {
-		if (!(data && data.sid !== void 0 && Array.isArray(data.players))) {
-			log("Received invalid status data.");
-			log(data);
-			return;
-		}
-
-    require(['moment'], function (moment) {
+    require(['moment'], moment => {
       // Loop widgets with a current players display.
       // TODO: Don't select widgets that have avatars turned off.
-      $('[data-widget="mi-status"][data-sid="' + data.sid + '"], [data-widget="mi-players-grid"][data-sid="' + data.sid + '"]').each(function (i, $widget) {
-
+      $(`[data-widget="mi-status"][data-sid="${data.sid}"], [data-widget="mi-players-grid"][data-sid="${data.sid}"]`).each((i, $widget) => {
         // Re-wrap
-        $widget = $($widget);
+        $widget = $($widget)
 
         // Update Icon Time
-        var	updateTime = data.updateTime || Date.now();
-        $widget.find(".mc-statusicon")
+        const updateTime = data.updateTime || Date.now()
+        $widget.find('.mc-statusicon')
           .attr('data-original-title', moment(parseInt(updateTime, 10)).format('MMM Do h:mma'))
-          .attr('data-title', moment(parseInt(updateTime, 10)).format('MMM Do h:mma'));
+          .attr('data-title', moment(parseInt(updateTime, 10)).format('MMM Do h:mma'))
 
         // Loop avatars and remove players no longer on the server.
-        $widget.find('.mi-avatar').each(function (i, el) {
-
+        $widget.find('.mi-avatar').each((ignored, el) => {
           // Re-wrap
-          var $avatar = $(el);
+          const $avatar = $(el)
 
           // If the player's online, return.
           for (var i in data.players) {
@@ -327,104 +325,103 @@ $(function(){
         })
 
         // Track number of players left to add.
-        var pendingPlayers = data.players.length;
+        const pendingPlayers = data.players.length
 
         // Add players now on the server.
-        data.players.forEach(function (player) {
-
-          var found = false;
+        data.players.forEach(player => {
+          let found = false
 
           $widget.find('.mi-avatar').each(function () {
-            var $avatar = $(this);
+            const $avatar = $(this)
 
             if ($avatar.data('uuid') === player.id) {
               found = $avatar
-              log("Found " + player.name);
+              log(`Found ${player.name}`)
             }
           })
 
           if (!found) {
-            app.parseAndTranslate('partials/playerAvatars', {players: [player]}, function ($avatar) {
+            app.parseAndTranslate('partials/playerAvatars', {players: [player]}, $avatar => {
               $avatar.hide()
               $avatar.data('uuid', player.id)
 
-              $avatar.appendTo($widget.find('.mi-avatars'));
+              $avatar.appendTo($widget.find('.mi-avatars'))
 
               // Wrap avatar in profile link if user is registered.
-              wrapAvatar($avatar);
+              wrapAvatar($avatar)
 
-              $avatar.load(function(){
+              $avatar.load(() => {
                 $avatar.show()
               })
             })
-          }else{
+          } else {
             found.show()
             // Set avatar borders if complete.
-            //if (!--pendingPlayers) setAvatarBorders($widget);
+            // if (!--pendingPlayers) setAvatarBorders($widget)
           }
-        });
+        })
 
         // Set player count text.
-        $widget.find(".online-players").text(data.players.length);
+        $widget.find('.online-players').text(data.players.length)
 
-        var $popover;
+        let $popover
 
         if ($widget.attr('data-widget') === 'mi-status') {
-          $popover = $widget.find('a.fa-plug');
+          $popover = $widget.find('a.fa-plug')
           if ($popover.length && Array.isArray(data.pluginList) && data.pluginList.length) {
-            var html = '<table class="table table-plugin-list"><tbody>';
+            var html = '<table class="table table-plugin-list"><tbody>'
 
-            for (var i = 0; i < data.pluginList.length; i++) {
-              html += '<tr><td>' + data.pluginList[i].name + '</td></tr>';
+            for (let i in data.pluginList) {
+              html += `<tr><td>${data.pluginList[i].name}</td></tr>`
             }
 
-            html += '</tbody></table>';
-            $popover.attr('data-content', html);
+            html += '</tbody></table>'
+            $popover.attr('data-content', html)
             $popover.popover({
               container: 'body',
               viewport: { selector: 'body', padding: 20 },
               template: '<div class="popover plugin-list"><div class="arrow"></div><div class="popover-inner"><h1 class="popover-title"></h1><div class="popover-content"><p></p></div></div></div>'
-            });
+            })
           }
 
-          $popover = $widget.find('a.fa-gavel');
+          $popover = $widget.find('a.fa-gavel')
           if ($popover.length && data.modList) {
-            var html = '<table class="table table-mod-list"><tbody>';
+            var html = '<table class="table table-mod-list"><tbody>'
 
             for (var i in data.modList) {
-              html += '<tr><td>' + data.modList[i].modid + '</td></tr>';
+              html += `<tr><td>${data.modList[i].modid}</td></tr>`
             }
 
-            html += '</tbody></table>';
-            $popover.attr('data-content', html);
+            html += '</tbody></table>'
+            $popover.attr('data-content', html)
             $popover.popover({
               container: 'body',
               viewport: { selector: 'body', padding: 20 },
               template: '<div class="popover mod-list"><div class="arrow"></div><div class="popover-inner"><h1 class="popover-title"></h1><div class="popover-content"><p></p></div></div></div>'
-            });
+            })
           }
         }
       })
     })
-	}
+  }
 
-	function addPlayer(data) {
-    var player = data.player
-    app.parseAndTranslate("partials/playerAvatars", {players: [player]}, function ($avatar) {
+  function addPlayer (data) {
+    const player = data.player
+    app.parseAndTranslate("partials/playerAvatars", {players: [player]}, $avatar => {
       // Loop widgets with a current players display.
       // TODO: Don't select widgets that have avatars turned off.
-      $('[data-widget="mi-status"][data-sid="' + data.sid + '"], [data-widget="mi-players-grid"][data-sid="' + data.sid + '"]').each(function (i, $widget) {
+      $(`[data-widget="mi-status"][data-sid="${data.sid}"], [data-widget="mi-players-grid"][data-sid="${data.sid}"]`).each((i, $widget) => {
         var $widget = $($widget)
 
         // Add the player only if they are not already listed.
-        var found = false;
-        $widget.find('.mi-avatar').each(function(){
+        let found = false
+        $widget.find('.mi-avatar').each(function (){
           if ($(this).data('uuid') === player.id) return found = $(this)
         })
         if (found) {
           if (found.css('display') === 'none') {
             found.show()
-            $widget.find(".online-players").text(parseInt($widget.find(".online-players").text(), 10) + 1)
+            $widget.find('.online-players').text(parseInt($widget.find('.online-players').text(), 10) + 1)
           }
           return
         }
@@ -432,177 +429,179 @@ $(function(){
         $avatar.data('uuid', player.id)
         $avatar.hide()
         $avatar.appendTo($widget.find('.mi-avatars'))
-        $widget.find(".online-players").text(parseInt($widget.find(".online-players").text(), 10) + 1)
+        $widget.find('.online-players').text(parseInt($widget.find('.online-players').text(), 10) + 1)
 
         // Wrap avatar in profile link if user is registered.
         wrapAvatar($avatar)
 
-        $avatar.load(function(){
+        $avatar.load(() => {
           $avatar.show()
         })
       })
     })
-	}
+  }
 
-	// Remove a single player from widgets.
-	function removePlayer(data) {
-		// TODO: Better selectors.
-		$('[data-sid="' + data.sid + '"]').each(function (i, el) {
-			var $widget = $(el)
+  // Remove a single player from widgets.
+  function removePlayer (data) {
+    // TODO: Better selectors.
+    $(`[data-sid="${data.sid}"]`).each((i, el) => {
+      const $widget = $(el)
 
-			switch ($widget.attr('data-widget')) {
-				case 'mi-status':
-				case 'mi-players-grid':
-					// Remove the player who is no longer on the server.
-					$widget.find('.mi-avatar').each(function (i, el) {
-						var $avatar = $(el)
+      switch ($widget.attr('data-widget')) {
+        case 'mi-status':
+        case 'mi-players-grid':
+          // Remove the player who is no longer on the server.
+          $widget.find('.mi-avatar').each((i, el) => {
+            const $avatar = $(el)
 
-						if ($avatar.data('uuid') !== data.player.id) return
+            if ($avatar.data('uuid') !== data.player.id) return
 
-            $widget.find(".online-players").text(parseInt($widget.find(".online-players").text(), 10) - 1);
+            $widget.find('.online-players').text(parseInt($widget.find('.online-players').text(), 10) - 1)
             $avatar.hide()
-					})
+          })
 
-					// Don't leave tooltips behind.
-					// TODO: Only remove MI tooltips.
-					$('.tooltip').remove();
-				break;
-			}
-		});
-	}
+          // Don't leave tooltips behind.
+          // TODO: Only remove MI tooltips.
+          $('.tooltip').remove()
+        break
+      }
+    })
+  }
 
-	// When avatars change, render new effects.
-	function setAvatarBorders($widget) {
-		var	$avatars = $widget.find('.mi-avatar'),
-			$scores  = $widget.find('.score');
+  // When avatars change, render new effects.
+  function setAvatarBorders ($widget) {
+    const $avatars = $widget.find('.mi-avatar'), $scores = $widget.find('.score')
 
-		if ($avatars.length === 0) return;
-		if ($widget.is(':not([data-colors="on"])')) return;
+    if ($avatars.length === 0) return
+    if ($widget.is(':not([data-colors="on"])')) return
 
-		var rainbow = getRainbow($widget, $avatars.length > 1 ? $avatars.length - 1 : $avatars.length);
+    const rainbow = getRainbow($widget, $avatars.length > 1 ? $avatars.length - 1 : $avatars.length)
 
-		if (!rainbow) return;
+    if (!rainbow) return
 
-		$avatars.each(function (i, el) {
-			$(el).css('border-style', $widget.attr('data-border') || 'none');
-			$(el).css('border-color', '#' + rainbow.colourAt(i));
-		});
+    $avatars.each((i, el) => {
+      $(el).css('border-style', $widget.attr('data-border') || 'none')
+      $(el).css('border-color', `#${rainbow.colourAt(i)}`)
+    })
 
-		$scores.each(function (i, el) {
-			$(el).css('color', '#' + rainbow.colourAt(i));
-		});
-	}
+    $scores.each((i, el) => {
+      $(el).css('color', `#${rainbow.colourAt(i)}`)
+    })
+  }
 
-	function getAvatarUrl(name) {
-		return config.relative_path + "/api/minecraft-integration/avatar/" + name + "/64";
-	}
+  function getAvatarUrl (name) {
+    return `${config.relative_path}/api/minecraft-integration/avatar/${name}/64`
+  }
 
-	// Wrap avatar in profile link if user is registered.
-	function wrapAvatar($avatar) {
-		if (!$avatar.parent().is('a')) {
-			socket.emit('plugins.MinecraftIntegration.getUser', {id: $avatar.data('uuid')}, function (err, userData) {
-				if (!err && userData && userData.userslug) {
-					$avatar.wrap('<a href="/user/' + userData.userslug + '"></a>');
-				}else{
-					$avatar.wrap('<a></a>');
-				}
-				$avatar.parent().click(function () {
-					$('.tooltip').remove();
-				});
-			});
-		}
-	}
+  // Wrap avatar in profile link if user is registered.
+  function wrapAvatar ($avatar) {
+    if (!$avatar.parent().is('a')) {
+      socket.emit('plugins.MinecraftIntegration.getUser', {id: $avatar.data('uuid')}, (err, userData) => {
+        if (!err && userData && userData.userslug) {
+          $avatar.wrap(`<a href="/user/${userData.userslug}"></a>`)
+        } else {
+          $avatar.wrap('<a></a>')
+        }
+        $avatar.parent().click(() => {
+          $('.tooltip').remove()
+        })
+      })
+    }
+  }
 
-	// Delay window resize response based on delta delay.
-	(function(){
-		var delta = 150;
-		var rtime = new Date();
-		var timeout = false;
-		$(window).resize(function() {
-			rtime = new Date();
-			if (timeout === false) {
-				timeout = true;
-				setTimeout(resizeend, delta);
-			}
-		});
-		function resizeend() {
-			if (new Date() - rtime < delta) {
-				setTimeout(resizeend, delta);
-			} else {
-				timeout = false;
-				// Do thing.
-				resizeEnd();
-			}
-		}
-	}());
+  // Delay window resize response based on delta delay.
+  ((() => {
+    const delta = 150
+    let rtime = new Date()
+    let timeout = false
+    $(window).resize(() => {
+      rtime = new Date()
+      if (timeout === false) {
+        timeout = true
+        setTimeout(resizeend, delta)
+      }
+    })
+    function resizeend() {
+      if (new Date() - rtime < delta) {
+        setTimeout(resizeend, delta)
+      } else {
+        timeout = false
+        // Do thing.
+        resizeEnd()
+      }
+    }
+  })())
 
-	function resizeEnd() {
-		charts.forEach(function (chart) {
-			chart.resize();
-		});
-	}
+  function resizeEnd () {
+    charts.forEach(chart => {
+      chart.resize()
+    })
+  }
 
-	// Vault Prefixes
-	if (config.MinecraftIntegration.showPrefixes) {
-		$(window).on('action:posts.loaded', addPrefixes);
-		$(window).on('action:ajaxify.end',  addPrefixes);
-		addPrefixes();
-	}
-	function addPrefix($el, prefix) {
-		$el.find('.username>a').prepend('<span class="prefix">' + prefix + '</span><br>');
-		$el.find('[itemprop="author"]').prepend('<span class="prefix">' + prefix + '</span>&nbsp&nbsp');
-	}
-	function addPrefixes(event, data) {
-		if (ajaxify.data && ajaxify.data.prefixes) {
-			$('[data-pid]:not([data-prefix])').each(function () {
-				var $el = $(this), prefix = ajaxify.data.prefixes[$el.attr("data-uid")];
+  // Vault Prefixes
+  if (config.MinecraftIntegration.showPrefixes) {
+    $(window).on('action:posts.loaded', addPrefixes)
+    $(window).on('action:ajaxify.end',  addPrefixes)
+    addPrefixes()
+  }
+  function addPrefix ($el, prefix) {
+    $el.find('.username>a').prepend(`<span class="prefix">${prefix}</span><br>`)
+    $el.find('[itemprop="author"]').prepend(`<span class="prefix">${prefix}</span>&nbsp&nbsp`)
+  }
+  function addPrefixes (event, data) {
+    if (ajaxify.data && ajaxify.data.prefixes) {
+      $('[data-pid]:not([data-prefix])').each(function () {
+        const $el = $(this), prefix = ajaxify.data.prefixes[$el.attr('data-uid')]
 
-				$el.attr("data-prefix", "true");
+        $el.attr('data-prefix', 'true')
 
-				if (prefix) return addPrefix($el, prefix);
-				if (prefix === null) return;
+        if (prefix) return addPrefix($el, prefix)
+        if (prefix === null) return
 
-				socket.emit('plugins.MinecraftIntegration.getUserPrefix', {uid:$el.attr("data-uid")}, function (err, data) {
-					if (data.prefix) addPrefix($el, data.prefix);
-				});
+        socket.emit('plugins.MinecraftIntegration.getUserPrefix', {
+          uid: $el.attr('data-uid')
+        }, (err, data) => {
+          if (data.prefix) addPrefix($el, data.prefix)
+        })
+      })
+    }
+  }
 
-			});
-		}
-	}
+  require(['//cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.5/clipboard.min.js'], Clipboard => {
+    const clipboard = new Clipboard('.mi-serveraddresscopy')
+    $('.mi-serveraddresscopy')
+      .mouseout(function () {
+        $(this).tooltip('destroy')
+        $(this).removeClass('mi-highlight')
+        $(this).prev().removeClass('mi-highlight')
+      })
+      .mouseenter(function () {
+        $(this).addClass('mi-highlight')
+        $(this).prev().addClass('mi-highlight')
+      })
+      .removeClass('hide')
+    clipboard.on('success', e => {
+      e.clearSelection()
+      $(e.trigger).tooltip({
+        title: 'Copied!',
+        placement: 'bottom'
+      })
+      $(e.trigger).tooltip('show')
+    })
+  })
 
-	require(['//cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.5/clipboard.min.js'], function (Clipboard) {
-		var	clipboard = new Clipboard('.mi-serveraddresscopy');
-		$('.mi-serveraddresscopy')
-			.mouseout(function () {
-				$(this).tooltip('destroy');
-				$(this).removeClass('mi-highlight');
-				$(this).prev().removeClass('mi-highlight');
-			})
-			.mouseenter(function () {
-				$(this).addClass('mi-highlight');
-				$(this).prev().addClass('mi-highlight');
-			})
-			.removeClass('hide');
-		clipboard.on('success', function(e) {
-			e.clearSelection();
-			$(e.trigger).tooltip({title:'Copied!',placement:'bottom'});
-			$(e.trigger).tooltip('show');
-		});
-	});
+  function getRainbow ($widget, range, cb) {
+    require([`${staticDir}js/vendor/rainbowvis.js`], Rainbow => {
+      const rainbow = new Rainbow()
+      let colorStart = $widget.attr('data-color-start') || 'white', colorEnd = $widget.attr('data-color-end') || 'white'
 
-	function getRainbow($widget, range, cb) {
-		require([staticDir + 'js/vendor/rainbowvis.js'], function (Rainbow) {
-			var	rainbow = new Rainbow();
-			var	colorStart = $widget.attr('data-color-start') || "white",
-				colorEnd   = $widget.attr('data-color-end')   || "white";
+      colorStart = colorStart.slice(0, 1) === '#' ? colorStart.slice(1) : colorStart
+      colorEnd = colorEnd.slice(0, 1) === '#'   ? colorEnd.slice(1) : colorStart
 
-			colorStart = colorStart.slice(0, 1) === '#' ? colorStart.slice(1) : colorStart;
-			colorEnd   = colorEnd.slice(0, 1) === '#'   ? colorEnd.slice(1) : colorStart;
+      rainbow.setNumberRange(0, range)
+      rainbow.setSpectrum(colorStart, colorEnd)
 
-			rainbow.setNumberRange(0, range);
-			rainbow.setSpectrum(colorStart, colorEnd);
-
-			cb(rainbow);
-		});
-	}
-});
+      cb(rainbow)
+    })
+  }
+})
