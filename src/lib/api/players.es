@@ -77,10 +77,10 @@ function getPlayerFromUid (name, callback) {
 }
 
 export function getPlayer (data, callback) {
-  if (!data || !(data.id || data.name || data.uid)) return next(new Error('No data for player lookup.'))
-  if (data.id) return getPlayerFromUuid(data.id, next)
-  if (data.name) return getPlayerFromName(data.name, next)
-  if (data.uid) return getPlayerFromUid(data.uid, next)
+  if (!data || !(data.id || data.name || data.uid)) return callback(new Error('No data for player lookup.'))
+  if (data.id) return getPlayerFromUuid(data.id, callback)
+  if (data.name) return getPlayerFromName(data.name, callback)
+  if (data.uid) return getPlayerFromUid(data.uid, callback)
 }
 
 // API.resetPrimaryUid = function (yuuid, next) {
@@ -106,4 +106,11 @@ export function getPlayerPrefix (data, callback) {
   } else {
     Backend.getPlayerPrefix(uuid, callback)
   }
+}
+
+export function writeOfflinePlayers (players, callback) {
+  for (let id in players) {
+    console.log(id + ' ' + players[id].name)
+  }
+  callback()
 }

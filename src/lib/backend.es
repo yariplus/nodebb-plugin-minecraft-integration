@@ -695,3 +695,106 @@ Backend.getTopPlayersByPlaytimes = (data, callback) => {
     }, callback)
   })
 }
+
+// Ranks
+
+Backend.getRanks = (sid, callback) => {
+  db.getSetMembers(`mi:server:${sid}:ranks`, callback)
+}
+
+Backend.getRanksWithMembers = (sid, callback) => {
+  db.getSetMembers(`mi:server:${sid}:ranks`, (err, ranks) => {
+    if (!ranks) return callback(err, [])
+
+    async.map(ranks, (rank, next) => {
+      let data = { name: rank }
+      db.getSetMembers(`mi:server:${sid}:rank:${rank}:members`, (err, members) => {
+        if (members) data.members = members.map(member => { return { id: member } })
+        next(null, data)
+      })
+    }, callback)
+  })
+}
+
+Backend.setRanks = (sid, ranks, callback) => {
+  let commands = []
+  let key = `mi:server:${sid}:ranks`
+
+  db.getSetMembers(key, (err, oldRanks) => {
+    oldRanks.forEach(oldRank => {
+      if (ranks.indexOf(oldRank) === -1) {
+        commands.push(async.apply(db.setRemove, key, oldRank))
+
+        let memberskey = `mi:server:${sid}:rank:${oldRank}:members`
+
+        commands.push(async.apply(db.delete, memberskey))
+      }
+    })
+    ranks.forEach(rank => {
+      if (oldRanks.indexOf(rank) === -1) commands.push(async.apply(db.setAdd, key, rank))
+    })
+    async.parallel(commands, callback)
+  })
+}
+
+Backend.setRanksWithMembers = (sid, ranks, callback) => {
+  Backend.setRanks(sid, Object.keys(ranks), () => {
+    async.forEachOf(ranks, (members, rank, next) => {
+      let commands = []
+      let key = `mi:server:${sid}:rank:${rank}:members`
+
+      members = members.map(Utils.trimUUID)
+
+      db.getSetMembers(key, (err, oldMembers) => {
+        oldMembers.forEach(oldMember => {
+          if (members.indexOf(oldMember) === -1) commands.push(async.apply(db.setRemove, key, oldMember))
+        })
+        members.forEach(member => {
+          if (oldMembers.indexOf(member) === -1) commands.push(async.apply(db.setAdd, key, member))
+        })
+        async.parallel(commands, next)
+      })
+    }, callback)
+  })
+}
+
+Backend.setRank = (rid, rank, callback) => {
+  db.setObject(`mi:rank:${rid}`, rank, callback)
+}
+
+Backend.setRankGroup = (rid, group, callback) => {
+  db.setObjectField(`mi:rank:${rid}`, 'group', group, callback)
+}
+
+Backend.setServerRank = (sid, rankObj, callback) => {
+  if (!rankObj.name) return callback(new Error('setServerRank(): Invalid Server Rank name.'))
+  async.parallel([
+    async.apply(db.setAdd, `mi:server:${sid}:ranks`, rankObj.name),
+    async.apply(db.setObject, `mi:server:${sid}:rank:${rankObj.name}`, rankObj)
+  ], callback)
+}
+
+Backend.getServerRank = (sid, rankName, callback) => {
+  db.getObject(`mi:server:${sid}:rank:${rankName}`, callback)
+}
+
+Backend.getServerRankPrefix = (sid, rankName, callback) => {
+  db.getObjectField(`mi:server:${sid}:rank:${rankName}`, 'prefix', callback)
+}
+
+Backend.getServerRankRank = (sid, rankName, callback) => {
+  db.getObjectField(`mi:server:${sid}:rank:${rankName}`, 'prefix', callback)
+}
+
+Backend.addRankGroup = (callback) => {
+  db.getSortedSetRange('mi:groups:rank', 0, -1, callback)
+}
+
+Backend.setRankGroup = (group, callback) => {
+  // db.getSortedSetRange(`group:${group}`)
+  callback()
+}
+
+Backend.deleteRankGroup = (group, callback) => {
+  callback()
+}

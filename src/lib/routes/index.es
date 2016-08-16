@@ -4,6 +4,7 @@ import * as API from '../api'
 import Backend from '../backend'
 import Config from '../config'
 import Controller from '../controller'
+import * as Controllers from '../controllers'
 import Utils from '../utils'
 import Chat from '../chat'
 import Registration from '../registration'
@@ -15,6 +16,9 @@ export default function (app, middleware, router) {
   router.get('/mc/chat', middleware.buildHeader, (req, res) => {
     res.render('mc/chat', {sid: 0})
   })
+
+  router.get('/mc/ranks', middleware.buildHeader, Controllers.renderRanks)
+  router.get('/api/mc/ranks', Controllers.renderRanks)
 
   function render (req, res, next) {
     res.render('admin/plugins/minecraft-integration', { })
@@ -103,7 +107,6 @@ export default function (app, middleware, router) {
 
     // Write using sockets.
     SocketPlugins.MinecraftIntegration[name] = (socket, data, next) => {
-
       if (!(data && data.key)) return next(new Error('No API key.'))
 
       // TODO: Proper logger.
@@ -111,7 +114,6 @@ export default function (app, middleware, router) {
 
       // Verify API key.
       Backend.getSidUsingAPIKey(data.key, (err, sid) => {
-
         if (err || !sid) {
           // TODO
           console.log(`Invalid API key for ${data.sid}`)
@@ -185,6 +187,9 @@ export default function (app, middleware, router) {
   addToWriteAPI(API.eventPlayerChat, 'eventPlayerChat', 'chat/:id/:name/:message')
   addToWriteAPI(API.eventPlayerJoin, 'eventPlayerJoin', 'join/:id/:name')
   addToWriteAPI(API.eventPlayerQuit, 'eventPlayerQuit', 'quit/:id/:name')
+  addToWriteAPI(API.writeOfflinePlayers, 'writeOfflinePlayers', 'offlineplayers')
+  addToWriteAPI(API.writeRanks, 'writeRanks', 'ranks')
+  addToWriteAPI(API.writeRanksWithMembers, 'writeRanksWithMembers', 'ranks-with-members')
 
   addToWriteAPI(Registration.register, 'commandRegister')
 

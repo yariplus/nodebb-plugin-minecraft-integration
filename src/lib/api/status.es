@@ -75,6 +75,7 @@ export function updateServerStatus (status, next) {
     })
   })
 
+  // wth is this?
   async.waterfall([
     async.apply(Backend.updateServerStatus, status),
     next => {
@@ -157,12 +158,9 @@ export function eventPlayerJoin (data, callback) {
     newPrefix = Utils.parseFormatCodes(prefix)
     primaryPrefix = newPrefix
   }
-  if (groups) {
-    for (const i in groups) {
-      if (groups[i].prefix !== prefix) {
-        newPrefix = Utils.parseFormatCodes(groups[i].prefix) + (newPrefix ? ' ' + newPrefix : '')
-        if (!primaryPrefix || groups[i].primary) primaryPrefix = groups[i].prefix
-      }
+  if (Array.isArray(groups)) {
+    for (const group of groups) {
+      // TODO: Get prefix from group hash.
     }
   }
 

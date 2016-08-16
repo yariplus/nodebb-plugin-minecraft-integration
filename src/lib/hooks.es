@@ -1,4 +1,4 @@
-import { User } from './nodebb'
+import { User, db } from './nodebb'
 import { getUserPrefix } from './api'
 import Backend from './backend'
 import Config from './config'
@@ -88,6 +88,11 @@ const Hooks = {
       }
     },
     users: {
+    },
+    group: {
+      update(data, next) {
+        next(null, data)
+      }
     }
   },
   action: {
@@ -100,6 +105,10 @@ const Hooks = {
         if (data.field === 'picture') {
           // .setUserAvatar(data.uid)
         }
+      }
+    },
+    group: {
+      destroy(group) {
       }
     }
   }

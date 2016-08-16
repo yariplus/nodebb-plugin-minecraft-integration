@@ -37,7 +37,9 @@
     { "hook": "filter:post.getPosts",                  "method": "Hooks.filter.post.getPosts" },
     { "hook": "filter:post.get",                       "method": "Hooks.filter.post.get" },
     { "hook": "filter:user.account",                   "method": "Hooks.filter.user.account" },
-    { "hook": "filter:config.get",                     "method": "Hooks.filter.config.get" }
+    { "hook": "filter:config.get",                     "method": "Hooks.filter.config.get" },
+    { "hook": "filter:group.update",                   "method": "Hooks.filter.group.update" },
+    { "hook": "action:group.destroy",                  "method": "Hooks.action.group.destroy" }
   ],
   "templates": "public/templates",
   "staticDirs": {
