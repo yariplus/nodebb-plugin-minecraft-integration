@@ -43,7 +43,8 @@
   ],
   "templates": "public/templates",
   "staticDirs": {
-    "vendor": "public/vendor"
+    "vendor": "public/vendor",
+    "js": "public/src"
   },
   "languages": "public/language"
 }

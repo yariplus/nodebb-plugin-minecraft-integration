@@ -11,7 +11,7 @@ MinecraftIntegration = {
 			if (object) console.dir(object);
 		}
 	},
-	staticDir: "/plugins/nodebb-plugin-minecraft-integration/public/",
+	staticDir: "/plugins/nodebb-plugin-minecraft-integration/",
 	templates: { }
 };
 

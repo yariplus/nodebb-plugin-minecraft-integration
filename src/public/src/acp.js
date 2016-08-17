@@ -1,4 +1,4 @@
-define(['settings', 'translator', MinecraftIntegration.staticDir + "js/vendor/validator.min.js"], function (settings, translator, validator) {
+define(['settings', 'translator', MinecraftIntegration.staticDir + "vendor/validator.min.js"], function (settings, translator, validator) {
 
 	"use strict";
 
@@ -345,7 +345,7 @@ define(['settings', 'translator', MinecraftIntegration.staticDir + "js/vendor/va
 						$('.nav-tabs a').first().tab('show');
 					}
 				};
-				if (app.previousUrl.match('minecraft-integration#')) {
+				if (app.previousUrl && app.previousUrl.match('minecraft-integration#')) {
 					var hash = app.previousUrl.split('#')[1] || '';
 					$('.nav-tabs a[href=#' + hash + ']').tab('show');
 					location.hash = '#' + hash;
@@ -361,14 +361,14 @@ define(['settings', 'translator', MinecraftIntegration.staticDir + "js/vendor/va
 			MinecraftIntegration.log('Got server configurations.');
 			MinecraftIntegration.log(servers);
 
-			$.get(MinecraftIntegration.staticDir + '/templates/admin/plugins/server.tpl' + "?v=" + config['cache-buster'], function(template) {
-				translator.translate(template, function (translatedTemplate) {
+      // Make this parse the template properly.
+			templates.parse('admin/plugins/server', {}, template => {
+				translator.translate(template, translatedTemplate => {
 					$serverTemplate = $($.parseHTML(translatedTemplate));
 					servers.forEach(addServer);
-				});
-			});
-
-		});
+				})
+			})
+		})
 
 		// Helpers
 		function formatUuid(yuuid) {
