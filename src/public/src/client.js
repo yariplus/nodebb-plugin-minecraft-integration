@@ -86,6 +86,20 @@ $(() => {
 
   function preparePlayersGraph (widget) {
     log('PREPARING PLAYERS GRAPH')
+
+    require(['rickshaw'], Rickshaw => {
+      var graph = new Rickshaw.Graph({
+        element: widget.el[0],
+        renderer: 'bar',
+        series: [{
+          data: [ { x: 0, y: 40 }, { x: 1, y: 49 } ]
+          color: 'steelblue'
+        }]
+      })
+
+      graph.render();
+    })
+
     // const pings = widget.el.data('pings')
     widget.el.find('.bar').tooltip({
       container: 'body',
