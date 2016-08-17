@@ -699,71 +699,85 @@ Backend.getTopPlayersByPlaytimes = (data, callback) => {
 // Ranks
 
 Backend.getRanks = (sid, callback) => {
-  db.getSetMembers(`mi:server:${sid}:ranks`, callback)
+  db.getSortedSetRange(`mi:server:${sid}:ranks`, 0, -1, callback)
 }
 
-Backend.getRanksWithMembers = (sid, callback) => {
-  db.getSetMembers(`mi:server:${sid}:ranks`, (err, ranks) => {
-    if (!ranks) return callback(err, [])
+Backend.getRankMembers = (sid, rank, page, count, callback) => {
+  const key = `mi:server:${sid}:rank:${rank}:members`
 
-    async.map(ranks, (rank, next) => {
-      let data = { name: rank }
-      db.getSetMembers(`mi:server:${sid}:rank:${rank}:members`, (err, members) => {
-        if (members) data.members = members.map(member => { return { id: member } })
-        next(null, data)
-      })
-    }, callback)
+  if (typeof page === 'function') {
+    callback = page;
+    page = 0;
+    count = 10000000;
+  }
+
+  db.getSortedSetRangeByLex(key, '-', '+', page * count, count, callback)
+}
+
+Backend.getRanksWithMembers = (sid, page, count, callback) => {
+  const key = `mi:server:${sid}:ranks`
+
+  if (typeof page === 'function') {
+    callback = page;
+    page = 0;
+    count = 10000000;
+  }
+
+  let data = []
+
+  async.waterfall([
+    async.apply(Backend.getRanks, sid),
+    (ranks, next) => {
+      async.each(ranks, (rank, next) => {
+        Backend.getRankMembers(sid, rank, page, count, (err, members) => {
+          if (err) return next(err)
+          data.push({
+            name: rank,
+            members: members.map(member => { return { id: member } })
+          })
+          next()
+        })
+      }, next)
+    }
+  ], (err) => {
+    callback(err, data)
   })
 }
 
 Backend.setRanks = (sid, ranks, callback) => {
-  let commands = []
-  let key = `mi:server:${sid}:ranks`
+  const key = `mi:server:${sid}:ranks`
 
-  db.getSetMembers(key, (err, oldRanks) => {
-    oldRanks.forEach(oldRank => {
-      if (ranks.indexOf(oldRank) === -1) {
-        commands.push(async.apply(db.setRemove, key, oldRank))
-
-        let memberskey = `mi:server:${sid}:rank:${oldRank}:members`
-
-        commands.push(async.apply(db.delete, memberskey))
-      }
+  async.waterfall([
+    async.apply(db.delete, key),
+    async.apply(async.each, ranks, (rank, next) => {
+      db.sortedSetAdd(key, rank.rank || 0, rank.name, next)
     })
-    ranks.forEach(rank => {
-      if (oldRanks.indexOf(rank) === -1) commands.push(async.apply(db.setAdd, key, rank))
-    })
-    async.parallel(commands, callback)
+  ], (err) => {
+    callback(err)
   })
 }
 
 Backend.setRanksWithMembers = (sid, ranks, callback) => {
-  Backend.setRanks(sid, Object.keys(ranks), () => {
-    async.forEachOf(ranks, (members, rank, next) => {
-      let commands = []
-      let key = `mi:server:${sid}:rank:${rank}:members`
+  async.waterfall([
+    async.apply(Backend.setRanks, sid, ranks),
+    async.apply(async.each, ranks, (rank, next) => {
+      const key = `mi:server:${sid}:rank:${rank.name}:members`
 
-      members = members.map(Utils.trimUUID)
-
-      db.getSetMembers(key, (err, oldMembers) => {
-        oldMembers.forEach(oldMember => {
-          if (members.indexOf(oldMember) === -1) commands.push(async.apply(db.setRemove, key, oldMember))
-        })
-        members.forEach(member => {
-          if (oldMembers.indexOf(member) === -1) commands.push(async.apply(db.setAdd, key, member))
-        })
-        async.parallel(commands, next)
+      db.delete(key, () => {
+        async.each(rank.members, (member, next) => {
+          db.sortedSetAdd(key, 0, `${member.id}:${member.name}`, next)
+        }, next)
       })
-    }, callback)
-  })
+    })
+  ], callback)
 }
 
 Backend.setRank = (rid, rank, callback) => {
-  db.setObject(`mi:rank:${rid}`, rank, callback)
+  //db.setObject(`mi:rank:${rid}`, rank, callback)
 }
 
 Backend.setRankGroup = (rid, group, callback) => {
-  db.setObjectField(`mi:rank:${rid}`, 'group', group, callback)
+  //db.setObjectField(`mi:rank:${rid}`, 'group', group, callback)
 }
 
 Backend.setServerRank = (sid, rankObj, callback) => {
