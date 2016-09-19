@@ -87,24 +87,33 @@ $(() => {
   function preparePlayersGraph (widget) {
     log('PREPARING PLAYERS GRAPH')
 
-    require(['rickshaw'], Rickshaw => {
-      var graph = new Rickshaw.Graph({
-        element: widget.el[0],
-        renderer: 'bar',
-        series: [{
-          data: [ { x: 0, y: 40 }, { x: 1, y: 49 } ]
-          color: 'steelblue'
-        }]
+    socket.emit('plugins.MinecraftIntegration.getRecentPings', {sid: widget.sid}, (err, pings) => {
+      let data = pings.map(ping => { return {x: ping.timestamp, y: ping.players.length} })
+      let times = {}
+      pings.forEach(ping => { times[ping.timestamp] = {players: ping.players}})
+
+      require(['rickshaw'], Rickshaw => {
+        widget.graph = new Rickshaw.Graph({
+          element: widget.el[0],
+          renderer: 'bar',
+          min: 0,
+          max: 10,
+          gapSize: 0.05,
+          series: [{
+            data: data,
+            color: 'steelblue'
+          }]
+        })
+        widget.graph.render()
+        let hoverDetail = new Rickshaw.Graph.HoverDetail({
+          graph: widget.graph,
+          formatter: function(series, x, y) {
+            return times[x].players.length
+          }
+        })
+
+        charts.push(widget.graph)
       })
-
-      graph.render();
-    })
-
-    // const pings = widget.el.data('pings')
-    widget.el.find('.bar').tooltip({
-      container: 'body',
-      html: true,
-      template: '<div class="tooltip michart" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'
     })
   }
 
@@ -525,7 +534,7 @@ $(() => {
 
   // Delay window resize response based on delta delay.
   ((() => {
-    const delta = 150
+    const delta = 10
     let rtime = new Date()
     let timeout = false
     $(window).resize(() => {
@@ -547,8 +556,24 @@ $(() => {
   })())
 
   function resizeEnd () {
-    charts.forEach(chart => {
-      chart.resize()
+    console.log('resizing')
+    require(['rickshaw'], Rickshaw => {
+      for (let sid in servers) {
+        for (let wid in servers[sid]) {
+          servers[sid][wid].forEach(widget => {
+            const h = widget.el.data('height-ratio')
+            if (h) widget.el.height(widget.el.width() * parseFloat(widget.el.data('height-ratio')))
+
+            if (widget.graph) {
+              widget.graph.configure({
+                width: widget.el.width(),
+                height: widget.el.height()
+              });
+              widget.graph.render()
+            }
+          })
+        }
+      }
     })
   }
 

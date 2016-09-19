@@ -3,6 +3,6 @@
 	data-sid="{sid}"
 	data-pings='{pings}'
 	data-chart-color-fills='{chartColorFills}'
-	data-ratio="0.6">
+	data-height-ratio="0.6">
 	{svg}
 </div>

@@ -35,6 +35,8 @@
 </div>
 <!-- END ranks -->
 
+{config.MinecraftIntegration.avatarCDN}
+
 <script>
 
 </script>
