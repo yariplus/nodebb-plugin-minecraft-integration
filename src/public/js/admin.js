@@ -17,7 +17,7 @@ MinecraftIntegration = {
 
 define('admin/plugins/minecraft-integration', function () {
 	MinecraftIntegration.init = function () {
-		require([MinecraftIntegration.staticDir + 'src/acp.js'], function (miACP) {
+		require([MinecraftIntegration.staticDir + 'js/acp.js'], function (miACP) {
 			miACP.load();
 		});
 	};
@@ -31,7 +31,7 @@ $(window).on('action:ajaxify.end', function (event, url) {
 
 	switch (url) {
 		case 'admin/extend/widgets':
-			require([MinecraftIntegration.staticDir + 'src/acp-widgets.js'], function (module) {
+			require([MinecraftIntegration.staticDir + 'js/acp-widgets.js'], function (module) {
 				module.init();
 			});
 			break;

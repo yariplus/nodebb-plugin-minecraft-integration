@@ -11,10 +11,10 @@
     "public/vendor/rickshaw.min.css"
   ],
   "scripts": [
-    "public/src/client.js"
+    "public/js/client.js"
   ],
   "acpScripts": [
-    "public/src/admin.js"
+    "public/js/admin.js"
   ],
   "hooks": [
     { "hook": "static:app.load",                       "method": "load" },
@@ -44,7 +44,8 @@
   "templates": "public/templates",
   "staticDirs": {
     "vendor": "public/vendor",
-    "js": "public/src"
+    "js": "public/js"
   },
-  "languages": "public/language"
+  "languages": "public/language",
+  "defaultLang": "en_GB"
 }
