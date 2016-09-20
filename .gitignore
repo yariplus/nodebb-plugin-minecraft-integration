@@ -21,8 +21,8 @@ build/Release
 node_modules
 
 # Distribution Files
-public/src
-lib
+/public/src
+/lib
 library.js
 
 # Tests
