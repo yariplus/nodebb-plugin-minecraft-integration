@@ -104,7 +104,12 @@
     request({url: `https://sessionserver.mojang.com/session/minecraft/profile/${id}`, json: true}, (err, response, body) => {
       if (err) return next(err)
       if (response.statusCode == 200) {
-        next(null, body[body.length - 1].name)
+        // Temp
+        if (!body[body.length - 1]) {
+          console.log('Recieved unexpected response from Mojang session server:')
+          console.dir(body)
+        }
+        next(null, body[body.length - 1] ? body[body.length - 1].name : 'unknown')
       }
     })
   }

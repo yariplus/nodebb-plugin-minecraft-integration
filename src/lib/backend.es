@@ -168,9 +168,6 @@ Backend.deletePlayer = (data, next) => {
   ], next)
 }
 
-Backend.deleteUser = (uid, next) => {
-}
-
 Backend.getPlayerPrefix = (uuid, next) => {
   db.getObjectField(`yuuid:${uuid}`, 'prefix', next)
 }

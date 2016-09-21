@@ -1,5 +1,5 @@
 const Admin = module.exports = { }
-import deleteUser from './api'
+import { deleteUser, refreshUser, resetUsers } from './api'
 import { SocketAdmin } from './nodebb'
 import Backend from './backend'
 import Utils from './utils'
@@ -34,13 +34,13 @@ Admin.init = () => {
   addAdminSocket('setServerConfig', Backend.setServerConfig)
   addAdminSocket('getServersConfig', Backend.getServersConfig)
   addAdminSocket('deleteUser', deleteUser)
-  addAdminSocket('refreshUser', Backend.refreshUser)
-  addAdminSocket('resetUsers', Backend.resetUsers)
+  addAdminSocket('refreshUser', refreshUser)
+  addAdminSocket('resetUsers', resetUsers)
   addAdminSocket('deleteAvatar', Backend.deleteAvatar)
   addAdminSocket('refreshAvatar', Backend.refreshAvatar)
   addAdminSocket('resetAvatars', Backend.resetAvatars)
   addAdminSocket('deletePlayer', Backend.deletePlayer)
-  addAdminSocket('refreshPlayer', Backend.refreshPlayer)
-  addAdminSocket('resetPlayers', Backend.resetPlayers)
+  // Uses fetchPlayer instead. addAdminSocket('refreshPlayer', Backend.refreshPlayer)
+  // Doesn't exist. addAdminSocket('resetPlayers', Backend.resetPlayers)
   addAdminSocket('deleteServer', Backend.deleteServer)
 }
