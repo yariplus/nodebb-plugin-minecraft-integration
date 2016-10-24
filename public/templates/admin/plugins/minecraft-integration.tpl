@@ -178,9 +178,8 @@
 
 <br>
 
-<div class="alert alert-info clearfix beg">
-	<div class="h1">Hello!</div>
-	<p>I'm <a href="https://github.com/yariplus">yariplus</a>, creator of this fine plugin. If you found this plugin useful, consider supporting me by making a financial contribution using one of the services below. And thanks for using my plugins!</p>
+<div class="alert alert-warning clearfix beg">
+	<p><b>Hello!</b> I'm <a href="https://github.com/yariplus">yariplus</a>, creator of this fine plugin. If you found this plugin useful, consider supporting me by making a financial contribution using one of the services below. And thanks for using my plugins!</p>
 	<div>
 		<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top" class="pay">
 			<input type="hidden" name="cmd" value="_s-xclick">
@@ -192,9 +191,6 @@
 			<img src="https://s3.amazonaws.com/patreon_public_assets/toolbox/patreon.png" width="82px" class="ptr">
 		</a>
 	</div>
-</div>
-
-<div class="alert alert-warning clearfix beg">
 	<p>Having trouble using this plugin? <a href="https://github.com/yariplus/nodebb-plugin-minecraft-integration/issues/new">Open an issue here.</a></p>
 	<p>Interested in having me make a custom Minecraft or NodeBB plugin for you? Email me at tafike@gmail.com</p>
 </div>
