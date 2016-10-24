@@ -65,7 +65,10 @@ export function getUsers (options, next) {
         Backend.getUuidsFromUid(userData.uid, (err, uuids) => {
           if (err || !uuids) return next(null, userData) // TODO: Remove from sortedset if links are missing from db.
           Backend.getPlayersFromUuids(uuids, (err, players) => {
-            userData.players = players
+            userData.players = players.map(player => {
+              if (player.id === userData.yuuid) player.isPrimary = true
+              return player
+            })
             next(null, userData)
           })
         })

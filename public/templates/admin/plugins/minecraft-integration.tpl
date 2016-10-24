@@ -109,14 +109,11 @@
 
 		<div role="tabpanel" class="tab-pane" id="mi-tab-users">
 			<div class="panel panel-primary">
-				<table class="table table-striped">
+				<table class="table table-striped table-bordered">
 					<thead>
 						<tr>
 							<th>User</th>
-							<th>UUID</th>
-							<th>Player Name</th>
-							<th>Actions</th>
-							<th></th>
+							<th>Players</th>
 						</tr>
 					</thead>
 					<tbody id="miTableUsers"></tbody>
