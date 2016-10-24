@@ -14,7 +14,8 @@
     "public/js/client.js"
   ],
   "acpScripts": [
-    "public/js/admin.js"
+    "public/js/acp.js",
+    "public/js/acp-widgets.js"
   ],
   "hooks": [
     { "hook": "static:app.load",                       "method": "load" },
