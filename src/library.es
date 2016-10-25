@@ -24,6 +24,7 @@ export function load (params, next) {
   routes(params.app, params.middleware, params.router)
   Views.init(params.app, params.middleware, params.router)
   Admin.init()
+  Config.init()
   Widgets.init(params.app)
 
   // Add a default server.

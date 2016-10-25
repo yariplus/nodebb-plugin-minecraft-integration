@@ -1,12 +1,12 @@
 {
   "name": "nodebb-plugin-minecraft-integration",
-  "version": "0.8.0-alpha.7",
+  "version": "0.8.0-alpha.9",
   "description": "NodeBB plugin to integrate your forum with your Minecraft Server using widgets, user syncing, group/rank syncing, sso, bukkit/bungeecord/sponge communication, and more.",
   "main": "library.js",
   "scripts": {
     "compile": "babel src -d .",
     "pretest": "npm run compile",
-    "test": "nyc --require babel-register mocha test/**/*.js"
+    "test": "nyc --require babel-register mocha test"
   },
   "repository": {
     "type": "git",
@@ -53,10 +53,6 @@
     "compatibility": "^1.0.0"
   },
   "nyc": {
-    "exclude": [
-      "nodebb",
-      "test"
-    ]
   },
   "standard": {
     "parser": "babel-eslint"

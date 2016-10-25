@@ -98,10 +98,12 @@ const defaultSettings = {
   'debug': 0
 }
 
-Config.steveBuffer = new Buffer(Config.steve, 'base64')
+Config.init = () => {
+  // Sync get settings.
+  Config.settings = new Settings('minecraft-integration', '0.6.0', defaultSettings)
+}
 
-// Sync get settings.
-Config.settings = new Settings('minecraft-integration', '0.6.0', defaultSettings)
+Config.steveBuffer = new Buffer(Config.steve, 'base64')
 
 // Async get settings.
 Config.getSettings = (data, next) => {
