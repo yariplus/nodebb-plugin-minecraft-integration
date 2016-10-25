@@ -48,7 +48,12 @@ Views.init = (_app, middleware, router) => {
         getUserLinkedPlayers(uid, (err, players) => {
           if (err || !players || !players.length) {
             payload.hasPlayers = false
-          }else {
+          } else {
+            players = players.map(player => {
+              player.prefix = Utils.parseMCFormatCodes(player.prefix)
+              return player
+            })
+
             payload.hasPlayers = true
             payload.players = players
           }

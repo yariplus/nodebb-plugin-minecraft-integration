@@ -32,12 +32,22 @@ function addUserData (players, callback) {
   })
 }
 
+function addFormattedPrefix (players, next) {
+  players.map(player => {
+    player.prefix = Utils.parseFormatCodes(player.prefix)
+    return player
+  })
+
+  next(null, players)
+}
+
 export function getPlayers (data, callback) {
   async.waterfall([
     async.apply(Backend.getUuids, data),
     async.apply(Backend.getPlayersFromUuids),
     async.apply(updateUuids),
-    async.apply(addUserData)
+    async.apply(addUserData),
+    async.apply(addFormattedPrefix),
   ], callback)
 }
 

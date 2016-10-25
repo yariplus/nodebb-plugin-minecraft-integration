@@ -152,10 +152,10 @@ export function eventPlayerJoin (data, callback) {
   let newPrefix = ''
   let primaryPrefix = ''
 
-  // Parse prefix data.
+  // Store raw prefix data.
   // TODO: Configure spacing.
   if (prefix) {
-    newPrefix = Utils.parseFormatCodes(prefix)
+    newPrefix = prefix
     primaryPrefix = newPrefix
   }
   if (Array.isArray(groups)) {

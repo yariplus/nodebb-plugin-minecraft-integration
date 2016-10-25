@@ -7,7 +7,7 @@ import Controller from '../controller'
 import * as Controllers from '../controllers'
 import Utils from '../utils'
 import Chat from '../chat'
-import Registration from '../registration'
+import { resetPlayerKey, register } from '../registration'
 
 export default function (app, middleware, router) {
   // TODO: Add slugs
@@ -164,7 +164,7 @@ export default function (app, middleware, router) {
   addToAPI(API.getUser, 'getUser', 'users/uuid/:id')
   addToAPI(API.getUser, 'getUser', 'users/name/:name')
 
-  addToAPI(Registration.resetPlayerKey, 'resetPlayerKey', 'users/reset/:uid')
+  addToAPI(resetPlayerKey, 'resetPlayerKey', 'users/reset/:uid')
 
   addToAPI(Config.getSettings, 'getSettings', 'settings')
   addToAPI(Config.getSettings, 'getSettings', 'settings/:key')
@@ -191,7 +191,7 @@ export default function (app, middleware, router) {
   addToWriteAPI(API.writeRanks, 'writeRanks', 'ranks')
   addToWriteAPI(API.writeRanksWithMembers, 'writeRanksWithMembers', 'ranks-with-members')
 
-  addToWriteAPI(Registration.register, 'commandRegister')
+  addToWriteAPI(register, 'commandRegister')
 
   addToWriteAPI(Controller.PlayerVotes, 'PlayerVotes')
 

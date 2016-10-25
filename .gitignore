@@ -21,12 +21,9 @@ build/Release
 node_modules
 
 # Distribution Files
-/public/js/
-/lib/
+/public/js
+/lib
 /library.js
-
-# Tests
-!/test/**/*.js
 
 # Coverage
 .nyc_output
