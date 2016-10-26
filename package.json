@@ -39,6 +39,7 @@
     "winston": "^2.1.0"
   },
   "devDependencies": {
+    "coveralls": "^2.11.14",
     "babel-cli": "^6.10.1",
     "babel-plugin-array-includes": "^2.0.3",
     "babel-plugin-transform-object-assign": "^6.8.0",
