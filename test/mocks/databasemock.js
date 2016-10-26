@@ -4,71 +4,59 @@
  */
 
 (function (module) {
-	'use strict';
+	'use strict'
 	/*global require, before, __dirname*/
 
-	var async = require('async');
-	var winston = require('winston');
-	var path  = require('path');
-	var nconf = require('nconf');
-	var url = require('url');
-	var errorText;
+	var async = require('async')
+	var winston = require('winston')
+	var path  = require('path')
+	var nconf = require('nconf')
+	var url = require('url')
+	var errorText
 
-	nconf.file({ file: path.join(__dirname, '../../node_modules/nodebb/config.json') });
+  nconf.env()
+
+	nconf.file({ file: path.join(__dirname, '../../node_modules/nodebb/config.json') })
+
 	nconf.defaults({
 		base_dir: path.join(__dirname,'../..'),
 		themes_path: path.join(__dirname, '../../node_modules'),
 		upload_url: path.join(path.sep, '../../uploads', path.sep),
 		views_dir: path.join(__dirname, '../../public/templates'),
 		relative_path: ''
-	});
+	})
 
 	if (!nconf.get('isCluster')) {
-		nconf.set('isPrimary', 'true');
-		nconf.set('isCluster', 'false');
+		nconf.set('isPrimary', 'true')
+		nconf.set('isCluster', 'false')
 	}
 
-	var dbType = nconf.get('database');
+	var dbType = nconf.get('DB')
 
-  dbType = "mongo"
+  console.log(dbType)
+
 	var testDbConfig = {
     "host": "127.0.0.1",
     "port": 27017,
-    "database": "test_mi"
+    "database": "8"
   }
-	var productionDbConfig = nconf.get(dbType);
-  productionDbConfig = "mongo"
 
-	if (!testDbConfig){
-		errorText = 'test_database is not defined';
-		winston.error(errorText);
-		throw new Error(errorText);
-	}
+	nconf.set(dbType, testDbConfig)
 
-	if (testDbConfig.database === productionDbConfig.database &&
-		testDbConfig.host === productionDbConfig.host &&
-		testDbConfig.port === productionDbConfig.port) {
-		errorText = 'test_database has the same config as production db';
-		winston.error(errorText);
-		throw new Error(errorText);
-	}
-
-	nconf.set(dbType, testDbConfig);
-
-	var db = require('../../node_modules/nodebb/src/database');
+	var db = require('../../node_modules/nodebb/src/database')
 
 	before(function (done) {
-		this.timeout(30000);
+		this.timeout(30000)
 		async.waterfall([
 			function (next) {
-				db.init(next);
+				db.init(next)
 			},
 			function (next) {
         next()
 			}
-		], done);
-	});
+		], done)
+	})
 
-	module.exports = db;
+	module.exports = db
 
-}(module));
+}(module))
