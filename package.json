@@ -33,6 +33,7 @@
     "humanize-duration": "^3.7.1",
     "jimp": "0.2.21",
     "keen-js": "3.4.0",
+    "nconf": "*",
     "request": "^2.44.0",
     "validator": "^4.2.1",
     "winston": "^2.1.0"
@@ -47,7 +48,8 @@
     "chai": "^3.5.0",
     "mocha": "^2.5.3",
     "nyc": "^6.4.4",
-    "standard": "^7.1.2"
+    "standard": "^7.1.2",
+    "templates.js": "*"
   },
   "nbbpm": {
     "compatibility": "^1.0.0"

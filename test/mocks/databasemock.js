@@ -12,7 +12,6 @@
 	var path  = require('path')
 	var nconf = require('nconf')
 	var url = require('url')
-	var errorText
 
   nconf.env()
 
@@ -32,8 +31,6 @@
 	}
 
 	var dbType = nconf.get('DB')
-
-  console.log(dbType)
 
 	var testDbConfig = {
     "host": "127.0.0.1",
