@@ -6,7 +6,8 @@
   "scripts": {
     "compile": "babel src -d .",
     "pretest": "npm run compile",
-    "test": "nyc --require babel-register mocha test"
+    "test": "nyc --require babel-register mocha test",
+    "coverage": "nyc report --reporter=text-lcov | coveralls"
   },
   "repository": {
     "type": "git",
