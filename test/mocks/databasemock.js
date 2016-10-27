@@ -7,7 +7,7 @@
   'use strict'
   /*global require, before, __dirname*/
 
-  var nconf = require(process.env.NODEBB_HOME + 'node_modules/nconf')
+  var nconf = require('nconf')
 
   var async = require('async')
   var winston = require('winston')

@@ -7,7 +7,7 @@
     "compile": "babel src -d . --source-maps",
     "pretest": "npm run compile",
     "test": "nyc --require babel-register mocha test",
-    "coverage": "nyc report --reporter=json && remap-istanbul -i coverage/coverage-final.json | coveralls"
+    "coverage": "nyc report --reporter=json && remap-istanbul -i coverage/coverage-final.json -t lcovonly | coveralls"
   },
   "repository": {
     "type": "git",
@@ -40,7 +40,6 @@
     "winston": "^2.1.0"
   },
   "devDependencies": {
-    "coveralls": "^2.11.14",
     "babel-cli": "^6.10.1",
     "babel-plugin-array-includes": "^2.0.3",
     "babel-plugin-transform-object-assign": "^6.8.0",
@@ -48,16 +47,17 @@
     "babel-preset-es2015": "^6.9.0",
     "babel-register": "^6.9.0",
     "chai": "^3.5.0",
+    "coveralls": "^2.11.14",
     "mocha": "^2.5.3",
     "nyc": "^6.4.4",
+    "remap-istanbul": "^0.7.0",
     "standard": "^7.1.2",
     "templates.js": "*"
   },
   "nbbpm": {
     "compatibility": "^1.0.0"
   },
-  "nyc": {
-  },
+  "nyc": {},
   "standard": {
     "parser": "babel-eslint"
   },
