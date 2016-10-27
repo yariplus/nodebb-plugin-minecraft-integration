@@ -30,7 +30,6 @@ Backend.getPlayersFromUuids = (yuuids, callback) => {
   const keys = yuuids.map(yuuid => `yuuid:${yuuid}`)
 
   db.getObjects(keys, (err, players) => {
-
     // Add the yuuid to the player object for display.
     for (const i in players) {
       players[i] = players[i] || {}
@@ -50,7 +49,6 @@ Backend.getPlayerFromUuid = (uuid, callback) => {
 Backend.getUuidFromName = (name, next) => {
   // Look in the cache first.
   db.get(`mi:name:${name}`, (err, uuid) => {
-
     // Return if db error.
     if (err) return next(err)
 
@@ -59,7 +57,6 @@ Backend.getUuidFromName = (name, next) => {
 
     // If not in cache, query Mojang.
     Utils.getUUID(name, (err, uuid) => {
-
       // Return if db error.
       if (err) return next(err)
 
@@ -232,7 +229,6 @@ Backend.getSidUsingAPIKey = (key, next) => {
 }
 
 Backend.getServerIcon = (data, next) => {
-
   if (!data || !data.sid) return next('Backend.getServerIcon() No SID.')
 
   const sid = data.sid
@@ -250,22 +246,20 @@ Backend.getServerIcon = (data, next) => {
 }
 
 Backend.getServerPlugins = (data, next) => {
-
   const sid = data.sid
 
   async.parallel({
     pluginList: async.apply(db.getObjectField, `mi:server:${sid}`, 'pluginList'),
     config: async.apply(Backend.getServerConfig, {sid})
   }, (err, results) => {
-
     if (err) return next(err)
 
     if (!results.pluginList || parseInt(results.config.hidePlugins, 10)) {
       next(null, [])
-    }else {
+    } else {
       try {
         results.pluginList = JSON.parse(results.pluginList)
-      } catch(err) {
+      } catch (err) {
         console.log(`JSON ERROR: ${err}`)
         return next(err, [])
       }
@@ -277,7 +271,6 @@ Backend.getServerPlugins = (data, next) => {
 
 // TODO: Make this retrieve a time range instead of a fixed amount.
 Backend.getRecentPings = (data, next) => {
-
   const pings = []
   const sid = data.sid
   const amount = data.last || 30
@@ -298,7 +291,6 @@ Backend.getRecentPings = (data, next) => {
 
     // Read and parse the stored pings for each stamp.
     async.map(stamps, (stamp, next) => {
-
       db.getObject(`mi:server:${sid}:ping:${stamp}`, (err, ping) => {
         if (err) return next(err)
 
@@ -312,7 +304,7 @@ Backend.getRecentPings = (data, next) => {
         if (typeof ping.players === 'string') {
           try {
             ping.players = JSON.parse(ping.players)
-          } catch(e) {
+          } catch (e) {
             ping.players = []
           }
         }
@@ -336,7 +328,6 @@ var defaultPing = {
 }
 
 Backend.updateServerStatus = (status, next) => {
-
   if (typeof status.players !== 'string') status.players = JSON.stringify(status.players)
 
   if (status.pluginList && typeof status.pluginList !== 'string') status.pluginList = JSON.stringify(status.pluginList)
@@ -437,12 +428,11 @@ Backend.getServersSids = Backend.getServerSids = (data, next) => {
   const end = data.end >= -1 ? data.end : -1
 
   db.getSortedSetRange('mi:servers', 0, -1, (err, sids) => {
-
     if (err || !sids) return next(err, [])
 
     if (data.sort) {
       if (data.sort === 'sid') sids = sids.sort(sort)
-    }else {
+    } else {
       sids = sids.sort(sort)
     }
 
@@ -483,13 +473,11 @@ Backend.getAvatars = (data, next) => {
 
 // Get the avatar base64 from the database.
 function getAvatar (name, callback) {
-
   // Database keys used.
   const keyBase = `mi:avatar:${name}`, keyModified = `mi:avatar:${name}:modified`, keySorted = 'mi:avatars'
 
   // Store a fetched avatar binary as base64 and update fetch time.
   function storeAvatar (avatar, next) {
-
     // Convert buffer to a base64.
     avatar = avatar.toString('base64')
 
@@ -523,7 +511,7 @@ function getAvatar (name, callback) {
       next => {
         if (!fetchTime || !base || !modifiedTime || Date.now() - fetchTime > 1000 * 60 * 10) {
           fetchAvatar(name, next)
-        }else {
+        } else {
           next(null, false)
         }
       },
@@ -531,7 +519,7 @@ function getAvatar (name, callback) {
         if (_buffer) {
           buffer = _buffer
           storeAvatar(buffer, next)
-        }else {
+        } else {
           next(null, base)
         }
       },
@@ -540,7 +528,7 @@ function getAvatar (name, callback) {
           modifiedTime = new Date().toUTCString()
           db.set(keyModified, modifiedTime, next)
           base = _base
-        }else {
+        } else {
           next()
         }
       }
@@ -557,7 +545,6 @@ function getAvatar (name, callback) {
 }
 
 Backend.getAvatar = (data, callback) => {
-
   // Asserts
   if (!(data && data.name && typeof data.name === 'string')) return callback(new Error(`Invalid Data passed to getAvatar: ${data}`))
 
@@ -579,7 +566,6 @@ Backend.clearOldAvatars = (options, next) => {
 }
 
 Backend.refreshAvatar = (data, next) => {
-
   const name = data.name
 
   Backend.deleteAvatar(data, err => {
@@ -623,7 +609,6 @@ function fetchAvatar (name, next) {
     url: async.apply(Config.getAvatarUrl, {name, size: 64}), // The full url for the avatar.
     id: async.apply(Backend.getUuidFromName, name) // We need this for cdns that use uuids.
   }, (err, payload) => {
-
     if (err) return next(err)
 
     const url = payload.url.replace('{uuid}', payload.id)
@@ -650,11 +635,11 @@ function fetchAvatar (name, next) {
             console.log("Couldn't connect to Mojang skin server.")
 
             return next(null, Config.steveBuffer)
-          }else {
+          } else {
             next(null, new Buffer(avatar))
           }
         })
-      }else {
+      } else {
         next(null, new Buffer(avatar))
       }
     })
@@ -665,7 +650,7 @@ function transform (response, body, next) {
   const cdn = Config.settings.get('avatarCDN')
   if (Config.cdns[cdn].styles && Config.cdns[cdn].styles.flat && Config.cdns[cdn].styles.flat.transform) {
     Config.cdns[cdn].styles.flat.transform(body, next)
-  }else {
+  } else {
     next(null, body)
   }
 }
@@ -703,9 +688,9 @@ Backend.getRankMembers = (sid, rank, page, count, callback) => {
   const key = `mi:server:${sid}:rank:${rank}:members`
 
   if (typeof page === 'function') {
-    callback = page;
-    page = 0;
-    count = 10000000;
+    callback = page
+    page = 0
+    count = 10000000
   }
 
   db.getSortedSetRangeByLex(key, '-', '+', page * count, count, callback)
@@ -715,9 +700,9 @@ Backend.getRanksWithMembers = (sid, page, count, callback) => {
   const key = `mi:server:${sid}:ranks`
 
   if (typeof page === 'function') {
-    callback = page;
-    page = 0;
-    count = 10000000;
+    callback = page
+    page = 0
+    count = 10000000
   }
 
   let data = []
@@ -770,11 +755,11 @@ Backend.setRanksWithMembers = (sid, ranks, callback) => {
 }
 
 Backend.setRank = (rid, rank, callback) => {
-  //db.setObject(`mi:rank:${rid}`, rank, callback)
+  // db.setObject(`mi:rank:${rid}`, rank, callback)
 }
 
 Backend.setRankGroup = (rid, group, callback) => {
-  //db.setObjectField(`mi:rank:${rid}`, 'group', group, callback)
+  // db.setObjectField(`mi:rank:${rid}`, 'group', group, callback)
 }
 
 Backend.setServerRank = (sid, rankObj, callback) => {

@@ -15,31 +15,31 @@ define('admin/plugins/minecraft-integration', ['settings', 'translator'], functi
 
     if (typeof memo === 'object') {
       console.dir(memo)
-    }else{
-      console.log("[Minecraft Integration] " + memo)
+    } else {
+      console.log('[Minecraft Integration] ' + memo)
       if (object) console.dir(object)
     }
   }
 
   miACP.init = function () {
-    log("Loading admin data...")
+    log('Loading admin data...')
 
-    $form           = $('#minecraft-integration')
-    $tabServers     = $('#mi-tab-servers')
-    $tabSettings    = $('#mi-tab-settings')
-    $tabUsers       = $('#mi-tab-users')
-    $tabAvatars     = $('#mi-tab-avatars')
-    $tabPlayers     = $('#mi-tab-players')
+    $form = $('#minecraft-integration')
+    $tabServers = $('#mi-tab-servers')
+    $tabSettings = $('#mi-tab-settings')
+    $tabUsers = $('#mi-tab-users')
+    $tabAvatars = $('#mi-tab-avatars')
+    $tabPlayers = $('#mi-tab-players')
     $tabMaintenance = $('#mi-tab-maintenance')
-    $serverList     = $('#server-list')
+    $serverList = $('#server-list')
 
     // Tables
-    var $elTableUsers   = $('#miTableUsers'),
+    var $elTableUsers = $('#miTableUsers'),
       $elTableAvatars = $('#miTableAvatars'),
       $elTablePlayers = $('#miTablePlayers'),
       tplTablePlayers = '<tr data-uuid="{id}"><td class="compact no-break">{idf}</td><td><span class="name">{name}</span></td><td><span class="prefix">{prefix}</span></td><td>{playtime}</td><td>{lastonline}</td><td class="compact squish"><button type="button" class="btn btn-info mi-btn-refresh-player">Refresh</button></td><td class="compact"><button type="button" class="btn btn-danger mi-btn-delete-player">Delete</button></td></tr>'
 
-    function populateFields() {
+    function populateFields () {
       $('[name=avatarCDN]').val(settings.cfg._.avatarCDN)
       $('[name=custom-cdn]').val(settings.cfg._.customCDN)
       $('[name=avatarSize]').val(settings.cfg._.avatarSize)
@@ -49,7 +49,7 @@ define('admin/plugins/minecraft-integration', ['settings', 'translator'], functi
       $('[name=debug]').prop('checked', parseInt(settings.cfg._.debug, 10))
     }
 
-    function validateAll(e) {
+    function validateAll (e) {
       activate($('[name=api-key]'))
       activate($('[name=avatarCDN]'))
       activate($('[name=custom-cdn]'))
@@ -63,7 +63,7 @@ define('admin/plugins/minecraft-integration', ['settings', 'translator'], functi
           activate($(el))
         })
 
-        if ($el.find('.error').length) $el.find('.panel-body').collapse("show")
+        if ($el.find('.error').length) $el.find('.panel-body').collapse('show')
       })
 
       if ($form.find('.error').length) {
@@ -74,14 +74,13 @@ define('admin/plugins/minecraft-integration', ['settings', 'translator'], functi
       }
     }
 
-    function activate($el) {
-
-      var value  = $el.val(),
+    function activate ($el) {
+      var value = $el.val(),
         parent = $el.parents('.input-row'),
-        help   = parent.children('.help-text'),
-        key    = $el.attr('name')
+        help = parent.children('.help-text'),
+        key = $el.attr('name')
 
-      function validateName() {
+      function validateName () {
         // TODO
         parent.removeClass('error')
       }
@@ -92,11 +91,9 @@ define('admin/plugins/minecraft-integration', ['settings', 'translator'], functi
         default:
           return
       }
-
     }
 
-    function getNextSid() {
-
+    function getNextSid () {
       var nextSid = 0
 
       $.map($serverList.children(), function ($server) {
@@ -106,19 +103,17 @@ define('admin/plugins/minecraft-integration', ['settings', 'translator'], functi
       })
 
       return nextSid
-
     }
 
-    function collapse(e) {
+    function collapse (e) {
       $(e.delegateTarget).find('.panel-body').collapse('toggle')
     }
 
     // Add a server config to the list.
-    function addServer(server) {
+    function addServer (server) {
+      log('Adding ' + (server ? 'existing' : 'new ') + 'server config.', server ? server : null)
 
-      log("Adding " + (server ? "existing" : "new ") + "server config.", server ? server : null)
-
-      var sid     = server ? server.sid : getNextSid(),
+      var sid = server ? server.sid : getNextSid(),
         $server = $serverTemplate.clone()
 
       $server.attr('data-sid', sid)
@@ -128,18 +123,18 @@ define('admin/plugins/minecraft-integration', ['settings', 'translator'], functi
       $server.on('click', '[name="api-key"]', function (e) {
         if (!$(this).val()) {
           regenKey($(this))
-        }else{
+        } else {
           this.select()
         }
       })
 
       $server.find('a').text(server ? server.name : 'A Minecraft Server ' + sid)
 
-      $server.find('[name="name"]').val(server    ? server.name    : 'A Minecraft Server ' + sid)
+      $server.find('[name="name"]').val(server ? server.name : 'A Minecraft Server ' + sid)
       $server.find('[name="address"]').val(server ? server.address : '')
-      $server.find('[name="api-key"]').val(server ? server.APIKey  : regenKey($server.find('[name="api-key"]'), true))
+      $server.find('[name="api-key"]').val(server ? server.APIKey : regenKey($server.find('[name="api-key"]'), true))
 
-      $server.find('[name="hide-plugins"]').prop("checked", server ? parseInt(server.hidePlugins, 10) : false)
+      $server.find('[name="hide-plugins"]').prop('checked', server ? parseInt(server.hidePlugins, 10) : false)
 
       if (!server) {
         $server.find('.panel-body').collapse('toggle')
@@ -147,10 +142,9 @@ define('admin/plugins/minecraft-integration', ['settings', 'translator'], functi
       }
 
       $server.appendTo($serverList)
-
     }
 
-    function regenKey($input, noSelect) {
+    function regenKey ($input, noSelect) {
       socket.emit('plugins.MinecraftIntegration.getKey', { }, function (err, data) {
         $input.val(data.key)
         if (noSelect) return
@@ -158,35 +152,33 @@ define('admin/plugins/minecraft-integration', ['settings', 'translator'], functi
       })
     }
 
-    function makeButtons() {
-
-      log("Adding buttons")
+    function makeButtons () {
+      log('Adding buttons')
 
       // Servers
       $tabServers.on('click', '#mia-add-server', function (e) {
         addServer()
       }).on('click', '.save', function (e) {
-
         if (!validateAll()) return
 
         var $server = $(this).closest('.panel')
 
         var config = {
-          name        : $server.find('[name=name]').val(),
-          address     : $server.find('[name=address]').val(),
-          APIKey      : $server.find('[name=api-key]').val(),
-          hidePlugins : $server.find('[name=hide-plugins]').is(':checked') ? 1 : 0
+          name: $server.find('[name=name]').val(),
+          address: $server.find('[name=address]').val(),
+          APIKey: $server.find('[name=api-key]').val(),
+          hidePlugins: $server.find('[name=hide-plugins]').is(':checked') ? 1 : 0
         }
 
         socket.emit('admin.MinecraftIntegration.setServerConfig', {sid: $server.attr('data-sid'), config: config}, function (err) {
           if (err) {
             app.alertError(err)
-          }else{
-            app.alertSuccess("Saved settings for " + config.name)
-            log("Save settings", config)
+          } else {
+            app.alertSuccess('Saved settings for ' + config.name)
+            log('Save settings', config)
           }
         })
-      }).on('focus', '.form-control', function() {
+      }).on('focus', '.form-control', function () {
         var parent = $(this).closest('.input-row')
 
         $('.input-row.active').removeClass('active')
@@ -194,16 +186,16 @@ define('admin/plugins/minecraft-integration', ['settings', 'translator'], functi
 
         var help = parent.find('.help-text')
         help.html(help.attr('data-help'))
-      }).on('blur change', '[name]', function() {
+      }).on('blur change', '[name]', function () {
         // activate($(this).attr('name'), $(this))
-      }).on('input', '[name="name"]', function() {
+      }).on('input', '[name="name"]', function () {
         var $this = $(this), $server = $this.closest('.panel'), serverNum = $server.data('server-num')
         $server.find('a').first().text($this.val() || 'A Minecraft Server ' + sid)
       }).on('click', '.regen-key', function (e) {
         regenKey($(this).closest('.input-row').find('input'))
       }).on('click', '.fa-times', function (e) {
         var $this = $(this), $server = $this.closest('.panel'), sid = $server.attr('data-sid'), name = $server.find('[name="name"]').val()
-        bootbox.confirm('<p>Are you sure?</p><p class="strong">This will delete all data from ' + name + ' (SID:'+sid+').</p><p class="text-danger strong">This cannot be undone.</p>', function(result) {
+        bootbox.confirm('<p>Are you sure?</p><p class="strong">This will delete all data from ' + name + ' (SID:' + sid + ').</p><p class="text-danger strong">This cannot be undone.</p>', function (result) {
           if (result) {
             socket.emit('admin.MinecraftIntegration.deleteServer', {sid: sid}, function (err) {
               if (!err) $server.remove()
@@ -217,18 +209,18 @@ define('admin/plugins/minecraft-integration', ['settings', 'translator'], functi
         e.preventDefault()
         if (!validateAll()) return
 
-        settings.cfg._.avatarCDN   = $('[name=avatarCDN]').val()   || "mojang"
-        settings.cfg._.customCDN   = $('[name=custom-cdn]').val()  || ""
-        settings.cfg._.avatarSize  = $('[name=avatarSize]').val()  || "40"
-        settings.cfg._.avatarStyle = $('[name=avatarStyle]').val() || "flat"
-        settings.cfg._.showPrefixes = $('[name=showPrefixes]').prop( "checked" ) ? 1 : 0
-        settings.cfg._.usePrimaryPrefixOnly = $('[name=usePrimaryPrefixOnly]').prop( "checked" ) ? 1 : 0
-        settings.cfg._.debug       = $('[name=debug]').prop( "checked" ) ? 1 : 0
+        settings.cfg._.avatarCDN = $('[name=avatarCDN]').val() || 'mojang'
+        settings.cfg._.customCDN = $('[name=custom-cdn]').val() || ''
+        settings.cfg._.avatarSize = $('[name=avatarSize]').val() || '40'
+        settings.cfg._.avatarStyle = $('[name=avatarStyle]').val() || 'flat'
+        settings.cfg._.showPrefixes = $('[name=showPrefixes]').prop('checked') ? 1 : 0
+        settings.cfg._.usePrimaryPrefixOnly = $('[name=usePrimaryPrefixOnly]').prop('checked') ? 1 : 0
+        settings.cfg._.debug = $('[name=debug]').prop('checked') ? 1 : 0
 
-        settings.helper.persistSettings('minecraft-integration', settings.cfg, true, function(){
+        settings.helper.persistSettings('minecraft-integration', settings.cfg, true, function () {
           socket.emit('admin.settings.syncMinecraftIntegration')
         })
-      }).on('focus', '.form-control', function() {
+      }).on('focus', '.form-control', function () {
         var parent = $(this).closest('.input-row')
 
         $('.input-row.active').removeClass('active')
@@ -236,10 +228,10 @@ define('admin/plugins/minecraft-integration', ['settings', 'translator'], functi
 
         var help = parent.find('.help-text')
         help.html(help.attr('data-help'))
-      }).on('blur change', '[name]', function() {
+      }).on('blur change', '[name]', function () {
         // activate($(this).attr('name'), $(this))
       }).on('click', '#mia-delete', function (e) {
-        bootbox.confirm('Are you sure?<p class="text-danger strong">This will delete all data from all Minecraft servers.</p>', function(result) {
+        bootbox.confirm('Are you sure?<p class="text-danger strong">This will delete all data from all Minecraft servers.</p>', function (result) {
           if (result) {
             socket.emit('admin.settings.resetMinecraftIntegration')
           }
@@ -302,7 +294,7 @@ define('admin/plugins/minecraft-integration', ['settings', 'translator'], functi
 
       // Maintenance
       $tabMaintenance.on('click', '#mi-btn-reset-avatars', function (e) {
-        bootbox.confirm("Are you sure?<br/><br/>This will remove all avatars from the database.", function (result) {
+        bootbox.confirm('Are you sure?<br/><br/>This will remove all avatars from the database.', function (result) {
           if (result) {
             socket.emit('admin.MinecraftIntegration.resetCachedAvatars', { }, function () {
               app.alert({
@@ -316,18 +308,17 @@ define('admin/plugins/minecraft-integration', ['settings', 'translator'], functi
       })
     }
 
-    function setupInputs() {
-      $('[name=avatarCDN]').change(function(){
-         if ($('[name=avatarCDN]').val() !== 'custom') {
-           $('[name=custom-cdn]').closest('.row').css('display', 'none')
-         }else{
-           $('[name=custom-cdn]').closest('.row').css('display', 'block')
-         }
+    function setupInputs () {
+      $('[name=avatarCDN]').change(function () {
+        if ($('[name=avatarCDN]').val() !== 'custom') {
+          $('[name=custom-cdn]').closest('.row').css('display', 'none')
+        } else {
+          $('[name=custom-cdn]').closest('.row').css('display', 'block')
+        }
       })
     }
 
     socket.emit('admin.settings.get', { hash: 'minecraft-integration' }, function (err, values) {
-
       if (err) return log('Error getting settings:', err)
 
       log('Settings recieved')
@@ -344,7 +335,7 @@ define('admin/plugins/minecraft-integration', ['settings', 'translator'], functi
         window.onhashchange = function (e) {
           if (location.hash) {
             $('.nav-tabs a[href="#' + location.hash.slice(1) + '"]').tab('show')
-          }else{
+          } else {
             $('.nav-tabs a').first().tab('show')
           }
         }
@@ -354,11 +345,9 @@ define('admin/plugins/minecraft-integration', ['settings', 'translator'], functi
           location.hash = '#' + hash
         }
       })
-
     })
 
     socket.emit('admin.MinecraftIntegration.getServersConfig', {}, function (err, servers) {
-
       if (err) return log('Error getting servers:', err)
 
       log('Got server configurations.')
@@ -374,15 +363,15 @@ define('admin/plugins/minecraft-integration', ['settings', 'translator'], functi
     })
 
     // Helpers
-    function formatUuid(yuuid) {
+    function formatUuid (yuuid) {
       if (!yuuid) return null
-      return yuuid.slice(0,8) + '-' + yuuid.slice(8, 12) + '-' + yuuid.slice(12, 16) + '-' + yuuid.slice(16, 20) + '-' + yuuid.slice(20, 32)
+      return yuuid.slice(0, 8) + '-' + yuuid.slice(8, 12) + '-' + yuuid.slice(12, 16) + '-' + yuuid.slice(16, 20) + '-' + yuuid.slice(20, 32)
     }
 
-    function parseTpl(tpl, data) {
+    function parseTpl (tpl, data) {
       for (var prop in data) {
         if (data.hasOwnProperty(prop)) {
-          tpl = tpl.replace('{'+prop+'}', data[prop])
+          tpl = tpl.replace('{' + prop + '}', data[prop])
         }
       }
       return tpl
@@ -413,9 +402,9 @@ define('admin/plugins/minecraft-integration', ['settings', 'translator'], functi
     })
 
     socket.emit('plugins.MinecraftIntegration.getPlayers', { }, function (err, players) {
-      players.forEach(function(player){
-        player.idf    = formatUuid(player.id)
-        player.prefix = player.prefix || "No Prefix"
+      players.forEach(function (player) {
+        player.idf = formatUuid(player.id)
+        player.prefix = player.prefix || 'No Prefix'
         $elTablePlayers.append(parseTpl(tplTablePlayers, player))
       })
     })

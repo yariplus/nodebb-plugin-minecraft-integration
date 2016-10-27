@@ -47,7 +47,7 @@ export function getPlayers (data, callback) {
     async.apply(Backend.getPlayersFromUuids),
     async.apply(updateUuids),
     async.apply(addUserData),
-    async.apply(addFormattedPrefix),
+    async.apply(addFormattedPrefix)
   ], callback)
 }
 

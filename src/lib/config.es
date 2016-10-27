@@ -33,7 +33,7 @@ const Config = module.exports = {
       format: 'http://skins.minecraft.net/MinecraftSkins/{name}.png',
       styles: {
         flat: {
-          transform(buffer, next) {
+          transform (buffer, next) {
             jimp.read(buffer, (err, image) => {
               if (err) return next(err)
               image.crop(8, 8, 8, 8, (err, image) => {
@@ -50,7 +50,7 @@ const Config = module.exports = {
       format: 'http://minelpskins.voxelmodpack.com/skins/{uuid}.png',
       styles: {
         flat: {
-          transform(buffer, next) {
+          transform (buffer, next) {
             jimp.read(buffer, (err, image) => {
               if (err) return next(err)
 
@@ -126,13 +126,13 @@ Config.getAvatarUrl = (data, callback) => {
 
   if (cdn === 'custom') {
     cdn = Config.settings.get('customCDN')
-  }else {
+  } else {
     cdn = Config.cdns[Config.settings.get('avatarCDN')].format
   }
 
   if (data && data.size) {
     cdn = cdn.replace('{size}', data.size)
-  }else {
+  } else {
     cdn = cdn.replace('{size}', Config.settings.get('avatarSize'))
   }
   if (data && data.name) cdn = cdn.replace('{name}', data.name)

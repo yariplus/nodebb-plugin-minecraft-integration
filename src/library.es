@@ -29,7 +29,6 @@ export function load (params, next) {
 
   // Add a default server.
   db.getObject('mi:server:0:config', (err, config) => {
-
     if (err) return next(new Error(err))
 
     config = config || {}

@@ -27,32 +27,31 @@ Widgets.init = function (_app) {
 }
 
 Widgets.renderChat = (widget, callback) => {
-  render(renderChat, 'chat', widget, callback);}
+  render(renderChat, 'chat', widget, callback) }
 Widgets.renderDirectort = (widget, callback) => {
-  render(renderDirectort, 'directory', widget, callback);}
+  render(renderDirectort, 'directory', widget, callback) }
 Widgets.renderGallery = (widget, callback) => {
-  render(renderGallery, 'gallery', widget, callback);}
+  render(renderGallery, 'gallery', widget, callback) }
 Widgets.renderMap = (widget, callback) => {
-  render(renderMap, 'map', widget, callback);}
+  render(renderMap, 'map', widget, callback) }
 Widgets.renderPingGraph = (widget, callback) => {
-  render(renderPingGraph, 'ping-graph', widget, callback);}
+  render(renderPingGraph, 'ping-graph', widget, callback) }
 Widgets.renderPlayersGraph = (widget, callback) => {
-  render(renderPlayersGraph, 'players-graph', widget, callback);}
+  render(renderPlayersGraph, 'players-graph', widget, callback) }
 Widgets.renderPlayersGrid = (widget, callback) => {
-  render(renderPlayersGrid, 'players-grid', widget, callback);}
+  render(renderPlayersGrid, 'players-grid', widget, callback) }
 Widgets.renderStatus = (widget, callback) => {
-  render(renderStatus, 'status', widget, callback);}
+  render(renderStatus, 'status', widget, callback) }
 Widgets.renderTopGraph = (widget, callback) => {
-  render(renderTopGraph, 'top-graph', widget, callback);}
+  render(renderTopGraph, 'top-graph', widget, callback) }
 Widgets.renderTopList = (widget, callback) => {
-  render(renderTopList, 'top-list', widget, callback);}
+  render(renderTopList, 'top-list', widget, callback) }
 Widgets.renderTPSGraph = (widget, callback) => {
-  render(renderTPSGraph, 'tps-graph', widget, callback);}
+  render(renderTPSGraph, 'tps-graph', widget, callback) }
 Widgets.renderVoteList = (widget, callback) => {
-  render(renderVoteList, 'vote-list', widget, callback);}
+  render(renderVoteList, 'vote-list', widget, callback) }
 
 function formatWidget (widget, callback) {
-
   // API checks for invalid SIDs.
   getServerStatus({sid: widget.data.sid}, (err, status) => {
     if (err) return callback(err)
@@ -84,7 +83,6 @@ function render (renderWidget, type, widget, callback) {
     async.apply(formatWidget, widget),
     async.apply(renderWidget)
   ], (err, data) => {
-
     if (err) return callback()
 
     if (data.container) data.container = data.container.replace('class="panel-body"', 'class="panel-body" style="padding:0;"')

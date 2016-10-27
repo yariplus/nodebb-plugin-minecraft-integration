@@ -8,7 +8,7 @@ import async from 'async'
 const Hooks = {
   filter: {
     scripts: {
-      get(data, next) {
+      get (data, next) {
         next(null, data)
       }
     },
@@ -18,7 +18,7 @@ const Hooks = {
       }
     },
     config: {
-      get(config, next) {
+      get (config, next) {
         config.MinecraftIntegration = Config.settings.get()
         next(null, config)
       }
@@ -27,12 +27,12 @@ const Hooks = {
       getWidgets: Views.getWidgets
     },
     post: {
-      get(data, next) {
+      get (data, next) {
         // console.log("Post Data")
         // console.dir(data)
         next(null, data)
       },
-      getPosts(data, next) {
+      getPosts (data, next) {
         // {posts: posts, uid: uid}
         // console.log("Post Data")
         // console.dir(data)
@@ -40,7 +40,7 @@ const Hooks = {
       }
     },
     topic: {
-      build(data, next) {
+      build (data, next) {
         if (!Config.settings.get('showPrefixes')) return next(null, data)
 
         // {req: req, res: res, templateData: data}
@@ -49,7 +49,6 @@ const Hooks = {
         data.templateData.prefixes = {}
 
         async.each(data.templateData.posts, (post, next) => {
-
           if (!(post && post.user && post.user.uid && data.templateData.prefixes[post.user.uid] === void 0)) return next()
 
           getUserPrefix(post.user.uid, (err, prefix) => {
@@ -62,21 +61,21 @@ const Hooks = {
       }
     },
     user: {
-      account(data, callback) {
+      account (data, callback) {
         if (!Config.settings.get('showPrefixes')) return callback(null, data)
         getUserPrefix(data.userData.uid, (err, prefix) => {
           data.userData.prefix = prefix
           callback(null, data)
         })
       },
-      create(userData, callback) {
+      create (userData, callback) {
         console.log(`Setting new user avatar for ${userData.username}`)
         // var picture = pic
         // userData['picture'] = picture
         // userData['uploadedpicture'] = picture
         callback(null, userData)
       },
-      profileLinks(links, next) {
+      profileLinks (links, next) {
         links.push({
           id: 'minecraft',
           public: true,
@@ -90,25 +89,25 @@ const Hooks = {
     users: {
     },
     group: {
-      update(data, next) {
+      update (data, next) {
         next(null, data)
       }
     }
   },
   action: {
     user: {
-      loggedIn(uid) {
+      loggedIn (uid) {
         console.log(`User uid ${uid} logged in, checking avatar...`)
       // .setUserAvatar(uid)
       },
-      set(data) {
+      set (data) {
         if (data.field === 'picture') {
           // .setUserAvatar(data.uid)
         }
       }
     },
     group: {
-      destroy(group) {
+      destroy (group) {
       }
     }
   }
@@ -118,10 +117,10 @@ function setUserAvatar (uid) {
   User.getUserFields(uid, ['uuid', 'username', 'picture'], (err, fields) => {
     if (err) {
       console.log(`Tried to check the avatar of user uid ${uid}, but got an error:`, err)
-    }else if (!fields.uuid) {
+    } else if (!fields.uuid) {
       console.log(`User uid ${uid} does not have a UUID assigned, adding to refresh queue.`)
     // TODO: Add a refresh queue. :P
-    }else {
+    } else {
       const picture = Config.settings.get('avatarCDN').replace('{username}', fields.username)
       if (picture !== fields.picture) {
         console.log(`Changing avatar for user ${uid}`)
@@ -130,7 +129,7 @@ function setUserAvatar (uid) {
             console.log(err)
           }
         })
-      }else {
+      } else {
         console.log(`User uid ${uid} has the correct avatar!`)
       }
     }

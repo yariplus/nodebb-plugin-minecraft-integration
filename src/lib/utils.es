@@ -28,14 +28,14 @@
     text = text.replace(/(?:[§&]|\\u00A7)d/g, `<span style="${styleResets} color:#FF55FF;">`)
     text = text.replace(/(?:[§&]|\\u00A7)e/g, `<span style="${styleResets} color:#FFFF55;">`)
     text = text.replace(/(?:[§&]|\\u00A7)f/g, `<span style="${styleResets} color:#FFFFFF;">`)
-    text = text.replace(/(?:[§&]|\\u00A7)k/g, '<span>'); // TODO: Magic character.
+    text = text.replace(/(?:[§&]|\\u00A7)k/g, '<span>') // TODO: Magic character.
     text = text.replace(/(?:[§&]|\\u00A7)l/g, '<span style="font-weight: bold;">')
     text = text.replace(/(?:[§&]|\\u00A7)m/g, '<span style="text-decoration: line-through;">')
     text = text.replace(/(?:[§&]|\\u00A7)n/g, '<span style="text-decoration: underline;">')
     text = text.replace(/(?:[§&]|\\u00A7)o/g, '<span style="font-style: italic;">')
     text = text.replace(/(?:[§&]|\\u00A7)r/g, `<span style="${styleResets} color:unset;">`)
     text = text.replace(/(?:[§&]|\\u00A7)/g, '<span>')
-    for ( let i = 0; i < spancount; i++) text = `${text}</span>`
+    for (let i = 0; i < spancount; i++) text = `${text}</span>`
     return text
   }
 
@@ -45,7 +45,7 @@
       if (parsed && parsed[1]) {
         version = parsed[1]
       }
-    }else {
+    } else {
       version = 'unknown'
     }
     return version
@@ -57,7 +57,7 @@
       if (hostarray.length === 2) {
         server.host = hostarray[0]
         server.port = hostarray[1]
-      }else {
+      } else {
         console.log(`Configuration error: Invalid host (${server.address}). Too many ":", using default "0.0.0.0". `)
         server.host = '0.0.0.0'
       }
@@ -93,7 +93,7 @@
     request({url: `https://api.mojang.com/users/profiles/minecraft/${name}`, json: true}, (err, response, body) => {
       if (!err && response.statusCode == 200) {
         next(null, body.id)
-      }else {
+      } else {
         next(err || new Error(`Bad Request: https://api.mojang.com/users/profiles/minecraft/${name}`))
       }
     })
@@ -132,9 +132,9 @@
   }
 
   Utils.voteServices = [
-    { service: 'minecraftservers_org',      name: 'MinecraftServers.org' },
+    { service: 'minecraftservers_org', name: 'MinecraftServers.org' },
     { service: 'minecraft-server-list_com', name: 'Minecraft-Server-List.com' },
-    { service: 'planetminecraft_com',       name: 'PlanetMinecraft.com' }
+    { service: 'planetminecraft_com', name: 'PlanetMinecraft.com' }
   ]
 
   Utils.parseMinutesDuration = (minutes, locale) => humanize(minutes * 60 * 1000, { language: locale || 'en', units: ['d', 'h', 'm']})

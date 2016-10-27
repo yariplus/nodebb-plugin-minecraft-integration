@@ -55,7 +55,7 @@ export default function (app, middleware, router) {
         case 'Buffer':
           if (req.get('If-Modified-Since') === response.modified) {
             res.sendStatus(304)
-          }else {
+          } else {
             res.writeHead(200, {
               'Cache-Control': 'private',
               'Last-Modified': response.modified,
@@ -76,7 +76,7 @@ export default function (app, middleware, router) {
 
   function addToAPI (method, name, path, respondWith = 'JSON') {
     router.get(`/api/minecraft-integration/${path}`, (req, res, next) => {
-      callHTTP(method, respondWith, req, res, next)})
+      callHTTP(method, respondWith, req, res, next) })
 
     SocketPlugins.MinecraftIntegration[name] = (socket, data, next) => {
       data.sender = socket.uid
@@ -87,14 +87,11 @@ export default function (app, middleware, router) {
   function addToWriteAPI (method, name, path, respondWith = 'JSON') {
     // Write using HTTP.
     if (!!path) {
-
       // TODO: Should be a PUT request.
       router.get(`/api/minecraft-integration/write/:key/${path}`, (req, res, next) => {
-
         if (!(req.params && req.params.key)) return res.json(new Error('No API key.'))
 
         Backend.getSidUsingAPIKey(req.params.key, (err, sid) => {
-
           if (err) return res.json({error: 'Invalid API key.'})
           if (!sid) return res.json({error: 'Invalid API key.'})
 

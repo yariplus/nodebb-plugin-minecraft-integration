@@ -20,7 +20,6 @@ export function eventWebChat (socket, data, next) {
 }
 
 export function eventPlayerChat (data, next) {
-
   // Assert parameters.
   if (!(data && data.id && data.name && data.message)) return next()
 

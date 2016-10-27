@@ -13,15 +13,14 @@
       // TEMP:
       // Since the loading is asynchronous, I poll for 5 seconds.
       var	tries = 0
-      var	preinit = function(){
+      var	preinit = function () {
         $('.widget-area >:not([data-mi-wid])').each(load)
         if (++tries < 50) setTimeout(preinit, 100)
       }
       preinit()
 
       // Assign an id to each widget, and call init if it's a Minecraft Integration widget.
-      function load(i, el) {
-
+      function load (i, el) {
         var	$el = $(el)
 
         switch ($el.data('widget')) {
@@ -43,10 +42,9 @@
             $el.attr('data-mi-wid', 0)
             break
         }
-
       }
 
-      function formatTitle($panel) {
+      function formatTitle ($panel) {
         var $title = $panel.find('>.panel-heading strong'),
           title = $panel.find('>.panel-body [name="title"]').val()
 
@@ -56,11 +54,11 @@
         }
 
         if ($panel.data('motd') === void 0) {
-          $.get('/api/minecraft-integration/server/' + $panel.find('[name="sid"]').val() + "?v=" + config['cache-buster'], function (server) {
+          $.get('/api/minecraft-integration/server/' + $panel.find('[name="sid"]').val() + '?v=' + config['cache-buster'], function (server) {
             if (server && server.motd && server.name) {
               $panel.data('motd', server.motd)
               $panel.data('name', server.name)
-            }else{
+            } else {
               $panel.data('motd', '')
               $panel.data('name', '')
             }
@@ -75,18 +73,17 @@
         $title.html($title.text().split(' - ')[0] + ' - ' + title)
       }
 
-      function initPanel($panel) {
-
+      function initPanel ($panel) {
         var	$heading = $panel.find('>.panel-heading'),
           $body = $heading.next(),
           $server = $body.find('[name="sid"]'),
           sid = $server.val($server.val() || '0').val()
 
-        $.get('/api/minecraft-integration/server/' + sid + "?v=" + config['cache-buster'], function (server) {
+        $.get('/api/minecraft-integration/server/' + sid + '?v=' + config['cache-buster'], function (server) {
           if (server && server.motd && server.name) {
             $panel.data('motd', server.motd)
             $panel.data('name', server.name)
-          }else{
+          } else {
             $panel.data('motd', '')
             $panel.data('name', '')
           }
@@ -97,8 +94,7 @@
           formatTitle($panel)
         })
 
-        $body.find('input.ajaxInputColorPicker').each(function(){
-
+        $body.find('input.ajaxInputColorPicker').each(function () {
           var $picker = $(this)
 
           // Local copy of cid.
@@ -111,25 +107,22 @@
 
           $picker.ColorPicker({
             color: $picker.val(),
-            onChange: function(hsb, hex) {
+            onChange: function (hsb, hex) {
               $picker.val('#' + hex)
               $picker.css('color', '#' + hex)
             },
-            onShow: function(colpkr) {
+            onShow: function (colpkr) {
               $(colpkr).css('z-index', 1051)
             }
-          }).css('color', $picker.val()).bind('keyup', function(){
+          }).css('color', $picker.val()).bind('keyup', function () {
             $picker.ColorPickerSetColor($picker.val())
             $picker.css('color', $picker.val())
           })
-
         })
-
       }
 
       // Init widget panels on drop.
       $('.widget-area').on('mouseup', '> .panel > .panel-heading', function (e) {
-
         var	$heading = $(this),
           $panel = $heading.parent(),
           widget = $panel.data('widget')
@@ -153,7 +146,6 @@
             initPanel($panel)
             break
         }
-
       })
     }
   })

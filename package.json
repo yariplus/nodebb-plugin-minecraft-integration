@@ -51,7 +51,7 @@
     "mocha": "^2.5.3",
     "nyc": "^6.4.4",
     "remap-istanbul": "^0.7.0",
-    "standard": "^7.1.2",
+    "standard": "*",
     "templates.js": "*"
   },
   "nbbpm": {
@@ -59,7 +59,12 @@
   },
   "nyc": {},
   "standard": {
-    "parser": "babel-eslint"
+    "parser": "babel-eslint",
+    "ignore": [
+      "/public/vendor",
+      "/lib",
+      "/library.js"
+    ]
   },
   "homepage": "https://github.com/yariplus/nodebb-plugin-minecraft-integration"
 }

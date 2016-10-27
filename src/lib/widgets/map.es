@@ -9,7 +9,7 @@ export function render (data, callback) {
     data.uri += `${data.mapz ? data.mapz : 0}/`
     data.uri += `${data.mapzoom ? data.mapzoom : -2}/`
     data.uri += '0/0/'
-  }else {
+  } else {
     data.uri += '?nopanel=true&hidechat=true&nogui=true'
     data.uri += (data.mapx ? `&x=${data.mapx}` : '')
     data.uri += (data.mapz ? `&z=${data.mapz}` : '')

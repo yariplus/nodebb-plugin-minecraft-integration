@@ -10,8 +10,8 @@ export function writeRanks (data, callback) {
 }
 
 export function writeRanksWithMembers (data, callback) {
-console.log('Got writeRanksWithMembers()')
-console.log(data)
+  console.log('Got writeRanksWithMembers()')
+  console.log(data)
   setRanksWithMembers(data.sid, data.ranks, err => {
     if (err) console.log(err)
     callback(err)

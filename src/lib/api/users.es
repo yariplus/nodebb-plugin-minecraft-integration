@@ -32,7 +32,7 @@ export function getPlayerKey (data, cb) {
     if (err || !key || !key.length) {
       key = Utils.getKey()
       db.sortedSetAdd('playerkey:uid', uid, key)
-    }else {
+    } else {
       key = key[0]
     }
     return cb(err, {key})
@@ -79,7 +79,6 @@ export function getUsers (options, next) {
 
 // Get the primary linked user from uid, yuuid, or name.
 export function getUser (options, next) {
-
   // Assert parameters
   if (!(typeof next === 'function' && options && (options.uid || options.id || options.name))) return next('Backend.getUser() Invalid params.')
 
@@ -95,7 +94,6 @@ export function getUser (options, next) {
 }
 
 function getUserFromUuid (id, extraFields, next) {
-
   // Get primary user.
   db.getObjectField(`yuuid:${id}`, 'uid', (err, uid) => {
     if (err || !uid) return next(err)

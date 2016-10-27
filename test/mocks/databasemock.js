@@ -5,13 +5,13 @@
 
 (function (module) {
   'use strict'
-  /*global require, before, __dirname*/
+  /* global require, before, __dirname */
 
-  var nconf = require((process.env.TRAVIS_BUILD_DIR ? '' : process.env.NODEBB_HOME + 'node_modules/' ) + 'nconf')
+  var nconf = require((process.env.TRAVIS_BUILD_DIR ? '' : process.env.NODEBB_HOME + 'node_modules/') + 'nconf')
 
   var async = require('async')
   var winston = require('winston')
-  var path  = require('path')
+  var path = require('path')
   var url = require('url')
 
   nconf.env()
@@ -19,7 +19,7 @@
   nconf.file({ file: process.env.NODEBB_HOME + 'config.json' })
 
   nconf.defaults({
-    base_dir: path.join(__dirname,'../..'),
+    base_dir: path.join(__dirname, '../..'),
     themes_path: path.join(__dirname, '../../node_modules'),
     upload_url: path.join(path.sep, '../../uploads', path.sep),
     views_dir: path.join(__dirname, '../../public/templates'),
@@ -34,9 +34,9 @@
   var dbType = nconf.get('DB') || nconf.get('database')
 
   var testDbConfig = {
-    "host": "127.0.0.1",
-    "port": 27017,
-    "database": "8"
+    'host': '127.0.0.1',
+    'port': 27017,
+    'database': '8'
   }
 
   nconf.set(dbType, testDbConfig)
@@ -56,5 +56,4 @@
   })
 
   module.exports = db
-
 }(module))

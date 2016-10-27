@@ -90,7 +90,7 @@ $(() => {
     socket.emit('plugins.MinecraftIntegration.getRecentPings', {sid: widget.sid}, (err, pings) => {
       let data = pings.map(ping => { return {x: ping.timestamp, y: ping.players.length} })
       let times = {}
-      pings.forEach(ping => { times[ping.timestamp] = {players: ping.players}})
+      pings.forEach(ping => { times[ping.timestamp] = {players: ping.players} })
 
       require(['rickshaw'], Rickshaw => {
         widget.graph = new Rickshaw.Graph({
@@ -107,7 +107,7 @@ $(() => {
         widget.graph.render()
         let hoverDetail = new Rickshaw.Graph.HoverDetail({
           graph: widget.graph,
-          formatter: function(series, x, y) {
+          formatter: function (series, x, y) {
             return times[x].players.length
           }
         })
@@ -200,7 +200,7 @@ $(() => {
           e.clearSelection()
           $(e.trigger).tooltip({
             title: 'Copied!',
-            placement:'bottom'
+            placement: 'bottom'
           })
           $(e.trigger).tooltip('show')
         })
@@ -221,7 +221,7 @@ $(() => {
   $(window).on('action:widgets.loaded', () => {
     // require(['/plugins/nodebb-plugin-minecraft-integration/public/js/vendor/michart.js'], function () {
     // Store widgets
-    $('.mi-container').each(function (){
+    $('.mi-container').each(function () {
       const $this = $(this)
       const $parent = $this.parent()
       const wid = $this.attr('data-widget')
@@ -430,7 +430,7 @@ $(() => {
 
   function addPlayer (data) {
     const player = data.player
-    app.parseAndTranslate("partials/playerAvatars", {players: [player]}, $avatar => {
+    app.parseAndTranslate('partials/playerAvatars', {players: [player]}, $avatar => {
       // Loop widgets with a current players display.
       // TODO: Don't select widgets that have avatars turned off.
       $(`[data-widget="mi-status"][data-sid="${data.sid}"], [data-widget="mi-players-grid"][data-sid="${data.sid}"]`).each((i, $widget) => {
@@ -438,7 +438,7 @@ $(() => {
 
         // Add the player only if they are not already listed.
         let found = false
-        $widget.find('.mi-avatar').each(function (){
+        $widget.find('.mi-avatar').each(function () {
           if ($(this).data('uuid') === player.id) return found = $(this)
         })
         if (found) {
@@ -486,7 +486,7 @@ $(() => {
           // Don't leave tooltips behind.
           // TODO: Only remove MI tooltips.
           $('.tooltip').remove()
-        break
+          break
       }
     })
   }
@@ -544,7 +544,7 @@ $(() => {
         setTimeout(resizeend, delta)
       }
     })
-    function resizeend() {
+    function resizeend () {
       if (new Date() - rtime < delta) {
         setTimeout(resizeend, delta)
       } else {
@@ -568,7 +568,7 @@ $(() => {
               widget.graph.configure({
                 width: widget.el.width(),
                 height: widget.el.height()
-              });
+              })
               widget.graph.render()
             }
           })
@@ -580,7 +580,7 @@ $(() => {
   // Vault Prefixes
   if (config.MinecraftIntegration.showPrefixes) {
     $(window).on('action:posts.loaded', addPrefixes)
-    $(window).on('action:ajaxify.end',  addPrefixes)
+    $(window).on('action:ajaxify.end', addPrefixes)
     addPrefixes()
   }
   function addPrefix ($el, prefix) {
@@ -635,7 +635,7 @@ $(() => {
       let colorStart = $widget.attr('data-color-start') || 'white', colorEnd = $widget.attr('data-color-end') || 'white'
 
       colorStart = colorStart.slice(0, 1) === '#' ? colorStart.slice(1) : colorStart
-      colorEnd = colorEnd.slice(0, 1) === '#'   ? colorEnd.slice(1) : colorStart
+      colorEnd = colorEnd.slice(0, 1) === '#' ? colorEnd.slice(1) : colorStart
 
       rainbow.setNumberRange(0, range)
       rainbow.setSpectrum(colorStart, colorEnd)

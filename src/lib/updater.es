@@ -27,12 +27,10 @@ Updater.updateUuids = uuids => {
 
 function updatePlayers () {
   async.each(uuidsNeedingUpdates, (id, next) => {
-
     const key = `yuuid:${id}`
 
     // Get the name from Mojang.
     Utils.getName(id, (err, name) => {
-
       // Return if db error.
       if (err) return next(err)
 
@@ -73,7 +71,6 @@ Updater.init = () => {
 }
 
 Updater.updateServers = () => {
-
   // Get the current minute.
   updateTime = Math.round(Date.now() / 60000) * 60000
 
@@ -81,11 +78,8 @@ Updater.updateServers = () => {
   Backend.clearOldAvatars()
 
   Backend.getServersConfig({}, (err, configs) => {
-
     configs.forEach(config => {
-
       getServerStatus(config, (err, status) => {
-
         if (err) {
           winston.info(`Error getting status for server ${config.name}`)
           return resetStatus(status)

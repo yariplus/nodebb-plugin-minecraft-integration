@@ -5,7 +5,6 @@ import Utils from './utils'
 import async from 'async'
 
 export function register (data, next) {
-
   // Assert parameters.
   if (!(data && data.id && data.name && data.pkey)) return next(new Error('FAILDATA'))
 
@@ -30,7 +29,7 @@ export function register (data, next) {
       async.apply(resetKey, {uid}),
 
       // Set prefix
-      async.apply(db.setObjectField, `yuuid:${id}`, 'prefix', prefix),
+      async.apply(db.setObjectField, `yuuid:${id}`, 'prefix', prefix)
     ], err => {
       if (err) {
         console.log(`Register err for UID ${uid}: ${err}`)

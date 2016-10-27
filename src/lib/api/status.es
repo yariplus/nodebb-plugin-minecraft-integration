@@ -32,7 +32,6 @@ export function updateServerStatus (status, next) {
 
   // Store the player statistics in the database.
   async.each(status.players, (player, next) => {
-
     // Skip if no uuid.
     if (!player.id) next()
 
@@ -54,12 +53,12 @@ export function updateServerStatus (status, next) {
 
     // DEPRECIATED: Future versions will track playtime using the Minecraft Plugin or OnTime.
     async.parallel({
-      playtime(next) {
+      playtime (next) {
         db.getObjectField(`yuuid:${player.id}`, 'lastonline', (err, data) => {
           if (parseInt(data) !== updateTime) {
             db.setObjectField(`yuuid:${player.id}`, 'lastonline', updateTime)
             db.incrObjectField(`yuuid:${player.id}`, 'playtime', next)
-          }else {
+          } else {
             db.getObjectField(`yuuid:${player.id}`, 'playtime', next)
           }
         })
@@ -68,7 +67,7 @@ export function updateServerStatus (status, next) {
     }, (err, results) => {
       if (err) {
         console.log(`[Minecraft Integration] Error setting player object ${player.id}: ${err}`)
-      }else {
+      } else {
         db.sortedSetAdd('yuuid:playtime', results.playtime || '0', player.id, err => {
         })
       }
@@ -109,7 +108,7 @@ export function getServerStatus (data, callback) {
       if (status.players && typeof status.players === 'string' && status.players !== 'undefined') status.players = JSON.parse(status.players)
       if (status.modList && typeof status.modList === 'string' && status.modList !== 'undefined') status.modList = JSON.parse(status.modList)
       if (status.pluginList && typeof status.pluginList === 'string' && status.pluginList !== 'undefined') status.pluginList = JSON.parse(status.pluginList)
-    } catch(e) {
+    } catch (e) {
       console.log('Bad Status', status)
       return callback(e)
     }
@@ -136,7 +135,6 @@ export function getServerStatus (data, callback) {
 }
 
 export function eventPlayerJoin (data, callback) {
-
   // Assert parameters.
   if (!(data && data.id && data.name)) return callback()
 
@@ -167,8 +165,7 @@ export function eventPlayerJoin (data, callback) {
   db.setObjectField(`yuuid:${id}`, 'prefix', usePrimaryPrefixOnly ? primaryPrefix : newPrefix)
 
   async.parallel({
-    player(next) {
-
+    player (next) {
       // TODO:
       // I can get rid off all this nonsense by storing players in a set 'mi:server:sid:players'
       // Could use a sortedSet with lexicon stored names, or just a plain set with uuids.
@@ -179,7 +176,7 @@ export function eventPlayerJoin (data, callback) {
 
         try {
           players = JSON.parse(players)
-        } catch(e) {
+        } catch (e) {
           return console.log('Bad Players Object', e)
         }
 
@@ -192,7 +189,7 @@ export function eventPlayerJoin (data, callback) {
 
           try {
             players = JSON.stringify(players)
-          } catch(e) {
+          } catch (e) {
             return console.log(e)
           }
 
@@ -203,12 +200,12 @@ export function eventPlayerJoin (data, callback) {
             if (err) console.log(err)
             next()
           })
-        }else {
+        } else {
           next()
         }
       })
     },
-    user(next) {
+    user (next) {
       // TEMP
       getUser({id}, (err, user) => {
         next(null, user || null)
@@ -218,7 +215,6 @@ export function eventPlayerJoin (data, callback) {
 }
 
 export function eventPlayerQuit (data, next) {
-
   // Assert parameters.
   if (!(data && data.id && data.name)) return next()
 
@@ -232,7 +228,7 @@ export function eventPlayerQuit (data, next) {
 
     try {
       players = JSON.parse(players)
-    } catch(e) {
+    } catch (e) {
       console.log(e)
       return next()
     }
@@ -249,7 +245,7 @@ export function eventPlayerQuit (data, next) {
         if (err) return console.log(err)
       })
       Controller.sendPlayerQuitToUsers({sid: data.sid, player: {id, name}})
-    } catch(e) {
+    } catch (e) {
       console.log(e)
     }
 

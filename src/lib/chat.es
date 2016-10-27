@@ -4,7 +4,6 @@ import async from 'async'
 const Chat = module.exports = {}
 
 Chat.getChat = (data, next) => {
-
   const sid = data.sid, amount = (data.chats ? data.chats : 15) * -1
 
   db.getSortedSetRange(`mi:server:${sid}:cid:time`, amount, -1, (err, cids) => {

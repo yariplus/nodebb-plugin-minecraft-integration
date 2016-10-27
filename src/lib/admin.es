@@ -7,7 +7,6 @@ import Config from './config'
 import winston from 'winston'
 
 Admin.init = () => {
-
   // Settings
   SocketAdmin.settings.syncMinecraftIntegration = () => {
     Config.settings.sync(() => {

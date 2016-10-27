@@ -1,24 +1,24 @@
 function readCustomRow (label, text, after) {
-  switch ( after ) {
+  switch (after) {
     case 'name':
-      if (!widget.data.customaftername) { widget.data.customaftername = []; }
+      if (!widget.data.customaftername) { widget.data.customaftername = [] }
       widget.data.customaftername[widget.data.customaftername.length] = { label, text}
       break
     case 'status':
     default:
-      if (!widget.data.customafterstatus) { widget.data.customafterstatus = []; }
+      if (!widget.data.customafterstatus) { widget.data.customafterstatus = [] }
       widget.data.customafterstatus[widget.data.customafterstatus.length] = { label, text}
       break
     case 'address':
-      if (!widget.data.customafteraddress) { widget.data.customafteraddress = []; }
+      if (!widget.data.customafteraddress) { widget.data.customafteraddress = [] }
       widget.data.customafteraddress[widget.data.customafteraddress.length] = { label, text}
       break
     case 'version':
-      if (!widget.data.customafterversion) { widget.data.customafterversion = []; }
+      if (!widget.data.customafterversion) { widget.data.customafterversion = [] }
       widget.data.customafterversion[widget.data.customafterversion.length] = { label, text}
       break
     case 'players':
-      if (!widget.data.customafterplayers) { widget.data.customafterplayers = []; }
+      if (!widget.data.customafterplayers) { widget.data.customafterplayers = [] }
       widget.data.customafterplayers[widget.data.customafterplayers.length] = { label, text}
       break
   }
@@ -47,7 +47,7 @@ export function render (data, callback) {
     data.uri += `${data.mapz ? data.mapz : 0}/`
     data.uri += `${data.mapzoom ? data.mapzoom : -2}/`
     data.uri += '0/0/'
-  }else {
+  } else {
     data.uri += '?nopanel=true&hidechat=true&nogui=true'
     data.uri += (data.mapx ? `&x=${data.mapx}` : '')
     data.uri += (data.mapz ? `&z=${data.mapz}` : '')
