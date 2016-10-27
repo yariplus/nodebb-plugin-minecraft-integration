@@ -48,7 +48,6 @@
     "babel-register": "^6.9.0",
     "chai": "^3.5.0",
     "codecov": "*",
-    "coveralls": "^2.11.14",
     "mocha": "^2.5.3",
     "nyc": "^6.4.4",
     "remap-istanbul": "^0.7.0",
