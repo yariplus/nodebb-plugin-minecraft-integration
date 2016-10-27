@@ -4,10 +4,10 @@
   "description": "NodeBB plugin to integrate your forum with your Minecraft Server using widgets, user syncing, group/rank syncing, sso, bukkit/bungeecord/sponge communication, and more.",
   "main": "library.js",
   "scripts": {
-    "compile": "babel src -d .",
+    "compile": "babel src -d . --source-maps",
     "pretest": "npm run compile",
     "test": "nyc --require babel-register mocha test",
-    "coverage": "nyc report --reporter=text-lcov | coveralls"
+    "coverage": "nyc report --reporter=json && remap-istanbul -i coverage/coverage-final.json | coveralls"
   },
   "repository": {
     "type": "git",
