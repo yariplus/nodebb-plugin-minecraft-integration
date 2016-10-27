@@ -7,7 +7,7 @@
   'use strict'
   /*global require, before, __dirname*/
 
-  var nconf = require('nconf')
+  var nconf = require((process.env.TRAVIS_BUILD_DIR ? '' : process.env.NODEBB_HOME + 'node_modules/' ) + 'nconf')
 
   var async = require('async')
   var winston = require('winston')
