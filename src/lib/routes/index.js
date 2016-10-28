@@ -161,7 +161,7 @@ export default function (app, middleware, router) {
   addToAPI(API.getUser, 'getUser', 'users/uuid/:id')
   addToAPI(API.getUser, 'getUser', 'users/name/:name')
 
-  addToAPI(resetPlayerKey, 'resetPlayerKey', 'users/reset/:uid')
+  addToAPI(API.resetPlayerKey, 'resetPlayerKey', 'users/reset/:uid')
 
   addToAPI(Config.getSettings, 'getSettings', 'settings')
   addToAPI(Config.getSettings, 'getSettings', 'settings/:key')
@@ -188,7 +188,7 @@ export default function (app, middleware, router) {
   addToWriteAPI(API.writeRanks, 'writeRanks', 'ranks')
   addToWriteAPI(API.writeRanksWithMembers, 'writeRanksWithMembers', 'ranks-with-members')
 
-  addToWriteAPI(register, 'commandRegister')
+  addToWriteAPI(API.register, 'commandRegister')
 
   addToWriteAPI(Controller.PlayerVotes, 'PlayerVotes')
 

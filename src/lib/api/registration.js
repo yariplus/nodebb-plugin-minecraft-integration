@@ -1,11 +1,9 @@
-import { getPlayerKeyUID, resetPlayerKey as resetKey } from './api'
 import { db } from './nodebb'
 import Backend from './backend'
 import Utils from './utils'
 import async from 'async'
 
 export function register (data, next) {
-  // Assert parameters.
   if (!(data && data.id && data.name && data.pkey)) return next(new Error('FAILDATA'))
 
   // Local vars.
@@ -42,6 +40,16 @@ export function register (data, next) {
   })
 }
 
+export function getPlayerKeyUID (data, cb) {
+  if (!(data && data.key)) return cb(new Error('Bad data sent to Backend.getPlayerKeyUID.'))
+
+  db.sortedSetScore('playerkey:uid', data.key, (err, uid) => {
+    if (err || !uid) err = err || new Error('FAILKEY')
+
+    return cb(err, uid)
+  })
+}
+
 export function resetPlayerKey (data, next) {
   if (!(data && data.uid && data.sender)) return next(new Error('Bad data sent to Registration.resetPlayerKey()'))
 
@@ -49,5 +57,30 @@ export function resetPlayerKey (data, next) {
 
   if (uid !== sender) return next(new Error(`Can't reset others' player keys.`))
 
-  resetKey({uid}, next)
+  // Reset all keys with uid.
+  db.sortedSetsRemoveRangeByScore(['playerkey:uid'], uid, uid, err => {
+    return next(err)
+
+    getPlayerKey(data, next)
+  })
+}
+
+// Gets and/or creates the player key.
+export function getPlayerKey (data, cb) {
+  cb = cb || (() => {
+  })
+
+  if (!(data && data.uid)) return cb(new Error('Bad data sent to API.getPlayerKey.'))
+
+  const uid = data.uid
+
+  db.getSortedSetRangeByScore('playerkey:uid', 0, 1, uid, uid, (err, key) => {
+    if (err || !key || !key.length) {
+      key = Utils.getKey()
+      db.sortedSetAdd('playerkey:uid', uid, key)
+    } else {
+      key = key[0]
+    }
+    return cb(err, {key})
+  })
 }

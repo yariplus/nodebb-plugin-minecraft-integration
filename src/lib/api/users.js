@@ -5,50 +5,6 @@ import Config from '../config'
 import Updater from '../updater'
 import Utils from '../utils'
 
-export function resetPlayerKey (data, cb) {
-  cb = cb || (() => {
-  })
-
-  if (!(data && data.uid)) return cb(new Error('Bad data sent to Backend.resetPlayerKey.'))
-
-  const uid = parseInt(data.uid, 10)
-
-  // Reset all keys with uid.
-  db.sortedSetsRemoveRangeByScore(['playerkey:uid'], uid, uid, () => {
-    getPlayerKey(data, cb)
-  })
-}
-
-// Gets and/or creates the player key.
-export function getPlayerKey (data, cb) {
-  cb = cb || (() => {
-  })
-
-  if (!(data && data.uid)) return cb(new Error('Bad data sent to API.getPlayerKey.'))
-
-  const uid = data.uid
-
-  db.getSortedSetRangeByScore('playerkey:uid', 0, 1, uid, uid, (err, key) => {
-    if (err || !key || !key.length) {
-      key = Utils.getKey()
-      db.sortedSetAdd('playerkey:uid', uid, key)
-    } else {
-      key = key[0]
-    }
-    return cb(err, {key})
-  })
-}
-
-export function getPlayerKeyUID (data, cb) {
-  if (!(data && data.key)) return cb(new Error('Bad data sent to Backend.getPlayerKeyUID.'))
-
-  db.sortedSetScore('playerkey:uid', data.key, (err, uid) => {
-    if (err || !uid) err = err || new Error('FAILKEY')
-
-    return cb(err, uid)
-  })
-}
-
 // Get all linked users.
 export function getUsers (options, next) {
   const fields = ['uid', 'username', 'yuuid', 'picture']
