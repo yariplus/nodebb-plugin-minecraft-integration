@@ -3,7 +3,10 @@ import { db, SocketPlugins } from '../nodebb'
 import * as API from '../api'
 import Backend from '../backend'
 import Config from '../config'
-import Controller from '../controller'
+import {
+  eventGetPlayerVotes,
+  PlayerVotes
+} from '../sockets'
 import * as Controllers from '../controllers'
 import Utils from '../utils'
 import Chat from '../chat'
@@ -190,9 +193,9 @@ export default function (app, middleware, router) {
 
   addToWriteAPI(API.register, 'commandRegister')
 
-  addToWriteAPI(Controller.PlayerVotes, 'PlayerVotes')
+  addToWriteAPI(PlayerVotes, 'PlayerVotes')
 
   // Request API
   SocketPlugins.MinecraftIntegration.eventWebChat = API.eventWebChat
-  SocketPlugins.MinecraftIntegration.eventGetPlayerVotes = Controller.eventGetPlayerVotes
+  SocketPlugins.MinecraftIntegration.eventGetPlayerVotes = eventGetPlayerVotes
 }

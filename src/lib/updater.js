@@ -2,7 +2,7 @@ import { db, pubsub } from './nodebb'
 import { getServerStatus } from './api'
 import Backend from './backend'
 import Config from './config'
-import Controller from './controller'
+import { sendStatusToUsers } from './sockets'
 import Utils from './utils'
 import async from 'async'
 import winston from 'winston'
@@ -111,5 +111,5 @@ function resetStatus (status = {}) {
   status.tps = '0'
 
   Backend.updateServerStatus(status)
-  Controller.sendStatusToUsers(status)
+  sendStatusToUsers(status)
 }

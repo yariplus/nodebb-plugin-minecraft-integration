@@ -1,6 +1,9 @@
 import async from 'async'
 import { db } from '../nodebb'
-import Controller from '../controller'
+import {
+  sendPlayerChatToUsers,
+  sendWebChatToServer
+} from '../sockets'
 
 export function eventWebChat (socket, data, next) {
   if (!(data && data.sid && data.name && data.message)) return next()
@@ -11,8 +14,8 @@ export function eventWebChat (socket, data, next) {
     db.sortedSetAdd(`mi:server:${sid}:cid:time`, Date.now(), cid, err => {
       // TODO: Remove '[WEB]', add variable check.
       db.setObject(`mi:server:${sid}:chat:${cid}`, {name: `[WEB] ${name}`, message}, err => {
-        Controller.sendPlayerChatToUsers({sid, chat: {name: `[WEB] ${name}`, message}})
-        Controller.sendWebChatToServer({sid, chat: {name, message}})
+        sendPlayerChatToUsers({sid, chat: {name: `[WEB] ${name}`, message}})
+        sendWebChatToServer({sid, chat: {name, message}})
         next()
       })
     })
@@ -28,7 +31,7 @@ export function eventPlayerChat (data, next) {
   db.increment(`mi:server:${sid}:cid`, (err, cid) => {
     db.sortedSetAdd(`mi:server:${sid}:cid:time`, Date.now(), cid, err => {
       db.setObject(`mi:server:${sid}:chat:${cid}`, {name, message}, err => {
-        Controller.sendPlayerChatToUsers({sid, chat: {name, message}})
+        sendPlayerChatToUsers({sid, chat: {name, message}})
         next()
       })
     })

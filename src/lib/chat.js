@@ -1,5 +1,4 @@
 import { db } from './nodebb'
-import Controller from './controller'
 import async from 'async'
 const Chat = module.exports = {}
 
