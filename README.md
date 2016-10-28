@@ -1,5 +1,11 @@
 # NodeBB Minecraft Integration
 
+[![license](https://img.shields.io/github/license/yariplus/nodebb-plugin-minecraft-integration.svg)](https://opensource.org/licenses/MIT)
+[![npm](https://img.shields.io/npm/v/nodebb-plugin-minecraft-integration.svg)](https://www.npmjs.com/package/nodebb-plugin-minecraft-integration)
+[![npm](https://img.shields.io/npm/dm/nodebb-plugin-minecraft-integration.svg)](https://www.npmjs.com/package/nodebb-plugin-minecraft-integration)
+[![Travis](https://img.shields.io/travis/yariplus/nodebb-plugin-minecraft-integration.svg)](https://travis-ci.org/yariplus/nodebb-plugin-minecraft-integration)
+[![Codecov](https://img.shields.io/codecov/c/github/yariplus/nodebb-plugin-minecraft-integration.svg)](https://codecov.io/gh/yariplus/nodebb-plugin-minecraft-integration)
+
 **For support, visit the project's topic on the NodeBB Forums.**
 
 **[https://community.nodebb.org/topic/3559](https://community.nodebb.org/topic/3559 "NodeBB Forums - Minecraft Integration")**
