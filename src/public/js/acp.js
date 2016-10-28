@@ -1,3 +1,5 @@
+/* globals app, ajaxify, config, requirejs, socket, $ */
+
 define('admin/plugins/minecraft-integration', ['settings', 'translator'], function (settings, translator) {
   var miACP = {}
   var $form

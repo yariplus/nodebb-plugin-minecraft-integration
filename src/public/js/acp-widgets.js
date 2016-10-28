@@ -1,3 +1,5 @@
+/* globals app, ajaxify, config, requirejs, socket, $ */
+
 (() => {
   $(window).on('action:ajaxify.end', function (event, data) {
     url = data.url.split('?')[0].split('#')[0]

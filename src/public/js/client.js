@@ -1,4 +1,4 @@
-/* global app, ajaxify, config, requirejs, socket, $ */
+/* globals app, ajaxify, config, requirejs, socket, $ */
 ((() => {
   // Require vendor libs, copied from Mega.
   const rjsConfig = requirejs.s.contexts._.config
