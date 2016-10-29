@@ -1,6 +1,6 @@
 import { db } from './nodebb'
 import Config from './config'
-import Utils from './utils'
+import { getUUID, getHumanTime, parseMinutesDuration } from './utils'
 import async from 'async'
 import request from 'request'
 import winston from 'winston'
@@ -56,7 +56,7 @@ Backend.getUuidFromName = (name, next) => {
     if (uuid) return next(null, uuid)
 
     // If not in cache, query Mojang.
-    Utils.getUUID(name, (err, uuid) => {
+    getUUID(name, (err, uuid) => {
       // Return if db error.
       if (err) return next(err)
 
@@ -314,7 +314,7 @@ Backend.getRecentPings = (data, next) => {
 
         // Store stamp for charting, and human time for display.
         ping.timestamp = stamp
-        ping.humanTime = Utils.getHumanTime(stamp)
+        ping.humanTime = getHumanTime(stamp)
 
         next(null, ping)
       })
@@ -672,7 +672,7 @@ Backend.getTopPlayersByPlaytimes = (data, callback) => {
     async.map(data, (value, next) => {
       Backend.getPlayerFromUuid(value.value, (err, profile) => {
         if (err) return next(err)
-        next(null, {id: value.value, name: profile.name, playtime: value.score, playtimeHuman: Utils.parseMinutesDuration(value.score)})
+        next(null, {id: value.value, name: profile.name, playtime: value.score, playtimeHuman: parseMinutesDuration(value.score)})
       })
     }, callback)
   })

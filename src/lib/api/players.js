@@ -3,7 +3,7 @@ import { db, User } from '../nodebb'
 import Backend from '../backend'
 import Config from '../config'
 import Updater from '../updater'
-import Utils from '../utils'
+import { parseFormatCodes } from '../utils'
 
 function updateUuids (players, callback) {
   const uuids = []
@@ -34,7 +34,7 @@ function addUserData (players, callback) {
 
 function addFormattedPrefix (players, next) {
   players.map(player => {
-    player.prefix = Utils.parseFormatCodes(player.prefix)
+    player.prefix = parseFormatCodes(player.prefix)
     return player
   })
 

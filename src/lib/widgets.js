@@ -4,7 +4,7 @@ import { translator } from './nodebb'
 import { getServerStatus } from './api'
 import Backend from './backend'
 import Config from './config'
-import Utils from './utils'
+import { parseFormatCodes } from './utils'
 import async from 'async'
 
 import { render as renderChat } from './widgets/chat'
@@ -59,8 +59,8 @@ function formatWidget (widget, callback) {
     for (const p in status) widget.data[p] = status[p]
 
     if (widget.data.parseFormatCodes == 'on' ? true : false) {
-      widget.data.name = Utils.parseMCFormatCodes(status.name)
-      widget.data.motd = Utils.parseMCFormatCodes(status.motd)
+      widget.data.name = parseFormatCodes(status.name)
+      widget.data.motd = parseFormatCodes(status.motd)
     } else {
       // TODO: Remove formatting codes.
     }

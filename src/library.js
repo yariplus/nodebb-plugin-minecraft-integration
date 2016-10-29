@@ -5,7 +5,7 @@ import { emitter, db } from './lib/nodebb'
 import Admin from './lib/admin'
 import Backend from './lib/backend'
 import Config from './lib/config'
-import Utils from './lib/utils'
+import { getKey } from './lib/utils'
 import Updater from './lib/updater'
 import Views from './lib/views'
 import routes from './lib/routes'
@@ -34,7 +34,7 @@ export function load (params, next) {
     config = config || {}
     config.name = config.name || 'A Minecraft Server'
     config.address = config.address || (`${require('nconf').get('url')}:25565`)
-    config.APIKey = config.APIKey || Utils.getKey()
+    config.APIKey = config.APIKey || getKey()
     config.hidePlugins = config.hidePlugins || '0'
 
     db.setObject('mi:server:0:config', config)

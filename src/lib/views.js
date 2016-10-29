@@ -2,7 +2,7 @@ import { db, User, translator } from './nodebb'
 import { getPlayerKey, getUserLinkedPlayers } from './api'
 import Config from './config'
 import Backend from './backend'
-import Utils from './utils'
+import { parseFormatCodes } from './utils'
 import async from 'async'
 import fs from 'fs'
 import path from 'path'
@@ -48,7 +48,7 @@ Views.init = (_app, middleware, router) => {
             payload.hasPlayers = false
           } else {
             players = players.map(player => {
-              player.prefix = Utils.parseMCFormatCodes(player.prefix)
+              player.prefix = parseFormatCodes(player.prefix)
               return player
             })
 

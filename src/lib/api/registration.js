@@ -1,6 +1,6 @@
-import { db } from './nodebb'
-import Backend from './backend'
-import Utils from './utils'
+import { db } from '../nodebb'
+import Backend from '../backend'
+import { getKey } from '../utils'
 import async from 'async'
 
 export function register (data, next) {
@@ -76,7 +76,7 @@ export function getPlayerKey (data, cb) {
 
   db.getSortedSetRangeByScore('playerkey:uid', 0, 1, uid, uid, (err, key) => {
     if (err || !key || !key.length) {
-      key = Utils.getKey()
+      key = getKey()
       db.sortedSetAdd('playerkey:uid', uid, key)
     } else {
       key = key[0]

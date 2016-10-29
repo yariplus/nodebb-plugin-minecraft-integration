@@ -1,15 +1,12 @@
 import { SocketIO } from './nodebb'
 import Config from './config'
 import Backend from './backend'
+import { noop } from './utils'
 import async from 'async'
 
 // Gets the socket of the passed in Server ID if it is connected.
 export function getMinecraftSocket (data, next) {
   const { sid } = data
-
-  sid = parseInt(sid, 10)
-
-  if (!sid) return next(new Error('Data with no SID was sent to getMinecraftSocket()'))
 
   Backend.getServerConfig({sid}, (err, config) => {
     if (err) return next(err)
@@ -26,7 +23,7 @@ export function sendPingToUsers (ping, next) {
   SocketIO.in('online_users').emit('mi.ping', ping)
 }
 
-export function sendStatusToUsers = (status, next) {
+export function sendStatusToUsers (status, next) {
   SocketIO.in('online_users').emit('mi.status', status)
 }
 
@@ -47,6 +44,7 @@ export function sendTimeToUsers (timeData, next) {
 }
 
 export function sendWebChatToServer (data, next) {
+  next = next || noop
   const { chat } = data
 
   getMinecraftSocket(data, (err, socket) => {
@@ -61,6 +59,7 @@ export function sendRewardToServer (rewardData, next) {
 }
 
 export function eventGetPlayerVotes (socket, data, next) {
+  next = next || noop
   getMinecraftSocket(data, (err, socket) => {
     if (err) return next(err)
 
@@ -69,12 +68,13 @@ export function eventGetPlayerVotes (socket, data, next) {
 }
 
 export function PlayerVotes (data, next) {
+  next = next || noop
+
   console.log('Got PlayerVotes')
   console.dir(data)
+
   // Assert parameters.
   if (!(data && data.name && data.votes)) return next()
-
-  next = next || () => {}
 
   const name = data.name, votes = data.votes, sid = data.sid
 

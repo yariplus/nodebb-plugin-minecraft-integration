@@ -1,8 +1,8 @@
 import async from 'async'
 import Config from '../config'
 import Backend from '../backend'
-import Controller from '../controller'
-import Utils from '../utils'
+import { sendStatusToUsers, sendPlayerJoinToUsers, sendPlayerQuitToUsers } from '../sockets'
+import { trimUUID, parseVersion, getName } from '../utils'
 
 // TODO
 import { db } from '../nodebb'
@@ -27,7 +27,7 @@ export function updateServerStatus (status, next) {
   // Trim UUIDs to Mojang format.
   status.players.forEach(player => {
     if (!player.id) return
-    player.id = Utils.trimUUID(player.id)
+    player.id = trimUUID(player.id)
   })
 
   // Store the player statistics in the database.
@@ -42,12 +42,12 @@ export function updateServerStatus (status, next) {
 
     // Skip if invalid uuid.
     // function verifyUUID(id, next) {
-    // Utils.getPlayerNameUsingUUID(id, function (err, name) {
+    // getName(id, function (err, name) {
     // if (err) return next(err)
     // })
     // }
 
-    // Utils.getPlayerNameUsingUUID(player.id, function (err, valid) {
+    // getName(player.id, function (err, valid) {
     // if (err)
     // })
 
@@ -79,7 +79,7 @@ export function updateServerStatus (status, next) {
     async.apply(Backend.updateServerStatus, status),
     next => {
       getServerStatus({sid: status.sid}, (err, status) => {
-        Controller.sendStatusToUsers(status)
+        sendStatusToUsers(status)
       })
       next()
     }
@@ -125,7 +125,7 @@ export function getServerStatus (data, callback) {
     // Strings
     status.sid = sid
     status.address = config.address
-    status.version = Utils.parseVersion(status.version || 'unknown')
+    status.version = parseVersion(status.version || 'unknown')
 
     // Hide plugins.
     if (parseInt(config.hidePlugins, 10)) status.pluginList = []
@@ -145,7 +145,7 @@ export function eventPlayerJoin (data, callback) {
   const suffix = data.suffix
   const groups = data.groups
   const playtime = data.playtime
-
+console.dir(data);
   const usePrimaryPrefixOnly = Config.settings.get('usePrimaryPrefixOnly')
   let newPrefix = ''
   let primaryPrefix = ''
@@ -194,7 +194,7 @@ export function eventPlayerJoin (data, callback) {
           }
 
           // Updates widgets with new player.
-          Controller.sendPlayerJoinToUsers({sid: data.sid, player: {id, name}})
+          sendPlayerJoinToUsers({sid: data.sid, player: {id, name}})
 
           db.setObjectField(`mi:server:${data.sid}`, 'players', players, err => {
             if (err) console.log(err)
@@ -244,7 +244,7 @@ export function eventPlayerQuit (data, next) {
       db.setObjectField(`mi:server:${data.sid}`, 'players', players, err => {
         if (err) return console.log(err)
       })
-      Controller.sendPlayerQuitToUsers({sid: data.sid, player: {id, name}})
+      sendPlayerQuitToUsers({sid: data.sid, player: {id, name}})
     } catch (e) {
       console.log(e)
     }

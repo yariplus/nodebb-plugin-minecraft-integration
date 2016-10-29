@@ -3,7 +3,7 @@ import { getServerStatus } from './api'
 import Backend from './backend'
 import Config from './config'
 import { sendStatusToUsers } from './sockets'
-import Utils from './utils'
+import { getName } from './utils'
 import async from 'async'
 import winston from 'winston'
 import nconf from 'nconf'
@@ -30,7 +30,7 @@ function updatePlayers () {
     const key = `yuuid:${id}`
 
     // Get the name from Mojang.
-    Utils.getName(id, (err, name) => {
+    getName(id, (err, name) => {
       // Return if db error.
       if (err) return next(err)
 

@@ -8,7 +8,7 @@ import {
   PlayerVotes
 } from '../sockets'
 import * as Controllers from '../controllers'
-import Utils from '../utils'
+import { getKey, trimUUID } from '../utils'
 import Chat from '../chat'
 import { resetPlayerKey, register } from '../registration'
 
@@ -123,7 +123,7 @@ export default function (app, middleware, router) {
         data.sid = sid
 
         // If event has a player id, trim it to Mojang's format.
-        if (data.id) data.id = Utils.trimUUID(data.id)
+        if (data.id) data.id = trimUUID(data.id)
 
         // Set the socket.id so that we can send events back to the server.
         db.setObjectField(`mi:server:${data.sid}:config`, 'socketid', socket.id)
@@ -174,7 +174,7 @@ export default function (app, middleware, router) {
 
   addToAPI(Config.getAvatarUrl, 'getAvatarUrl', 'avatar')
 
-  addToAPI(Utils.getKey, 'getKey', 'key')
+  addToAPI(getKey, 'getKey', 'key')
 
   addToAPI(Backend.getPlaytimes, 'getPlaytimes', 'playtimes')
   addToAPI(Backend.getTopPlayersByPlaytimes, 'getTopPlayersByPlaytimes', 'playtimes/top')
