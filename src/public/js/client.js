@@ -373,7 +373,7 @@ $(() => {
               // Wrap avatar in profile link if user is registered.
               wrapAvatar($avatar)
 
-              $avatar.load(() => {
+              $avatar.on('load', () => {
                 $avatar.show()
               })
             })
