@@ -1,10 +1,9 @@
 import async from 'async'
+
 import Config from '../config'
 import Backend from '../backend'
 import { sendStatusToUsers, sendPlayerJoinToUsers, sendPlayerQuitToUsers } from '../sockets'
 import { trimUUID, parseVersion, getName } from '../utils'
-
-// TODO
 import { db } from '../nodebb'
 
 // TEMP
@@ -14,15 +13,12 @@ export function updateServerStatus (status, next) {
   const updateTime = Math.round(Date.now() / 60000) * 60000, sid = status.sid, tps = status.tps
 
   status.isServerOnline = '1'
-  status.players = status.players || []
-  status.pluginList = status.pluginList || []
-  status.hasPlugins = status.pluginList.length
-  status.modList = status.modList || []
-  status.hasMods = status.modList.length
+  status.hasPlugins = status.pluginList ? true : false
+  status.hasMods = status.modList ? true : false
   status.updateTime = updateTime
 
-  // Sort Plugins
-  status.pluginList = status.pluginList.sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)
+  // Sort plugins lexically.
+  if (Array.isArray(status.pluginList)) status.pluginList = status.pluginList.sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)
 
   // Trim UUIDs to Mojang format.
   status.players.forEach(player => {
@@ -30,60 +26,28 @@ export function updateServerStatus (status, next) {
     player.id = trimUUID(player.id)
   })
 
-  // Store the player statistics in the database.
-  async.each(status.players, (player, next) => {
-    // Skip if no uuid.
-    if (!player.id) next()
-
-    // TODO: BungeeCord Support
-    // BungeeCord proxies will need their player UUIDs verified, since they run in offline mode.
-    // A proper proxy would be running a Spigot derivative with BungeeCord pass-through set, but
-    // we can't count on that.
-
-    // Skip if invalid uuid.
-    // function verifyUUID(id, next) {
-    // getName(id, function (err, name) {
-    // if (err) return next(err)
-    // })
-    // }
-
-    // getName(player.id, function (err, valid) {
-    // if (err)
-    // })
-
-    // DEPRECIATED: Future versions will track playtime using the Minecraft Plugin or OnTime.
-    async.parallel({
-      playtime (next) {
-        db.getObjectField(`yuuid:${player.id}`, 'lastonline', (err, data) => {
-          if (parseInt(data) !== updateTime) {
-            db.setObjectField(`yuuid:${player.id}`, 'lastonline', updateTime)
-            db.incrObjectField(`yuuid:${player.id}`, 'playtime', next)
-          } else {
-            db.getObjectField(`yuuid:${player.id}`, 'playtime', next)
-          }
+  async.filter(status.players, (player, next) => {
+    // Verify the player has a valid uuid<=>name match.
+    Backend.getUuidFromName(player.name, (err, id) => {
+      next(err ? false : (player.id === id ? true : false))
+    })
+  }, players => {
+    status.players = players
+    // Store the player statistics in the database.
+    async.each(status.players, (player, next) => {
+      db.setObject(`yuuid:${player.id}`, {lastonline: updateTime, name: player.name}, next)
+    }, err => {
+      if (err) return next(err)
+      // Update the status in the database and send to the forum users.
+      Backend.updateServerStatus(status, err => {
+        if (err) return next(err)
+        getServerStatus({sid: status.sid}, (err, status) => {
+          if (err) return next(err)
+          sendStatusToUsers(status)
         })
-      },
-      name: async.apply(db.setObjectField, `yuuid:${player.id}`, 'name', player.name)
-    }, (err, results) => {
-      if (err) {
-        console.log(`[Minecraft Integration] Error setting player object ${player.id}: ${err}`)
-      } else {
-        db.sortedSetAdd('yuuid:playtime', results.playtime || '0', player.id, err => {
-        })
-      }
+      })
     })
   })
-
-  // wth is this?
-  async.waterfall([
-    async.apply(Backend.updateServerStatus, status),
-    next => {
-      getServerStatus({sid: status.sid}, (err, status) => {
-        sendStatusToUsers(status)
-      })
-      next()
-    }
-  ], next)
 }
 
 export function getServerStatus (data, callback) {
@@ -134,84 +98,19 @@ export function getServerStatus (data, callback) {
   })
 }
 
-export function eventPlayerJoin (data, callback) {
-  // Assert parameters.
-  if (!(data && data.id && data.name)) return callback()
+export function eventPlayerJoin (data, next) {
+  // TODO: remove sid from player data. {sid: sid, player: {data}}
+  const {sid, id, name, displayName, prefix, suffix, groups, playtime } = data
 
-  const name = data.name
-  const nick = data.nick
-  const id = data.id
-  const prefix = data.prefix
-  const suffix = data.suffix
-  const groups = data.groups
-  const playtime = data.playtime
-console.dir(data);
-  const usePrimaryPrefixOnly = Config.settings.get('usePrimaryPrefixOnly')
-  let newPrefix = ''
-  let primaryPrefix = ''
+  Backend.getUuidFromName(name, (err, _id) => {
+    if (err || _id !== id) return next(err || new Error('Offline servers not supported.'))
 
-  // Store raw prefix data.
-  // TODO: Configure spacing.
-  if (prefix) {
-    newPrefix = prefix
-    primaryPrefix = newPrefix
-  }
-  if (Array.isArray(groups)) {
-    for (const group of groups) {
-      // TODO: Get prefix from group hash.
-    }
-  }
-
-  db.setObjectField(`yuuid:${id}`, 'prefix', usePrimaryPrefixOnly ? primaryPrefix : newPrefix)
-
-  async.parallel({
-    player (next) {
-      // TODO:
-      // I can get rid off all this nonsense by storing players in a set 'mi:server:sid:players'
-      // Could use a sortedSet with lexicon stored names, or just a plain set with uuids.
-      db.getObjectField(`mi:server:${data.sid}`, 'players', (err, players) => {
-        if (err) return console.log(err)
-
-        let found = false
-
-        try {
-          players = JSON.parse(players)
-        } catch (e) {
-          return console.log('Bad Players Object', e)
-        }
-
-        for (const i in players) {
-          if (players[i] === null) continue
-          if (players[i].id === id) found = true
-        }
-        if (!found) {
-          players.push({id, name})
-
-          try {
-            players = JSON.stringify(players)
-          } catch (e) {
-            return console.log(e)
-          }
-
-          // Updates widgets with new player.
-          sendPlayerJoinToUsers({sid: data.sid, player: {id, name}})
-
-          db.setObjectField(`mi:server:${data.sid}`, 'players', players, err => {
-            if (err) console.log(err)
-            next()
-          })
-        } else {
-          next()
-        }
-      })
-    },
-    user (next) {
-      // TEMP
-      getUser({id}, (err, user) => {
-        next(null, user || null)
-      })
-    }
-  }, callback)
+    async.parallel([
+      async.apply(db.sortedSetAdd, `mi:server:${sid}:players`, 0, `${name}:${id}`),
+      async.apply(db.setObject, `yuuid:${id}`, data),
+      async.apply(sendPlayerJoinToUsers, {sid, player: {id, name}})
+    ], next)
+  })
 }
 
 export function eventPlayerQuit (data, next) {
