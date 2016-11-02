@@ -30,9 +30,11 @@ function resize (image, width, height, next) {
 const Config = module.exports = {
   cdns: {
     mojang: {
-      format: 'http://skins.minecraft.net/MinecraftSkins/{name}.png',
+      url: 'http://skins.minecraft.net/MinecraftSkins/{name}.png',
+      defaultStyle: 'head',
       styles: {
-        flat: {
+        head: {
+          name: "Flat Head",
           transform (buffer, next) {
             jimp.read(buffer, (err, image) => {
               if (err) return next(err)
@@ -47,9 +49,11 @@ const Config = module.exports = {
       }
     },
     brony: {
-      format: 'http://minelpskins.voxelmodpack.com/skins/{uuid}.png',
+      url: 'http://minelpskins.voxelmodpack.com/skins/{uuid}.png',
+      defaultStyle: 'head',
       styles: {
-        flat: {
+        head: {
+          name: "Flat Head",
           transform (buffer, next) {
             jimp.read(buffer, (err, image) => {
               if (err) return next(err)
@@ -70,13 +74,32 @@ const Config = module.exports = {
       }
     },
     cravatar: {
-      format: 'http://cravatar.eu/avatar/{name}/{size}'
+      url: 'http://cravatar.eu/{style}/{name}/{size}',
+      defaultStyle: 'avatar',
+      styles: {
+        avatar: {
+          name: "Flat Head"
+        },
+        helmavatar: {
+          name: "Flat Head with Helm"
+        },
+        head: {
+          name: "Perspective Head"
+        },
+        helmhead: {
+          name: "Perspective Head with Helm"
+        }
+      },
+      variables: {
+        size: { name: "Size" },
+        style: { name: "Style", values: { avatar: "Flat Head", helmavatar: "Flat Head with Helm" } }
+      }
     },
     signaturecraft: {
-      format: 'http://signaturecraft.us/avatars/{size}/face/{name}.png'
+      url: 'http://signaturecraft.us/avatars/{size}/face/{name}.png'
     },
     minotar: {
-      format: 'http://minotar.net/avatar/{name}/{size}'
+      url: 'http://minotar.net/avatar/{name}/{size}'
     }
   },
   steve: 'iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAAXNSR0IArs4c6QAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB90KBgcJNY+Ri8MAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAABgklEQVRo3u2aPUvDUBSGkyZpquLHZB0E3R3UvXQUP0bdHQo6+BNEV0VxcRHEydEiDjp06tBZB1eF+kFRO5RCqZa0SeMfeDIEjCK8Z3zuzb15wuGcXBJzdnrYoPD7iA3bTCH3Ap/X8QPkqRSv49gW8jDk++FV/lFIQAISkMDfhh1V76PCD/mCoUwa+WjaRB4YXO8bbY/nh4FSSAISkIAEEugDUQOHW+vIXYfr/UBmBHnns8UbWPzsmh9vyPevSkohCUhAAhL4+TAvdjZwYNB1kX95/L5uWTy/2Woin8qOI395flAKSUACEpDAL54Hour9yvYx8tX8AfJCvhqr3p/cZJFfVo6QF3c3lUISkIAEJJDAeeCssIAD2YlJbhzuGPLrcjnWxmuLOeS110fk1XpDKSQBCUhAAgmcB9o9/v7arfH7fbFyi3xpZj7Wxnun58iXc3PcsAxHKSQBCUhAAgn0gaf3Og70+/F+JCrd3yG3HDvWOu0O9yWv11UKSUACEpDAz8c3YzNWaIbjJFkAAAAASUVORK5CYII='
@@ -90,8 +113,8 @@ import request from 'request'
 
 const defaultSettings = {
   'avatarCDN': 'mojang',
-  'avatarSize': 40,
-  'avatarStyle': 'flat',
+  'avatarSize': 64,
+  'avatarStyle': 'head',
   'pingExpiry': 365,
   'showPrefixes': 1,
   'usePrimaryPrefixOnly': 0,
@@ -101,9 +124,8 @@ const defaultSettings = {
 Config.init = () => {
   // Sync get settings.
   Config.settings = new Settings('minecraft-integration', '0.6.0', defaultSettings)
+  Config.steveBuffer = new Buffer(Config.steve, 'base64')
 }
-
-Config.steveBuffer = new Buffer(Config.steve, 'base64')
 
 // Async get settings.
 Config.getSettings = (data, next) => {
@@ -122,20 +144,28 @@ Config.getPingExpiry = () => Config.settings.get('pingExpiry') ? (Config.setting
 Config.getPlayerExpiry = () => 1000 * 60 * 60 * 24
 
 Config.getAvatarUrl = (data, callback) => {
+  let url
+  let { name, size, style } = data
   let cdn = Config.settings.get('avatarCDN')
 
+  style = style || Config.settings.get('avatarStyle') || 'head'
+  size = size || Config.settings.get('avatarSize') || '8'
+  name = name || 'notch'
+
   if (cdn === 'custom') {
-    cdn = Config.settings.get('customCDN')
+    url = Config.settings.get('customCDN')
   } else {
-    cdn = Config.cdns[Config.settings.get('avatarCDN')].format
+    cdn = Config.cdns[cdn] ? Config.cdns[cdn] : Config.cdns['mojang']
+
+    if (cdn.styles && Object.keys(cdn.styles).length) {
+      if (!cdn.styles[style]) style = cdn.defaultStyle ? cdn.defaultStyle : Object.keys(cdn.styles)[0]
+      url = cdn.styles[style].url || cdn.url
+    } else {
+      url = cdn.url
+    }
   }
 
-  if (data && data.size) {
-    cdn = cdn.replace('{size}', data.size)
-  } else {
-    cdn = cdn.replace('{size}', Config.settings.get('avatarSize'))
-  }
-  if (data && data.name) cdn = cdn.replace('{name}', data.name)
+  url = url.replace('{name}', name).replace('{size}', size).replace('{style}', style)
 
-  callback(null, cdn)
+  callback(null, url)
 }

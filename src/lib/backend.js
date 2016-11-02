@@ -606,7 +606,7 @@ Backend.setAvatar = data => {
 // Gets the avatar from the configured cdn.
 function fetchAvatar (name, next) {
   async.parallel({
-    url: async.apply(Config.getAvatarUrl, {name, size: 64}), // The full url for the avatar.
+    url: async.apply(Config.getAvatarUrl, {name}), // The full url for the avatar.
     id: async.apply(Backend.getUuidFromName, name) // We need this for cdns that use uuids.
   }, (err, payload) => {
     if (err) return next(err)
@@ -648,8 +648,10 @@ function fetchAvatar (name, next) {
 
 function transform (response, body, next) {
   const cdn = Config.settings.get('avatarCDN')
-  if (Config.cdns[cdn].styles && Config.cdns[cdn].styles.flat && Config.cdns[cdn].styles.flat.transform) {
-    Config.cdns[cdn].styles.flat.transform(body, next)
+  const style = Config.settings.get('avatarStyle')
+
+  if (Config.cdns[cdn].styles && Config.cdns[cdn].styles[style] && Config.cdns[cdn].styles[style].transform) {
+    Config.cdns[cdn].styles[style].transform(body, next)
   } else {
     next(null, body)
   }

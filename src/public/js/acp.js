@@ -298,7 +298,7 @@ define('admin/plugins/minecraft-integration', ['settings', 'translator'], functi
       $tabMaintenance.on('click', '#mi-btn-reset-avatars', function (e) {
         bootbox.confirm('Are you sure?<br/><br/>This will remove all avatars from the database.', function (result) {
           if (result) {
-            socket.emit('admin.MinecraftIntegration.resetCachedAvatars', { }, function () {
+            socket.emit('admin.MinecraftIntegration.resetAvatars', { }, function () {
               app.alert({
                 type: 'info',
                 alert_id: 'mi-alert-avatars',
