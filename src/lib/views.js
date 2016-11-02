@@ -23,24 +23,23 @@ Views.init = (_app, middleware, router) => {
       async.apply(User.getUidByUserslug, req.params.user),
       async.apply(User.getUserData),
       (userData, next) => {
-        // TODO: Attach profile info.
-        // if (!(userData && userData.yuuid)) return next()
-        // NodeBB.db.getObject('yuuid:' + userData.yuuid, next)
+        if (!userData) return res.redirect('/')
 
         payload = userData
 
         if (req.uid !== parseInt(userData.uid, 10)) {
           payload.isSelf = false
-          return next(null, userData.uid)
+
+          next(null, userData.uid)
         } else {
           payload.isSelf = true
-        }
 
-        getPlayerKey({uid: req.uid}, (err, result) => {
-          if (err) return next(err)
-          payload.playerKey = result.key
-          return next(err, userData.uid)
-        })
+          getPlayerKey({uid: req.uid}, (err, result) => {
+            if (err) return next(err)
+            payload.playerKey = result.key
+            next(err, userData.uid)
+          })
+        }
       },
       (uid, next) => {
         getUserLinkedPlayers(uid, (err, players) => {
@@ -59,7 +58,10 @@ Views.init = (_app, middleware, router) => {
         })
       }
     ], err => {
-      if (err) console.log(err)
+      if (err) {
+        console.log(err)
+        return res.redirect('/')
+      }
 
       payload.title = req.params.user
 
