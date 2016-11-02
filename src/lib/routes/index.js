@@ -24,7 +24,8 @@ export default function (app, middleware, router) {
   router.get('/api/mc/ranks', Controllers.renderRanks)
 
   function render (req, res, next) {
-    res.render('admin/plugins/minecraft-integration', { })
+    const variables = Config.cdns[Config.settings.get('avatarCDN')] && Config.cdns[Config.settings.get('avatarCDN')].variables ? Config.cdns[Config.settings.get('avatarCDN')].variables : []
+    res.render('admin/plugins/minecraft-integration', { avatar: { variables } })
   }
 
   router.get('/admin/plugins/minecraft-integration', middleware.admin.buildHeader, render)

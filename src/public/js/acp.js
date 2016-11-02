@@ -12,6 +12,9 @@ define('admin/plugins/minecraft-integration', ['settings', 'translator'], functi
   var $serverList
   var $serverTemplate
 
+  const $avatarCDN = $('[name="avatarCDN"]')
+  const $avatarVariables = $('#avatarVariables')
+
   function log (memo, object) {
     if (!(config.MinecraftIntegration && config.MinecraftIntegration.debug)) return
 
@@ -42,21 +45,24 @@ define('admin/plugins/minecraft-integration', ['settings', 'translator'], functi
       tplTablePlayers = '<tr data-uuid="{id}"><td class="compact no-break">{idf}</td><td><span class="name">{name}</span></td><td><span class="prefix">{prefix}</span></td><td>{playtime}</td><td>{lastonline}</td><td class="compact squish"><button type="button" class="btn btn-info mi-btn-refresh-player">Refresh</button></td><td class="compact"><button type="button" class="btn btn-danger mi-btn-delete-player">Delete</button></td></tr>'
 
     function populateFields () {
-      $('[name=avatarCDN]').val(settings.cfg._.avatarCDN)
-      $('[name=custom-cdn]').val(settings.cfg._.customCDN)
-      $('[name=avatarSize]').val(settings.cfg._.avatarSize)
-      $('[name=avatarStyle]').val(settings.cfg._.avatarStyle)
-      $('[name=showPrefixes]').prop('checked', parseInt(settings.cfg._.showPrefixes, 10))
-      $('[name=usePrimaryPrefixOnly]').prop('checked', parseInt(settings.cfg._.usePrimaryPrefixOnly, 10))
-      $('[name=debug]').prop('checked', parseInt(settings.cfg._.debug, 10))
+      $('[name="avatarCDN"]').val(settings.cfg._.avatarCDN)
+      $('[name="custom-cdn"]').val(settings.cfg._.customCDN)
+      $('[name="showDisplayNames"]').prop('checked', parseInt(settings.cfg._.showDisplayNames, 10))
+      $('[name="debug"]').prop('checked', parseInt(settings.cfg._.debug, 10))
+
+      if (settings.cfg._.avatarVariables) {
+        for (let key in settings.cfg._.avatarVariables) {
+          const $el = $avatarVariables.find(`[name="${key}"]`)
+          const val = $el.attr('type') === 'number' ? parseInt(settings.cfg._.avatarVariables[key]) || '' : settings.cfg._.avatarVariables[key]
+          $el.val(val)
+        }
+      }
     }
 
     function validateAll (e) {
       activate($('[name=api-key]'))
       activate($('[name=avatarCDN]'))
       activate($('[name=custom-cdn]'))
-      activate($('[name=avatarSize]'))
-      activate($('[name=avatarStyle]'))
 
       $serverList.children().each(function (i, el) {
         var $el = $(el), serverNum = $el.data('server-num')
@@ -211,13 +217,18 @@ define('admin/plugins/minecraft-integration', ['settings', 'translator'], functi
         e.preventDefault()
         if (!validateAll()) return
 
-        settings.cfg._.avatarCDN = $('[name=avatarCDN]').val() || 'mojang'
-        settings.cfg._.customCDN = $('[name=custom-cdn]').val() || ''
-        settings.cfg._.avatarSize = $('[name=avatarSize]').val() || '40'
-        settings.cfg._.avatarStyle = $('[name=avatarStyle]').val() || 'flat'
-        settings.cfg._.showPrefixes = $('[name=showPrefixes]').prop('checked') ? 1 : 0
-        settings.cfg._.usePrimaryPrefixOnly = $('[name=usePrimaryPrefixOnly]').prop('checked') ? 1 : 0
-        settings.cfg._.debug = $('[name=debug]').prop('checked') ? 1 : 0
+        settings.cfg._ = {}
+        settings.cfg._.avatarCDN = $('[name="avatarCDN"]').val() || 'mojang'
+        settings.cfg._.customCDN = $('[name="custom-cdn"]').val() || ''
+        settings.cfg._.showDisplayNames = $('[name="showDisplayNames"]').prop('checked') ? 1 : 0
+        settings.cfg._.debug = $('[name="debug"]').prop('checked') ? 1 : 0
+
+        settings.cfg._.avatarVariables = {}
+        $avatarVariables.find('[name]').each((i, el) => {
+          $this = $(el)
+          const val = $this.attr('type') === 'number' ? parseInt($this.val()) || '' : $this.val()
+          settings.cfg._.avatarVariables[$this.attr('name')] = val
+        })
 
         settings.helper.persistSettings('minecraft-integration', settings.cfg, true, function () {
           socket.emit('admin.settings.syncMinecraftIntegration')
@@ -260,6 +271,15 @@ define('admin/plugins/minecraft-integration', ['settings', 'translator'], functi
             $avatar.fadeIn(600)
           })
         })
+      })
+
+      $('#avatarVariables').change(() => {
+        // app.parseAndTranslate('admin/plugins/avatarVariables')
+      // settings.cfg._.avatarVariables = {}
+      // $avatarVariables.find('[name]').each(() => {
+        // $this = $(this)
+        // settings.cfg._.avatarVariables[$this.attr('name')] = $this.val()
+      // })
       })
 
       // Players

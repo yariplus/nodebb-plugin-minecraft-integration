@@ -26,65 +26,20 @@
 
 					<form id="minecraft-integration" autocomplete="off">
 
-						<div class="row input-row">
-							<div class="col-sm-7 col-xs-12 input-field">
-								<label for="avatarCDN">[[mi:avatar_cdn]]</label>
-								<select name="avatarCDN" class="form-control">
-									<option value="mojang" selected="selected">Mojang</option>-->
-									<option value="brony">Brony ModPack</option>
-									<option value="cravatar">Cravatar.eu</option>
-									<option value="minotar">Minotar</option>
-									<option value="signaturecraft">Signaturecraft</option>
-									<option value="custom">[[mi:custom]]</option>
-								</select>
-							</div>
-							<div class="col-sm-5 help-text" data-help="[[mi:help_avatar_cdn]]"></div>
-						</div>
+						<!-- IMPORT admin/plugins/avatarSelectCDN.tpl -->
+
+            <div id="avatarVariables">
+						<!-- IMPORT admin/plugins/avatarVariables.tpl -->
+            </div>
 
 						<div class="row input-row">
 							<div class="col-sm-7 col-xs-12 input-field">
-								<label for="custom-cdn">[[mi:custom_cdn]]</label>
-								<input name="custom-cdn" type="text" class="form-control" placeholder="" />
-							</div>
-							<div class="col-sm-5 help-text" data-help="[[mi:help_custom_cdn]]"></div>
-						</div>
-
-						<div class="row input-row">
-							<div class="col-sm-7 col-xs-12 input-field">
-								<label for="avatarSize">[[mi:avatar_size]]</label>
-								<input name="avatarSize" type="number" class="form-control" placeholder="40" />
-							</div>
-							<div class="col-sm-5 help-text" data-help="[[mi:help_avatar_size]]"></div>
-						</div>
-
-						<div class="row input-row">
-							<div class="col-sm-7 col-xs-12 input-field">
-								<label for="avatarStyle">[[mi:avatar_style]]</label>
-								<select name="avatarStyle" class="form-control">
-									<option value="flat" selected="selected">[[mi:flat]]</option>
-								</select>
-							</div>
-							<div class="col-sm-5 help-text" data-help="[[mi:help_avatar_style]]"></div>
-						</div>
-
-						<div class="row input-row">
-							<div class="col-sm-7 col-xs-12 input-field">
-								<label class="control-label">
-									<input name="showPrefixes" class="" type="checkbox" style="width:16px;height:16px;">
-									Show Prefixes
+								<label for="showDisplayNames" class="control-label">
+									<input id="showDisplayNames" name="showDisplayNames" class="" type="checkbox" style="width:16px;height:16px;">
+									Show Display Names
 								</label>
 							</div>
-							<div class="col-sm-5 help-text" data-help="Show vault prefixes next to forum names."></div>
-						</div>
-
-						<div class="row input-row">
-							<div class="col-sm-7 col-xs-12 input-field">
-								<label class="control-label">
-									<input name="usePrimaryPrefixOnly" class="" type="checkbox" style="width:16px;height:16px;">
-									Use primary prefix only.
-								</label>
-							</div>
-							<div class="col-sm-5 help-text" data-help=""></div>
+							<div class="col-sm-5 help-text" data-help="Shows users' primary display name next to their username."></div>
 						</div>
 
 						<div class="row input-row">

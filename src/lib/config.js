@@ -91,8 +91,8 @@ const Config = module.exports = {
         }
       },
       variables: {
-        size: { name: "Size" },
-        style: { name: "Style", values: { avatar: "Flat Head", helmavatar: "Flat Head with Helm" } }
+        size: { name: "Size", number: true, default: true },
+        style: { name: "Style", select: true, values: { avatar: { name: "Flat Head", default: true }, helmavatar: { name: "Flat Head with Helm" } } }
       }
     },
     signaturecraft: {
@@ -148,8 +148,8 @@ Config.getAvatarUrl = (data, callback) => {
   let { name, size, style } = data
   let cdn = Config.settings.get('avatarCDN')
 
-  style = style || Config.settings.get('avatarStyle') || 'head'
-  size = size || Config.settings.get('avatarSize') || '8'
+  style = style || Config.settings.get('avatarVariables.style') || 'head'
+  size = size || Config.settings.get('avatarVariables.size') || '8'
   name = name || 'notch'
 
   if (cdn === 'custom') {
