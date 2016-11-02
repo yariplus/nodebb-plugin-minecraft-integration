@@ -10,7 +10,6 @@ import {
 import * as Controllers from '../controllers'
 import { getKey, trimUUID } from '../utils'
 import Chat from '../chat'
-import { resetPlayerKey, register } from '../registration'
 
 export default function (app, middleware, router) {
   // TODO: Add slugs
