@@ -157,7 +157,7 @@
 
 			<!-- IF showAvatars -->
 			<tr>
-				<td class="mi-avatars" colspan="2"></td>
+				<td class="mi-avatars" colspan="2"><!-- IMPORT partials/playerAvatars.tpl --></td>
 			</tr>
 			<!-- ENDIF showAvatars -->
 

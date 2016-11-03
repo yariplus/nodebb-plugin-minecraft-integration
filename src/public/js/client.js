@@ -118,12 +118,22 @@ $(() => {
   }
 
   function preparePlayersGrid (widget) {
+    widget.el.find('.mi-avatar').each((i, $avatar) => {
+      $avatar = $($avatar)
+
+      // Wrap avatar in profile link if user is registered.
+      wrapAvatar($avatar)
+      $avatar.tooltip()
+    })
   }
 
   function prepareStatus (widget) {
-    socket.emit('plugins.MinecraftIntegration.getServerStatus', {sid: widget.sid}, (err, status) => {
-      if (err || !status) return
-      setPlayers(status)
+    widget.el.find('.mi-avatar').each((i, $avatar) => {
+      $avatar = $($avatar)
+
+      // Wrap avatar in profile link if user is registered.
+      wrapAvatar($avatar)
+      $avatar.tooltip()
     })
   }
 
@@ -228,11 +238,10 @@ $(() => {
       const sid = $this.attr('data-sid')
 
       servers[sid] = servers[sid] || {}
-      servers[sid][wid] = servers[sid][wid] || []
-      servers[sid][wid].push({
+      servers[sid][wid] = {
         el: $this,
         sid
-      })
+      }
     })
 
     log('Preparing widgets...')
@@ -240,15 +249,12 @@ $(() => {
 
     for (const sid in servers) {
       for (const wid in servers[sid]) {
-        servers[sid][wid].forEach(widget => {
-          log(`Preparing ${wid} for server ${sid}`)
-          prepareWidget[wid](widget)
-        })
+        log(`Preparing ${wid} for server ${sid}`)
+        prepareWidget[wid](servers[sid][wid])
       }
     }
 
     resizeEnd()
-    // })
   })
 
   socket.on('mi.PlayerJoin', onPlayerJoin)
@@ -340,7 +346,7 @@ $(() => {
           // If the player's online, return.
           for (var i in data.players) {
             if (data.players[i].id && data.players[i].name) {
-              if ($avatar.data('uuid') === data.players[i].id) return $avatar.show()
+              if ($avatar.attr('data-uuid') === data.players[i].id) return $avatar.show()
             }
           }
 
@@ -357,7 +363,7 @@ $(() => {
           $widget.find('.mi-avatar').each(function () {
             const $avatar = $(this)
 
-            if ($avatar.data('uuid') === player.id) {
+            if ($avatar.attr('data-uuid') === player.id) {
               found = $avatar
               log(`Found ${player.name}`)
             }
@@ -366,7 +372,7 @@ $(() => {
           if (!found) {
             app.parseAndTranslate('partials/playerAvatars', {players: [player]}, $avatar => {
               $avatar.hide()
-              $avatar.data('uuid', player.id)
+              $avatar.attr('data-uuid', player.id)
 
               $avatar.appendTo($widget.find('.mi-avatars'))
 
@@ -376,6 +382,8 @@ $(() => {
               $avatar.on('load', () => {
                 $avatar.show()
               })
+
+              $avatar.tooltip()
             })
           } else {
             found.show()
@@ -439,7 +447,7 @@ $(() => {
         // Add the player only if they are not already listed.
         let found = false
         $widget.find('.mi-avatar').each(function () {
-          if ($(this).data('uuid') === player.id) return found = $(this)
+          if ($(this).attr('data-uuid') === player.id) return found = $(this)
         })
         if (found) {
           if (found.css('display') === 'none') {
@@ -449,7 +457,7 @@ $(() => {
           return
         }
 
-        $avatar.data('uuid', player.id)
+        $avatar.attr('data-uuid', player.id)
         $avatar.hide()
         $avatar.appendTo($widget.find('.mi-avatars'))
         $widget.find('.online-players').text(parseInt($widget.find('.online-players').text(), 10) + 1)
@@ -457,9 +465,8 @@ $(() => {
         // Wrap avatar in profile link if user is registered.
         wrapAvatar($avatar)
 
-        $avatar.load(() => {
-          $avatar.show()
-        })
+        $avatar.show()
+        $avatar.tooltip()
       })
     })
   }
@@ -477,7 +484,7 @@ $(() => {
           $widget.find('.mi-avatar').each((i, el) => {
             const $avatar = $(el)
 
-            if ($avatar.data('uuid') !== data.player.id) return
+            if ($avatar.attr('data-uuid') !== data.player.id) return
 
             $widget.find('.online-players').text(parseInt($widget.find('.online-players').text(), 10) - 1)
             $avatar.hide()
@@ -519,7 +526,7 @@ $(() => {
   // Wrap avatar in profile link if user is registered.
   function wrapAvatar ($avatar) {
     if (!$avatar.parent().is('a')) {
-      socket.emit('plugins.MinecraftIntegration.getUser', {id: $avatar.data('uuid')}, (err, userData) => {
+      socket.emit('plugins.MinecraftIntegration.getUser', {id: $avatar.attr('data-uuid')}, (err, userData) => {
         if (!err && userData && userData.userslug) {
           $avatar.wrap(`<a href="/user/${userData.userslug}"></a>`)
         } else {
@@ -560,18 +567,17 @@ $(() => {
     require(['rickshaw'], Rickshaw => {
       for (let sid in servers) {
         for (let wid in servers[sid]) {
-          servers[sid][wid].forEach(widget => {
-            const h = widget.el.data('height-ratio')
-            if (h) widget.el.height(widget.el.width() * parseFloat(widget.el.data('height-ratio')))
+          let widget = servers[sid][wid]
+          const h = widget.el.data('height-ratio')
+          if (h) widget.el.height(widget.el.width() * parseFloat(widget.el.data('height-ratio')))
 
-            if (widget.graph) {
-              widget.graph.configure({
-                width: widget.el.width(),
-                height: widget.el.height()
-              })
-              widget.graph.render()
-            }
-          })
+          if (widget.graph) {
+            widget.graph.configure({
+              width: widget.el.width(),
+              height: widget.el.height()
+            })
+            widget.graph.render()
+          }
         }
       }
     })

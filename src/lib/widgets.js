@@ -58,6 +58,8 @@ function formatWidget (widget, callback) {
 
     for (const p in status) widget.data[p] = status[p]
 
+    widget.data.onlinePlayers = status.players.length
+
     if (widget.data.parseFormatCodes == 'on' ? true : false) {
       widget.data.name = parseFormatCodes(status.name)
       widget.data.motd = parseFormatCodes(status.motd)
