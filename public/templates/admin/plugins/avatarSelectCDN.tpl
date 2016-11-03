@@ -6,8 +6,6 @@
       <option value="brony">Brony ModPack</option>
       <option value="cravatar">Cravatar.eu</option>
       <option value="minotar">Minotar</option>
-      <option value="signaturecraft">Signaturecraft</option>
-      <option value="custom">[[mi:custom]]</option>
     </select>
   </div>
   <div class="col-sm-5 help-text" data-help="[[mi:help_avatar_cdn]]"></div>

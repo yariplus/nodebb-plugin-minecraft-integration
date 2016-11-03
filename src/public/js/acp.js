@@ -273,13 +273,15 @@ define('admin/plugins/minecraft-integration', ['settings', 'translator'], functi
         })
       })
 
-      $('#avatarVariables').change(() => {
-        // app.parseAndTranslate('admin/plugins/avatarVariables')
-      // settings.cfg._.avatarVariables = {}
-      // $avatarVariables.find('[name]').each(() => {
-        // $this = $(this)
-        // settings.cfg._.avatarVariables[$this.attr('name')] = $this.val()
-      // })
+      $avatarCDN.change(() => {
+        $avatarVariables.empty()
+        socket.emit('admin.MinecraftIntegration.getAvatarCDN', {cdn: $avatarCDN.val()}, (err, cdn) => {
+          if (cdn) {
+            app.parseAndTranslate('admin/plugins/avatarVariables', {avatar: cdn}, html => {
+              $avatarVariables.append(html)
+            })
+          }
+        })
       })
 
       // Players

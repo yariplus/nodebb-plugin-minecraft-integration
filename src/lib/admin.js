@@ -42,4 +42,5 @@ Admin.init = () => {
   // Uses fetchPlayer instead. addAdminSocket('refreshPlayer', Backend.refreshPlayer)
   // Doesn't exist. addAdminSocket('resetPlayers', Backend.resetPlayers)
   addAdminSocket('deleteServer', Backend.deleteServer)
+  addAdminSocket('getAvatarCDN', Config.getAvatarCDN)
 }

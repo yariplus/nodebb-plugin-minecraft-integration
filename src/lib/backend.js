@@ -622,13 +622,14 @@ function fetchAvatar (name, next) {
       if (err) {
         console.log(`Could not retrieve skin using the cdn: ${Config.settings.get('avatarCDN')}`)
         if (Config.settings.get('avatarCDN') === 'mojang') return next(null, Config.steveBuffer)
+        console.log('Defaulting to Mojang skin.')
+        console.log(`Fetching avatar from CDN: http://skins.minecraft.net/MinecraftSkins/${name}.png`)
 
         // Try Mojang
         async.waterfall([
           async.apply(request, {url: `http://skins.minecraft.net/MinecraftSkins/${name}.png`, encoding: null}),
           (response, body, next) => {
-            console.log('Defaulting to Mojang skin.')
-            Config.cdns['mojang'].styles.flat.transform(body, next)
+            Config.cdns['mojang'].transform(body, 32, next)
           }
         ], (err, avatar) => {
           if (err) {
@@ -648,10 +649,9 @@ function fetchAvatar (name, next) {
 
 function transform (response, body, next) {
   const cdn = Config.settings.get('avatarCDN')
-  const style = Config.settings.get('avatarStyle')
 
-  if (Config.cdns[cdn].styles && Config.cdns[cdn].styles[style] && Config.cdns[cdn].styles[style].transform) {
-    Config.cdns[cdn].styles[style].transform(body, next)
+  if (Config.cdns[cdn] && Config.cdns[cdn].transform) {
+    Config.cdns[cdn].transform(body, Config.settings.get('avatarVariables.size'), next)
   } else {
     next(null, body)
   }
