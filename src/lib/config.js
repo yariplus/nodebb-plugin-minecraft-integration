@@ -86,9 +86,18 @@ const Config = module.exports = {
       }
     },
     minotar: {
-      url: 'http://minotar.net/avatar/{name}/{size}',
+      url: 'http://minotar.net/{style}/{name}/{size}',
       variables: {
-        size: { name: "Size", number: true, default: 32 }
+        size: { name: "Size", number: true, default: 32 },
+        style: { name: "Style", select: true, values: {
+          avatar: { name: "Flat Head" },
+          helm: { name: "Flat Head with Helm", default: true },
+          cube: { name: "Perspective Head" },
+          body: { name: "Flat Body" },
+          'armor/body': { name: "Flat Body with Armor" },
+          bust: { name: "Flat Bust" },
+          'armor/bust': { name: "Flat Bust with Armor" }
+        }}
       }
     }
   },
