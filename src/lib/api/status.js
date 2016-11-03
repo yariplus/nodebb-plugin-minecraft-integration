@@ -38,10 +38,10 @@ export function updateServerStatus (status, next) {
     async.waterfall([
       async.apply(db.delete, `mi:server:${sid}:players`),
       async.apply(async.each, players, (player, next) => {
-        let {name, id} = player
+        let {name, id, displayName, prefix, suffix, groups, playtime} = player
         scores.push(0)
         values.push(`${name}:${id}`)
-        db.setObject(`yuuid:${id}`, {lastonline: updateTime, name}, next)
+        db.setObject(`yuuid:${id}`, {lastonline: updateTime, name, id, displayName, prefix, suffix, groups, playtime}, next)
       }),
       async.apply(db.sortedSetAdd, `mi:server:${sid}:players`, scores, values)
     ], (err) => {
