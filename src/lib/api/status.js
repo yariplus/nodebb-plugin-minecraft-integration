@@ -32,18 +32,26 @@ export function updateServerStatus (status, next) {
       next(err ? false : (player.id === id ? true : false))
     })
   }, players => {
-    status.players = players
-    // Store the player statistics in the database.
-    async.each(status.players, (player, next) => {
-      db.setObject(`yuuid:${player.id}`, {lastonline: updateTime, name: player.name}, next)
-    }, err => {
+    let scores = []
+    let values = []
+
+    async.waterfall([
+      async.apply(db.delete, `mi:server:${sid}:players`),
+      async.apply(async.each, players, (player, next) => {
+        let {name, id} = player
+        scores.push(0)
+        values.push(`${name}:${id}`)
+        db.setObject(`yuuid:${id}`, {lastonline: updateTime, name}, next)
+      }),
+      async.apply(db.sortedSetAdd, `mi:server:${sid}:players`, scores, values)
+    ], (err) => {
       if (err) return next(err)
-      // Update the status in the database and send to the forum users.
       Backend.updateServerStatus(status, err => {
         if (err) return next(err)
         getServerStatus({sid: status.sid}, (err, status) => {
           if (err) return next(err)
           sendStatusToUsers(status)
+          next()
         })
       })
     })
@@ -69,7 +77,6 @@ export function getServerStatus (data, callback) {
 
     // Parsed as arrays.
     try {
-      if (status.players && typeof status.players === 'string' && status.players !== 'undefined') status.players = JSON.parse(status.players)
       if (status.modList && typeof status.modList === 'string' && status.modList !== 'undefined') status.modList = JSON.parse(status.modList)
       if (status.pluginList && typeof status.pluginList === 'string' && status.pluginList !== 'undefined') status.pluginList = JSON.parse(status.pluginList)
     } catch (e) {
@@ -94,12 +101,21 @@ export function getServerStatus (data, callback) {
     // Hide plugins.
     if (parseInt(config.hidePlugins, 10)) status.pluginList = []
 
-    callback(null, status)
+    // Get players
+    db.getSortedSetRangeByLex(`mi:server:${sid}:players`, '-', '+', (err, players) => {
+      if (err || !players) return callback(null, status)
+
+      status.players = players.map(player => {
+        const data = player.split(':')
+        return {name: data[0], id: data[1]}
+      })
+
+      callback(null, status)
+    })
   })
 }
 
 export function eventPlayerJoin (data, next) {
-  // TODO: remove sid from player data. {sid: sid, player: {data}}
   const {sid, id, name, displayName, prefix, suffix, groups, playtime } = data
 
   Backend.getUuidFromName(name, (err, _id) => {
@@ -107,47 +123,21 @@ export function eventPlayerJoin (data, next) {
 
     async.parallel([
       async.apply(db.sortedSetAdd, `mi:server:${sid}:players`, 0, `${name}:${id}`),
-      async.apply(db.setObject, `yuuid:${id}`, data),
+      async.apply(db.setObject, `yuuid:${id}`, {id, name, displayName, prefix, suffix, groups, playtime}),
       async.apply(sendPlayerJoinToUsers, {sid, player: {id, name}})
     ], next)
   })
 }
 
 export function eventPlayerQuit (data, next) {
-  // Assert parameters.
-  if (!(data && data.id && data.name)) return next()
+  const {sid, id, name} = data
 
-  const name = data.name, id = data.id
+  Backend.getUuidFromName(name, (err, _id) => {
+    if (err || _id !== id) return next(err || new Error('Offline servers not supported.'))
 
-  db.getObjectField(`mi:server:${data.sid}`, 'players', (err, players) => {
-    if (err) {
-      console.log(err)
-      return next()
-    }
-
-    try {
-      players = JSON.parse(players)
-    } catch (e) {
-      console.log(e)
-      return next()
-    }
-
-    // TODO: Make this part not suck.
-    for (const i in players) {
-      if (players[i].id === id) {
-        players.splice(i, 1)
-      }
-    }
-    try {
-      players = JSON.stringify(players)
-      db.setObjectField(`mi:server:${data.sid}`, 'players', players, err => {
-        if (err) return console.log(err)
-      })
-      sendPlayerQuitToUsers({sid: data.sid, player: {id, name}})
-    } catch (e) {
-      console.log(e)
-    }
-
-    return next()
+    async.parallel([
+      async.apply(db.sortedSetRemove, `mi:server:${sid}:players`, `${name}:${id}`),
+      async.apply(sendPlayerQuitToUsers, {sid, player: {id, name}})
+    ], next)
   })
 }
