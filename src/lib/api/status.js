@@ -38,10 +38,10 @@ export function updateServerStatus (status, next) {
     async.waterfall([
       async.apply(db.delete, `mi:server:${sid}:players`),
       async.apply(async.each, players, (player, next) => {
-        let {name, id, displayName, prefix, suffix, groups, playtime} = player
+        let {name, id, displayName, prefix, suffix, primaryGroup, playtime} = player
         scores.push(0)
         values.push(`${name}:${id}`)
-        db.setObject(`yuuid:${id}`, {lastonline: updateTime, name, id, displayName, prefix, suffix, groups, playtime}, next)
+        db.setObject(`yuuid:${id}`, {lastonline: updateTime, name, id, displayName, prefix, suffix, primaryGroup, playtime}, next)
       }),
       async.apply(db.sortedSetAdd, `mi:server:${sid}:players`, scores, values)
     ], (err) => {
@@ -116,14 +116,14 @@ export function getServerStatus (data, callback) {
 }
 
 export function eventPlayerJoin (data, next) {
-  const {sid, id, name, displayName, prefix, suffix, groups, playtime } = data
+  const {sid, id, name, displayName, prefix, suffix, primaryGroup, playtime } = data
 
   Backend.getUuidFromName(name, (err, _id) => {
     if (err || _id !== id) return next(err || new Error('Offline servers not supported.'))
 
     async.parallel([
       async.apply(db.sortedSetAdd, `mi:server:${sid}:players`, 0, `${name}:${id}`),
-      async.apply(db.setObject, `yuuid:${id}`, {id, name, displayName, prefix, suffix, groups, playtime}),
+      async.apply(db.setObject, `yuuid:${id}`, {id, name, displayName, prefix, suffix, primaryGroup, playtime}),
       async.apply(sendPlayerJoinToUsers, {sid, player: {id, name}})
     ], next)
   })
