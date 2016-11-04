@@ -445,27 +445,19 @@ $(() => {
         var $widget = $($widget)
 
         // Add the player only if they are not already listed.
-        let found = false
-        $widget.find('.mi-avatar').each(function () {
-          if ($(this).attr('data-uuid') === player.id) return found = $(this)
-        })
-        if (found) {
-          if (found.css('display') === 'none') {
-            found.show()
-            $widget.find('.online-players').text(parseInt($widget.find('.online-players').text(), 10) + 1)
-          }
-          return
+        const $found = $widget.find(`.mi-avatar[data-uuid="${player.id}"]`)
+
+        if ($found.length) {
+          $found.css('display', 'inline-block')
+        } else {
+          $avatar.appendTo($widget.find('.mi-avatars'))
         }
 
-        $avatar.attr('data-uuid', player.id)
-        $avatar.hide()
-        $avatar.appendTo($widget.find('.mi-avatars'))
         $widget.find('.online-players').text(parseInt($widget.find('.online-players').text(), 10) + 1)
 
         // Wrap avatar in profile link if user is registered.
         wrapAvatar($avatar)
 
-        $avatar.show()
         $avatar.tooltip()
       })
     })
@@ -481,14 +473,12 @@ $(() => {
         case 'mi-status':
         case 'mi-players-grid':
           // Remove the player who is no longer on the server.
-          $widget.find('.mi-avatar').each((i, el) => {
-            const $avatar = $(el)
+          const $avatar = $widget.find(`.mi-avatar[data-uuid="${data.player.id}"]`)
 
-            if ($avatar.attr('data-uuid') !== data.player.id) return
-
+          if ($avatar.length && $avatar.css('display') === 'inline-block') {
+            $avatar.css('display', 'none')
             $widget.find('.online-players').text(parseInt($widget.find('.online-players').text(), 10) - 1)
-            $avatar.hide()
-          })
+          }
 
           // Don't leave tooltips behind.
           // TODO: Only remove MI tooltips.
