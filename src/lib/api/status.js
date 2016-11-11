@@ -102,7 +102,7 @@ export function getServerStatus (data, callback) {
     if (parseInt(config.hidePlugins, 10)) status.pluginList = []
 
     // Get players
-    db.getSortedSetRangeByLex(`mi:server:${sid}:players`, '-', '+', (err, players) => {
+    db.getSortedSetRange(`mi:server:${sid}:players`, 0, -1, (err, players) => {
       if (err || !players) return callback(null, status)
 
       status.players = players.map(player => {
