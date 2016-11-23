@@ -59,7 +59,7 @@ export function resetPlayerKey (data, next) {
 
   // Reset all keys with uid.
   db.sortedSetsRemoveRangeByScore(['playerkey:uid'], uid, uid, err => {
-    return next(err)
+    if (err) return next(err)
 
     getPlayerKey(data, next)
   })
