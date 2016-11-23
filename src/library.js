@@ -13,7 +13,7 @@ import routes from './lib/routes'
 // preload?
 emitter.once('nodebb:ready', Views.modifyTemplates)
 
-import Widgets from './lib/widgets'
+import * as Widgets from './lib/widgets'
 import Hooks from './lib/hooks'
 
 export { Widgets, Hooks }
