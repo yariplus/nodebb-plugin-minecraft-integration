@@ -1,4 +1,3 @@
-const Admin = module.exports = { }
 import { deleteUser, refreshUser, resetUsers } from './api'
 import { SocketAdmin } from './nodebb'
 import Backend from './backend'
@@ -6,7 +5,7 @@ import Utils from './utils'
 import Config from './config'
 import winston from 'winston'
 
-Admin.init = () => {
+export default function () {
   // Settings
   SocketAdmin.settings.syncMinecraftIntegration = () => {
     Config.settings.sync(() => {
@@ -43,4 +42,14 @@ Admin.init = () => {
   // Doesn't exist. addAdminSocket('resetPlayers', Backend.resetPlayers)
   addAdminSocket('deleteServer', Backend.deleteServer)
   addAdminSocket('getAvatarCDN', Config.getAvatarCDN)
+}
+
+export function buildAdminHeader (custom_header, next) {
+  custom_header.plugins.push({
+    'route': '/plugins/minecraft-integration',
+    'icon': 'fa-cube',
+    'name': 'Minecraft Integration'
+  })
+
+  return next(null, custom_header)
 }

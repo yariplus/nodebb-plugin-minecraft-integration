@@ -7,29 +7,33 @@ import Backend from './lib/backend'
 import Config from './lib/config'
 import { getKey } from './lib/utils'
 import Updater from './lib/updater'
-import Views from './lib/views'
-import routes from './lib/routes'
+import Routes from './lib/routes'
 
-// preload?
-emitter.once('nodebb:ready', Views.modifyTemplates)
+import async from 'async'
+import fs from 'fs'
+import path from 'path'
+
+const nconf = require.main.require('nconf')
 
 import * as Widgets from './lib/widgets'
 import Hooks from './lib/hooks'
 
 export { Widgets, Hooks }
+export { buildAdminHeader } from './lib/admin'
 
 export function load (params, next) {
-  params.app.set('json spaces', 4)
+  const { app, middleware, router } = params
 
-  routes(params.app, params.middleware, params.router)
-  Views.init(params.app, params.middleware, params.router)
-  Admin.init()
+  app.set('json spaces', 4)
+
+  Routes(app, middleware, router)
+  Admin()
   Config.init()
-  Widgets.init(params.app)
+  Widgets.init(app)
 
   // Add a default server.
   db.getObject('mi:server:0:config', (err, config) => {
-    if (err) return next(new Error(err))
+    if (err) return next(err)
 
     config = config || {}
     config.name = config.name || 'A Minecraft Server'

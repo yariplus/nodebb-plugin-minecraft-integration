@@ -1,37 +1,36 @@
-import { db, SocketPlugins } from '../nodebb'
+import { db, SocketPlugins } from './nodebb'
 
-import * as API from '../api'
-import Backend from '../backend'
-import Config from '../config'
+import * as API from './api'
+import Backend from './backend'
+import Config from './config'
 import {
   eventGetPlayerVotes,
   PlayerVotes
-} from '../sockets'
-import * as Controllers from '../controllers'
-import { getKey, trimUUID } from '../utils'
-import Chat from '../chat'
+} from './sockets'
+import * as Controllers from './controllers'
+import { getKey, trimUUID } from './utils'
+import Chat from './chat'
 
 export default function (app, middleware, router) {
-  // TODO: Add slugs
-  // db.sortedSetScore('mi:servers:slugs')
-
-  router.get('/mc/chat', middleware.buildHeader, (req, res) => {
-    res.render('mc/chat', {sid: 0})
-  })
-
-  router.get('/mc/ranks', middleware.buildHeader, Controllers.renderRanks)
-  router.get('/api/mc/ranks', Controllers.renderRanks)
-
-  function render (req, res, next) {
-    const variables = Config.cdns[Config.settings.get('avatarCDN')] && Config.cdns[Config.settings.get('avatarCDN')].variables ? Config.cdns[Config.settings.get('avatarCDN')].variables : []
-    res.render('admin/plugins/minecraft-integration', { avatar: { variables } })
+  function addAdminRoute (route, controller) {
+    router.get(route, middleware.admin.buildHeader, controller)
+    router.get(`/api${route}`, controller)
   }
 
-  router.get('/admin/plugins/minecraft-integration', middleware.admin.buildHeader, render)
-  router.get('/api/admin/plugins/minecraft-integration', render)
-  router.get('/minecraft-integration/config', (req, res) => {
-    res.status(200)
-  })
+  addAdminRoute('/admin/plugins/minecraft-integration', Controllers.renderAdminPage)
+  addAdminRoute('/admin/plugins/minecraft-integration/servers', Controllers.renderAdminPage)
+  addAdminRoute('/admin/plugins/minecraft-integration/server/:sid', Controllers.renderServerEditor)
+
+  function addUserRoute (route, controller) {
+    router.get(route, middleware.buildHeader, controller)
+    router.get(`/api${route}`, controller)
+  }
+
+  addUserRoute('/user/:user/minecraft', Controllers.renderMinecraftProfile)
+  addUserRoute('/minecraft/register', Controllers.redirectRegister)
+  addUserRoute('/mc/register', Controllers.redirectRegister)
+  addUserRoute('/mc/ranks', Controllers.renderRanks)
+  addUserRoute('/mc/chat', Controllers.renderServerChat)
 
   // Initialize socket namespace
   SocketPlugins.MinecraftIntegration = { }

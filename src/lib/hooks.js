@@ -1,8 +1,10 @@
 import { User, db } from './nodebb'
+import { buildAdminHeader } from './admin'
 import { getUserPrefix } from './api'
 import Backend from './backend'
 import Config from './config'
 import Views from './views'
+import { getWidgets } from './widgets'
 import async from 'async'
 
 const Hooks = {
@@ -14,7 +16,7 @@ const Hooks = {
     },
     admin: {
       header: {
-        build: Views.buildAdminHeader
+        build: buildAdminHeader
       }
     },
     config: {
@@ -24,7 +26,7 @@ const Hooks = {
       }
     },
     widgets: {
-      getWidgets: Views.getWidgets
+      getWidgets: getWidgets
     },
     post: {
       get (data, next) {
