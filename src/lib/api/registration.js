@@ -24,7 +24,7 @@ export function register (data, next) {
       async.apply(Backend.linkUuidtoUid, id, uid),
 
       // Change the player key.
-      async.apply(resetKey, {uid}),
+      async.apply(resetPlayerKey, {uid, sender: uid}),
 
       // Set prefix
       async.apply(db.setObjectField, `yuuid:${id}`, 'prefix', prefix)
