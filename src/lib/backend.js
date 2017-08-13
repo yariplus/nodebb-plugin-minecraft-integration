@@ -2,7 +2,7 @@ import { db } from './nodebb'
 import Config from './config'
 import { getUUID, getHumanTime, parseMinutesDuration } from './utils'
 import async from 'async'
-import request from 'request'
+
 import winston from 'winston'
 
 const Backend = module.exports = { }
@@ -47,6 +47,9 @@ Backend.getPlayerFromUuid = (uuid, callback) => {
 }
 
 Backend.getUuidFromName = (name, next) => {
+  // Catch pocket names.
+  const pocket = name.split(':')[0] === 'pocket'
+
   // Look in the cache first.
   db.get(`mi:name:${name}`, (err, uuid) => {
     // Return if db error.
@@ -54,6 +57,9 @@ Backend.getUuidFromName = (name, next) => {
 
     // Return if found in cache.
     if (uuid) return next(null, uuid)
+
+    // Return if pocket.
+    if (pocket) return next(new Error('No uuid lookup for pocket accounts.'))
 
     // If not in cache, query Mojang.
     getUUID(name, (err, uuid) => {
@@ -440,13 +446,12 @@ Backend.getServersSids = Backend.getServerSids = (data, next) => {
   })
 }
 
-// ///////////////////////////////////
+// //////////////////////////////////
 // Avatars                         //
-// ///////////////////////////////////
+// //////////////////////////////////
 // mi:avatars                      // SortedSet, value: player name of stored avatar, score: last update time.
 // mi:avatar:{playername}          // String, base64 encoded png.
-// mi:avatar:{playername}:modified // String, ISO Date of last time the image was modified.
-// ///////////////////////////////////
+// //////////////////////////////////
 
 // ACP list
 Backend.getAvatars = (data, next) => {
@@ -469,86 +474,6 @@ Backend.getAvatars = (data, next) => {
       next(err, avatars)
     })
   })
-}
-
-// Get the avatar base64 from the database.
-function getAvatar (name, callback) {
-  // Database keys used.
-  const keyBase = `mi:avatar:${name}`, keyModified = `mi:avatar:${name}:modified`, keySorted = 'mi:avatars'
-
-  // Store a fetched avatar binary as base64 and update fetch time.
-  function storeAvatar (avatar, next) {
-    // Convert buffer to a base64.
-    avatar = avatar.toString('base64')
-
-    // Set base64.
-    db.set(keyBase, avatar, err => {
-      if (err) return next(err)
-
-      return next(null, avatar)
-    })
-
-    // Update the avatar fetch time.
-    db.sortedSetAdd(keySorted, Date.now(), name)
-  }
-
-  // Get fetch time.
-  // If old or null, Fetch avatar and update fetch time.
-  // If different, Set modified.
-  async.parallel({
-    fetchTime: async.apply(db.sortedSetScore, 'mi:avatars', name),
-    base: async.apply(db.get, `mi:avatar:${name}`),
-    modifiedTime: async.apply(db.get, `mi:avatar:${name}:modified`)
-  }, (err, results) => {
-    if (err) return callback(err)
-
-    const fetchTime = results.fetchTime
-    let base = results.base
-    let modifiedTime = results.modifiedTime
-    let buffer
-
-    async.waterfall([
-      next => {
-        if (!fetchTime || !base || !modifiedTime || Date.now() - fetchTime > 1000 * 60 * 10) {
-          fetchAvatar(name, next)
-        } else {
-          next(null, false)
-        }
-      },
-      (_buffer, next) => {
-        if (_buffer) {
-          buffer = _buffer
-          storeAvatar(buffer, next)
-        } else {
-          next(null, base)
-        }
-      },
-      (_base, next) => {
-        if (_base !== base || !modifiedTime) {
-          modifiedTime = new Date().toUTCString()
-          db.set(keyModified, modifiedTime, next)
-          base = _base
-        } else {
-          next()
-        }
-      }
-    ], err => {
-      if (err) return callback(err)
-
-      callback(err, {
-        buffer,
-        base,
-        modified: modifiedTime
-      })
-    })
-  })
-}
-
-Backend.getAvatar = (data, callback) => {
-  // Asserts
-  if (!(data && data.name && typeof data.name === 'string')) return callback(new Error(`Invalid Data passed to getAvatar: ${data}`))
-
-  getAvatar(data.name, callback)
 }
 
 // Get list of avatar names in the database
@@ -601,60 +526,6 @@ Backend.resetAvatars = (data, callback) => {
 }
 
 Backend.setAvatar = data => {
-}
-
-// Gets the avatar from the configured cdn.
-function fetchAvatar (name, next) {
-  async.parallel({
-    url: async.apply(Config.getAvatarUrl, {name}), // The full url for the avatar.
-    id: async.apply(Backend.getUuidFromName, name) // We need this for cdns that use uuids.
-  }, (err, payload) => {
-    if (err) return next(err)
-
-    const url = payload.url.replace('{uuid}', payload.id)
-
-    console.log(`Fetching avatar from CDN: ${url}`)
-
-    async.waterfall([
-      async.apply(request, {url, encoding: null}),
-      async.apply(transform)
-    ], (err, avatar) => {
-      if (err) {
-        console.log(`Could not retrieve skin using the cdn: ${Config.settings.get('avatarCDN')}`)
-        if (Config.settings.get('avatarCDN') === 'mojang') return next(null, Config.steveBuffer)
-        console.log('Defaulting to Mojang skin.')
-        console.log(`Fetching avatar from CDN: http://skins.minecraft.net/MinecraftSkins/${name}.png`)
-
-        // Try Mojang
-        async.waterfall([
-          async.apply(request, {url: `http://skins.minecraft.net/MinecraftSkins/${name}.png`, encoding: null}),
-          (response, body, next) => {
-            Config.cdns['mojang'].transform(body, 32, next)
-          }
-        ], (err, avatar) => {
-          if (err) {
-            console.log("Couldn't connect to Mojang skin server.")
-
-            return next(null, Config.steveBuffer)
-          } else {
-            next(null, new Buffer(avatar))
-          }
-        })
-      } else {
-        next(null, new Buffer(avatar))
-      }
-    })
-  })
-}
-
-function transform (response, body, next) {
-  const cdn = Config.settings.get('avatarCDN')
-
-  if (Config.cdns[cdn] && Config.cdns[cdn].transform) {
-    Config.cdns[cdn].transform(body, Config.settings.get('avatarVariables.size'), next)
-  } else {
-    next(null, body)
-  }
 }
 
 // /////////////////////

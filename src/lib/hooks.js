@@ -3,7 +3,6 @@ import { buildAdminHeader } from './admin'
 import { getUserPrefix } from './api'
 import Backend from './backend'
 import Config from './config'
-import Views from './views'
 import { getWidgets } from './widgets'
 import async from 'async'
 

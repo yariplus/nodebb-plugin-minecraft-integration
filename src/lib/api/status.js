@@ -10,6 +10,11 @@ import { db } from '../nodebb'
 import { getUser } from './users'
 
 export function updateServerStatus (status, next) {
+  if (parseInt(status.sid, 10)) {
+    console.log('CALLED updateServerStatus:')
+    console.dir(status)
+  }
+
   const updateTime = Math.round(Date.now() / 60000) * 60000, sid = status.sid, tps = status.tps
 
   status.isServerOnline = '1'
@@ -24,9 +29,12 @@ export function updateServerStatus (status, next) {
   status.players.forEach(player => {
     if (!player.id) return
     player.id = trimUUID(player.id)
+    if (status.pocket) player.id = 'pocket:' + player.id
   })
 
   async.filter(status.players, (player, next) => {
+    if (status.pocket) return next(true)
+
     // Verify the player has a valid uuid<=>name match.
     Backend.getUuidFromName(player.name, (err, id) => {
       next(err ? false : (player.id === id ? true : false))
@@ -39,6 +47,9 @@ export function updateServerStatus (status, next) {
       async.apply(db.delete, `mi:server:${sid}:players`),
       async.apply(async.each, players, (player, next) => {
         let {name, id, displayName, prefix, suffix, primaryGroup, playtime} = player
+
+        if (!id) return next()
+
         scores.push(0)
         values.push(`${name}:${id}`)
         db.setObject(`yuuid:${id}`, {lastonline: updateTime, name, id, displayName, prefix, suffix, primaryGroup, playtime}, next)
@@ -116,11 +127,27 @@ export function getServerStatus (data, callback) {
 }
 
 export function eventPlayerJoin (data, next) {
-  const {sid, id, name, displayName, prefix, suffix, primaryGroup, playtime } = data
+  const { sid, id, name, displayName, prefix, suffix, primaryGroup, playtime, skin, pocket } = data
 
+  // Required fields.
+  if (!(sid && id && name && displayName)) {
+    next(new Error('Invalid data sent to eventPlayerJoin()'))
+    console.dir(data) // TODO
+    return
+  }
+
+  // Check for proper uuid.
   Backend.getUuidFromName(name, (err, _id) => {
-    if (err || _id !== id) return next(err || new Error('Offline servers not supported.'))
+    // Exit if using an offline name and the server is not pocket.
+    if ((err || _id !== id) && !pocket) return next(err || new Error('Offline servers not supported.'))
 
+    if (pocket) {
+      // Store uuid in the cache.
+      db.set(`mi:name:pocket:${name}`, uuid)
+      db.expire(`mi:name:pocket:${name}`, Config.getPlayerExpiry())
+    }
+
+    // Set lists.
     async.parallel([
       async.apply(db.sortedSetAdd, `mi:server:${sid}:players`, 0, `${name}:${id}`),
       async.apply(db.setObject, `yuuid:${id}`, {id, name, displayName, prefix, suffix, primaryGroup, playtime}),

@@ -1,3 +1,4 @@
+export * from './api/avatars'
 export * from './api/chat'
 export * from './api/players'
 export * from './api/ranks'

@@ -1,22 +1,44 @@
 export function render (data, callback) {
-  data.mapshowlarge = data.mapshowlarge == 'on' ? true : false
+  let {
+    sid,
+    address,
+    mapshowlarge,
+    mapuri,
+    mapplugin,
+    mapx,
+    mapz,
+    mapzoom,
+  } = data
 
-  data.uri = data.mapuri || `http://${data.config.address}:8123/`
+  mapshowlarge = mapshowlarge == 'on' ? true : false
 
-  if (data.mapplugin === 'overviewer') {
-    data.uri += `${data.mapx ? data.mapx : 0}/`
-    data.uri += '64/'
-    data.uri += `${data.mapz ? data.mapz : 0}/`
-    data.uri += `${data.mapzoom ? data.mapzoom : -2}/`
-    data.uri += '0/0/'
+  mapuri = mapuri || `http://${address}:8123/`
+  mapuri = mapuri.slice(-1) === '/' ? mapuri : `${mapuri}/`
+
+  if (mapplugin === 'overviewer') {
+    mapuri += `${mapx ? mapx : 0}/`
+    mapuri += '64/'
+    mapuri += `${mapz ? mapz : 0}/`
+    mapuri += `${mapzoom ? mapzoom : -2}/`
+    mapuri += '0/0/'
   } else {
-    data.uri += '?nopanel=true&hidechat=true&nogui=true'
-    data.uri += (data.mapx ? `&x=${data.mapx}` : '')
-    data.uri += (data.mapz ? `&z=${data.mapz}` : '')
-    data.uri += (data.mapzoom ? `&zoom=${data.mapzoom}` : '')
+    mapuri += '?nopanel=true&hidechat=true&nogui=true'
+    mapuri += (mapx ? `&x=${mapx}` : '')
+    mapuri += (mapz ? `&z=${mapz}` : '')
+    mapuri += (mapzoom ? `&zoom=${mapzoom}` : '')
   }
 
-  data.modalID = `serverstatusmap${data.sid}`
+  let modalID = `serverstatusmap${sid}`
 
-  callback(null, data)
+  callback(null, {
+    sid,
+    address,
+    mapshowlarge,
+    mapuri,
+    mapplugin,
+    mapx,
+    mapz,
+    mapzoom,
+    modalID,
+  })
 }
