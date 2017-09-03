@@ -2,19 +2,17 @@ import async from 'async'
 
 import Config from '../config'
 import Backend from '../backend'
+
 import { sendStatusToUsers, sendPlayerJoinToUsers, sendPlayerQuitToUsers } from '../sockets'
 import { trimUUID, parseVersion, getName } from '../utils'
 import { db } from '../nodebb'
+
+import { storePocketAvatar } from '../avatars'
 
 // TEMP
 import { getUser } from './users'
 
 export function updateServerStatus (status, next) {
-  if (parseInt(status.sid, 10)) {
-    console.log('CALLED updateServerStatus:')
-    console.dir(status)
-  }
-
   const updateTime = Math.round(Date.now() / 60000) * 60000, sid = status.sid, tps = status.tps
 
   status.isServerOnline = '1'
@@ -46,9 +44,14 @@ export function updateServerStatus (status, next) {
     async.waterfall([
       async.apply(db.delete, `mi:server:${sid}:players`),
       async.apply(async.each, players, (player, next) => {
-        let {name, id, displayName, prefix, suffix, primaryGroup, playtime} = player
+        let {name, id, displayName, prefix, suffix, primaryGroup, playtime, skin} = player
 
         if (!id) return next()
+
+        if (status.pocket && skin) {
+          //console.log(`found skin for ${name}`)
+          storePocketAvatar(name, skin)
+        }
 
         scores.push(0)
         values.push(`${name}:${id}`)

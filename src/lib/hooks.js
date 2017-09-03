@@ -70,16 +70,12 @@ const Hooks = {
         })
       },
       create (userData, callback) {
-        console.log(`Setting new user avatar for ${userData.username}`)
-        // var picture = pic
-        // userData['picture'] = picture
-        // userData['uploadedpicture'] = picture
+        // TODO: User creation, check for linked MC name and disallow.
         callback(null, userData)
       },
       profileLinks (links, next) {
         links.push({
           id: 'minecraft',
-          public: true,
           route: 'minecraft',
           icon: 'fa-cube',
           name: 'Minecraft'

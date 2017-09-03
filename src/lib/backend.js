@@ -47,19 +47,15 @@ Backend.getPlayerFromUuid = (uuid, callback) => {
 }
 
 Backend.getUuidFromName = (name, next) => {
-  // Catch pocket names.
-  const pocket = name.split(':')[0] === 'pocket'
+  let key = `mi:name:${name}`
 
   // Look in the cache first.
-  db.get(`mi:name:${name}`, (err, uuid) => {
+  db.getObjectField(key, 'uuid', (err, uuid) => {
     // Return if db error.
     if (err) return next(err)
 
     // Return if found in cache.
     if (uuid) return next(null, uuid)
-
-    // Return if pocket.
-    if (pocket) return next(new Error('No uuid lookup for pocket accounts.'))
 
     // If not in cache, query Mojang.
     getUUID(name, (err, uuid) => {
@@ -67,8 +63,8 @@ Backend.getUuidFromName = (name, next) => {
       if (err) return next(err)
 
       // Store results in the cache.
-      db.set(`mi:name:${name}`, uuid)
-      db.expire(`mi:name:${name}`, Config.getPlayerExpiry())
+      db.setObjectField(key, 'uuid', uuid)
+      db.expire(key, Config.getPlayerExpiry())
 
       // Return the UUID.
       return next(null, uuid)

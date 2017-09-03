@@ -438,7 +438,7 @@ $(() => {
 
   function addPlayer (data) {
     const player = data.player
-    app.parseAndTranslate('partials/playerAvatars', {players: [player]}, $avatar => {
+    app.parseAndTranslate('partials/playerAvatars', {players: [player], pocket: ''}, $avatar => {
       // Loop widgets with a current players display.
       // TODO: Don't select widgets that have avatars turned off.
       $(`[data-widget="mi-status"][data-sid="${data.sid}"], [data-widget="mi-players-grid"][data-sid="${data.sid}"]`).each((i, $widget) => {
