@@ -1,14 +1,36 @@
 import { db, SocketPlugins } from '../nodebb'
 
 import { trimUUID } from '../utils'
+
 import Backend from '../backend'
 import Config from '../config'
-import {
-  eventGetPlayerVotes,
-  PlayerVotes
-} from '../sockets'
+
+import admin from './routes-admin'
+import avatars from './routes-avatars'
+import chat from './routes-chat'
+import players from './routes-players'
+import servers from './routes-servers'
+import user from './routes-user'
 
 let app, middleware, router
+
+export function init (_app, _middleware, _router) {
+  // Add local vars
+  app = _app
+  middleware = _middleware
+  router = _router
+
+  // Initialize socket namespace
+  SocketPlugins.MinecraftIntegration = { }
+
+  // Add routes
+  admin()
+  avatars()
+  chat()
+  players()
+  servers()
+  user()
+}
 
 // Define API Functions
 function callHTTP (method, json, req, res) {
@@ -31,15 +53,6 @@ function callHTTP (method, json, req, res) {
     })
     res.end(response.buffer || new Buffer(response.base, 'base64'), 'binary')
   })
-}
-
-export function init (_app, _middleware, _router) {
-  app = _app
-  middleware = _middleware
-  router = _router
-
-  // Initialize socket namespace
-  SocketPlugins.MinecraftIntegration = { }
 }
 
 export function addAdminRoute (route, controller) {

@@ -1,6 +1,5 @@
 import { SocketPlugins } from './nodebb'
 import { getKey } from './utils'
-import Chat from './chat'
 
 import {
   init,
@@ -11,25 +10,14 @@ import {
 import * as API from './api'
 import * as Backend from './backend'
 import * as Config from './config'
+
 import {
   eventGetPlayerVotes,
   PlayerVotes
 } from './sockets'
 
-import admin from './routes/routes-admin'
-import avatars from './routes/routes-avatars'
-import chat from './routes/routes-chat'
-import players from './routes/routes-players'
-import servers from './routes/routes-servers'
-
 export default function (app, middleware, router) {
   init(app, middleware, router)
-
-  admin()
-  avatars()
-  chat()
-  players()
-  servers()
 
   addToAPI(API.getUsers, 'getUsers', 'users')
   addToAPI(API.getUser, 'getUser', 'users/uuid/:id')
