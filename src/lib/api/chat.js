@@ -1,39 +1,32 @@
-import async from 'async'
-import { db } from '../nodebb'
-import {
-  sendPlayerChatToUsers,
-  sendWebChatToServer
-} from '../sockets'
+import { async, db } from '../nodebb'
 
+import { sendWebChatToServer } from '../sockets'
+import { createPlayerChat } from '../chat'
+
+// TODO: This is essentially the same as the below, but it should send the chat to the server and get a callback before sending to users.
 export function eventWebChat (socket, data, next) {
-  if (!(data && data.sid && data.name && data.message)) return next()
+  // Assert parameters.
+  if (!(data && data.sid && data.id && data.name && data.message)) return next()
 
-  const name = data.name, message = data.message, sid = data.sid
+  let { sid, id, name, message, date } = data
 
-  db.increment(`mi:server:${sid}:cid`, (err, cid) => {
-    db.sortedSetAdd(`mi:server:${sid}:cid:time`, Date.now(), cid, err => {
-      // TODO: Remove '[WEB]', add variable check.
-      db.setObject(`mi:server:${sid}:chat:${cid}`, {name: `[WEB] ${name}`, message}, err => {
-        sendPlayerChatToUsers({sid, chat: {name: `[WEB] ${name}`, message}})
-        sendWebChatToServer({sid, chat: {name, message}})
-        next()
-      })
-    })
-  })
+  date = date || Date.now()
+
+  sendWebChatToServer({sid, chat: {name, message}})
+
+  createPlayerChat(sid, 'uuid', name, message, date, next)
 }
 
 export function eventPlayerChat (data, next) {
   // Assert parameters.
-  if (!(data && data.id && data.name && data.message)) return next()
+  if (!(data && data.sid && data.id && data.name && data.message)) return next()
 
-  const name = data.name, id = data.id, message = data.message, sid = data.sid
+  let { sid, id, name, message, date } = data
 
-  db.increment(`mi:server:${sid}:cid`, (err, cid) => {
-    db.sortedSetAdd(`mi:server:${sid}:cid:time`, Date.now(), cid, err => {
-      db.setObject(`mi:server:${sid}:chat:${cid}`, {name, message}, err => {
-        sendPlayerChatToUsers({sid, chat: {name, message}})
-        next()
-      })
-    })
-  })
+  // TODO: Need to get the date added to the minecraft plugin.
+  date = date || Date.now()
+
+  // TODO: Need to set the DisplayName for chat messages.
+
+  createPlayerChat(sid, id, name, message, date, next)
 }

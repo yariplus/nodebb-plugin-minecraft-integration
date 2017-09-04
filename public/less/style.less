@@ -288,21 +288,30 @@
   }
 
   &[data-widget="mi-chat"] {
-    div {
-      height: 100px;
-      max-height: 200px;
-      overflow-y: scroll;
+    border: 3px lightgray ridge;
+
+    .mi-chat-box {
+      min-height: 100px;
+      height: 120px;
+      max-height: 800px;
       width: 100%;
-      border: 1px inset #808080;
+      overflow-y: auto;
+      overflow-wrap: break-word;
+      hyphens: auto;
+      border-bottom: 3px lightgray ridge;
+      resize: vertical;
     }
-    input {
-      width: 100%;
+    input.mi-chat-input {
+      display: inline-block;
+      width: ~"calc(100% - 70px)";
     }
-    td {
-      padding: 1px;
-    }
-    td+td {
-      width: 1px;
+    button.mi-chat-send {
+      width: 70px;
+      max-width: 70px;
+      position: absolute;
+      right: 0;
+      display: inline-block;
+      overflow: hidden;
     }
   }
 }

@@ -1,8 +1,7 @@
-import { SocketIO } from './nodebb'
+import { async, SocketIO } from './nodebb'
 import Config from './config'
 import Backend from './backend'
 import { noop } from './utils'
-import async from 'async'
 
 // Gets the socket of the passed in Server ID if it is connected.
 export function getMinecraftSocket (data, next) {

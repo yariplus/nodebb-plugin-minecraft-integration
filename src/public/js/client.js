@@ -28,47 +28,32 @@ $(() => {
   }
 
   function prepareChat (widget) {
-    socket.emit('plugins.MinecraftIntegration.getChat', {sid: widget.sid}, (err, data) => {
-      if (err || !data) {
-        log('Bad chat data.')
-        console.log(err)
-        return
-      }
-      const $chatwidget = widget.el
-      const $chatbox = $chatwidget.find('div')
+    const $chatwidget = widget.el
+    const $chatbox = $chatwidget.find('.mi-chat-box')
+    const $chatinput = $chatwidget.find('.mi-chat-input')
+    const $chatsend = $chatwidget.find('.mi-chat-send')
 
-      for (const i in data.chats) {
-        $chatbox.append(`<span>${data.chats[i].name}: ${data.chats[i].message}</span><br>`)
-      }
+    const sid = $chatwidget.attr('data-sid')
+    const name = app.user.username
 
-      $chatwidget.find('button').click(function (e) {
-        if (app.user.uid === 0) return
+    $chatbox.scrollTop(100000)
 
-        const $this = $(this)
+    function sendChat () {
+      if (app.user.uid === 0) return
 
-        const chatData = {
-          sid: $chatwidget.attr('data-sid'),
-          name: app.user.username,
-          message: $this.parent().prev().children('input').val()
-        }
+      const message = $chatinput.val()
 
-        socket.emit('plugins.MinecraftIntegration.eventWebChat', chatData)
+      const chatData = {sid, id: 'uuid', date: Date.now(), name, message}
 
-        log('Sending chat: ', chatData)
-        $this.parent().prev().children('input').val('')
-      })
+      socket.emit('plugins.MinecraftIntegration.eventWebChat', chatData)
 
-      $chatwidget.find('input').keyup(function (e) {
-        if (app.user.uid === 0) return
-        if (parseInt(e.keyCode, 10) === 13) {
-          const $this = $(this)
+      $chatinput.val('')
+    }
 
-          socket.emit('plugins.MinecraftIntegration.eventWebChat', {sid: $chatwidget.attr('data-sid'), name: app.user.username, message: $this.val()})
-          $this.val('')
-        }
-      })
+    $chatwidget.find('.mi-chat-send').click(sendChat)
 
-      $chatbox.scrollTop(100000)
+    $chatwidget.find('input').keyup(e => {
+      if (parseInt(e.keyCode, 10) === 13) sendChat()
     })
   }
 
@@ -309,8 +294,8 @@ $(() => {
     $(`[data-widget="mi-chat"][data-sid="${data.sid}"]`).each((i, $widget) => {
       $widget = $($widget)
 
-      $widget.find('div').append(`<span>${data.chat.name}: ${data.chat.message}</span><br>`)
-      $widget.find('div').scrollTop(100000)
+      $widget.find('.mi-chat-box').append(`<span>${data.chat.name}: ${data.chat.message}</span><br>`)
+      $widget.find('.mi-chat-box').scrollTop(100000)
     })
   }
 

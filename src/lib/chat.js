@@ -1,17 +1,33 @@
-import { db } from './nodebb'
-import async from 'async'
-const Chat = module.exports = {}
+import { async, db } from './nodebb'
 
-Chat.getChat = (data, next) => {
-  const sid = data.sid, amount = (data.chats ? data.chats : 15) * -1
+import { sendPlayerChatToUsers } from './sockets'
 
-  db.getSortedSetRange(`mi:server:${sid}:cid:time`, amount, -1, (err, cids) => {
-    async.map(cids, (cid, next) => {
-      next(null, `mi:server:${sid}:chat:${cid}`)
+export function getChat (sid, amount, next) {
+  // Gets the highest (most recent) chats.
+  db.getSortedSetRevRange(`mi:server:${sid}:chat`, 0, amount, (err, dates) => {
+    if (err) return console.log(err)
+
+    async.map(dates, (date, next) => {
+      next(null, `mi:server:${sid}:chat:${date}`)
     }, (err, keys) => {
+      keys.reverse()
+
       db.getObjects(keys || [], (err, chats) => {
         next(null, {sid, chats})
       })
     })
+  })
+}
+
+export function createPlayerChat (sid, uuid, name, message, date, next) {
+  async.waterfall([
+    async.apply(db.sortedSetAdd, `mi:server:${sid}:chat`, date, date),
+    async.apply(db.setObject, `mi:server:${sid}:chat:${date}`, {name, message, date}),
+  ], err => {
+    if (err) return next(err)
+console.log(`set mi:server:${sid}:chat:${date}`)
+    sendPlayerChatToUsers({sid, chat: {name, message}})
+
+    next(err)
   })
 }
