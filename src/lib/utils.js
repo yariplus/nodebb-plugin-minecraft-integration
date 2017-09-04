@@ -84,7 +84,7 @@ export const getPingStampsByRange = (start, stop, trim, next) => {
 }
 
 export const getUUID = (name, next) => {
-  console.log(`Fetching UUID for ${name}`)
+  console.log(`Fetching UUID for name: ${name}`)
   request({url: `https://api.mojang.com/users/profiles/minecraft/${name}`, json: true}, (err, response, body) => {
     if (!err && response.statusCode == 200) {
       next(null, body.id)
@@ -95,7 +95,7 @@ export const getUUID = (name, next) => {
 }
 
 export const getName = (id, next) => {
-  console.log(`Fetching Name for ${id}`)
+  console.log(`Fetching Name for uuid: ${id}`)
   request({url: `https://sessionserver.mojang.com/session/minecraft/profile/${id}`, json: true}, (err, response, body) => {
     if (err) return next(err)
     if (response.statusCode == 200) {

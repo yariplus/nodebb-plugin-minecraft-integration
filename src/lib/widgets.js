@@ -25,7 +25,11 @@ export const init = _app => (app = _app)
 function render (processWidget, type, widget, callback) {
   async.waterfall([
     async.apply(formatWidget, widget.data),
-    async.apply(processWidget)
+    (data, next) => {
+      data.uid = widget.uid
+      next(null, data)
+    },
+    async.apply(processWidget),
   ], (err, data) => {
     if (err) return callback()
 
@@ -35,6 +39,7 @@ function render (processWidget, type, widget, callback) {
   })
 }
 
+// TODO: Only add required fields.
 function formatWidget (data, callback) {
   // API checks for invalid SIDs.
   getServerStatus({sid: data.sid}, (err, status) => {
@@ -64,6 +69,8 @@ function formatWidget (data, callback) {
 
     data.config = data.config || {}
     data.config.relative_path = nconf.get('relative_path')
+
+    data.pocket = data.pocket ? 'pocket' : ''
 
     callback(null, data)
   })

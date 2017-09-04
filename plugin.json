@@ -41,7 +41,8 @@
     { "hook": "filter:user.account",                   "method": "Hooks.filter.user.account" },
     { "hook": "filter:config.get",                     "method": "Hooks.filter.config.get" },
     { "hook": "filter:group.update",                   "method": "Hooks.filter.group.update" },
-    { "hook": "action:group.destroy",                  "method": "Hooks.action.group.destroy" }
+    { "hook": "action:group.destroy",                  "method": "Hooks.action.group.destroy" },
+    { "hook": "filter:middleware.renderHeader",        "method": "Hooks.filter.middleware.renderHeader" }
   ],
   "templates": "public/templates",
   "staticDirs": {

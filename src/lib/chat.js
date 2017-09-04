@@ -25,7 +25,7 @@ export function createPlayerChat (sid, uuid, name, message, date, next) {
     async.apply(db.setObject, `mi:server:${sid}:chat:${date}`, {name, message, date}),
   ], err => {
     if (err) return next(err)
-console.log(`set mi:server:${sid}:chat:${date}`)
+
     sendPlayerChatToUsers({sid, chat: {name, message}})
 
     next(err)

@@ -11,7 +11,7 @@ export function getAvatar (data, callback) {
   let { name, size } = data
 
   size = parseInt(size, 10) || 64
-
+console.log(`API.getAvatar of ${name}`)
   getAvatarBase(name, callback)
 }
 

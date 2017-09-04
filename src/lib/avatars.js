@@ -10,6 +10,7 @@ import Config from './config'
 
 // Get the avatar base64 from the database.
 export function getAvatarBase (name, callback) {
+  console.log(`getting avatar base of ${name}`)
 
   // Database keys used.
   const keyBase = `mi:avatar:${name}`
@@ -135,6 +136,7 @@ export function storePocketAvatar (name, base) {
 
 // Gets the avatar from the configured cdn.
 function fetchAvatar (name, next) {
+  console.log(`getting avatar of ${name}`)
   async.parallel({
     url: async.apply(Config.getAvatarUrl, {name}), // The full url for the avatar.
     id: async.apply(Backend.getUuidFromName, name) // We need this for cdns that use uuids.

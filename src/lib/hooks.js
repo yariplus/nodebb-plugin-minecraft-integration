@@ -1,6 +1,6 @@
 import { User, db } from './nodebb'
 import { buildAdminHeader } from './admin'
-import { getUserPrefix } from './api'
+import { getUserPrefix, getUserLinkedPlayers } from './api'
 import Backend from './backend'
 import Config from './config'
 import { getWidgets } from './widgets'
@@ -89,7 +89,25 @@ const Hooks = {
       update (data, next) {
         next(null, data)
       }
-    }
+    },
+    middleware: {
+      renderHeader (data, next) {
+        getUserLinkedPlayers(data.templateValues.user.uid, (err, players) => {
+          if (!err && players) {
+            data.templateValues.user.players = players
+
+            players.forEach(player => data.templateValues.user.player = player.isPrimary ? player : data.templateValues.user.player)
+
+            data.templateValues.userJSON = JSON.stringify(data.templateValues.user)
+          } else {
+            data.templateValues.user.players = []
+            JSON.stringify(data.templateValues.user)
+          }
+
+          next(err, data)
+        })
+      },
+    },
   },
   action: {
     user: {

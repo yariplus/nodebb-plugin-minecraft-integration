@@ -47,6 +47,7 @@ Backend.getPlayerFromUuid = (uuid, callback) => {
 }
 
 Backend.getUuidFromName = (name, next) => {
+  console.log(`Looking for uuid of ${name}`)
   let key = `mi:name:${name}`
 
   // Look in the cache first.
