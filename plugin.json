@@ -7,9 +7,6 @@
   "less": [
     "public/less/style.less"
   ],
-  "css": [
-    "public/vendor/rickshaw.min.css"
-  ],
   "scripts": [
     "public/js/client.js"
   ],

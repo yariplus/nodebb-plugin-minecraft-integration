@@ -1,15 +1,4 @@
 /* globals app, ajaxify, config, requirejs, socket, $ */
-((() => {
-  // Require vendor libs, copied from Mega.
-  const rjsConfig = requirejs.s.contexts._.config
-  const pluginPath = '../../plugins/nodebb-plugin-minecraft-integration/'
-  const registerAMD = (name, path) => {
-    if (!rjsConfig.paths[name]) rjsConfig.paths[name] = pluginPath + path
-  }
-  registerAMD('moment', 'vendor/moment')
-  registerAMD('d3', 'vendor/d3.min')
-  registerAMD('rickshaw', 'vendor/rickshaw.min')
-})())
 
 $(() => {
   console.log('Loading Minecraft Integration...')
@@ -70,36 +59,7 @@ $(() => {
   }
 
   function preparePlayersGraph (widget) {
-    log('PREPARING PLAYERS GRAPH')
-
-    socket.emit('plugins.MinecraftIntegration.getRecentPings', {sid: widget.sid}, (err, pings) => {
-      let data = pings.map(ping => { return {x: ping.timestamp, y: ping.players.length} })
-      let times = {}
-      pings.forEach(ping => { times[ping.timestamp] = {players: ping.players} })
-
-      require(['rickshaw'], Rickshaw => {
-        widget.graph = new Rickshaw.Graph({
-          element: widget.el[0],
-          renderer: 'bar',
-          min: 0,
-          max: 10,
-          gapSize: 0.05,
-          series: [{
-            data: data,
-            color: 'steelblue'
-          }]
-        })
-        widget.graph.render()
-        let hoverDetail = new Rickshaw.Graph.HoverDetail({
-          graph: widget.graph,
-          formatter: function (series, x, y) {
-            return times[x].players.length
-          }
-        })
-
-        charts.push(widget.graph)
-      })
-    })
+    // log('PREPARING PLAYERS GRAPH')
   }
 
   function preparePlayersGrid (widget) {
@@ -317,12 +277,6 @@ $(() => {
         // Re-wrap
         $widget = $($widget)
 
-        // Update Icon Time
-        const updateTime = data.updateTime || Date.now()
-        $widget.find('.mc-statusicon')
-          .attr('data-original-title', moment(parseInt(updateTime, 10)).format('MMM Do h:mma'))
-          .attr('data-title', moment(parseInt(updateTime, 10)).format('MMM Do h:mma'))
-
         // Loop avatars and remove players no longer on the server.
         $widget.find('.mi-avatar').each((ignored, el) => {
           // Re-wrap
@@ -480,6 +434,9 @@ $(() => {
     if ($avatars.length === 0) return
     if ($widget.is(':not([data-colors="on"])')) return
 
+    // TODO: Gradient effects.
+    return
+
     const rainbow = getRainbow($widget, $avatars.length > 1 ? $avatars.length - 1 : $avatars.length)
 
     if (!rainbow) return
@@ -538,24 +495,6 @@ $(() => {
   })())
 
   function resizeEnd () {
-    console.log('resizing')
-    require(['rickshaw'], Rickshaw => {
-      for (let sid in servers) {
-        for (let wid in servers[sid]) {
-          let widget = servers[sid][wid]
-          const h = widget.el.data('height-ratio')
-          if (h) widget.el.height(widget.el.width() * parseFloat(widget.el.data('height-ratio')))
-
-          if (widget.graph) {
-            widget.graph.configure({
-              width: widget.el.width(),
-              height: widget.el.height()
-            })
-            widget.graph.render()
-          }
-        }
-      }
-    })
   }
 
   // Vault Prefixes
