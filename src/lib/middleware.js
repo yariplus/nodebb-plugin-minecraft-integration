@@ -1,5 +1,9 @@
 import { getSidUsingAPIKey } from './servers'
 
+import { db } from './nodebb'
+
+import winston from 'winston'
+
 export function writeAPI (req, res, next) {
   const { key } = req.body
 
@@ -20,7 +24,7 @@ export function writeSocket (socket, data, next) {
   if (!key) return next(new Error('No API key.'))
 
   // TODO: Proper logger.
-  // Log.info('Write API connection attempt with key ' + data.key)
+  winston.info(`Write API connection attempt with API key: ${key}`)
 
   getSidUsingAPIKey(key, (err, sid) => {
     if (err) return next(new Error('Invalid API key.'))

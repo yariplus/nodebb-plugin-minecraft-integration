@@ -6,7 +6,16 @@ import { async, db } from '../nodebb'
 
 import { storePocketAvatar } from '../avatars'
 
-import { getAllServersStatus, getServerStatus, getServerPings } from '../servers'
+import {
+  getAllServersStatus,
+  getServerStatus,
+  getServerPings,
+  updateServerStatus,
+} from '../servers'
+
+import {
+  getUuidFromName,
+} from '../players'
 
 // TEMP
 import { getUser } from '../users'
@@ -58,7 +67,10 @@ function icon (req, res) {
   })
 }
 
-function writeServerStatus (data, next) {
+function writeServerStatus (status, next) {
+  console.log('Got server status:')
+  console.dir(status)
+
   const updateTime = Math.round(Date.now() / 60000) * 60000, sid = status.sid, tps = status.tps
 
   status.isServerOnline = '1'
@@ -80,7 +92,7 @@ function writeServerStatus (data, next) {
     if (status.pocket) return next(true)
 
     // Verify the player has a valid uuid<=>name match.
-    Backend.getUuidFromName(player.name, (err, id) => {
+    getUuidFromName(player.name, (err, id) => {
       next(err ? false : (player.id === id ? true : false))
     })
   }, players => {
@@ -106,9 +118,9 @@ function writeServerStatus (data, next) {
       async.apply(db.sortedSetAdd, `mi:server:${sid}:players`, scores, values)
     ], (err) => {
       if (err) return next(err)
-      Backend.updateServerStatus(status, err => {
+      updateServerStatus(status, err => {
         if (err) return next(err)
-        getServerStatus({sid: status.sid}, (err, status) => {
+        getServerStatus(status.sid, (err, status) => {
           if (err) return next(err)
           sendStatusToUsers(status)
           next()

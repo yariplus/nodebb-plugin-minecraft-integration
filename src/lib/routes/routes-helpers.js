@@ -91,7 +91,6 @@ export function addWriteAPIRoute (route, controller) {
 
 export function addWriteSocketRoute (name, method) {
   SocketPlugins.MinecraftIntegration[name] = function (socket, data, next) {
-    this.method = method
-    Middleware.writeSocket.call(this, socket, data, next)
+    Middleware.writeSocket.call({method}, socket, data, next)
   }
 }

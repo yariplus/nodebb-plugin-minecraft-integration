@@ -211,7 +211,7 @@ export function getServersConfig (data, next) {
 export function getServerConfig (sid, next) {
   db.getObject(`mi:server:${sid}:config`, (err, config) => {
     if (err) return next(err)
-    if (!config) return next(new Error(`getServerConfig() invalid SID: ${data.sid}`))
+    if (!config) return next(new Error(`getServerConfig() invalid SID: ${sid}`))
 
     config.sid = sid
 
@@ -228,7 +228,7 @@ export function setServerConfig (config, next) {
 export function getSidUsingAPIKey (key, next) {
   let payload = null
 
-  getServerConfig({}, (err, configs) => {
+  getServersConfig({}, (err, configs) => {
     if (err) return next(err)
 
     configs.forEach(config => {

@@ -24,5 +24,5 @@ export default function () {
 
   addPageRoute('server/:sid/plugins', plugins)
 
-  addWriteRoute('server', 'writeServerStatus', writeServerStatus)
+  addWriteRoute('server', 'eventStatus', writeServerStatus)
 }
