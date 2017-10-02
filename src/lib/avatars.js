@@ -1,8 +1,10 @@
 // Avatars Model
 
-import request from 'request'
-
-import { db, async } from './nodebb'
+import {
+  async,
+  db,
+  request,
+} from './nodebb'
 
 import { getUuidFromName, } from './players'
 

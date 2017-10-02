@@ -1,6 +1,11 @@
 // import './lib/analytics'
 
-import { emitter, db } from './lib/nodebb'
+import {
+  async,
+  emitter,
+  db,
+  nconf,
+} from './lib/nodebb'
 
 import Admin from './lib/admin'
 import Config from './lib/config'
@@ -8,11 +13,8 @@ import { getKey } from './lib/utils'
 import Updater from './lib/updater'
 import Routes from './lib/routes'
 
-import async from 'async'
 import fs from 'fs'
 import path from 'path'
-
-const nconf = require.main.require('nconf')
 
 import * as Widgets from './lib/widgets'
 import Hooks from './lib/hooks'

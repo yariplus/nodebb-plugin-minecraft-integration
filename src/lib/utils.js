@@ -1,5 +1,11 @@
-import request from 'request'
+// Utilities
+
+import {
+  request,
+} from './nodebb'
+
 import crypto from 'crypto'
+
 import humanize from 'humanize-duration'
 
 const styleResets = 'display:inline-block; font-style: normal; text-decoration: none; font-weight: normal;'

@@ -30,14 +30,7 @@
   "readme": "",
   "readmeFilename": "README.md",
   "dependencies": {
-    "async": "~1.5.0",
-    "humanize-duration": "^3.7.1",
-    "jimp": "0.2.21",
-    "keen-js": "3.4.0",
-    "nconf": "*",
-    "request": "^2.44.0",
-    "validator": "^4.2.1",
-    "winston": "^2.1.0"
+    "humanize-duration": "^3.7.1"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",

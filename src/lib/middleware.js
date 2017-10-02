@@ -1,10 +1,11 @@
 import { getSidUsingAPIKey } from './servers'
 
-import { db } from './nodebb'
+import {
+  db,
+  winston,
+} from './nodebb'
 
 import { trimUUID } from './utils'
-
-import winston from 'winston'
 
 export function writeAPI (req, res, next) {
   const { key } = req.body

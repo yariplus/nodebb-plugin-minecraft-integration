@@ -1,6 +1,14 @@
 // TODO: This module sucks.
 
-import { Settings } from './nodebb'
+import {
+  jimp,
+  request,
+  Settings,
+} from './nodebb'
+
+import Utils from './utils'
+
+import util from 'util'
 
 // Nearest-neighbour algorithm.
 function resize (image, width, height, next) {
@@ -124,12 +132,6 @@ const Config = module.exports = {
     }
   }
 }
-
-import NodeBB from './nodebb'
-import Utils from './utils'
-import jimp from 'jimp'
-import util from 'util'
-import request from 'request'
 
 const defaultSettings = {
   'avatarCDN': 'mojang',

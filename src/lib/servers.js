@@ -3,6 +3,7 @@
 import {
   async,
   db,
+  winston,
 } from './nodebb'
 
 import {

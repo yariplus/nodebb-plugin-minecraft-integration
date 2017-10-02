@@ -1,4 +1,4 @@
-// Admin model
+// TODO: Move to controllers.
 
 import {
   deleteUser,
@@ -23,15 +23,13 @@ import {
 } from './players'
 
 import {
+  winston,
   SocketAdmin
 } from './nodebb'
 
 import {
   getAvatarCDN,
 } from './config'
-
-// ??
-import winston from 'winston'
 
 export default function () {
   // Settings

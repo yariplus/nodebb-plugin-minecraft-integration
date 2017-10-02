@@ -1,4 +1,13 @@
-import { db, pubsub } from './nodebb'
+// Updater Model
+// Check status of servers and cached items.
+
+import {
+  async,
+  nconf,
+  db,
+  pubsub,
+  winston,
+} from './nodebb'
 
 import {
   updateServerStatus,
@@ -17,9 +26,6 @@ import {
 } from './sockets'
 
 import { getName } from './utils'
-import async from 'async'
-import winston from 'winston'
-import nconf from 'nconf'
 
 let updateTime = 0
 let scheduler
