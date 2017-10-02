@@ -1,9 +1,11 @@
-import { addAdminRoute } from './routes-helpers'
+import {
+  addAdminRoute,
+} from './routes-helpers'
 
 import {
   renderAdminPage,
   renderServerEditor,
-} from '../controllers'
+} from '../controllers/controllers-admin'
 
 export default function () {
   addAdminRoute('/admin/plugins/minecraft-integration', renderAdminPage)

@@ -1,7 +1,0 @@
-export * from './api/avatars'
-export * from './api/chat'
-export * from './api/players'
-export * from './api/ranks'
-export * from './api/registration'
-export * from './api/status'
-export * from './api/users'

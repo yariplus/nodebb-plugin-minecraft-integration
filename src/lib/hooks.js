@@ -1,7 +1,8 @@
 import { User, db } from './nodebb'
 import { buildAdminHeader } from './admin'
-import { getUserPrefix, getUserLinkedPlayers } from './api'
-import Backend from './backend'
+
+import { getPrefixByUid, getPlayersByUid } from './players'
+
 import Config from './config'
 import { getWidgets } from './widgets'
 import async from 'async'
@@ -52,7 +53,7 @@ const Hooks = {
         async.each(data.templateData.posts, (post, next) => {
           if (!(post && post.user && post.user.uid && data.templateData.prefixes[post.user.uid] === void 0)) return next()
 
-          getUserPrefix(post.user.uid, (err, prefix) => {
+          getPrefixByUid(post.user.uid, (err, prefix) => {
             data.templateData.prefixes[post.user.uid] = prefix
             next()
           })
@@ -64,7 +65,7 @@ const Hooks = {
     user: {
       account (data, callback) {
         if (!Config.settings.get('showPrefixes')) return callback(null, data)
-        getUserPrefix(data.userData.uid, (err, prefix) => {
+        getPrefixByUid(data.userData.uid, (err, prefix) => {
           data.userData.prefix = prefix
           callback(null, data)
         })
@@ -92,7 +93,7 @@ const Hooks = {
     },
     middleware: {
       renderHeader (data, next) {
-        getUserLinkedPlayers(data.templateValues.user.uid, (err, players) => {
+        getPlayersByUid(data.templateValues.user.uid, (err, players) => {
           if (!err && players) {
             data.templateValues.user.players = players
 

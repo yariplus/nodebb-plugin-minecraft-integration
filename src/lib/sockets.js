@@ -1,13 +1,21 @@
 import { async, SocketIO } from './nodebb'
 import Config from './config'
-import Backend from './backend'
+
+import {
+  getUser,
+} from './users'
+
+import {
+  getServerConfig,
+} from './servers'
+
 import { noop } from './utils'
 
 // Gets the socket of the passed in Server ID if it is connected.
 export function getMinecraftSocket (data, next) {
   const { sid } = data
 
-  Backend.getServerConfig({sid}, (err, config) => {
+  getServerConfig(sid, (err, config) => {
     if (err) return next(err)
 
     const { socketid } = config
@@ -77,11 +85,11 @@ export function PlayerVotes (data, next) {
 
   const name = data.name, votes = data.votes, sid = data.sid
 
-  Backend.getUser({name}, (err, user) => {
+  // TODO
+  getUserFromName(name, (err, user) => {
     if (err) console.log(err)
     if (user) {
-      console.log('Got user')
-      console.dir(user)
+      console.log(`Got user named ${name}`)
       SocketIO.in(`uid_${user.uid}`).emit('mi.PlayerVotes', votes)
     }
   })

@@ -1,18 +1,28 @@
-import { addToAPI } from './routes-helpers'
+import {
+  addPageRoute,
+  addWriteRoute,
+} from './routes-helpers'
 
-import * as Backend from '../backend'
-
-import { getServerStatus } from '../api'
+import {
+  list,
+  status,
+  pings,
+  icon,
+  plugins,
+  writeServerStatus,
+} from '../controllers/controllers-servers'
 
 export default function () {
-  addToAPI(Backend.getServers, 'getServers', 'servers')
+  addPageRoute('servers', list)
 
-  addToAPI(getServerStatus, 'getServerStatus', 'server/:sid')
+  addPageRoute('server/:sid', status)
 
-  addToAPI(Backend.getRecentPings, 'getRecentPings', 'server/:sid/pings')
-  addToAPI(Backend.getRecentPings, 'getRecentPings', 'server/:sid/pings/:last')
+  addPageRoute('server/:sid/pings', pings)
+  addPageRoute('server/:sid/pings/:last', pings)
 
-  addToAPI(Backend.getServerIcon, 'getServerIcon', 'server/:sid/icon', 'Buffer')
+  addPageRoute('server/:sid/icon', icon)
 
-  addToAPI(Backend.getServerPlugins, 'getServerPlugins', 'server/:sid/plugins')
+  addPageRoute('server/:sid/plugins', plugins)
+
+  addWriteRoute('server', 'writeServerStatus', writeServerStatus)
 }

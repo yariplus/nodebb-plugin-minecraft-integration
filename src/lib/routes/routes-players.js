@@ -1,10 +1,16 @@
-import { addToAPI } from './routes-helpers'
+import { addPageRoute, addSocketRoute } from './routes-helpers'
 
-import * as API from '../api'
+import {
+  player,
+  seen,
+  user,
+} from '../controllers/controllers-players'
 
 export default function () {
-  addToAPI(API.getPlayers, 'getPlayers', 'players')
-  addToAPI(API.getPlayer, 'getPlayer', 'players/name/:name')
-  addToAPI(API.getPlayer, 'getPlayer', 'players/uuid/:id')
-  addToAPI(API.getPlayer, 'getUserPlayers', 'players/uid/:uid')
+  addPageRoute('players/seen/:time', seen)
+  addPageRoute('players/name/:name', player)
+  addPageRoute('players/uuid/:id', player)
+  addPageRoute('players/uid/:uid', user)
+
+  //addSocketRoute(API.getPlayerPrefix, 'getPlayerPrefix', 'players/name/:name/prefix')
 }

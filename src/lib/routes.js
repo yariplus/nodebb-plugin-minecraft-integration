@@ -3,57 +3,51 @@ import { getKey } from './utils'
 
 import {
   init,
-  addToAPI,
-  addToWriteAPI,
+  addAdminRoute,
+  addPageRoute,
+  addRoute,
+  addAPIRoute,
+  addSocketRoute,
+  addProfileRoute,
+  addWriteAPIRoute,
+  addWriteSocketRoute,
 } from './routes/routes-helpers'
 
-import * as API from './api'
-import * as Backend from './backend'
+import * as Controllers from './controllers'
 import * as Config from './config'
 
 import {
   eventGetPlayerVotes,
-  PlayerVotes
+  PlayerVotes,
 } from './sockets'
 
 export default function (app, middleware, router) {
   init(app, middleware, router)
 
-  addToAPI(API.getUsers, 'getUsers', 'users')
-  addToAPI(API.getUser, 'getUser', 'users/uuid/:id')
-  addToAPI(API.getUser, 'getUser', 'users/name/:name')
+  //addSocketRoute('getSettings', Controllers.getSettings)
 
-  addToAPI(API.resetPlayerKey, 'resetPlayerKey', 'users/reset/:uid')
+  // addToAPI(API.getUserPrefix, 'getUserPrefix', 'users/uid/:uid/prefix')
 
-  addToAPI(Config.getSettings, 'getSettings', 'settings')
-  addToAPI(Config.getSettings, 'getSettings', 'settings/:key')
+  // addToAPI(Config.getAvatarUrl, 'getAvatarUrl', 'avatar')
 
-  addToAPI(API.getPlayerPrefix, 'getPlayerPrefix', 'players/name/:name/prefix')
-  addToAPI(API.getUserPrefix, 'getUserPrefix', 'users/uid/:uid/prefix')
+  // addToAPI(getKey, 'getKey', 'key')
 
-  addToAPI(Config.getAvatarUrl, 'getAvatarUrl', 'avatar')
+  // addToAPI(Backend.getPlaytimes, 'getPlaytimes', 'playtimes')
+  // addToAPI(Backend.getTopPlayersByPlaytimes, 'getTopPlayersByPlaytimes', 'playtimes/top')
+  // addToAPI(Backend.getTopPlayersByPlaytimes, 'getTopPlayersByPlaytimes', 'playtimes/top/:show')
 
-  addToAPI(getKey, 'getKey', 'key')
+  // addToWriteAPI(Controllers.eventPlayerChat, 'eventPlayerChat', 'chat/:id/:name/:message')
+  // addToWriteAPI(Controllers.eventPlayerJoin, 'eventPlayerJoin', 'join/:id/:name')
+  // addToWriteAPI(Controllers.eventPlayerQuit, 'eventPlayerQuit', 'quit/:id/:name')
+  // addToWriteAPI(Controllers.writeOfflinePlayers, 'writeOfflinePlayers', 'offlineplayers')
+  // addToWriteAPI(Controllers.writeRanks, 'writeRanks', 'ranks')
+  // addToWriteAPI(Controllers.writeRanksWithMembers, 'writeRanksWithMembers', 'ranks-with-members')
 
-  addToAPI(Backend.getPlaytimes, 'getPlaytimes', 'playtimes')
-  addToAPI(Backend.getTopPlayersByPlaytimes, 'getTopPlayersByPlaytimes', 'playtimes/top')
-  addToAPI(Backend.getTopPlayersByPlaytimes, 'getTopPlayersByPlaytimes', 'playtimes/top/:show')
+  // addToWriteAPI(API.register, 'commandRegister')
 
-  // Write API
-  addToWriteAPI(API.updateServerStatus, 'eventStatus', 'status')
-
-  addToWriteAPI(API.eventPlayerChat, 'eventPlayerChat', 'chat/:id/:name/:message')
-  addToWriteAPI(API.eventPlayerJoin, 'eventPlayerJoin', 'join/:id/:name')
-  addToWriteAPI(API.eventPlayerQuit, 'eventPlayerQuit', 'quit/:id/:name')
-  addToWriteAPI(API.writeOfflinePlayers, 'writeOfflinePlayers', 'offlineplayers')
-  addToWriteAPI(API.writeRanks, 'writeRanks', 'ranks')
-  addToWriteAPI(API.writeRanksWithMembers, 'writeRanksWithMembers', 'ranks-with-members')
-
-  addToWriteAPI(API.register, 'commandRegister')
-
-  addToWriteAPI(PlayerVotes, 'PlayerVotes')
+  // addToWriteAPI(PlayerVotes, 'PlayerVotes')
 
   // Request API
-  SocketPlugins.MinecraftIntegration.eventWebChat = API.eventWebChat
-  SocketPlugins.MinecraftIntegration.eventGetPlayerVotes = eventGetPlayerVotes
+  // SocketPlugins.MinecraftIntegration.eventWebChat = API.eventWebChat
+  // SocketPlugins.MinecraftIntegration.eventGetPlayerVotes = eventGetPlayerVotes
 }

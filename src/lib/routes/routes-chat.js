@@ -1,9 +1,8 @@
-import { addToAPI } from './routes-helpers'
+import { addAPIRoute, addPageRoute } from './routes-helpers'
 
-import { getChat } from '../chat'
+import { chat } from '../controllers/controllers-chat'
 
 export default function () {
-  addToAPI(getChat, 'getChat', 'server/:sid/chat')
-  addToAPI(getChat, 'getChat', 'server/:sid/chat/:chats')
-  addToAPI(getChat, 'getChat', 'server/:sid/chat/:chats/:max')
+  addPageRoute('server/:sid/chat', chat)
+  addAPIRoute('server/:sid/chat/:chats', chat)
 }

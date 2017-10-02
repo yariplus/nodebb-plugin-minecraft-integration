@@ -2,15 +2,16 @@ import { db, SocketPlugins } from '../nodebb'
 
 import { trimUUID } from '../utils'
 
-import Backend from '../backend'
 import Config from '../config'
+
+import * as Middleware from '../middleware'
 
 import admin from './routes-admin'
 import avatars from './routes-avatars'
 import chat from './routes-chat'
 import players from './routes-players'
 import servers from './routes-servers'
-import user from './routes-user'
+import users from './routes-users'
 
 let app, middleware, router
 
@@ -29,98 +30,68 @@ export function init (_app, _middleware, _router) {
   chat()
   players()
   servers()
-  user()
+  users()
 }
 
-// Define API Functions
-function callHTTP (method, json, req, res) {
-  // TODO
-  if (!method) return console.log('No method for ' + req.url)
-
-  method(req.params, (err, response) => {
-    if (err) {
-      console.log(err)
-      return res.sendStatus(404)
-    }
-
-    if (json) return res.json(response || '{Success}')
-    if (req.get('If-Modified-Since') === response.modified) return res.sendStatus(304)
-
-    res.writeHead(200, {
-      'Cache-Control': 'private',
-      'Last-Modified': response.modified,
-      'Content-Type': 'image/png'
-    })
-    res.end(response.buffer || new Buffer(response.base, 'base64'), 'binary')
-  })
-}
+// if (req.get('If-Modified-Since') === response.modified) return res.sendStatus(304)
+// res.writeHead(200, {
+  // 'Cache-Control': 'private',
+  // 'Last-Modified': response.modified,
+  // 'Content-Type': 'image/png'
+// })
+// res.end(response.buffer || new Buffer(response.base, 'base64'), 'binary')
 
 export function addAdminRoute (route, controller) {
   router.get(route, middleware.admin.buildHeader, controller)
   router.get(`/api${route}`, controller)
 }
 
-export function addUserRoute (route, controller) {
-  router.get(route, middleware.buildHeader, controller)
-  router.get(`/api${route}`, controller)
+export function addPageRoute (route, controller) {
+  router.get(`/minecraft-integration/${route}`, middleware.buildHeader, controller)
+  router.get(`/m/${route}`, middleware.buildHeader, controller)
+  router.get(`/mc/${route}`, middleware.buildHeader, controller)
+
+  addAPIRoute(route, controller)
 }
 
-export function addToAPI (method, name, path, json = true) {
-  router.get(`/api/minecraft-integration/${path}`, (req, res, next) => callHTTP(method, json, req, res, next))
-
-  SocketPlugins.MinecraftIntegration[name] = (socket, data, next) => {
-    data.sender = socket.uid
-    method(data, next)
-  }
+export function addAPIRoute (route, controller) {
+  router.get(`/api/minecraft-integration/${route}`, controller)
+  router.get(`/api/m/${route}`, controller)
+  router.get(`/api/mc/${route}`, controller)
 }
 
-export function addToWriteAPI (method, name, path, json = true) {
-  // Write using HTTP.
-  if (!!path) {
-    router.put(`/api/minecraft-integration/${path}`, (req, res, next) => {
-      const { key } = req.body
+export function addProfileRoute (route, controller) {
+  router.get(`/user/:user/minecraft${route}`, middleware.buildHeader, controller)
+  router.get(`/user/:user/mc${route}`, middleware.buildHeader, controller)
+  router.get(`/user/:user/m${route}`, middleware.buildHeader, controller)
 
-      if (!key) return res.json(new Error('No API key.'))
+  router.get(`/api/user/:user/minecraft${route}`, controller)
+  router.get(`/api/user/:user/mc${route}`, controller)
+  router.get(`/api/user/:user/m${route}`, controller)
+}
 
-      Backend.getSidUsingAPIKey(key, (err, sid) => {
-        if (err) return res.json({error: 'Invalid API key.'})
+export function addWriteRoute (route, name, controller) {
+  addWriteAPIRoute(route, controller)
+  addWriteSocketRoute(name, controller)
+}
 
-        req.params.sid = sid
+export function addWriteAPIRoute (route, controller) {
+  let _controller = (req, res) => {
+    for (let param in req.params) req.body[param] = req.params[param]
 
-        for (let param in req.body) req.params[param] = req.body[param]
-
-        callHTTP(method, json, req, res)
-      })
+    controller(req.body, (err, data) => {
+      res.json(err || data)
     })
   }
 
-  // Write using sockets.
-  SocketPlugins.MinecraftIntegration[name] = (socket, data, next) => {
-    if (!(data && data.key)) return next(new Error('No API key.'))
+  router.post(`/api/minecraft-integration/${route}`, Middleware.writeAPI, _controller)
+  router.post(`/api/mc/${route}`, Middleware.writeAPI, _controller)
+  router.post(`/api/m/${route}`, Middleware.writeAPI, _controller)
+}
 
-    // TODO: Proper logger.
-    // Log.info('Write API connection attempt with key ' + data.key)
-
-    // Verify API key.
-    Backend.getSidUsingAPIKey(data.key, (err, sid) => {
-      if (err || !sid) {
-        // TODO
-        console.log(`Invalid API key for ${data.sid}`)
-        return next('Invalid API key.', {})
-      }
-
-      data.sid = sid
-
-      // If event has a player id, trim it to Mojang's format.
-      if (data.id) data.id = trimUUID(data.id)
-
-      // Set the socket.id so that we can send events back to the server.
-      db.setObjectField(`mi:server:${data.sid}:config`, 'socketid', socket.id)
-
-      // Detach key from data response.
-      delete data.key
-
-      method(data, next)
-    })
+export function addWriteSocketRoute (name, method) {
+  SocketPlugins.MinecraftIntegration[name] = function (socket, data, next) {
+    this.method = method
+    Middleware.writeSocket.call(this, socket, data, next)
   }
 }

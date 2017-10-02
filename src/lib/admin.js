@@ -1,8 +1,36 @@
-import { deleteUser, refreshUser, resetUsers } from './api'
-import { SocketAdmin } from './nodebb'
-import Backend from './backend'
-import Utils from './utils'
-import Config from './config'
+// Admin model
+
+import {
+  deleteUser,
+  refreshUser,
+  resetUsers,
+} from './users'
+
+import {
+  deleteAvatar,
+  refreshAvatar,
+  resetAvatars,
+} from './avatars'
+
+import {
+  deleteServer,
+  setServerConfig,
+  getServersConfig,
+} from './servers'
+
+import {
+  deletePlayer,
+} from './players'
+
+import {
+  SocketAdmin
+} from './nodebb'
+
+import {
+  getAvatarCDN,
+} from './config'
+
+// ??
 import winston from 'winston'
 
 export default function () {
@@ -29,19 +57,19 @@ export default function () {
     }
   }
 
-  addAdminSocket('setServerConfig', Backend.setServerConfig)
-  addAdminSocket('getServersConfig', Backend.getServersConfig)
+  addAdminSocket('setServerConfig', setServerConfig)
+  addAdminSocket('getServersConfig', getServersConfig)
   addAdminSocket('deleteUser', deleteUser)
   addAdminSocket('refreshUser', refreshUser)
   addAdminSocket('resetUsers', resetUsers)
-  addAdminSocket('deleteAvatar', Backend.deleteAvatar)
-  addAdminSocket('refreshAvatar', Backend.refreshAvatar)
-  addAdminSocket('resetAvatars', Backend.resetAvatars)
-  addAdminSocket('deletePlayer', Backend.deletePlayer)
+  addAdminSocket('deleteAvatar', deleteAvatar)
+  addAdminSocket('refreshAvatar', refreshAvatar)
+  addAdminSocket('resetAvatars', resetAvatars)
+  addAdminSocket('deletePlayer', deletePlayer)
   // Uses fetchPlayer instead. addAdminSocket('refreshPlayer', Backend.refreshPlayer)
   // Doesn't exist. addAdminSocket('resetPlayers', Backend.resetPlayers)
-  addAdminSocket('deleteServer', Backend.deleteServer)
-  addAdminSocket('getAvatarCDN', Config.getAvatarCDN)
+  addAdminSocket('deleteServer', deleteServer)
+  addAdminSocket('getAvatarCDN', getAvatarCDN)
 }
 
 export function buildAdminHeader (custom_header, next) {

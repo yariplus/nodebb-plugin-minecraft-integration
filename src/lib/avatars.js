@@ -1,12 +1,61 @@
-// Avatars Main
+// Avatars Model
 
-import async from 'async'
 import request from 'request'
 
-import { db } from './nodebb'
+import { db, async } from './nodebb'
 
-import Backend from './backend'
 import Config from './config'
+
+export function clearOldAvatars (options, next) {
+  db.sortedSetsRemoveRangeByScore(['mi:avatars'], 0, Date.now() - Config.getAvatarExpiry() * 1000, err => {
+    if (err) console.log('clearOldAvatars error:', err)
+    if (typeof next === 'function') next()
+  })
+}
+
+export function refreshAvatar (data, next) {
+  const name = data.name
+
+  deleteAvatar(data, err => {
+    getAvatar(name, (err, data) => {
+      next(err, {base64: data.base})
+    })
+  })
+}
+
+export function deleteAvatar (data, next) {
+  if (!data || !data.name) return next(new Error('deleteAvatar() no name passed.'))
+
+  const name = data.name
+
+  db.sortedSetRemove('mi:avatars', name)
+
+  next()
+}
+
+export function resetAvatars (data, callback) {
+  getAvatarList({}, (err, avatarList) => {
+    async.each(avatarList, (player, next) => {
+      const key = `mi:avatar:${player}`
+
+      db.delete(key)
+      db.sortedSetRemove('mi:avatars', player)
+
+      next()
+    }, err => {
+      callback(err)
+    })
+  })
+}
+
+export function setAvatar (data) {
+}
+
+export function getAvatarList (next) {
+  db.getSortedSetRange('mi:avatars', 0, -1, (err, list) => {
+    next(err, list ? list.sort() : [])
+  })
+}
 
 // Get the avatar base64 from the database.
 export function getAvatarBase (name, callback) {
@@ -139,7 +188,7 @@ function fetchAvatar (name, next) {
   console.log(`getting avatar of ${name}`)
   async.parallel({
     url: async.apply(Config.getAvatarUrl, {name}), // The full url for the avatar.
-    id: async.apply(Backend.getUuidFromName, name) // We need this for cdns that use uuids.
+    id: async.apply(getUuidFromName, name) // We need this for cdns that use uuids.
   }, (err, payload) => {
     if (err) return next(err)
 

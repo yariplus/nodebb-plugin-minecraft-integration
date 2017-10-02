@@ -1,4 +1,4 @@
-import { addToAPI } from './routes-helpers'
+import { addAPIRoute } from './routes-helpers'
 
 import {
   getAvatars,
@@ -7,20 +7,23 @@ import {
   getHead,
   getHelmHead,
   getPocketAvatar,
-} from '../api'
+} from '../controllers/controllers-avatars'
 
 export default function () {
-  addToAPI(getAvatars, 'getAvatars', 'avatars')
+  addAPIRoute('avatars', getAvatars)
 
-  addToAPI(getAvatar, 'getAvatar', 'avatar/:name', false)
-  addToAPI(getAvatar, 'getAvatar', 'avatar/:name/:size', false)
+  addAPIRoute('avatar/:name', getAvatar)
+  addAPIRoute('avatar/:name/:size', getAvatar)
 
-  addToAPI(getHelmAvatar, 'getHelmAvatar', 'helmavatar/:name', false)
-  addToAPI(getHelmAvatar, 'getHelmAvatar', 'helmavatar/:name/:size', false)
+  addAPIRoute('helmavatar/:name', getHelmAvatar)
+  addAPIRoute('helmavatar/:name/:size', getHelmAvatar)
 
-  addToAPI(getHead, 'getHead', 'helmavatar/:name', false)
-  addToAPI(getHead, 'getHead', 'helmavatar/:name/:size', false)
+  addAPIRoute('head/:name', getHead)
+  addAPIRoute('head/:name/:size', getHead)
 
-  addToAPI(getPocketAvatar, 'getPocketAvatar', 'pocketavatar/:name', false)
-  addToAPI(getPocketAvatar, 'getPocketAvatar', 'pocketavatar/:name/:size', false)
+  addAPIRoute('helmhead/:name', getHelmHead)
+  addAPIRoute('helmhead/:name/:size', getHelmHead)
+
+  addAPIRoute('pocketavatar/:name', getPocketAvatar)
+  addAPIRoute('pocketavatar/:name/:size', getPocketAvatar)
 }

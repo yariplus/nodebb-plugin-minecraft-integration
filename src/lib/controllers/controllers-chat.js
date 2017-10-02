@@ -1,10 +1,18 @@
 import { async, db } from '../nodebb'
 
 import { sendWebChatToServer } from '../sockets'
-import { createPlayerChat } from '../chat'
+import { createPlayerChat, getChats } from '../chat'
+
+function chat (req, res) {
+  const { sid, chats } = req.params
+
+  getChats(sid, chats, (err, chats) => {
+    res.render('mi/data', {data: chats})
+  })
+}
 
 // TODO: This is essentially the same as the below, but it should send the chat to the server and get a callback before sending to users.
-export function eventWebChat (socket, data, next) {
+function socketWebChat (socket, data, next) {
   // Assert parameters.
   if (!(data && data.sid && data.id && data.name && data.message)) return next()
 
@@ -17,7 +25,7 @@ export function eventWebChat (socket, data, next) {
   createPlayerChat(sid, 'uuid', name, message, date, next)
 }
 
-export function eventPlayerChat (data, next) {
+function socketPlayerChat (data, next) {
   // Assert parameters.
   if (!(data && data.sid && data.id && data.name && data.message)) return next()
 
@@ -30,3 +38,5 @@ export function eventPlayerChat (data, next) {
 
   createPlayerChat(sid, id, name, message, date, next)
 }
+
+export { chat, socketPlayerChat, socketWebChat }

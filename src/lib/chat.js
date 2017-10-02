@@ -2,7 +2,7 @@ import { async, db } from './nodebb'
 
 import { sendPlayerChatToUsers } from './sockets'
 
-export function getChat (sid, amount, next) {
+export function getChats (sid, amount, next) {
   // Gets the highest (most recent) chats.
   db.getSortedSetRevRange(`mi:server:${sid}:chat`, 0, amount, (err, dates) => {
     if (err) return console.log(err)

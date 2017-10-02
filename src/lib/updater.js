@@ -1,8 +1,21 @@
 import { db, pubsub } from './nodebb'
-import { getServerStatus } from './api'
-import Backend from './backend'
+
+import {
+  updateServerStatus,
+  getServersConfig,
+  getServerStatus,
+} from './servers'
+
+import {
+  clearOldAvatars,
+} from './avatars'
+
 import Config from './config'
-import { sendStatusToUsers } from './sockets'
+
+import {
+  sendStatusToUsers,
+} from './sockets'
+
 import { getName } from './utils'
 import async from 'async'
 import winston from 'winston'
@@ -75,9 +88,9 @@ Updater.updateServers = () => {
   updateTime = Math.round(Date.now() / 60000) * 60000
 
   // Remove old avatars from cache.
-  Backend.clearOldAvatars()
+  clearOldAvatars()
 
-  Backend.getServersConfig({}, (err, configs) => {
+  getServersConfig({}, (err, configs) => {
     configs.forEach(config => {
       getServerStatus(config, (err, status) => {
         if (err) {
@@ -110,6 +123,6 @@ function resetStatus (status = {}) {
   status.onlinePlayers = '0'
   status.tps = '0'
 
-  Backend.updateServerStatus(status)
+  updateServerStatus(status)
   sendStatusToUsers(status)
 }

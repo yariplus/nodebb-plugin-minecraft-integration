@@ -1,4 +1,5 @@
-import Backend from '../backend'
+import { getAvatar } from '../avatars'
+
 import async from 'async'
 
 export function render (data, callback) {
@@ -21,7 +22,7 @@ export function render (data, callback) {
         // TODO: Different scoring methods.
         player.score = player.playtimeHuman
 
-        Backend.getAvatar({base64: true, name: player.name}, (err, avatar) => {
+        getAvatar({base64: true, name: player.name}, (err, avatar) => {
           player.avatar = avatar
           next(null, player)
         })

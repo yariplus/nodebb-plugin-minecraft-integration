@@ -1,18 +1,64 @@
-import async from 'async'
-
 import Config from '../config'
-import Backend from '../backend'
 
 import { sendStatusToUsers, sendPlayerJoinToUsers, sendPlayerQuitToUsers } from '../sockets'
 import { trimUUID, parseVersion, getName } from '../utils'
-import { db } from '../nodebb'
+import { async, db } from '../nodebb'
 
 import { storePocketAvatar } from '../avatars'
 
-// TEMP
-import { getUser } from './users'
+import { getAllServersStatus, getServerStatus, getServerPings } from '../servers'
 
-export function updateServerStatus (status, next) {
+// TEMP
+import { getUser } from '../users'
+
+function list (req, res) {
+  getAllServersStatus((err, servers) => {
+    res.render('mi/data', {data: servers})
+  })
+}
+
+function status (req, res) {
+  let sid = parseInt(req.params.sid, 10)
+  if (sid === NaN) return res.redirect('/')
+
+  getServerStatus(sid, (err, server) => {
+    res.render('mi/data', {data: server})
+  })
+}
+
+function pings (req, res) {
+  let { sid, amount } = req.params
+
+  sid = parseInt(req.params.sid, 10)
+  if (sid === NaN) return res.redirect('/')
+
+  amount = parseInt(req.params.pings, 10)
+  if (amount === NaN) amount = 30
+
+  getServerPings(sid, amount, (err, pings) => {
+    res.render('mi/data', {data: pings})
+  })
+}
+
+function plugins (req, res) {
+  let sid = parseInt(req.params.sid, 10)
+  if (sid === NaN) return res.redirect('/')
+
+  getServerPlugins(sid, (err, plugins) => {
+    res.render('mi/data', {data: plugins})
+  })
+}
+
+function icon (req, res) {
+  let sid = parseInt(req.params.sid, 10)
+  if (sid === NaN) return res.redirect('/')
+
+  getServerIcon(sid, (err, base) => {
+    res.render('mi/data', {data: base})
+  })
+}
+
+function writeServerStatus (data, next) {
   const updateTime = Math.round(Date.now() / 60000) * 60000, sid = status.sid, tps = status.tps
 
   status.isServerOnline = '1'
@@ -72,65 +118,35 @@ export function updateServerStatus (status, next) {
   })
 }
 
-export function getServerStatus (data, callback) {
-  if (!(data && typeof data.sid !== 'undefined')) return callback(new Error('Invalid data.'))
+function writeServerPlayerJoin (data, next) {
+  // TODO: Refactor ideas
+  // const {
+    // sid,
+    // isPocket,
+    // player: {
+      // id,
+      // name,
+      // displayName,
+      // prefix,
+      // suffix,
+      // primaryGroup,
+      // playtime,
+      // skin,
+    // },
+  // } = data
 
-  const sid = data.sid
-
-  async.parallel({
-    status: async.apply(Backend.getServerStatus, sid),
-    config: async.apply(Backend.getServerConfig, {sid})
-  }, (err, results) => {
-    if (err) return callback(err)
-
-    const status = results.status
-    const config = results.config
-
-    if (!config) return callback(new Error(`getServerStatus() No config exists for SID ${sid}`))
-    if (!status) return callback(new Error(`getServerStatus() No status exists for SID ${sid} named ${config.name}`))
-
-    // Parsed as arrays.
-    try {
-      if (status.modList && typeof status.modList === 'string' && status.modList !== 'undefined') status.modList = JSON.parse(status.modList)
-      if (status.pluginList && typeof status.pluginList === 'string' && status.pluginList !== 'undefined') status.pluginList = JSON.parse(status.pluginList)
-    } catch (e) {
-      console.log('Bad Status', status)
-      return callback(e)
-    }
-
-    // Parsed as integers.
-    status.maxPlayers = parseInt(status.maxPlayers, 10)
-    status.onlinePlayers = parseInt(status.onlinePlayers, 10)
-
-    // Parsed as booleans.
-    status.isServerOnline = !!parseInt(status.isServerOnline, 10)
-    status.hasMods = !!parseInt(status.hasMods, 10)
-    status.hasPlugins = !!parseInt(status.hasPlugins, 10)
-
-    // Strings
-    status.sid = sid
-    status.address = config.address
-    status.version = parseVersion(status.version || 'unknown')
-
-    // Hide plugins.
-    if (parseInt(config.hidePlugins, 10)) status.pluginList = []
-
-    // Get players
-    db.getSortedSetRange(`mi:server:${sid}:players`, 0, -1, (err, players) => {
-      if (err || !players) return callback(null, status)
-
-      status.players = players.map(player => {
-        const data = player.split(':')
-        return {name: data[0], id: data[1]}
-      })
-
-      callback(null, status)
-    })
-  })
-}
-
-export function eventPlayerJoin (data, next) {
-  const { sid, id, name, displayName, prefix, suffix, primaryGroup, playtime, skin, pocket } = data
+  const {
+    sid,
+    id,
+    name,
+    displayName,
+    prefix,
+    suffix,
+    primaryGroup,
+    playtime,
+    skin,
+    pocket,
+  } = data
 
   // Required fields.
   if (!(sid && id && name && displayName)) {
@@ -140,7 +156,7 @@ export function eventPlayerJoin (data, next) {
   }
 
   // Check for proper uuid.
-  Backend.getUuidFromName(name, (err, _id) => {
+  getUuidFromName(name, (err, _id) => {
     // Exit if using an offline name and the server is not pocket.
     if ((err || _id !== id) && !pocket) return next(err || new Error('Offline servers not supported.'))
 
@@ -159,10 +175,14 @@ export function eventPlayerJoin (data, next) {
   })
 }
 
-export function eventPlayerQuit (data, next) {
-  const {sid, id, name} = data
+function writeServerPlayerQuit (data, next) {
+  const {
+    sid,
+    id,
+    name,
+  } = data
 
-  Backend.getUuidFromName(name, (err, _id) => {
+  getUuidFromName(name, (err, _id) => {
     if (err || _id !== id) return next(err || new Error('Offline servers not supported.'))
 
     async.parallel([
@@ -170,4 +190,15 @@ export function eventPlayerQuit (data, next) {
       async.apply(sendPlayerQuitToUsers, {sid, player: {id, name}})
     ], next)
   })
+}
+
+export {
+  list,
+  status,
+  pings,
+  plugins,
+  icon,
+  writeServerStatus,
+  writeServerPlayerJoin,
+  writeServerPlayerQuit,
 }

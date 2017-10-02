@@ -1,6 +1,13 @@
-// Ranks API
+// Ranks Controller
 
-import { setRanks, setRanksWithMembers } from '../ranks'
+import { getRanks, getRanksWithMembers } from '../ranks'
+
+export function renderRanks (req, res) {
+  getRanksWithMembers(req.sid || '0', (err, ranks) => {
+    res.render('minecraft-integration/ranks', {ranks: ranks})
+  })
+}
+
 
 export function writeRanks (data, callback) {
   setRanks(data.sid, data.ranks, err => {

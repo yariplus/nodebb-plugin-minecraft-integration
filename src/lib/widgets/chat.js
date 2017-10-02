@@ -1,11 +1,11 @@
 import { getChat } from '../chat'
-import { getUserLinkedPlayers } from '../api'
+import { getPlayersByUid } from '../players'
 
 export function render (data, next) {
   let { sid, amount, uid } = data
 
   getChat(sid, amount || 15, (err, data) => {
-    getUserLinkedPlayers(uid, (err, players) => {
+    getPlayersByUid(uid, (err, players) => {
       data.user = {}
 
       if (players && players.length) {

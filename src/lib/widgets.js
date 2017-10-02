@@ -1,6 +1,6 @@
 import { db, User, translator, nconf } from './nodebb'
-import { getServerStatus } from './api'
-import Backend from './backend'
+import { getServerStatus, getServersConfig, } from './servers'
+
 import Config from './config'
 import { parseFormatCodes } from './utils'
 import async from 'async'
@@ -93,7 +93,7 @@ export function getWidgets (widgets, next) {
   ]
 
   // Server list for editing widgets.
-  Backend.getServersConfig({}, (err, servers) => {
+  getServersConfig({}, (err, servers) => {
     if (err) console.log('TODO: add an error for widget load failure.')
 
     async.each(_widgets, (widget, next) => {

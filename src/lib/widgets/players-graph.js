@@ -1,7 +1,11 @@
-import Backend from '../backend'
+import { getServerPings } from '../servers'
 
 export function render (widget, callback) {
-  Backend.getRecentPings({sid: widget.sid, last: 20}, (err, pings) => {
+  let { sid, last } = widget
+
+  last = last || 20
+
+  getServerPings(sid, last, (err, pings) => {
     if (err || !pings) pings = []
 
     widget.pings = JSON.stringify(pings)
