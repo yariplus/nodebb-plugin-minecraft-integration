@@ -53,7 +53,7 @@
     "templates.js": "*"
   },
   "nbbpm": {
-    "compatibility": "^1.0.0"
+    "compatibility": "^1.6.0"
   },
   "nyc": {},
   "standard": {
