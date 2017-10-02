@@ -4,7 +4,7 @@
   "description": "NodeBB plugin to integrate your forum with your Minecraft Server using widgets, user syncing, group/rank syncing, sso, bukkit/bungeecord/sponge communication, and more.",
   "main": "library.js",
   "scripts": {
-    "compile": "babel src -d . --source-maps",
+    "compile": "BABEL_ENV=server babel src -d . --ignore src/public --source-maps && BABEL_ENV=client babel src/public -d public --source-maps",
     "pretest": "npm run compile",
     "test": "nyc --require babel-register mocha test",
     "coverage": "nyc report --reporter=json && remap-istanbul -i coverage/coverage-final.json -t lcovonly -o coverage/lcov.info && sed -i 's/SF:.*integration/SF:\\/src/g' coverage/lcov.info && rm coverage/coverage-final.json && codecov"
@@ -41,7 +41,10 @@
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
+    "babel-plugin-array-includes": "^2.0.3",
+    "babel-plugin-transform-object-assign": "^6.22.0",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
     "babel-preset-node6": "^11.0.0",
     "babel-register": "^6.26.0",
     "chai": "^3.5.0",

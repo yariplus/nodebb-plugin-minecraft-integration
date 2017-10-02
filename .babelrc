@@ -1,6 +1,18 @@
 {
-  'plugins': [
-    'transform-object-rest-spread'
-  ],
-  'presets': ['node6']
+  'env': {
+    'server': {
+      'plugins': [
+        'transform-object-rest-spread'
+      ],
+      'presets': ['node6']
+    },
+    'client': {
+      'plugins': [
+        'array-includes',
+        'transform-object-assign',
+        'transform-object-rest-spread'
+      ],
+      'presets': ['es2015']
+    }
+  }
 }
