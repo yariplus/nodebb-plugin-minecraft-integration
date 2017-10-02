@@ -71,6 +71,7 @@ function writeServerStatus (status, next) {
   console.log('Got server status:')
   console.dir(status)
 
+  // TODO: Should be calculated server-side.
   const updateTime = Math.round(Date.now() / 60000) * 60000, sid = status.sid, tps = status.tps
 
   status.isServerOnline = '1'
@@ -118,6 +119,10 @@ function writeServerStatus (status, next) {
       async.apply(db.sortedSetAdd, `mi:server:${sid}:players`, scores, values)
     ], (err) => {
       if (err) return next(err)
+
+      console.log('Parsed status is:')
+      console.dir(status)
+
       updateServerStatus(status, err => {
         if (err) return next(err)
         getServerStatus(status.sid, (err, status) => {
@@ -130,7 +135,7 @@ function writeServerStatus (status, next) {
   })
 }
 
-function writeServerPlayerJoin (data, next) {
+function join (data, next) {
   // TODO: Refactor ideas
   // const {
     // sid,
@@ -187,7 +192,7 @@ function writeServerPlayerJoin (data, next) {
   })
 }
 
-function writeServerPlayerQuit (data, next) {
+function quit (data, next) {
   const {
     sid,
     id,
@@ -195,7 +200,7 @@ function writeServerPlayerQuit (data, next) {
   } = data
 
   getUuidFromName(name, (err, _id) => {
-    if (err || _id !== id) return next(err || new Error('Offline servers not supported.'))
+    if (err || _id !== id) return next(err || new Error('Offline servers not currently supported.'))
 
     async.parallel([
       async.apply(db.sortedSetRemove, `mi:server:${sid}:players`, `${name}:${id}`),
@@ -211,6 +216,6 @@ export {
   plugins,
   icon,
   writeServerStatus,
-  writeServerPlayerJoin,
-  writeServerPlayerQuit,
+  join,
+  quit,
 }

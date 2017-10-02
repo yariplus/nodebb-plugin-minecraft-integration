@@ -117,6 +117,8 @@ Updater.updateServers = () => {
 }
 
 function resetStatus (status = {}) {
+  // TODO
+  return
   status.isServerOnline = '0'
   status.updateTime = updateTime
   status.players = '[]'

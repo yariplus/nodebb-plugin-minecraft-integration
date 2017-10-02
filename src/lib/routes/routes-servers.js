@@ -9,6 +9,8 @@ import {
   pings,
   icon,
   plugins,
+  join,
+  quit,
   writeServerStatus,
 } from '../controllers/controllers-servers'
 
@@ -23,6 +25,9 @@ export default function () {
   addPageRoute('server/:sid/icon', icon)
 
   addPageRoute('server/:sid/plugins', plugins)
+
+  addWriteRoute('server/join', 'eventPlayerJoin', join)
+  addWriteRoute('server/quit', 'eventPlayerQuit', quit)
 
   addWriteRoute('server', 'eventStatus', writeServerStatus)
 }

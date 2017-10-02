@@ -42,7 +42,7 @@ function render (processWidget, type, widget, callback) {
 // TODO: Only add required fields.
 function formatWidget (data, callback) {
   // API checks for invalid SIDs.
-  getServerStatus({sid: data.sid}, (err, status) => {
+  getServerStatus(data.sid, (err, status) => {
     if (err) return callback(err)
 
     for (const p in status) data[p] = status[p]

@@ -80,6 +80,42 @@ export function getServerStatus (sid, next) {
   })
 }
 
+// TODO: Signature (sid, status, next)
+export function updateServerStatus (status, next) {
+  let { sid, players, pluginList, modList, updateTime, tps, } = status
+
+  let playersObject = players
+
+  if (players && typeof players !== 'string') players = JSON.stringify(players)
+  if (pluginList && typeof pluginList !== 'string') pluginList = JSON.stringify(pluginList)
+  if (modList && typeof modList !== 'string') modList = JSON.stringify(modList)
+
+  async.waterfall([
+    async.apply(db.delete, `mi:server:${sid}`),
+    async.apply(db.setObject, `mi:server:${sid}`, status),
+    async.apply(db.expire, `mi:server:${sid}`, Config.getPingExpiry()),
+    async.apply(db.setObjectField, `mi:server:${sid}:ping:${updateTime}`, 'players', players),
+    async.apply(db.setObjectField, `mi:server:${sid}:ping:${updateTime}`, 'tps', tps),
+    async.apply(db.expire, `mi:server:${sid}:ping:${updateTime}`, Config.getPingExpiry()),
+    async.apply(setServerPlayers, sid, playersObject),
+    async.apply(updatePingList, `mi:server:${sid}:pings`, updateTime),
+  ], next)
+}
+
+function setServerPlayers (sid, players, next) {
+  console.log('Set Players')
+  console.log(Array.isArray(players))
+  console.log(players)
+  let key = `mi:server:${sid}:players`
+  let values = players.map(player => `${player.name}:${player.id}`)
+  let scores = players.map(player => 0)
+
+  async.waterfall([
+    async.apply(db.delete, key),
+    async.apply(db.sortedSetAdd, key, scores, values),
+  ])
+}
+
 // TODO: Make this retrieve a time range instead of a fixed amount.
 export function getServerPings (sid, amount, next) {
   async.waterfall([
@@ -145,23 +181,6 @@ export function getServerIcon (sid, next) {
 
     next(null, icon)
   })
-}
-
-export function updateServerStatus (status, next) {
-  if (typeof status.players !== 'string') status.players = JSON.stringify(status.players)
-
-  if (status.pluginList && typeof status.pluginList !== 'string') status.pluginList = JSON.stringify(status.pluginList)
-  if (status.modList && typeof status.modList !== 'string') status.modList = JSON.stringify(status.modList)
-
-  async.waterfall([
-    async.apply(db.delete, `mi:server:${status.sid}`),
-    async.apply(db.setObject, `mi:server:${status.sid}`, status),
-    async.apply(db.expire, `mi:server:${status.sid}`, Config.getPingExpiry()),
-    async.apply(db.setObjectField, `mi:server:${status.sid}:ping:${status.updateTime}`, 'players', status.players),
-    async.apply(db.setObjectField, `mi:server:${status.sid}:ping:${status.updateTime}`, 'tps', status.tps),
-    async.apply(db.expire, `mi:server:${status.sid}:ping:${status.updateTime}`, Config.getPingExpiry()),
-    async.apply(updatePingList, `mi:server:${status.sid}:pings`, status.updateTime)
-  ], next)
 }
 
 function updatePingList (key, value, cb) {

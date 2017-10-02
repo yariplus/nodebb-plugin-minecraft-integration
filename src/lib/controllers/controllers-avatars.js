@@ -41,8 +41,11 @@ function getAvatar (req, res) {
   console.log(`API.getAvatar of ${name}`)
 
   getAvatarBase(name, (err, avatar) => {
-    // TODO
-    res.json(err ? err : avatar)
+    res.writeHead(200, {
+      'Content-Type': 'image/png',
+      'Content-Length': avatar.buffer.length,
+    })
+     res.end(avatar.buffer)
   })
 }
 

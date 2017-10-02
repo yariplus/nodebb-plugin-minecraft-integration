@@ -4,6 +4,8 @@ import request from 'request'
 
 import { db, async } from './nodebb'
 
+import { getUuidFromName, } from './players'
+
 import Config from './config'
 
 export function clearOldAvatars (options, next) {
@@ -109,7 +111,7 @@ export function getAvatarBase (name, callback) {
       }
     ], err => {
       callback(err, {
-        buffer,
+        buffer: new Buffer(base, 'base64'),
         base,
         modified,
       })
