@@ -14,9 +14,12 @@ import {
 
 import {
   deleteServer,
-  setServerConfig,
   getServersConfig,
 } from './servers'
+
+import {
+  setServerConfig,
+} from './controllers/controllers-admin'
 
 import {
   deletePlayer,

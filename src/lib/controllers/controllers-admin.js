@@ -1,3 +1,7 @@
+import {
+  db,
+} from '../nodebb'
+
 import Config from '../config'
 
 export function renderAdminPage (req, res) {
@@ -7,4 +11,15 @@ export function renderAdminPage (req, res) {
 
 export function renderServerEditor (req, res) {
   res.render('admin/plugins/mi-servereditor', {})
+}
+
+export function setServerConfig (data, next) {
+  let { sid, config } = data
+
+  // TODO: Score is used for sorting server list.
+  db.sortedSetAdd(`mi:servers`, Date.now(), sid)
+
+  db.delete(`mi:server:${sid}:config`, () => {
+    db.setObject(`mi:server:${sid}:config`, config, next)
+  })
 }

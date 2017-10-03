@@ -121,8 +121,8 @@ define('admin/plugins/minecraft-integration', ['settings', 'translator'], functi
     function addServer (server) {
       log('Adding ' + (server ? 'existing' : 'new ') + 'server config.', server ? server : null)
 
-      var sid = server ? server.sid : getNextSid(),
-        $server = $serverTemplate.clone()
+      let sid = server ? server.sid : getNextSid()
+      let $server = $serverTemplate.clone()
 
       $server.attr('data-sid', sid)
       $server.on('click', '[data-toggle="collapse"]', collapse)
@@ -139,7 +139,7 @@ define('admin/plugins/minecraft-integration', ['settings', 'translator'], functi
       $server.find('a').text(server ? server.name : 'A Minecraft Server ' + sid)
 
       $server.find('[name="name"]').val(server ? server.name : 'A Minecraft Server ' + sid)
-      $server.find('[name="address"]').val(server ? server.address : '')
+      $server.find('[name="address"]').val(server ? server.address : 'mc.example.com')
       $server.find('[name="api-key"]').val(server ? server.APIKey : regenKey($server.find('[name="api-key"]'), true))
 
       $server.find('[name="hide-plugins"]').prop('checked', server ? parseInt(server.hidePlugins, 10) : false)
@@ -342,10 +342,12 @@ define('admin/plugins/minecraft-integration', ['settings', 'translator'], functi
       })
     }
 
-    socket.emit('admin.settings.get', { hash: 'minecraft-integration' }, function (err, values) {
-      if (err) return log('Error getting settings:', err)
+    console.log('loading settings...')
 
-      log('Settings recieved')
+    socket.emit('admin.settings.get', { hash: 'minecraft-integration' }, function (err, values) {
+      if (err) return log('Error getting settings:')
+
+      console.log('Settings recieved')
 
       settings.helper.whenReady(function () {
         settings.helper.use(values)
@@ -372,7 +374,7 @@ define('admin/plugins/minecraft-integration', ['settings', 'translator'], functi
     })
 
     socket.emit('admin.MinecraftIntegration.getServersConfig', {}, function (err, servers) {
-      if (err) return log('Error getting servers:', err)
+      if (err) return console.log('Error getting servers:')
 
       log('Got server configurations.')
       log(servers)
@@ -400,6 +402,10 @@ define('admin/plugins/minecraft-integration', ['settings', 'translator'], functi
       }
       return tpl
     }
+
+    // TODO
+    console.log('done init')
+    return
 
     // Populate tables.
     socket.emit('plugins.MinecraftIntegration.getUsers', {fields: ['picture']}, function (err, users) {

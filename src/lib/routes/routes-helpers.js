@@ -54,6 +54,24 @@ export function addPageRoute (route, controller) {
   addAPIRoute(route, controller)
 }
 
+export function addReadRoute (route, name, controller) {
+  addSocketRoute(name, controller)
+
+  const _controller = (req, res) => {
+    for (let param in req.params) req.body[param] = req.params[param]
+
+    controller(req.body, (err, data) => {
+      res.json(err || data)
+    })
+  }
+
+  addAPIRoute(route, _controller)
+}
+
+export function addSocketRoute (name, controller) {
+  SocketPlugins.MinecraftIntegration[name] = (socket, data, next) => controller(data, next)
+}
+
 export function addAPIRoute (route, controller) {
   router.get(`/api/minecraft-integration/${route}`, controller)
   router.get(`/api/m/${route}`, controller)

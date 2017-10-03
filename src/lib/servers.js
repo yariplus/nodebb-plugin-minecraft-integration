@@ -220,10 +220,11 @@ export function deleteServer (data, next) {
   ], next)
 }
 
-export function getServersConfig (data, next) {
+export function getServersConfig ({}, next) {
   getServersSids((err, sids) => {
     if (err) return next(err)
 
+    // TODO Bulk op
     async.map(sids, getServerConfig, next)
   })
 }
@@ -237,12 +238,6 @@ export function getServerConfig (sid, next) {
 
     next(null, config)
   })
-}
-
-export function setServerConfig (config, next) {
-  // Score is used for sorting.
-  db.sortedSetAdd(`mi:servers`, Date.now(), config.sid)
-  db.setObject(`mi:server:${config.sid}:config`, config, next)
 }
 
 export function getSidUsingAPIKey (key, next) {
