@@ -45,8 +45,7 @@
     "mocha": "^2.5.3",
     "nyc": "^6.4.4",
     "remap-istanbul": "^0.7.0",
-    "standard": "*",
-    "templates.js": "*"
+    "standard": "*"
   },
   "nbbpm": {
     "compatibility": "^1.6.0"

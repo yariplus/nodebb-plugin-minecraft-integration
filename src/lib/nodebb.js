@@ -9,7 +9,6 @@ export const SocketAdmin = require.main.require('./src/socket.io/admin')
 export const SocketIO = require.main.require('./src/socket.io')
 export const SocketPlugins = require.main.require('./src/socket.io/plugins')
 export const Settings = require.main.require('./src/settings')
-export const tjs = require.main.require('templates.js')
 export const translator = require.main.require('./public/src/modules/translator')
 export const User = require.main.require('./src/user')
 
