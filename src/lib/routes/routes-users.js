@@ -21,17 +21,12 @@ import {
 import { register } from '../users'
 
 export default function () {
-  addProfileRoute('/user/:user/minecraft', profile)
+  addProfileRoute('minecraft', profile)
 
-  addPageRoute('/ranks', ranks)
-  addPageRoute('/chat', chat)
+  addPageRoute('ranks', ranks)
+  addPageRoute('chat', chat)
 
   addPageRoute('users', users)
   addPageRoute('users/uuid/:id', user)
   addPageRoute('users/name/:name', user)
-
-  addWriteRoute('/register', 'commandRegister', register)
-
-  // TODO
-  // addPageRoute(resetPlayerKey, 'resetPlayerKey', 'users/reset/:uid')
 }

@@ -19,10 +19,12 @@ export function getChats (sid, amount, next) {
   })
 }
 
-export function createPlayerChat (sid, uuid, name, message, date, next) {
+export const getChat = getChats
+
+export function createPlayerChat (sid, id, name, message, date, next) {
   async.waterfall([
     async.apply(db.sortedSetAdd, `mi:server:${sid}:chat`, date, date),
-    async.apply(db.setObject, `mi:server:${sid}:chat:${date}`, {name, message, date}),
+    async.apply(db.setObject, `mi:server:${sid}:chat:${date}`, {id, name, message, date}),
   ], err => {
     if (err) return next(err)
 

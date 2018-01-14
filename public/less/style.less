@@ -234,12 +234,8 @@
 
 .mi-avatar {
   width: 48px;
-  height: 100%;
+  height: 48px;
   border-width: 3px;
-  display: inline-block;
-}
-
-.mi-avatar.img-responsive {
   display: inline-block;
 }
 
@@ -335,8 +331,9 @@
   cursor: pointer;
 }
 
-.mi-chart-wrapper, .mi-iframe {
+.mi-frame {
   width: 100%;
+  max-width: 100%;
   display: block;
   position: relative;
 
@@ -444,4 +441,15 @@
 
 .mi-full-width {
   width: 100%;
+}
+
+#miTablePlayers td, .miTablePlayers td {
+  vertical-align: middle;
+}
+
+body.page-user-minecraft {
+  .mi-btn-unlink-player {
+    cursor: pointer;
+    
+  }
 }

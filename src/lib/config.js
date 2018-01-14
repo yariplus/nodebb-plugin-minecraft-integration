@@ -192,3 +192,7 @@ Config.getAvatarCDN = (data, next) => {
 
   next(null, { url, variables })
 }
+
+Config.isDebug = () => {
+  return Config.settings.get('debug')
+}

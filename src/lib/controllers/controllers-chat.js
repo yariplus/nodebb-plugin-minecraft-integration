@@ -3,7 +3,7 @@ import { async, db } from '../nodebb'
 import { sendWebChatToServer } from '../sockets'
 import { createPlayerChat, getChats } from '../chat'
 
-function chat (req, res) {
+export function chat (req, res) {
   const { sid, chats } = req.params
 
   getChats(sid, chats, (err, chats) => {
@@ -12,7 +12,7 @@ function chat (req, res) {
 }
 
 // TODO: This is essentially the same as the below, but it should send the chat to the server and get a callback before sending to users.
-function socketWebChat (socket, data, next) {
+export function web (socket, data, next) {
   // Assert parameters.
   if (!(data && data.sid && data.id && data.name && data.message)) return next()
 
@@ -25,7 +25,7 @@ function socketWebChat (socket, data, next) {
   createPlayerChat(sid, 'uuid', name, message, date, next)
 }
 
-function socketPlayerChat (data, next) {
+export function playerChat (data, next) {
   // Assert parameters.
   if (!(data && data.sid && data.id && data.name && data.message)) return next()
 
@@ -38,5 +38,3 @@ function socketPlayerChat (data, next) {
 
   createPlayerChat(sid, id, name, message, date, next)
 }
-
-export { chat, socketPlayerChat, socketWebChat }

@@ -60,18 +60,6 @@ export function getPlayer (data, callback) {
   if (data.uid) return getPlayerFromUid(data.uid, callback)
 }
 
-// API.resetPrimaryUid = function (yuuid, next) {
-// removePrimaryUid(yuuid, function () {
-// getUidsFromUuid(yuuid, function (err, uids) {
-// if (!err && uids && uids[0]) {
-// db.setObjectField('yuuid:' + id, 'uid', uids[0], next)
-// } else {
-// next()
-// }
-// })
-// })
-// }
-
 export function writeOfflinePlayers (players, callback) {
   for (let id in players) {
     console.log(id + ' ' + players[id].name)
@@ -151,20 +139,34 @@ const getUserUuid = (uid, next) => db.getObjectField(`user:${uid}`, 'yuuid', nex
 const setUserUuid = (uid, yuuid, next) => db.setObjectField(`user:${uid}`, 'yuuid', yuuid, next)
 const remUserUuid = (uid, next) => db.deleteObjectField(`user:${uid}`, 'yuuid', next)
 
-const getLinkedUids = (next) => db.getSortedSetRevRange('mi:uid:linked', 0, -1, next)
-const getLinkedUuids = (next) => db.getSortedSetRevRange('yuuid:linked', 0, -1, next)
+export const getLinkedUids = (next) => db.getSortedSetRevRange('mi:uid:linked', 0, -1, next)
+export const getLinkedUuids = (next) => db.getSortedSetRevRange('yuuid:linked', 0, -1, next)
 
-// Add link to sortedsets and primaries.
-const linkUuidtoUid = (yuuid, uid, next) => async.parallel([
-  async.apply(db.sortedSetAdd, 'mi:uid:linked', Date.now(), uid),
-  async.apply(db.sortedSetAdd, `yuuid:${yuuid}:uids`, Date.now(), uid),
-  async.apply(db.sortedSetAdd, 'yuuid:linked', Date.now(), yuuid),
-  async.apply(db.sortedSetAdd, `uid:${uid}:yuuids`, Date.now(), yuuid),
-  async.apply(db.setObjectField, `yuuid:${yuuid}`, 'uid', uid),
-  async.apply(db.setObjectField, `user:${uid}`, 'yuuid', yuuid),
-], next)
+// Add link to sortedsets and set primary.
+export function link (yuuid, uid, next) {
+  async.parallel([
+    async.apply(db.sortedSetAdd, 'mi:uid:linked', Date.now(), uid),
+    async.apply(db.sortedSetAdd, `yuuid:${yuuid}:uids`, Date.now(), uid),
+    async.apply(db.sortedSetAdd, 'yuuid:linked', Date.now(), yuuid),
+    async.apply(db.sortedSetAdd, `uid:${uid}:yuuids`, Date.now(), yuuid),
+    async.apply(db.setObjectField, `yuuid:${yuuid}`, 'uid', uid),
+    async.apply(db.setObjectField, `user:${uid}`, 'yuuid', yuuid),
+  ], next)
+}
 
-const unlinkUid = (uid, next) => db.sortedSetRemove('mi:uid:linked', uid)
+export function unlink (yuuid, uid, next) {
+  console.log(`unlinking ${yuuid} with ${uid}`)
+
+  // TODO: Reset primaries when unlinking.
+  async.parallel([
+    async.apply(db.sortedSetRemove, 'mi:uid:linked', uid),
+    async.apply(db.sortedSetRemove, `yuuid:${yuuid}:uids`, uid),
+    async.apply(db.sortedSetRemove, 'yuuid:linked', yuuid),
+    async.apply(db.sortedSetRemove, `uid:${uid}:yuuids`, yuuid),
+    async.apply(db.deleteObjectField, `yuuid:${yuuid}`, 'uid'),
+    async.apply(db.deleteObjectField, `user:${uid}`, 'yuuid'),
+  ], next)
+}
 
 // The primary User of a UUID was deleted/banned/etc.
 function resetPlayerPrimaryUid (yuuid, next) {

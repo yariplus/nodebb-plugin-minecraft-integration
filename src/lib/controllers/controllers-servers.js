@@ -10,6 +10,7 @@ import {
   getAllServersStatus,
   getServerStatus,
   getServerPings,
+  getServerPlugins,
   updateServerStatus,
 } from '../servers'
 

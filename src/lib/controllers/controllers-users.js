@@ -1,15 +1,19 @@
 // Users controllers
 
-import { async, db, User } from '../nodebb'
+import { accountHelpers, async, db, User, } from '../nodebb'
 
 import Config from '../config'
 import Updater from '../updater'
-import Utils from '../utils'
+import { parseFormatCodes } from '../utils'
+
+import { getPlayersByUid } from '../players'
 
 import {
   getUsers,
   getUser,
 } from '../users'
+
+import moment from 'moment'
 
 function users () {
   // (uid, (err, players) => {
@@ -27,20 +31,39 @@ function user () {
   // })
 }
 
-function profile () {
-  // (uid, (err, players) => {
-    // if (err) return res.status(404).end()
+function profile (req, res, next) {
+  let payload = {}
 
-    res.render('mi/data', {data: ''})
-  // })
-}
+  async.waterfall([
+    async.apply(accountHelpers.getUserDataByUserSlug, req.params.userslug, req.uid),
+    (userData, next) => {
+      if (!userData) return res.redirect('/')
 
-function register () {
-  // (uid, (err, players) => {
-    // if (err) return res.status(404).end()
+      payload = userData
 
-    res.render('mi/data', {data: ''})
-  // })
+      getPlayersByUid(userData.uid, (err, players) => {
+        if (err || !players || !players.length) {
+          payload.hasPlayers = false
+        } else {
+          players = players.map(player => {
+            player.prefix = parseFormatCodes(player.prefix)
+            player.lastonline = moment(player.lastonline).format('M/D/YY h:mm a')
+            return player
+          })
+
+          payload.hasPlayers = true
+          payload.players = players
+        }
+        next()
+      })
+    }
+  ], err => {
+    if (err) return next(err)
+
+    payload.title = req.params.userslug
+
+    res.render('account/minecraft', payload)
+  })
 }
 
 function ranks () {
@@ -100,7 +123,6 @@ export {
   users,
   user,
   profile,
-  register,
   ranks,
   chat,
 }

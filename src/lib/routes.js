@@ -26,8 +26,6 @@ export default function (app, middleware, router) {
   // addToAPI(Backend.getTopPlayersByPlaytimes, 'getTopPlayersByPlaytimes', 'playtimes/top')
   // addToAPI(Backend.getTopPlayersByPlaytimes, 'getTopPlayersByPlaytimes', 'playtimes/top/:show')
 
-  // addToWriteAPI(Controllers.eventPlayerChat, 'eventPlayerChat', 'chat/:id/:name/:message')
-
   // addToWriteAPI(Controllers.writeOfflinePlayers, 'writeOfflinePlayers', 'offlineplayers')
   // addToWriteAPI(Controllers.writeRanks, 'writeRanks', 'ranks')
   // addToWriteAPI(Controllers.writeRanksWithMembers, 'writeRanksWithMembers', 'ranks-with-members')

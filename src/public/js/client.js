@@ -22,7 +22,7 @@ $(() => {
     const $chatinput = $chatwidget.find('.mi-chat-input')
     const $chatsend = $chatwidget.find('.mi-chat-send')
 
-    const sid = $chatwidget.attr('data-sid')
+    const sid = widget.sid
     const name = app.user.username
 
     $chatbox.scrollTop(100000)
@@ -140,14 +140,10 @@ $(() => {
   $(window).on('action:ajaxify.end', (event, data) => {
     // Minecraft profile page.
     if (data.url.match(/user\/[^\/]*\/minecraft/)) {
-      const key = $('[name="player-key"]').html()
-
-      $('.copyPlayerKey').attr('data-clipboard-text', key)
-
       require(['//cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.5/clipboard.min.js'], Clipboard => {
-        const clipboard = new Clipboard('.copyPlayerKey')
+        const clipboard = new Clipboard('.mi-player-id')
 
-        $('.copyPlayerKey').mouseout(function () {
+        $('.mi-player-id').mouseout(function () {
           $(this).tooltip('destroy')
         })
 
@@ -161,20 +157,37 @@ $(() => {
         })
       })
 
-      $('.resetPlayerKey').click(() => {
-        socket.emit('plugins.MinecraftIntegration.resetPlayerKey', {uid: app.user.uid}, (err, data) => {
-          if (err) return log(err.message)
-          if (!(data && data.key)) return log('Received invalid response to resetPlayerKey call.')
+      $('.mi-btn-unlink-player').click(function () {
+        let id = $(this).closest('tr').find('.mi-player-id').html().trim()
 
-          $('[name="player-key"]').html(`key-${data.key}`)
-          $('.copyPlayerKey').attr('data-clipboard-text', `key-${data.key}`)
+        bootbox.confirm({
+          message: `Are you sure you want to unlink player ${id}?`,
+          buttons: {
+            confirm: {
+              label: 'Yes',
+              className: 'btn-success'
+            },
+            cancel: {
+              label: 'No',
+              className: 'btn-danger'
+            }
+          },
+          callback (result) {
+            if (result) {
+              socket.emit('plugins.MinecraftIntegration.unlink', {id}, err => {
+                if (err) {
+                  app.alertError(err.message)
+                  return log(err.message)
+                }
+
+                app.alertSuccess(`Successfully Unlinked ${id}`)
+              })
+            }
+          },
         })
       })
     }
-  })
 
-  $(window).on('action:widgets.loaded', () => {
-    // require(['/plugins/nodebb-plugin-minecraft-integration/public/js/vendor/michart.js'], function () {
     // Store widgets
     $('.mi-container').each(function () {
       const $this = $(this)

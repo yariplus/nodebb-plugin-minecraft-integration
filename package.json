@@ -30,7 +30,8 @@
   "readme": "",
   "readmeFilename": "README.md",
   "dependencies": {
-    "humanize-duration": "^3.7.1"
+    "humanize-duration": "^3.7.1",
+    "moment": "^2.20.1"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",

@@ -124,11 +124,11 @@ export const untrimUUID = uuid => {
 
 export const getKey = (data, next) => {
   if (next) {
-    crypto.randomBytes(48, (err, buf) => {
-      next(null, {key: buf.toString('base64').replace(/\//g, '=')})
+    crypto.randomBytes(10, (err, buf) => {
+      next(null, {key: buf.toString('base64').replace(/\//g,'_').replace(/\+/g,'-')})
     })
   } else {
-    return crypto.randomBytes(48).toString('base64').replace(/\//g, '=')
+    return crypto.randomBytes(10).toString('base64').replace(/\//g,'_').replace(/\+/g,'-')
   }
 }
 

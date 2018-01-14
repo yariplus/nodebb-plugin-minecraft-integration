@@ -1,4 +1,5 @@
 import { getAvatar } from '../avatars'
+import { getTopPlayersByPlaytimes } from '../servers'
 
 import async from 'async'
 
@@ -16,7 +17,7 @@ export function render (data, callback) {
   data.colorEnd = data.colorEnd || 'white'
 
   async.waterfall([
-    async.apply(Backend.getTopPlayersByPlaytimes, {show: data.show}),
+    async.apply(getTopPlayersByPlaytimes, {show: data.show}),
     (players, next) => {
       async.map(players, (player, next) => {
         // TODO: Different scoring methods.

@@ -26,13 +26,11 @@ import {
 } from './players'
 
 import {
+  SocketAdmin,
   winston,
-  SocketAdmin
 } from './nodebb'
 
-import {
-  getAvatarCDN,
-} from './config'
+import Config from './config'
 
 export default function () {
   // Settings
@@ -70,7 +68,7 @@ export default function () {
   // Uses fetchPlayer instead. addAdminSocket('refreshPlayer', Backend.refreshPlayer)
   // Doesn't exist. addAdminSocket('resetPlayers', Backend.resetPlayers)
   addAdminSocket('deleteServer', deleteServer)
-  addAdminSocket('getAvatarCDN', getAvatarCDN)
+  addAdminSocket('getAvatarCDN', Config.getAvatarCDN)
 }
 
 export function buildAdminHeader (custom_header, next) {
