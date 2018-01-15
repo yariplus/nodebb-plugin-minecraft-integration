@@ -37,7 +37,7 @@ export function load (params, next) {
 
     config = config || {}
     config.name = config.name || 'A Minecraft Server'
-    config.address = config.address || (`${require('nconf').get('url')}:25565`)
+    config.address = config.address || `${nconf.get('url')}:25565`
     config.APIKey = config.APIKey || getKey()
     config.hidePlugins = config.hidePlugins || '0'
 
