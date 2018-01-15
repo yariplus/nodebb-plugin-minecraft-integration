@@ -373,7 +373,7 @@ define('admin/plugins/minecraft-integration', ['settings', 'translator'], functi
       })
     })
 
-    socket.emit('admin.MinecraftIntegration.getServersConfig', {}, function (err, servers) {
+    socket.emit('admin.MinecraftIntegration.getServersConfig', [], function (err, servers) {
       if (err) return console.log('Error getting servers:')
 
       log('Got server configurations.')

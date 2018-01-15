@@ -230,30 +230,27 @@ export function deleteServer (data, next) {
   ], next)
 }
 
-export function getServersConfig ({}, next) {
-  getServersSids((err, sids) => {
-    if (err) return next(err)
+export function getServersConfig (sids, next) {
+  if (typeof sids === 'function') {
+    next = sids
+    sids = []
+  }
 
-    // TODO Bulk op
-    async.map(sids, getServerConfig, next)
-  })
+  async.waterfall([
+    sids.length ? next => next(null, sids) : next => getServersSids(sids, next),
+    (sids, next) => sids.map(sid => `mi:server:${sid}:config`),
+    (keys, next) => db.getObjects(keys, next),
+  ], next)
 }
 
 export function getServerConfig (sid, next) {
-  db.getObject(`mi:server:${sid}:config`, (err, config) => {
-    if (err) return next(err)
-    if (!config) return next(new Error(`getServerConfig() invalid SID: ${sid}`))
-
-    config.sid = sid
-
-    next(null, config)
-  })
+  getServersConfig([sid], (err, configs) => next(err, err ? null : configs[0]))
 }
 
 export function getSidUsingAPIKey (key, next) {
   let payload = null
 
-  getServersConfig({}, (err, configs) => {
+  getServersConfig((err, configs) => {
     if (err) return next(err)
 
     configs.forEach(config => {
@@ -284,5 +281,36 @@ export function getTopPlayersByPlaytimes (data, callback) {
         next(null, {id: value.value, name: profile.name, playtime: value.score, playtimeHuman: parseMinutesDuration(value.score)})
       })
     }, callback)
+  })
+}
+
+export function setSlug (sid, slug, next) {
+  getSlug(sid, (err, slug) => {
+    if (err || !slug) return next('Slug already used.')
+    db.addSortedSet(`mi:servers:slugs`, sid, slug, next)
+  })
+}
+
+export function getSlug (sid, next) {
+  db.getSortedSetRangeByScore(`mi:servers:slugs`, 0, -1, sid, sid, (err, slugs) => {
+    next(err, slugs && slugs.length ? slugs[0] : null)
+  })
+}
+
+export function getSidFromSlug (slug, next) {
+  db.sortedSetScore(`mi:servers:slugs`, slug, next)
+}
+
+export function getServerConfigFromSlug (slug, next) {
+  getSidFromSlug(slug, (err, sid) => {
+    if (err) return next(err)
+    getServerConfig(sid, next)
+  })
+}
+
+export function getServerStatusFromSlug (slug, next) {
+  getSidFromSlug(slug, (err, sid) => {
+    if (err) return next(err)
+    getServerStatus(sid, next)
   })
 }

@@ -96,7 +96,7 @@ Updater.updateServers = () => {
   // Remove old avatars from cache.
   clearOldAvatars()
 
-  getServersConfig({}, (err, configs) => {
+  getServersConfig((err, configs) => {
     configs.forEach(config => {
       getServerStatus(config, (err, status) => {
         if (err) {

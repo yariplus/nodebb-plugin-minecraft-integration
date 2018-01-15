@@ -93,7 +93,7 @@ export function getWidgets (widgets, next) {
   ]
 
   // Server list for editing widgets.
-  getServersConfig({}, (err, servers) => {
+  getServersConfig((err, servers) => {
     if (err) console.log('TODO: add an error for widget load failure.')
 
     async.each(_widgets, (widget, next) => {
