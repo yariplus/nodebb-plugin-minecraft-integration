@@ -1,6 +1,9 @@
 import {
   db,
+  async,
 } from '../nodebb'
+
+import { setSlug, isValidSlug, } from '../servers'
 
 import Config from '../config'
 
@@ -16,10 +19,11 @@ export function renderServerEditor (req, res) {
 export function setServerConfig (data, next) {
   let { sid, config } = data
 
-  // TODO: Score is used for sorting server list.
-  db.sortedSetAdd(`mi:servers`, Date.now(), sid)
-
-  db.delete(`mi:server:${sid}:config`, () => {
-    db.setObject(`mi:server:${sid}:config`, config, next)
-  })
+  async.waterfall([
+    next => isValidSlug(sid, config.slug, next),
+    next => db.delete(`mi:server:${sid}:config`, (err) => next(err)),
+    next => db.setObject(`mi:server:${sid}:config`, config, (err) => next(err)),
+    next => setSlug(sid, config.slug, (err) => next(err)),
+    next => db.sortedSetAdd(`mi:servers`, Date.now(), sid, next),
+  ], next)
 }

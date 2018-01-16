@@ -141,7 +141,9 @@ define('admin/plugins/minecraft-integration', ['settings', 'translator'], functi
       $server.find('[name="name"]').val(server ? server.name : 'A Minecraft Server ' + sid)
       $server.find('[name="address"]').val(server ? server.address : 'mc.example.com')
       $server.find('[name="api-key"]').val(server ? server.APIKey : regenKey($server.find('[name="api-key"]'), true))
+      $server.find('[name="slug"]').val(server ? server.slug : '')
 
+      $server.find('[name="hide-plugins"]').prop('checked', server ? parseInt(server.hidePlugins, 10) : false)
       $server.find('[name="hide-plugins"]').prop('checked', server ? parseInt(server.hidePlugins, 10) : false)
 
       if (!server) {
@@ -174,8 +176,10 @@ define('admin/plugins/minecraft-integration', ['settings', 'translator'], functi
         var config = {
           name: $server.find('[name=name]').val(),
           address: $server.find('[name=address]').val(),
+          slug: $server.find('[name=slug]').val(),
           APIKey: $server.find('[name=api-key]').val(),
-          hidePlugins: $server.find('[name=hide-plugins]').is(':checked') ? 1 : 0
+          hidePlugins: $server.find('[name=hide-plugins]').is(':checked') ? 1 : 0,
+          disable: $server.find('[name=disable]').is(':checked') ? 1 : 0,
         }
 
         socket.emit('admin.MinecraftIntegration.setServerConfig', {sid: $server.attr('data-sid'), config: config}, function (err) {

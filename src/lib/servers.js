@@ -230,16 +230,30 @@ export function deleteServer (data, next) {
   ], next)
 }
 
-export function getServersConfig (sids, next) {
-  if (typeof sids === 'function') {
-    next = sids
-    sids = []
+export function getServersConfig (_sids, next) {
+  if (typeof _sids === 'function') {
+    next = _sids
+    _sids = []
   }
 
   async.waterfall([
-    sids.length ? next => next(null, sids) : next => getServersSids(sids, next),
-    (sids, next) => sids.map(sid => `mi:server:${sid}:config`),
-    (keys, next) => db.getObjects(keys, next),
+    (next) => {
+      if (_sids.length) {
+        next(null, _sids)
+      } else {
+        getServersSids(next)
+      }
+    },
+    (sids, next) => {
+      _sids = sids
+      db.getObjects(sids.map(sid => `mi:server:${sid}:config`), next)
+    },
+    (configs, next) => {
+      _sids.forEach((sid, i) => {
+        configs[i].sid = sid
+      })
+      next(null, configs)
+    },
   ], next)
 }
 
@@ -251,6 +265,7 @@ export function getSidUsingAPIKey (key, next) {
   let payload = null
 
   getServersConfig((err, configs) => {
+
     if (err) return next(err)
 
     configs.forEach(config => {
@@ -284,16 +299,27 @@ export function getTopPlayersByPlaytimes (data, callback) {
   })
 }
 
+export function isValidSlug (sid, slug, next) {
+  if (slug.length) {
+    if (slug.length < 4) return next(new Error('Slug length must be at least 4 characters.'))
+
+    getSidFromSlug(slug, (err, _sid) => {
+      if (err || ( _sid && _sid >= 0 && _sid != sid )) return next('Slug already used.')
+
+      next()
+    })
+  } else {
+    next()
+  }
+}
+
 export function setSlug (sid, slug, next) {
-  getSlug(sid, (err, slug) => {
-    if (err || !slug) return next('Slug already used.')
-    db.addSortedSet(`mi:servers:slugs`, sid, slug, next)
-  })
+  db.sortedSetAdd(`mi:servers:slugs`, sid, slug, next)
 }
 
 export function getSlug (sid, next) {
   db.getSortedSetRangeByScore(`mi:servers:slugs`, 0, -1, sid, sid, (err, slugs) => {
-    next(err, slugs && slugs.length ? slugs[0] : null)
+    next(err, slugs && slugs.length ? slugs[0] : '')
   })
 }
 
