@@ -12,7 +12,7 @@ export function chat (req, res) {
 }
 
 // TODO: This is essentially the same as the below, but it should send the chat to the server and get a callback before sending to users.
-export function web (socket, data, next) {
+export function web (data, next) {
   // Assert parameters.
   if (!(data && data.sid && data.id && data.name && data.message)) return next()
 

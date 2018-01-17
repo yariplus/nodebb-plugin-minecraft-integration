@@ -34,7 +34,5 @@ export default function (app, middleware, router) {
 
   // addToWriteAPI(PlayerVotes, 'PlayerVotes')
 
-  // Request API
-  // SocketPlugins.MinecraftIntegration.eventWebChat = API.eventWebChat
   // SocketPlugins.MinecraftIntegration.eventGetPlayerVotes = eventGetPlayerVotes
 }

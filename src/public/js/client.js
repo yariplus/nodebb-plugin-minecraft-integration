@@ -19,8 +19,8 @@ $(() => {
   function prepareChat (widget) {
     const $chatwidget = widget.el
     const $chatbox = $chatwidget.find('.mi-chat-box')
-    const $chatinput = $chatwidget.find('.mi-chat-input')
-    const $chatsend = $chatwidget.find('.mi-chat-send')
+    const $chatinput = $chatwidget.find('input')
+    const $chatsend = $chatwidget.find('button')
 
     const sid = widget.sid
     const name = app.user.username
@@ -35,13 +35,13 @@ $(() => {
       const chatData = {sid, id: 'uuid', date: Date.now(), name, message}
 
       socket.emit('plugins.MinecraftIntegration.eventWebChat', chatData)
+      console.log(chatData)
 
       $chatinput.val('')
     }
 
-    $chatwidget.find('.mi-chat-send').click(sendChat)
-
-    $chatwidget.find('input').keyup(e => {
+    $chatsend.click(sendChat)
+    $chatinput.keyup(e => {
       if (parseInt(e.keyCode, 10) === 13) sendChat()
     })
   }
