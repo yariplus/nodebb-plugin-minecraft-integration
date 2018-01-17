@@ -5,9 +5,11 @@
     <!-- END chats -->
   </div>
   <!-- IF user.hasplayers -->
-  <div class="mi-chat-entry">
-    <input class="mi-chat-input">
-    <button class="mi-chat-send">[[mi:send]]</button>
+  <div class="input-group input-group-sm">
+    <input type="text" class="form-control" placeholder="Server Chat">
+    <span class="input-group-btn">
+      <button class="btn btn-success" type="button">[[mi:send]]</button>
+    </span>
   </div>
   <!-- ENDIF user.hasplayers -->
 </div>
