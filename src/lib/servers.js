@@ -340,3 +340,36 @@ export function getServerStatusFromSlug (slug, next) {
     getServerStatus(sid, next)
   })
 }
+
+export function setScoreboard (objective, entries, scores, minute, next) {
+  const key = `mi:server:${sid}:scoreboards:${objective}`
+
+  if (!entries.length || !scores.length || entries.length !== scores.length) return next(new Error('setScoreboard called with invalid entries.')) // TODO
+
+  async.waterfall([
+    async.apply(db.delete, `${key}:${minute}`),
+    async.apply(db.sortedSetAdd, `${key}:timestamps`, minute, minute),
+    async.apply(db.sortedSetAdd, `${key}:${minute}`, scores, entries),
+    async.apply(db.expire, `${key}:${minute}`, 60 * 60 * 24 * 365), // TODO: Configurable expiry.
+  ], next)
+}
+
+export function getScoreboard (objective, minute, next) {
+  db.getSortedSetRange(`mi:server:${sid}:scoreboards:${objective}:${minute}`, 0, -1, next)
+}
+
+export function getScoreboardRange (objective, min, max, next) {
+  db.getSortedSetRevRangeByScore(`mi:server:${sid}:scoreboards:${objective}:timestamps`, 0, 10000000, max, min, (err, minutes) => {
+    if (err) return next(err)
+
+    async.map(minutes, (minute, next) => getScoreboard(objective, minute, next), next)
+  })
+}
+
+export function getScoreboards (objective, amount, next) {
+  db.getSortedSetRevRange(`mi:server:${sid}:scoreboards:${objective}:timestamps`, 0, amount - 1, (err, minutes) => {
+    if (err) return next(err)
+
+    async.map(minutes, (minute, next) => getScoreboard(objective, minute, next), next)
+  })
+}
