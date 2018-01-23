@@ -1,26 +1,22 @@
 import { getAvatar } from '../avatars'
-import { getScoreboard } from '../servers'
+import { getScoreboards } from '../servers'
 
 import async from 'async'
 
 export function render (data, next) {
-  data.show = parseInt(data.show)
-  data.show = isNaN(data.show) ? 5 : data.show
-  data.show = data.show > 20 ? 20 : data.show
-  data.show = data.show < 3 ? 3 : data.show
+  let { sid, objective, show, useColors, colorStart, colorEnd, } = data
 
-  data.statname = ''
+  show = parseInt(show)
+  show = isNaN(show) ? 5 : show
+  show = show > 20 ? 20 : show
+  show = show < 3 ? 3 : show
 
   // TODO: Custom colors.
-  data.useColors = data.useColors || 'a'
-  data.colorStart = data.colorStart || 'white'
-  data.colorEnd = data.colorEnd || 'white'
+  useColors = useColors || 'a'
+  colorStart = colorStart || 'white'
+  colorEnd = colorEnd || 'white'
 
-  getScoreboard({show: 10}, (err, players) => {
-    if (err) return next(err)
-
-    data.players = players
-
-    next(null, data)
+  getScoreboards(sid, objective, show, (err, players) => {
+    next(err, {...data, players, useColors, colorStart, colorEnd, })
   })
 }

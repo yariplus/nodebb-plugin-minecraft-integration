@@ -11,7 +11,9 @@ import {
   getServerStatus,
   getServerPings,
   getServerPlugins,
-  updateServerStatus,
+  setServerStatus,
+  setScoreboard,
+  setServerPlayers,
 } from '../servers'
 
 import {
@@ -21,13 +23,17 @@ import {
 // TEMP
 import { getUser } from '../users'
 
-function list (req, res) {
+function sortLex (a, b) {
+  return a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1
+}
+
+export function list (req, res) {
   getAllServersStatus((err, servers) => {
     res.render('mi/data', {data: servers})
   })
 }
 
-function status (req, res) {
+export function status (req, res) {
   let sid = parseInt(req.params.sid, 10)
   if (sid === NaN) return res.redirect('/')
 
@@ -36,7 +42,7 @@ function status (req, res) {
   })
 }
 
-function pings (req, res) {
+export function pings (req, res) {
   let { sid, amount } = req.params
 
   sid = parseInt(req.params.sid, 10)
@@ -50,7 +56,7 @@ function pings (req, res) {
   })
 }
 
-function plugins (req, res) {
+export function plugins (req, res) {
   let sid = parseInt(req.params.sid, 10)
   if (sid === NaN) return res.redirect('/')
 
@@ -59,7 +65,7 @@ function plugins (req, res) {
   })
 }
 
-function icon (req, res) {
+export function icon (req, res) {
   let sid = parseInt(req.params.sid, 10)
   if (sid === NaN) return res.redirect('/')
 
@@ -68,75 +74,102 @@ function icon (req, res) {
   })
 }
 
-function writeServerStatus (status, next) {
-  console.log('Got server status:')
-  console.dir(status)
+// Forum will receive one ping a minute.
+export function ping (data, next) {
+  // Data from Minecraft server.
+  let {
+    sid,
+    timestamp,
+    tps,
+    version,
+    name,
+    gametype,
+    map,
+    motd,
+    players,
+    onlinePlayers,
+    maxPlayers,
+    plugins,
+    mods,
+    icon,
+    objectives,
+    pocket,
+  } = data
 
-  // TODO: Should be calculated server-side.
-  const updateTime = Math.round(Date.now() / 60000) * 60000, sid = status.sid, tps = status.tps
+  let playersJSON, pluginsJSON, modsJSON
 
-  status.isServerOnline = '1'
-  status.hasPlugins = status.pluginList ? true : false
-  status.hasMods = status.modList ? true : false
-  status.updateTime = updateTime
+  // Set timestamp to floored minute.
+  timestamp = Math.floor(Date.now() / 60000) * 60000
 
-  // Sort plugins lexically.
-  if (Array.isArray(status.pluginList)) status.pluginList = status.pluginList.sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)
-
-  // Trim UUIDs to Mojang format.
-  status.players.forEach(player => {
-    if (!player.id) return
+  // Trim UUIDs to Mojang format. Set pocket skins.
+  players.filter(player => player.id).forEach(player => {
     player.id = trimUUID(player.id)
-    if (status.pocket) player.id = 'pocket:' + player.id
+    if (pocket) {
+      player.id = 'pocket:' + player.id
+      if (player.skin) storePocketAvatar(player.name, player.skin)
+    }
   })
 
-  async.filter(status.players, (player, next) => {
-    if (status.pocket) return next(true)
+  // Set arrays.
+  if (!Array.isArray(players)) players = []
+  if (!Array.isArray(plugins)) plugins = []
+  if (!Array.isArray(mods)) mods = []
+  if (!Array.isArray(objectives)) objectives = []
 
-    // Verify the player has a valid uuid<=>name match.
-    getUuidFromName(player.name, (err, id) => {
-      next(err ? false : (player.id === id ? true : false))
-    })
-  }, players => {
-    let scores = []
-    let values = []
+  // TODO: Fix uuid verification.
+  // async.apply(async.filter, players, (player, next) => {
+    // if (pocket) return next(true)
+    // getUuidFromName(player.name, (err, id) => next(err ? false : (player.id === id ? true : false)))
+  // }),
+  // (data, next) => {
+  // }
 
-    async.waterfall([
-      async.apply(db.delete, `mi:server:${sid}:players`),
-      async.apply(async.each, players, (player, next) => {
-        let {name, id, displayName, prefix, suffix, primaryGroup, playtime, skin} = player
+  // Sort arrays.
+  players = players.sort(sortLex)
+  plugins = plugins.sort(sortLex)
+  mods = mods.sort(sortLex)
 
-        if (!id) return next()
+  // Stringify arrays.
+  playersJSON = JSON.stringify(players)
+  pluginsJSON = JSON.stringify(plugins)
+  modsJSON = JSON.stringify(mods)
 
-        if (status.pocket && skin) {
-          //console.log(`found skin for ${name}`)
-          storePocketAvatar(name, skin)
-        }
+  // Set scoreboards
+  setScoreboard(sid, objectives, timestamp, () => {})
 
-        scores.push(0)
-        values.push(`${name}:${id}`)
-        db.setObject(`yuuid:${id}`, {lastonline: updateTime, name, id, displayName, prefix, suffix, primaryGroup, playtime}, next)
-      }),
-      async.apply(db.sortedSetAdd, `mi:server:${sid}:players`, scores, values)
-    ], (err) => {
-      if (err) return next(err)
+  // Stored status is strings only.
+  let status = {
+    sid,
+    timestamp,
+    tps,
+    version,
+    name,
+    gametype,
+    map,
+    motd,
+    players: playersJSON,
+    plugins: pluginsJSON,
+    mods: modsJSON,
+    hasPlugins: plugins.length ? '1' : '0',
+    hasMods: mods.length ? '1' : '0',
+    onlinePlayers,
+    maxPlayers,
+    icon,
+    pocket,
+  }
 
-      console.log('Parsed status is:')
-      console.dir(status)
-
-      updateServerStatus(status, err => {
-        if (err) return next(err)
-        getServerStatus(status.sid, (err, status) => {
-          if (err) return next(err)
-          sendStatusToUsers(status)
-          next()
-        })
-      })
-    })
+  async.waterfall([
+    async.apply(setServerPlayers, sid, players),
+    async.apply(setServerStatus, sid, status, timestamp),
+    async.apply(getServerStatus, sid),
+  ], (err, status) => {
+    if (err) return next(err)
+    sendStatusToUsers(status)
+    next()
   })
 }
 
-function join (data, next) {
+export function join (data, next) {
   // TODO: Refactor ideas
   // const {
     // sid,
@@ -193,7 +226,7 @@ function join (data, next) {
   })
 }
 
-function quit (data, next) {
+export function quit (data, next) {
   const {
     sid,
     id,
@@ -210,13 +243,6 @@ function quit (data, next) {
   })
 }
 
-export {
-  list,
-  status,
-  pings,
-  plugins,
-  icon,
-  writeServerStatus,
-  join,
-  quit,
+export function scoreboards (data, next) {
+  
 }

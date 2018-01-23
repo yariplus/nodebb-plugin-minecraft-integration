@@ -11,23 +11,31 @@ import {
   plugins,
   join,
   quit,
-  writeServerStatus,
+  ping,
 } from '../controllers/controllers-servers'
 
 export default function () {
   addPageRoute('servers', list)
 
-  addPageRoute('server/:sid', status)
+  addPageRoute('sid/:sid', status)
+  addPageRoute('server/:serverslug', status)
 
-  addPageRoute('server/:sid/pings', pings)
-  addPageRoute('server/:sid/pings/:last', pings)
+  addPageRoute('sid/:sid/pings', pings)
+  addPageRoute('sid/:sid/pings/:last', pings)
+  addPageRoute('server/:serverslug/pings', pings)
+  addPageRoute('server/:serverslug/pings/:last', pings)
 
-  addPageRoute('server/:sid/icon', icon)
+  addPageRoute('sid/:sid/icon', icon)
+  addPageRoute('server/:serverslug/icon', icon)
 
-  addPageRoute('server/:sid/plugins', plugins)
+  addPageRoute('sid/:sid/plugins', plugins)
+  addPageRoute('server/:serverslug/plugins', plugins)
 
-  addWriteRoute('server/join', 'eventPlayerJoin', join)
-  addWriteRoute('server/quit', 'eventPlayerQuit', quit)
+  addWriteRoute('sid/join', 'join', join)
+  addWriteRoute('sid/quit', 'quit', quit)
+  addWriteRoute('server/join', 'join', join)
+  addWriteRoute('server/quit', 'quit', quit)
 
-  addWriteRoute('server', 'eventStatus', writeServerStatus)
+  addWriteRoute('sid', 'ping', ping)
+  addWriteRoute('server', 'ping', ping)
 }

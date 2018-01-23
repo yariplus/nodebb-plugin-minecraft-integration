@@ -15,6 +15,7 @@ import { render as processPlayersGrid } from './widgets/players-grid'
 import { render as processStatus } from './widgets/status'
 import { render as processTopGraph } from './widgets/top-graph'
 import { render as processTopList } from './widgets/top-list'
+import { render as processScoreboardList } from './widgets/scoreboard-list'
 import { render as processTPSGraph } from './widgets/tps-graph'
 import { render as processVoteList } from './widgets/vote-list'
 
@@ -84,7 +85,8 @@ export function getWidgets (widgets, next) {
     { widget: 'mi-players-grid', name: 'Minecraft Players Grid', content: 'admin/widgets/players-grid.tpl', description: 'Shows the avatars of all online players or a group of specific players.' },
     { widget: 'mi-status', name: 'Minecraft Server Status', content: 'admin/widgets/status.tpl', description: 'Lists information on a Minecraft server.' },
     // { widget: 'mi-top-graph', name: 'Minecraft Top Players Graph', content: 'admin/widgets/top-graph.tpl', description: "A graphic chart (Pie, Donut, or Bar) representing the top players' based on a specific statistic." },
-    { widget: 'mi-top-list', name: 'Minecraft Top Players List', content: 'admin/widgets/top-list.tpl', description: "Lists avatars representing the top players' based on a specific statistic." },
+    { widget: 'mi-top-list', name: 'Minecraft Top Players List', content: 'admin/widgets/top-list.tpl', description: "Lists the top players based on a statistic." },
+    { widget: 'mi-scoreboard-list', name: 'Minecraft Scoreboard List', content: 'admin/widgets/scoreboard-list.tpl', description: "Lists the top players for a scoreboard objective." },
     // { widget: 'mi-tps-graph', name: 'Minecraft TPS Graph', content: 'admin/widgets/tps-graph.tpl', description: 'Shows the approximate tick time of the server over time.' },
     // { widget: 'mi-vote-list', name: 'Minecraft Vote List', content: 'admin/widgets/vote-list.tpl', description: 'Links to sites where players can vote for the server.' },
     // { widget: "mi-directory",     name: "Minecraft Player Directory",  content: 'admin/widgets/directory.tpl',     description: "Find and view information on players." },
@@ -120,5 +122,6 @@ export const renderPlayersGrid = (widget, callback) => render(processPlayersGrid
 export const renderStatus = (widget, callback) => render(processStatus, 'status', widget, callback)
 export const renderTopGraph = (widget, callback) => render(processTopGraph, 'top-graph', widget, callback)
 export const renderTopList = (widget, callback) => render(processTopList, 'top-list', widget, callback)
+export const renderScoreboardList = (widget, callback) => render(processScoreboardList, 'scoreboard-list', widget, callback)
 export const renderTPSGraph = (widget, callback) => render(processTPSGraph, 'tps-graph', widget, callback)
 export const renderVoteList = (widget, callback) => render(processVoteList, 'vote-list', widget, callback)

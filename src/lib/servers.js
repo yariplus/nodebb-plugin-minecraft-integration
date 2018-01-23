@@ -1,5 +1,6 @@
 // Servers Model
 
+
 import {
   async,
   db,
@@ -7,8 +8,13 @@ import {
 } from './nodebb'
 
 import {
+  trimUUID,
   parseVersion,
 } from './utils'
+
+import {
+  getUuidFromName,
+} from './players'
 
 import Config from './config'
 
@@ -81,39 +87,20 @@ export function getServerStatus (sid, next) {
   })
 }
 
-// TODO: Signature (sid, status, next)
-export function updateServerStatus (status, next) {
-  let {
-    sid,
-    players,
-    updateTime,
-    tps,
-  } = status
-
-  status.players = status.players || '[]'
-  status.pluginList = status.pluginList || '[]'
-  status.modList = status.modList || '[]'
-
-  if (typeof status.players === 'object') status.players = JSON.stringify(status.players)
-  if (typeof status.pluginList === 'object') status.pluginList = JSON.stringify(status.pluginList)
-  if (typeof status.modList === 'object') status.modList = JSON.stringify(status.modList)
-
+export function setServerStatus (sid, status, timestamp, next) {
   async.waterfall([
     async.apply(db.delete, `mi:server:${sid}`),
     async.apply(db.setObject, `mi:server:${sid}`, status),
     async.apply(db.expire, `mi:server:${sid}`, Config.getPingExpiry()),
-    async.apply(db.setObjectField, `mi:server:${sid}:ping:${updateTime}`, 'players', status.players),
-    async.apply(db.setObjectField, `mi:server:${sid}:ping:${updateTime}`, 'tps', tps),
-    async.apply(db.expire, `mi:server:${sid}:ping:${updateTime}`, Config.getPingExpiry()),
-    async.apply(setServerPlayers, sid, players),
-    async.apply(updatePingList, `mi:server:${sid}:pings`, updateTime),
+    async.apply(db.sortedSetAdd, `mi:server:${sid}:pings`, timestamp, timestamp),
+    async.apply(db.setObjectField, `mi:server:${sid}:ping:${timestamp}`, 'players', status.players),
+    async.apply(db.setObjectField, `mi:server:${sid}:ping:${timestamp}`, 'tps', status.tps),
+    async.apply(db.expire, `mi:server:${sid}:ping:${timestamp}`, Config.getPingExpiry()),
+    async.apply(prunePings, sid),
   ], next)
 }
 
-function setServerPlayers (sid, players, next) {
-  console.log('Set Players')
-  console.log(Array.isArray(players))
-  console.log(players)
+export function setServerPlayers (sid, players, next) {
   let key = `mi:server:${sid}:players`
   let values = players.map(player => `${player.name}:${player.id}`)
   let scores = players.map(player => 0)
@@ -121,13 +108,13 @@ function setServerPlayers (sid, players, next) {
   async.waterfall([
     async.apply(db.delete, key),
     async.apply(db.sortedSetAdd, key, scores, values),
-  ])
+  ], next)
 }
 
 // TODO: Make this retrieve a time range instead of a fixed amount.
 export function getServerPings (sid, amount, next) {
   async.waterfall([
-    async.apply(db.getSortedSetRevRange, `mi:server:pings`, 0, amount),
+    async.apply(db.getSortedSetRevRange, `mi:server:${sid}:pings`, 0, amount),
     (stamps, next) => {
       next(null, stamps.map(stamp => `mi:server:${sid}:ping:${stamp}`))
     },
@@ -194,16 +181,17 @@ export function getServerIcon (sid, next) {
   })
 }
 
-function updatePingList (key, value, cb) {
-  db.getListRange(key, 0, 0, (err, values) => {
-    if (err) return cb(err)
+export function prunePings (sid, next) {
+  const key = `mi:server:${sid}:pings`
 
-    // Is the most recent ping stamp empty or outdated?
-    if (!values || !values[0] || !values[0] === value) {
-      db.listPrepend(key, value)
-    }
+  db.getSortedSetRange(key, 0, -1, (err, timestamps) => {
+    if (err) return next(err)
 
-    cb()
+    timestamps.forEach(timestamp => {
+      if (Date.now() - Config.getPingExpiry() > timestamp) db.sortedSetRemove(key, timestamp)
+    })
+
+    next()
   })
 }
 
@@ -341,24 +329,38 @@ export function getServerStatusFromSlug (slug, next) {
   })
 }
 
-export function setScoreboard (objective, entries, scores, minute, next) {
-  const key = `mi:server:${sid}:scoreboards:${objective}`
+export function setScoreboard (sid, objectives, timestamp, next) {
+  async.each(objectives, (objective, next) => {
+    let { name, displayname, entries } = objective
+    let entriesJSON, scores, ids
 
-  if (!entries.length || !scores.length || entries.length !== scores.length) return next(new Error('setScoreboard called with invalid entries.')) // TODO
+    if (!Array.isArray(entries)) entries = []
 
-  async.waterfall([
-    async.apply(db.delete, `${key}:${minute}`),
-    async.apply(db.sortedSetAdd, `${key}:timestamps`, minute, minute),
-    async.apply(db.sortedSetAdd, `${key}:${minute}`, scores, entries),
-    async.apply(db.expire, `${key}:${minute}`, 60 * 60 * 24 * 365), // TODO: Configurable expiry.
-  ], next)
+    entries.forEach(entry => entry.id = trimUUID(entry.id))
+
+    entriesJSON = JSON.stringify(entries)
+
+    scores = entries.map(entry => entry.score)
+    ids = entries.map(entry => entry.id)
+
+    async.waterfall([
+      async.apply(db.sortedSetAdd, `mi:server:${sid}:objectives`, 0, name),
+      async.apply(db.setObject,    `mi:server:${sid}:objective:${name}`, {name, displayname, entriesJSON}),
+      async.apply(db.sortedSetAdd, `mi:server:${sid}:objective:${name}:timestamps`, timestamp, timestamp),
+      async.apply(db.sortedSetAdd, `mi:server:${sid}:objective:${name}:timestamp:${timestamp}`, scores, ids),
+      async.apply(db.expire, `mi:server:${sid}:objectives`, Config.getPingExpiry()),
+      async.apply(db.expire, `mi:server:${sid}:objective:${name}`, Config.getPingExpiry()),
+      async.apply(db.expire, `mi:server:${sid}:objective:${name}:timestamps`, Config.getPingExpiry()),
+      async.apply(db.expire, `mi:server:${sid}:objective:${name}:timestamp:${timestamp}`, Config.getPingExpiry()),
+    ], next)
+  }, next)
 }
 
-export function getScoreboard (objective, minute, next) {
+export function getScoreboard (sid, objective, minute, next) {
   db.getSortedSetRange(`mi:server:${sid}:scoreboards:${objective}:${minute}`, 0, -1, next)
 }
 
-export function getScoreboardRange (objective, min, max, next) {
+export function getScoreboardRange (sid, objective, min, max, next) {
   db.getSortedSetRevRangeByScore(`mi:server:${sid}:scoreboards:${objective}:timestamps`, 0, 10000000, max, min, (err, minutes) => {
     if (err) return next(err)
 
@@ -366,10 +368,15 @@ export function getScoreboardRange (objective, min, max, next) {
   })
 }
 
-export function getScoreboards (objective, amount, next) {
-  db.getSortedSetRevRange(`mi:server:${sid}:scoreboards:${objective}:timestamps`, 0, amount - 1, (err, minutes) => {
+export function getScoreboards (sid, objective, show, next) {
+  db.getObjectField(`mi:server:${sid}:objective:${objective}`, 'entriesJSON', (err, entriesJSON) => {
     if (err) return next(err)
+    if (!entriesJSON) return next(new Error(`Objective ${objective} not found.`))
 
-    async.map(minutes, (minute, next) => getScoreboard(objective, minute, next), next)
+    let entries = JSON.parse(entriesJSON)
+
+    entries = entries.sort((a,b) => a.score > b.score ? -1 : 1)
+
+    next(null, entries)
   })
 }
