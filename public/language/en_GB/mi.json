@@ -78,12 +78,17 @@
 
 	"server": "Server",
 
+  "objective": "Objective",
+
 	"use_custom_colors": "Use Custom Colors",
 
 	"color_title": "Title Color",
-	"color_text": "Title Text",
-	"color_labels": "Title Labels",
-	"color_MOTD": "Title MOTD",
+	"color_text": "Text Color",
+	"color_labels": "Label Color",
+	"color_MOTD": "MOTD Color",
+  "color_bar": "Bar Color",
+  "color_tally": "Tally Color",
+
 	"graph_color_min": "Graph Minimum Color",
 	"graph_color_max": "Graph Maximum Color",
 	"graph_color_fill": "Graph Fill Color",
