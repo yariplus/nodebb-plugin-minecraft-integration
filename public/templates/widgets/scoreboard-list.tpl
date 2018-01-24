@@ -16,9 +16,9 @@
       data-placement="top"
       rel="tooltip"
       style="width:32px;height:32px;">
-    <div class="bar" style="background-color:{colorBar};">
-      <span class="score" style="color:{colorText};">{players.score}</span>
-      <div class="tally" style="background-color:{colorTally};" data-score="{players.score}"></div>
+    <div class="bar" style="<!-- IF useColors -->background-color:{colorBar};<!-- ENDIF useColors -->">
+      <span class="score" style="<!-- IF useColors -->color:{colorText};<!-- ENDIF useColors -->">{players.score}</span>
+      <div class="tally" style="<!-- IF useColors -->background-color:{colorTally};<!-- ENDIF useColors -->" data-score="{players.score}"></div>
     </div>
   </div>
   <!-- END players -->
