@@ -6,25 +6,21 @@
 	data-color-end="{colorEnd}"
 	data-border="{border}">
 
-	<table class="table widget-table">
-		<tbody>
-			<!-- BEGIN players -->
-			<tr>
-				<td style="width:0">
-					<img class="mi-avatar not-responsive"
-						src="/api/minecraft-integration/avatar/{players.name}/64"
-						title="{players.name}"
-						data-uuid="{players.id}"
-						data-toggle="tooltip"
-						data-placement="top"
-						rel="tooltip">
-				</td>
-				<td style="vertical-align:middle" class="text-xs-left">
-					<span class="score"><span class="mi-score">{players.score}</span></span>
-				</td>
-			</tr>
-			<!-- END players -->
-		</tbody>
-	</table>
+  <!-- BEGIN players -->
+  <div class="mi-row">
+    <img class="mi-avatar-left mi-avatar not-responsive"
+      src="/api/minecraft-integration/avatar/{players.name}/64"
+      title="{players.name}"
+      data-uuid="{players.id}"
+      data-toggle="tooltip"
+      data-placement="top"
+      rel="tooltip"
+      style="width:32px;height:32px;">
+    <div class="bar" style="background-color:{colorBar};">
+      <span class="score" style="color:{colorText};">{players.score}</span>
+      <div class="tally" style="background-color:{colorTally};" data-score="{players.score}"></div>
+    </div>
+  </div>
+  <!-- END players -->
 
 </div>

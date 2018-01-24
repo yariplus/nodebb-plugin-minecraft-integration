@@ -36,6 +36,7 @@
           case 'mi-status':
           case 'mi-top-graph':
           case 'mi-top-list':
+          case 'mi-scoreboard-list':
           case 'mi-tps-graph':
             $el.attr('data-mi-wid', ++wid)
             initPanel($el)

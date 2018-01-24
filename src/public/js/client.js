@@ -122,6 +122,19 @@ $(() => {
   function prepareVoteList (widget) {
   }
 
+  function prepareScoreboardList (widget) {
+    let max = 0;
+    let tallys = widget.el.find('.tally')
+    tallys.each((i, el) => {
+      let score = $(el).data('score');
+      if (score > max) max = score
+    })
+    let div = 100/max;
+    tallys.each((i, el) => {
+      $(el).width($(el).data('score') * div + '%')
+    })
+  }
+
   const prepareWidget = {
     'mi-chat': prepareChat,
     'mi-directory': prepareDirectory,
@@ -134,7 +147,8 @@ $(() => {
     'mi-top-graph': prepareTopGraph,
     'mi-top-list': prepareTopList,
     'mi-tps-graph': prepareTPSGraph,
-    'mi-vote-list': prepareVoteList
+    'mi-vote-list': prepareVoteList,
+    'mi-scoreboard-list': prepareScoreboardList,
   }
 
   $(window).on('action:ajaxify.end', (event, data) => {

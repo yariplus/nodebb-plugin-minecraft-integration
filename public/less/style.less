@@ -202,6 +202,7 @@
     .panel.panel-default[data-widget="mi-status"],
     .panel.panel-default[data-widget="mi-top-graph"],
     .panel.panel-default[data-widget="mi-top-list"],
+    .panel.panel-default[data-widget="mi-scoreboard-list"],
     .panel.panel-default[data-widget="mi-tps-graph"] {
         > .panel-heading {
             background-color: #00aa00;
@@ -302,6 +303,45 @@
       hyphens: auto;
       border-bottom: 3px lightgray ridge;
       resize: vertical;
+    }
+  }
+
+  &[data-widget="mi-scoreboard-list"] {
+    padding:8px;
+
+    .mi-row {
+      padding-left: 32px;
+      height: 32px;
+    }
+    .mi-row+.mi-row{
+      margin-top: 8px;
+    }
+    .mi-avatar {
+      margin-left:-32px;
+      float:left;
+    }
+    .bar {
+      display:block;
+      height:32px;
+      width:100%;
+      background:darken(@panel-bg, 5%);
+    }
+
+    .tally {
+      vertical-align: middle;
+      transition: width ease-in 1.6s;
+      height: 32px;
+      width: 0;
+      background:@brand-info;
+      z-index: 1;
+    }
+    .score {
+      font-family: 'Open Sans', sans-serif;
+      position:absolute;
+      z-index: 2;
+      line-height: 32px;
+      vertical-align: middle;
+      padding-left:10px;
     }
   }
 }
