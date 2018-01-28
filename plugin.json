@@ -48,5 +48,5 @@
     "js": "public/js"
   },
   "languages": "public/language",
-  "defaultLang": "en_GB"
+  "defaultLang": "en_US"
 }

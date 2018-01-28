@@ -46,6 +46,8 @@
 	"help_server_slug": "Changes the URL that the server data is viewable at.",
   "server_disable": "Disable Server",
 	"help_server_disable": "Disables server usage, but keeps data.",
+  "log_level": "Log Level",
+	"help_log_level": "Affects how many logs are generated. Best to leave this on Info.",
 	"regenerate": "Regenerate",
 	"add_server": "Add a Server",
 	"view_servers": "View all Servers",
@@ -79,6 +81,8 @@
 	"server": "Server",
 
   "objective": "Objective",
+
+  "send": "Send",
 
 	"use_custom_colors": "Use Custom Colors",
 
