@@ -320,11 +320,13 @@
       margin-left:-32px;
       float:left;
     }
+
     .bar {
-      display:block;
-      height:32px;
-      width:100%;
-      background:darken(@panel-bg, 5%);
+      display: block;
+      height: 32px;
+      width: 100%;
+      background: darken(@panel-bg, 5%);
+      position: relative;
     }
 
     .tally {
@@ -337,11 +339,16 @@
     }
     .score {
       font-family: 'Open Sans', sans-serif;
-      position:absolute;
+      position: absolute;
       z-index: 2;
       line-height: 32px;
       vertical-align: middle;
-      padding-left:10px;
+      padding-left: 10px;
+      max-width: 100%;
+      padding-right: 6px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
     }
   }
 }
