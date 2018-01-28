@@ -138,7 +138,7 @@ const defaultSettings = {
   'avatarExpiry': 60,
   'pingExpiry': 365,
   'showDisplayName': 0,
-  'debug': 0
+  'logLevel': 'info',
 }
 
 Config.init = () => {
@@ -193,6 +193,11 @@ Config.getAvatarCDN = (data, next) => {
   next(null, { url, variables })
 }
 
-Config.isDebug = () => {
-  return Config.settings.get('debug')
+let levels = {
+  'none': 0,
+  'info': 3,
+  'verbose': 4,
+  'debug': 5,
 }
+
+Config.getLogLevel = () => levels[Config.settings.get('logLevel')]

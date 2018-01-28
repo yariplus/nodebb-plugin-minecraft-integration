@@ -16,8 +16,6 @@ define('admin/plugins/minecraft-integration', ['settings', 'translator'], functi
   const $avatarVariables = $('#avatarVariables')
 
   function log (memo, object) {
-    if (!(config.MinecraftIntegration && config.MinecraftIntegration.debug)) return
-
     if (typeof memo === 'object') {
       console.dir(memo)
     } else {
@@ -48,7 +46,7 @@ define('admin/plugins/minecraft-integration', ['settings', 'translator'], functi
       $('[name="avatarCDN"]').val(settings.cfg._.avatarCDN)
       $('[name="custom-cdn"]').val(settings.cfg._.customCDN)
       $('[name="showDisplayNames"]').prop('checked', parseInt(settings.cfg._.showDisplayNames, 10))
-      $('[name="debug"]').prop('checked', parseInt(settings.cfg._.debug, 10))
+      $('[name="log-level"]').val(settings.cfg._.logLevel)
 
       if (settings.cfg._.avatarVariables) {
         for (let key in settings.cfg._.avatarVariables) {
@@ -225,7 +223,7 @@ define('admin/plugins/minecraft-integration', ['settings', 'translator'], functi
         settings.cfg._.avatarCDN = $('[name="avatarCDN"]').val() || 'mojang'
         settings.cfg._.customCDN = $('[name="custom-cdn"]').val() || ''
         settings.cfg._.showDisplayNames = $('[name="showDisplayNames"]').prop('checked') ? 1 : 0
-        settings.cfg._.debug = $('[name="debug"]').prop('checked') ? 1 : 0
+        settings.cfg._.logLevel = $('[name="log-level"]').val() || 'info'
 
         settings.cfg._.avatarVariables = {}
         $avatarVariables.find('[name]').each((i, el) => {

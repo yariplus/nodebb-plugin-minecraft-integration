@@ -43,14 +43,17 @@
 						</div>
 
 						<div class="row input-row">
-							<div class="col-sm-7 col-xs-12 input-field">
-								<label class="control-label">
-									<input name="debug" class="" type="checkbox" style="width:16px;height:16px;">
-									Debug Mode
-								</label>
-							</div>
-							<div class="col-sm-5 help-text" data-help="This will log a huge amount of data from the plugin."></div>
-						</div>
+              <div class="col-sm-7 col-xs-12 input-field">
+                <label for="log-level">[[mi:log_level]]</label>
+                <select name="log-level" class="form-control">
+                  <option value="none">None</option>
+                  <option value="info" selected="selected">Info</option>
+                  <option value="verbose">Verbose</option>
+                  <option value="debug">Debug</option>
+                </select>
+              </div>
+              <div class="col-sm-5 help-text" data-help="[[mi:help_log_level]]"></div>
+            </div>
 
 						<div>
 							<button type="button" class="save btn btn-success">Save Settings</button>
