@@ -10,10 +10,12 @@ import {
 import {
   trimUUID,
   parseVersion,
+  parseMillisecondsDuration,
 } from './utils'
 
 import {
   getUuidFromName,
+  getPlayerByUuid,
 } from './players'
 
 import Config from './config'
@@ -100,15 +102,42 @@ export function setServerStatus (sid, status, timestamp, next) {
   ], next)
 }
 
-export function setServerPlayers (sid, players, next) {
+// Called when a status event is received.
+export function setServerPlayers (sid, players, timestamp, next) {
   let key = `mi:server:${sid}:players`
   let values = players.map(player => `${player.name}:${player.id}`)
   let scores = players.map(player => 0)
 
+  // Set the online players.
   async.waterfall([
     async.apply(db.delete, key),
     async.apply(db.sortedSetAdd, key, scores, values),
   ], next)
+
+  // Set playtime. (milliseconds)
+  players.forEach(player => {
+    let { id, playtime } = player
+    let key = `mi:server:${sid}:players:playtime`
+
+    if (player.playtime) {
+      // Uses Playtime from OnTime or another plugin.
+      db.sortedSetAdd(key, playtime, id)
+    } else {
+      // Uses in-built timekeeper.
+      db.getObjectField(`mi:server:${sid}`, 'timestamp', (err, lastpingtimestamp) => {
+
+        // If the last pinged minute was already counted, return.
+        lastpingtimestamp = Math.floor(lastpingtimestamp/60000) * 60000
+        if (lastpingtimestamp === timestamp) return
+
+        // Otherwise add a minute to the time.
+        db.sortedSetScore(key, id, (err, playtime) => {
+          playtime = playtime ? playtime + 60000 : 60000
+          db.sortedSetAdd(key, playtime, id)
+        })
+      })
+    }
+  })
 }
 
 // TODO: Make this retrieve a time range instead of a fixed amount.
@@ -179,6 +208,10 @@ export function getServerIcon (sid, next) {
 
     next(null, icon)
   })
+}
+
+export function setServerTimestamp (sid, timestamp, next) {
+  db.setObjectField(`mi:server:${sid}`, 'timestamp', timestamp, next)
 }
 
 export function prunePings (sid, next) {
@@ -274,16 +307,25 @@ export function getPlaytimes (options, next) {
   })
 }
 
-export function getTopPlayersByPlaytimes (data, callback) {
-  data.show = data.show || 5
+export function getTopPlayersByPlaytimes (sid, amount, next) {
+  let key = `mi:server:${sid}:players:playtime`
 
-  db.getSortedSetRevRangeByScoreWithScores('yuuid:playtime', 0, data.show, '+inf', 0, (err, data) => {
-    async.map(data, (value, next) => {
-      getPlayerFromUuid(value.value, (err, profile) => {
+  // Value is UUID, Score is milliseconds playtime.
+  db.getSortedSetRevRangeByScoreWithScores(key, 0, amount, '+inf', 0, (err, players) => {
+    if (err) return next(err)
+
+    async.map(players, (player, next) => {
+      getPlayerByUuid(player.value, (err, profile) => {
         if (err) return next(err)
-        next(null, {id: value.value, name: profile.name, playtime: value.score, playtimeHuman: parseMinutesDuration(value.score)})
+
+        next(null, {
+          id: player.value,
+          score: player.score,
+          name: profile.name,
+          scoreHuman: parseMillisecondsDuration(player.score)
+        })
       })
-    }, callback)
+    }, next)
   })
 }
 
@@ -368,14 +410,14 @@ export function getScoreboardRange (sid, objective, min, max, next) {
   })
 }
 
-export function getScoreboards (sid, objective, show, next) {
+export function getScoreboards (sid, objective, amount, next) {
   db.getObjectField(`mi:server:${sid}:objective:${objective}`, 'entriesJSON', (err, entriesJSON) => {
     if (err) return next(err)
     if (!entriesJSON) return next(new Error(`Objective ${objective} not found.`))
 
     let entries = JSON.parse(entriesJSON)
 
-    entries = entries.sort((a,b) => a.score > b.score ? -1 : 1)
+    entries = entries.sort((a,b) => a.score > b.score ? -1 : 1).slice(0, amount)
 
     next(null, entries)
   })

@@ -100,6 +100,20 @@ export const getUUID = (name, next) => {
   })
 }
 
+export function getProfile (id, next) {
+  console.log(`Fetching Profile for uuid: ${id}`)
+  request({url: `https://sessionserver.mojang.com/session/minecraft/profile/${id}`, json: true}, (err, response, body) => {
+    if (err) return next(err)
+    if (response.statusCode == 200) {
+      console.dir(body)
+      next(null, body)
+    } else {
+      next(new Error('Unexpected response from Mojang.'))
+    }
+  })
+}
+
+// TODO
 export const getName = (id, next) => {
   console.log(`Fetching Name for uuid: ${id}`)
   request({url: `https://sessionserver.mojang.com/session/minecraft/profile/${id}`, json: true}, (err, response, body) => {
@@ -138,6 +152,7 @@ export const voteServices = [
   { service: 'planetminecraft_com', name: 'PlanetMinecraft.com' }
 ]
 
+export const parseMillisecondsDuration = (milliseconds, locale) => humanize(milliseconds, { language: locale || 'en', units: ['d', 'h', 'm']})
 export const parseMinutesDuration = (minutes, locale) => humanize(minutes * 60 * 1000, { language: locale || 'en', units: ['d', 'h', 'm']})
 
 export const getHumanTime = stamp => {

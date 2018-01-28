@@ -1,9 +1,12 @@
 import { async, db } from './nodebb'
-import { getUUID } from './utils'
+import { getUUID, getProfile } from './utils'
 
 import * as Config from './config'
 
-function getPlayersByUuids (uuids, next) {
+export function getPlayersByUuids (uuids, next) {
+  let keys = uuids.map(id => `mi:profile:${id}`)
+
+  // TODO
   function addFormattedPrefix (players, next) {
     players.map(player => {
       player.prefix = parseFormatCodes(player.prefix)
@@ -14,18 +17,36 @@ function getPlayersByUuids (uuids, next) {
   }
 
   async.waterfall([
-    async.apply(getUuids, data),
-    async.apply(getPlayersFromUuids),
-    async.apply(updateUuids),
-    async.apply(addUserData),
-    async.apply(addFormattedPrefix)
+    async.apply(db.getObjects, keys),
+    (profiles, next) => {
+      async.eachOf(profiles, (profile, i, next) => {
+        if (profile) return next(null, profile)
+
+        let id = uuids[i]
+
+        getProfile(id, (err, profile) => {
+          if (err) return next(err)
+
+          db.setObject(keys[i], profile, () => {
+            db.expire(keys[i], 60 * 10, () => { // Ten minutes.
+              profiles[i] = profile
+              next()
+            })
+          })
+        })
+      }, err => {
+        next(err, profiles)
+      })
+    }
   ], next)
 }
+
+export const getPlayerByUuid = (uuid, next) => getPlayersByUuids([uuid], (err, players) => next(err, players && players[0] ? players[0] : null))
 
 function getPlayersByUid (uid, next) {
   async.waterfall([
     async.apply(getUserUuids, uid),
-    async.apply(getPlayersFromUuids),
+    async.apply(getPlayersByUuids),
     (players, next) => {
       getUserUuid(uid, (err, uuid) => {
         for (const i in players) {
@@ -36,8 +57,6 @@ function getPlayersByUid (uid, next) {
     }
   ], next)
 }
-
-const getPlayerByUuid = (uuid, next) => getPlayersFromUuids([uuid], (err, players) => next(err, players && players[0] ? players[0] : null))
 
 function getPlayerByName (name, callback) {
   async.waterfall([
@@ -71,33 +90,12 @@ function renderPlayers (req, res) {
   res.render('minecraft-integration/players', {})
 }
 
-
+// TODO
 // Get all stored player uuids.
 export function getUuids (options, next) {
   const { set, min, max } = options
 
   db.getSortedSetRevRange(set || 'yuuid:playtime', min || 0, max || -1, next)
-}
-
-// Get the player hash of uuids.
-export function getPlayersFromUuids (yuuids, callback) {
-  const keys = yuuids.map(yuuid => `yuuid:${yuuid}`)
-
-  db.getObjects(keys, (err, players) => {
-    // Add the yuuid to the player object for display.
-    for (const i in players) {
-      players[i] = players[i] || {}
-      players[i].id = yuuids[i]
-    }
-
-    callback(err, players)
-  })
-}
-export function getPlayerFromUuid (uuid, callback) {
-  getPlayersFromUuids([uuid], (err, players) => {
-    if (err || !(players && players[0])) return callback(err)
-    callback(null, players[0])
-  })
 }
 
 export function getUuidFromName (name, next) {
@@ -249,7 +247,6 @@ function addUserData (players, callback) {
 
 export {
   getPlayerByName,
-  getPlayerByUuid,
   getPlayersByUid,
   getPrefixByUid
 }

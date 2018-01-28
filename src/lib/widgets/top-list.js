@@ -1,36 +1,17 @@
-import { getAvatar } from '../avatars'
 import { getTopPlayersByPlaytimes } from '../servers'
 
-import async from 'async'
+export function render (data, next) {
+  let { sid, stat, show } = data
 
-export function render (data, callback) {
-  data.show = parseInt(data.show)
-  data.show = isNaN(data.show) ? 5 : data.show
-  data.show = data.show > 20 ? 20 : data.show
-  data.show = data.show < 3 ? 3 : data.show
+  show = parseInt(show)
+  show = isNaN(show) ? 5 : show
+  show = show > 20 ? 20 : show
+  show = show < 3 ? 3 : show
 
-  data.statname = ''
+  getTopPlayersByPlaytimes(sid, show, (err, players) => {
+    if (err) return next(err)
+    if (!players) players = []
 
-  // Defaults
-  data.useColors = data.useColors || 'a'
-  data.colorStart = data.colorStart || 'white'
-  data.colorEnd = data.colorEnd || 'white'
-
-  async.waterfall([
-    async.apply(getTopPlayersByPlaytimes, {show: data.show}),
-    (players, next) => {
-      async.map(players, (player, next) => {
-        // TODO: Different scoring methods.
-        player.score = player.playtimeHuman
-
-        getAvatar({base64: true, name: player.name}, (err, avatar) => {
-          player.avatar = avatar
-          next(null, player)
-        })
-      }, next)
-    }
-  ], (err, players) => {
-    data.players = players
-    callback(null, data)
+    next(err, {...data, players})
   })
 }

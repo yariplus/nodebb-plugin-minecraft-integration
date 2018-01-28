@@ -102,7 +102,17 @@ $(() => {
   }
 
   function prepareTopList (widget) {
-    widget.el.find('img').tooltip()
+    let max = 0;
+    let tallys = widget.el.find('.tally')
+    tallys.each((i, el) => {
+      let score = $(el).data('score');
+      if (score > max) max = score
+    })
+    let div = 100/max;
+    tallys.each((i, el) => {
+      $(el).width($(el).data('score') * div + '%')
+    })
+    widget.el.find('.mi-avatar').tooltip()
   }
 
   function prepareTPSGraph (widget) {
@@ -133,6 +143,7 @@ $(() => {
     tallys.each((i, el) => {
       $(el).width($(el).data('score') * div + '%')
     })
+    widget.el.find('.mi-avatar').tooltip()
   }
 
   const prepareWidget = {

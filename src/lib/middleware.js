@@ -1,4 +1,4 @@
-import { getSidUsingAPIKey } from './servers'
+import { getSidUsingAPIKey, getSidFromSlug } from './servers'
 
 import {
   db,
@@ -43,5 +43,16 @@ export function writeSocket (socket, data, next) {
     delete data.key
 
     this.method(data, next)
+  })
+}
+
+export function sidFromSlug (req, res, next) {
+  if (!req.params.slug) next()
+
+  getSidFromSlug(req.params.slug, (err, sid) => {
+    if (err) return next(err)
+    if (!sid && sid !== 0) return next(new Error('Server not found.'))
+    req.params.sid = sid
+    next()
   })
 }

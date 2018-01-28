@@ -13,6 +13,7 @@ import {
   getServerPlugins,
   setServerStatus,
   setScoreboard,
+  setServerTimestamp,
   setServerPlayers,
 } from '../servers'
 
@@ -33,7 +34,7 @@ export function list (req, res) {
   })
 }
 
-export function status (req, res) {
+export function getstatus (req, res) {
   let sid = parseInt(req.params.sid, 10)
   if (sid === NaN) return res.redirect('/')
 
@@ -74,8 +75,15 @@ export function icon (req, res) {
   })
 }
 
-// Forum will receive one ping a minute.
+// Server will send one ping a second.
 export function ping (data, next) {
+  let { sid, timestamp } = data
+
+  //setServerTimestamp(sid, timestamp, next)
+}
+
+// Forum will receive one status event a minute.
+export function status (data, next) {
   // Data from Minecraft server.
   let {
     sid,
@@ -99,7 +107,7 @@ export function ping (data, next) {
   let playersJSON, pluginsJSON, modsJSON
 
   // Set timestamp to floored minute.
-  timestamp = Math.floor(Date.now() / 60000) * 60000
+  timestamp = Math.floor((timestamp ? timestamp : Date.now()) / 60000) * 60000
 
   // Trim UUIDs to Mojang format. Set pocket skins.
   players.filter(player => player.id).forEach(player => {
@@ -115,14 +123,6 @@ export function ping (data, next) {
   if (!Array.isArray(plugins)) plugins = []
   if (!Array.isArray(mods)) mods = []
   if (!Array.isArray(objectives)) objectives = []
-
-  // TODO: Fix uuid verification.
-  // async.apply(async.filter, players, (player, next) => {
-    // if (pocket) return next(true)
-    // getUuidFromName(player.name, (err, id) => next(err ? false : (player.id === id ? true : false)))
-  // }),
-  // (data, next) => {
-  // }
 
   // Sort arrays.
   players = players.sort(sortLex)
@@ -159,7 +159,7 @@ export function ping (data, next) {
   }
 
   async.waterfall([
-    async.apply(setServerPlayers, sid, players),
+    async.apply(setServerPlayers, sid, players, timestamp),
     async.apply(setServerStatus, sid, status, timestamp),
     async.apply(getServerStatus, sid),
   ], (err, status) => {

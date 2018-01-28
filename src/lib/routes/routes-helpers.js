@@ -14,15 +14,15 @@ import players from './routes-players'
 import servers from './routes-servers'
 import users from './routes-users'
 
-let app, middleware, router
+let app, nbbMiddleware, router
 
 // TODO: Settings for custom url prefixes.
 let prefixes = [ 'm', 'mc', 'minecraft', 'minecraft-integration' ]
 
-export function init (_app, _middleware, _router) {
+export function init (_app, _nbbMiddleware, _router) {
   // Add local vars
   app = _app
-  middleware = _middleware
+  nbbMiddleware = _nbbMiddleware
   router = _router
 
   // Initialize socket namespace
@@ -39,18 +39,26 @@ export function init (_app, _middleware, _router) {
 }
 
 export function addAdminRoute (route, controller) {
-  router.get(route, middleware.admin.buildHeader, controller)
+  router.get(route, nbbMiddleware.admin.buildHeader, controller)
   router.get(`/api${route}`, controller)
 }
 
-export function addGetRoute (route, controller) {
-  prefixes.forEach(prefix => router.get(`/${prefix}/${route}`, middleware.buildHeader, controller))
+export function addServerPageRoute (route, controller) {
+  prefixes.forEach(prefix => router.get(`/${prefix}/${route}`, nbbMiddleware.buildHeader, controller))
+  prefixes.forEach(prefix => router.get(`/${prefix}/sid/:sid/${route}`, nbbMiddleware.buildHeader, controller))
+  prefixes.forEach(prefix => router.get(`/${prefix}/server/:slug/${route}`, Middleware.sidFromSlug, nbbMiddleware.buildHeader, controller))
+  prefixes.forEach(prefix => router.get(`/api/${prefix}/${route}`, controller))
+  prefixes.forEach(prefix => router.get(`/api/${prefix}/sid/:sid/${route}`, controller))
+  prefixes.forEach(prefix => router.get(`/api/${prefix}/server/:slug/${route}`, Middleware.sidFromSlug, controller))
 }
 
 export function addPageRoute (route, controller) {
-  addGetRoute(route, controller)
-  addAPIRoute(route, controller)
+  prefixes.forEach(prefix => router.get(`/${prefix}/${route}`, nbbMiddleware.buildHeader, controller))
+  prefixes.forEach(prefix => router.get(`/api/${prefix}/${route}`, controller))
 }
+
+export const addGetRoute = (route, controller) => prefixes.forEach(prefix => router.get(`/${prefix}/${route}`, controller))
+export const addAPIRoute = (route, controller) => prefixes.forEach(prefix => router.get(`/api/${prefix}/${route}`, controller))
 
 export function addReadRoute (route, name, controller) {
   addSocketRoute(name, controller)
@@ -68,12 +76,8 @@ export function addSocketRoute (name, controller) {
   SocketPlugins.MinecraftIntegration[name] = (socket, data, next) => controller({...data, socket}, next)
 }
 
-export function addAPIRoute (route, controller) {
-  prefixes.forEach(prefix => router.get(`/api/${prefix}/${route}`, controller))
-}
-
 export function addProfileRoute (route, controller) {
-    router.get(`/user/:userslug/${route}`, middleware.buildHeader, controller)
+    router.get(`/user/:userslug/${route}`, nbbMiddleware.buildHeader, controller)
     router.get(`/api/user/:userslug/${route}`, controller)
 }
 

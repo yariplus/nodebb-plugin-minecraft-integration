@@ -9,6 +9,9 @@ export function render (data, next) {
   show = show < 3 ? 3 : show
 
   getScoreboards(sid, objective, show, (err, players) => {
-    next(err, { ...data, players, show })
+    if (err) return next(err)
+    if (!players) players = []
+
+    next(err, { ...data, players })
   })
 }
