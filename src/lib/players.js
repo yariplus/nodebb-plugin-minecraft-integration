@@ -218,21 +218,6 @@ const getPrefixByUid = (uid, next) => {
   next(null, '')
 }
 
-function updateUuids (players, callback) {
-  const uuids = []
-
-  for (const i in players) {
-    const player = players[i]
-
-    if (!player.lastupdate || (Date.now() - parseInt(player.lastupdate, 10) > Config.getPlayerExpiry())) {
-      uuids.push(player.id)
-    }
-  }
-
-  Updater.updateUuids(uuids)
-  callback(null, players)
-}
-
 function addUserData (players, callback) {
   async.each(players, (player, next) => {
     // TODO: getMultipleUsersData?

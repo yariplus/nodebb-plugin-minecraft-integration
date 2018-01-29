@@ -1,39 +1,22 @@
 // Updater Model
 // Check status of servers and cached items.
 
-import {
-  async,
-  nconf,
-  db,
-  pubsub,
-  winston,
-} from './nodebb'
-
-import {
-  updateServerStatus,
-  getServersConfig,
-  getServerStatus,
-} from './servers'
-
-import {
-  clearOldAvatars,
-} from './avatars'
-
-import Config from './config'
-
-import {
-  sendStatusToUsers,
-} from './sockets'
-
+import { async, nconf, db, pubsub } from './nodebb'
+import { setServerStatus, getServersConfig, getServerStatus } from './servers'
+import { clearOldAvatars } from './avatars'
+import { sendStatusToUsers } from './sockets'
 import { getName } from './utils'
 
-let updateTime = 0
+import Config from './config'
+import Logger from './logger'
+
 let scheduler
 
 const Updater = module.exports = { }
 
 let uuidsNeedingUpdates = []
 
+// TODO: Not sure what this was supposed to do.
 Updater.updateUuids = uuids => {
   if (!Array.isArray(uuids)) return
 
@@ -43,7 +26,6 @@ Updater.updateUuids = uuids => {
     }
   }
 }
-
 function updatePlayers () {
   async.each(uuidsNeedingUpdates, (id, next) => {
     const key = `yuuid:${id}`
@@ -83,54 +65,55 @@ pubsub.on('meta:reload', () => {
 })
 
 Updater.init = () => {
+  // If this is a re-init, clear any previous timer.
   if (scheduler) clearTimeout(scheduler)
+
   // Only start on primary node.
   if (!(nconf.get('isPrimary') === 'true' && !nconf.get('jobsDisabled'))) return
   scheduler = setTimeout(Updater.updateServers, 60000)
 }
 
 Updater.updateServers = () => {
-  // Get the current minute.
-  updateTime = Math.round(Date.now() / 60000) * 60000
+  // Get the current minute in milliseconds.
+  let updateTime = Math.floor(Date.now() / 60000) * 60000
 
   // Remove old avatars from cache.
   clearOldAvatars()
 
   getServersConfig((err, configs) => {
     configs.forEach(config => {
-      getServerStatus(config, (err, status) => {
-        if (err) {
-          winston.info(`Error getting status for server ${config.name}`)
-          return resetStatus(status)
-        }
+      let { sid, name } = config
 
-        if (!status) return winston.info(`No status recorded for server ${config.name}`)
+      getServerStatus(sid, (err, status) => {
+        if (err) return Logger.error(`Database error getting status for server: ${name}`)
+        if (!status) return Logger.error(`No status recorded for server: ${name}`)
 
-        if (!status.updateTime || parseInt(status.updateTime, 10) + 1000 * 60 < updateTime) {
-          winston.info(`The Minecraft server ${config.name} is not connected to forum.`)
-          winston.info('Use the server\'s API key in the command "/nodebb key {key}"')
-          return resetStatus(status)
+        // If it has been over 1:30 since the last status event, the server is down or non-responsive.
+        if (!status.timestamp || (updateTime - parseInt(status.timestamp, 10)  > 90 * 1000)) {
+          Logger.error(`The Minecraft server ${config.name} is not connected to forum.`)
+          Logger.error(`Use the forum's url in the command "/nodebb url {url}"`)
+          Logger.error(`Use the server's API key in the command "/nodebb key {key}"`)
+          return resetStatus(sid, updateTime)
         }
       })
     })
   })
 
-  // Update players.
+  // Update players. ???
+  // I think this was for a name cache,
+  // not really needed, we can cache on-demand.
   updatePlayers()
 
   // Schedule next update.
   Updater.init()
 }
 
-function resetStatus (status = {}) {
-  // TODO
-  return
-  status.isServerOnline = '0'
-  status.updateTime = updateTime
-  status.players = '[]'
-  status.onlinePlayers = '0'
-  status.tps = '0'
+function resetStatus (sid, timestamp) {
+  let status = { sid, timestamp }
 
-  updateServerStatus(status)
-  sendStatusToUsers(status)
+  async.waterfall([
+    async.apply(setServerStatus, sid, status, timestamp),
+    async.apply(setServerPlayers, sid, [], timestamp),
+    async.apply(getServerStatus, sid),
+  ], (err, status) => sendStatusToUsers(status))
 }

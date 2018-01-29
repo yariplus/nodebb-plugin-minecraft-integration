@@ -95,8 +95,8 @@ export function setServerStatus (sid, status, timestamp, next) {
     async.apply(db.setObject, `mi:server:${sid}`, status),
     async.apply(db.expire, `mi:server:${sid}`, Config.getPingExpiry()),
     async.apply(db.sortedSetAdd, `mi:server:${sid}:pings`, timestamp, timestamp),
-    async.apply(db.setObjectField, `mi:server:${sid}:ping:${timestamp}`, 'players', status.players),
-    async.apply(db.setObjectField, `mi:server:${sid}:ping:${timestamp}`, 'tps', status.tps),
+    async.apply(db.setObjectField, `mi:server:${sid}:ping:${timestamp}`, 'players', status.players || '[]'),
+    async.apply(db.setObjectField, `mi:server:${sid}:ping:${timestamp}`, 'tps', status.tps || 0),
     async.apply(db.expire, `mi:server:${sid}:ping:${timestamp}`, Config.getPingExpiry()),
     async.apply(prunePings, sid),
   ], next)
