@@ -1,30 +1,4 @@
-function readCustomRow (label, text, after) {
-  switch (after) {
-    case 'name':
-      if (!widget.data.customaftername) { widget.data.customaftername = [] }
-      widget.data.customaftername[widget.data.customaftername.length] = { label, text}
-      break
-    case 'status':
-    default:
-      if (!widget.data.customafterstatus) { widget.data.customafterstatus = [] }
-      widget.data.customafterstatus[widget.data.customafterstatus.length] = { label, text}
-      break
-    case 'address':
-      if (!widget.data.customafteraddress) { widget.data.customafteraddress = [] }
-      widget.data.customafteraddress[widget.data.customafteraddress.length] = { label, text}
-      break
-    case 'version':
-      if (!widget.data.customafterversion) { widget.data.customafterversion = [] }
-      widget.data.customafterversion[widget.data.customafterversion.length] = { label, text}
-      break
-    case 'players':
-      if (!widget.data.customafterplayers) { widget.data.customafterplayers = [] }
-      widget.data.customafterplayers[widget.data.customafterplayers.length] = { label, text}
-      break
-  }
-}
-
-export function render (data, callback) {
+export function render (data, next) {
   data.showPlayerCount = data.showPlayerCount == 'on' ? true : false
   data.showAvatars = data.showAvatars == 'on' ? true : false
   data.showMOTD = data.showMOTD == 'on' ? true : false
@@ -57,5 +31,5 @@ export function render (data, callback) {
 
   data.modalID = `serverstatusmap${data.sid}`
 
-  callback(null, data)
+  next(null, data)
 }

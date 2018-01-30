@@ -63,9 +63,11 @@ export function getServerStatus (sid, next) {
     status.onlinePlayers = parseInt(status.onlinePlayers, 10)
 
     // Parsed as booleans.
-    status.isServerOnline = !!parseInt(status.isServerOnline, 10)
     status.hasMods = !!parseInt(status.hasMods, 10)
     status.hasPlugins = !!parseInt(status.hasPlugins, 10)
+
+    // Pings are received every second, so if 5 seconds have passed, it's down.
+    status.isServerOnline = Date.now() - status.lastPing < 5 * 1000
 
     // Strings
     status.sid = sid
@@ -210,8 +212,8 @@ export function getServerIcon (sid, next) {
   })
 }
 
-export function setServerTimestamp (sid, timestamp, next) {
-  db.setObjectField(`mi:server:${sid}`, 'timestamp', timestamp, next)
+export function setServerPing (sid, timestamp, next) {
+  db.setObjectField(`mi:server:${sid}`, 'lastPing', timestamp, next)
 }
 
 export function prunePings (sid, next) {

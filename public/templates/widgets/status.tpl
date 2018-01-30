@@ -17,21 +17,6 @@
 			</tr>
 			<!-- ENDIF showMOTD -->
 
-			<!-- BEGIN customaftername -->
-			<tr>
-				<td class="td-label">
-					<span style="color:{colorLabels}">
-						<strong>{customaftername.label}</strong>
-					</span>
-				</td>
-				<td>
-					<span style="color:{colorText}">
-						{customaftername.text}
-					</span>
-				</td>
-			</tr>
-			<!-- END customaftername -->
-
 			<tr>
 				<td class="td-label">
 					<span style="color:{colorLabels}">
@@ -50,7 +35,7 @@
 								fa-exclamation-circle text-danger
 							<!-- ENDIF !isServerOnline -->
 
-						" data-placement="top" data-title=""></a>
+						" data-placement="top" data-title="Last ping received {humanPing}"></a>
 
 						<strong>
 							<span class="mc-statustext
@@ -105,21 +90,6 @@
 				</td>
 			</tr>
 
-			<!-- BEGIN customafteraddress -->
-			<tr>
-				<td class="td-label">
-					<span style="color:{colorLabels}">
-						<strong>{customafteraddress.label}</strong>
-					</span>
-				</td>
-				<td>
-					<span style="color:{colorText}">
-						{customafteraddress.text}
-					</span>
-				</td>
-			</tr>
-			<!-- END customafteraddress -->
-
 			<!-- IF showVersion -->
 			<tr>
 				<td class="td-label">
@@ -140,41 +110,11 @@
 			</tr>
 			<!-- ENDIF showVersion -->
 
-			<!-- BEGIN customafterversion -->
-			<tr>
-				<td class="td-label">
-					<span style="color:{colorLabels}">
-						<strong>{customafterversion.label}</strong>
-					</span>
-				</td>
-				<td>
-					<span style="color:{colorText}">
-						{customafterversion.text}
-					</span>
-				</td>
-			</tr>
-			<!-- END customafterversion -->
-
 			<!-- IF showAvatars -->
 			<tr>
 				<td class="mi-avatars" colspan="2"><!-- IMPORT partials/playerAvatars.tpl --></td>
 			</tr>
 			<!-- ENDIF showAvatars -->
-
-			<!-- BEGIN customafterplayers -->
-			<tr>
-				<td class="td-label">
-					<span style="color:{colorLabels}">
-						<strong>{customafterplayers.label}</strong>
-					</span>
-				</td>
-				<td>
-					<span style="color:{colorText}">
-						{customafterplayers.text}
-					</span>
-				</td>
-			</tr>
-			<!-- END customafterplayers -->
 
 		</tbody>
 	</table>

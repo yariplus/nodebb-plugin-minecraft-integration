@@ -15,6 +15,7 @@ import {
   setScoreboard,
   setServerTimestamp,
   setServerPlayers,
+  setServerPing,
 } from '../servers'
 
 import {
@@ -79,7 +80,7 @@ export function icon (req, res) {
 export function ping (data, next) {
   let { sid, timestamp } = data
 
-  //setServerTimestamp(sid, timestamp, next)
+  setServerPing(sid, timestamp, next)
 }
 
 // Forum will receive one status event a minute.
@@ -104,7 +105,7 @@ export function status (data, next) {
     pocket,
   } = data
 
-  let playersJSON, pluginsJSON, modsJSON
+  let playersJSON, pluginsJSON, modsJSON, lastPing = timestamp
 
   // Set timestamp to floored minute.
   timestamp = Math.floor((timestamp ? timestamp : Date.now()) / 60000) * 60000
@@ -161,6 +162,7 @@ export function status (data, next) {
   async.waterfall([
     async.apply(setServerPlayers, sid, players, timestamp),
     async.apply(setServerStatus, sid, status, timestamp),
+    async.apply(setServerPing, sid, lastPing),
     async.apply(getServerStatus, sid),
   ], (err, status) => {
     if (err) return next(err)
