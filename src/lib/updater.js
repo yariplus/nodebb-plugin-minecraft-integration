@@ -2,7 +2,7 @@
 // Check status of servers and cached items.
 
 import { async, nconf, db, pubsub } from './nodebb'
-import { setServerStatus, getServersConfig, getServerStatus } from './servers'
+import { setServerStatus, getServersConfig, getServerStatus, setServerPlayers } from './servers'
 import { clearOldAvatars } from './avatars'
 import { sendStatusToUsers } from './sockets'
 import { getName } from './utils'
