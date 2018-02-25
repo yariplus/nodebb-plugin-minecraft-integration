@@ -38,7 +38,7 @@ export function deleteAvatar (data, next) {
 }
 
 export function resetAvatars (data, callback) {
-  getAvatarList({}, (err, avatarList) => {
+  getAvatarList((err, avatarList) => {
     async.each(avatarList, (player, next) => {
       const key = `mi:avatar:${player}`
 
@@ -206,6 +206,7 @@ function fetchAvatar (name, next) {
     ], (err, avatar) => {
       if (err) {
         console.log(`Could not retrieve skin using the cdn: ${Config.settings.get('avatarCDN')}`)
+        console.log(err)
         if (Config.settings.get('avatarCDN') === 'mojang') return next(null, Config.steveBuffer)
         console.log('Defaulting to Mojang skin.')
         console.log(`Fetching avatar from CDN: http://skins.minecraft.net/MinecraftSkins/${name}.png`)
@@ -214,11 +215,14 @@ function fetchAvatar (name, next) {
         async.waterfall([
           async.apply(request, {url: `http://skins.minecraft.net/MinecraftSkins/${name}.png`, encoding: null}),
           (response, body, next) => {
+            if (response.statusCode !== 200) return next(new Error('Skin server is down.'))
+
             Config.cdns['mojang'].transform(body, 32, next)
           }
         ], (err, avatar) => {
           if (err) {
             console.log("Couldn't connect to Mojang skin server.")
+            console.log(err)
 
             return next(null, Config.steveBuffer)
           } else {
@@ -234,6 +238,8 @@ function fetchAvatar (name, next) {
 
 function transform (response, body, next) {
   const cdn = Config.settings.get('avatarCDN')
+
+  if (response.statusCode !== 200) return next(new Error('Skin server is down.'))
 
   if (Config.cdns[cdn] && Config.cdns[cdn].transform) {
     Config.cdns[cdn].transform(body, Config.settings.get('avatarVariables.size') || 32, next)
