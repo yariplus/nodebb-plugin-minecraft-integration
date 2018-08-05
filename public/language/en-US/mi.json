@@ -133,5 +133,8 @@
 	"show_avatar_borders": "Show Avatar Borders?",
 	"avatar_border_start": "Avatar Border Gradient Start",
 	"avatar_border_end": "Avatar Border Gradient End",
-	"avatar_border_style": "Avatar Border Style"
+	"avatar_border_style": "Avatar Border Style",
+
+  "border_start": "Border Gradient Start",
+  "border_end": "Border Gradient End"
 }
