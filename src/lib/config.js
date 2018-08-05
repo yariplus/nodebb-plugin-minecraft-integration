@@ -193,11 +193,12 @@ Config.getAvatarCDN = (data, next) => {
   next(null, { url, variables })
 }
 
-let levels = {
+const levels = {
   'none': 0,
+  'error': 1,
+  'warn': 2,
   'info': 3,
   'verbose': 4,
-  'debug': 5,
 }
 
 Config.getLogLevel = () => levels[Config.settings.get('logLevel')]

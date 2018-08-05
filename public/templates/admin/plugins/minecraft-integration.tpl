@@ -47,9 +47,10 @@
                 <label for="log-level">[[mi:log_level]]</label>
                 <select name="log-level" class="form-control">
                   <option value="none">None</option>
+                  <option value="error">Error</option>
+                  <option value="warn">Warn</option>
                   <option value="info" selected="selected">Info</option>
                   <option value="verbose">Verbose</option>
-                  <option value="debug">Debug</option>
                 </select>
               </div>
               <div class="col-sm-5 help-text" data-help="[[mi:help_log_level]]"></div>

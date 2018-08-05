@@ -3,6 +3,8 @@ import { db } from './nodebb'
 import { trimUUID } from './utils'
 import Logger from './logger'
 
+// TODO: Need to add more debug/verbose messages.
+
 export function writeAPI (req, res, next) {
   const { key } = req.body
 
@@ -22,7 +24,7 @@ export function writeSocket (socket, data, next) {
 
   if (!key) return next(new Error('No API key.'))
 
-  Logger.debug(`Write API connection attempt from ${socket.handshake.address} with API key: ${key}`)
+  Logger.verbose(`Socket API connection attempt from ${socket.handshake.address} with API key: ${key}`)
 
   getSidUsingAPIKey(key, (err, sid) => {
     if (err) return next(new Error('Invalid API key.'))
