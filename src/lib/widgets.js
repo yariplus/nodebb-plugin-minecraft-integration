@@ -35,7 +35,10 @@ function render (processWidget, type, widget, callback) {
     if (err) return callback()
 
     app.render(`widgets/${type}`, data, (err, html) => {
-      translator.translate(html, html => callback(null, {html}))
+      translator.translate(html, html => {
+        widget.html = html
+        callback(null, widget)
+      })
     })
   })
 }
