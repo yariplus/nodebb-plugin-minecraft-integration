@@ -24,7 +24,7 @@ export function writeSocket (socket, data, next) {
 
   if (!key) return next(new Error('No API key.'))
 
-  Logger.verbose(`Socket API connection attempt from ${socket.handshake.address} with API key: ${key}`)
+  Logger.debug(`Socket API connection attempt from ${socket.handshake.address} with API key: ${key}`)
 
   getSidUsingAPIKey(key, (err, sid) => {
     if (err) return next(new Error('Invalid API key.'))
@@ -44,11 +44,23 @@ export function writeSocket (socket, data, next) {
 }
 
 export function sidFromSlug (req, res, next) {
-  if (!req.params.slug) next()
+  const slug = req.params.slug
 
-  getSidFromSlug(req.params.slug, (err, sid) => {
+  Logger.verbose(`Attempt to get server using slug from ${req.ip} to ${req.url}`)
+
+  if (!slug) return next()
+  if (parseInt(slug, 10) == slug) {
+    req.params.sid = slug
+    return next()
+  }
+
+  getSidFromSlug(slug, (err, sid) => {
     if (err) return next(err)
-    if (!sid && sid !== 0) return next(new Error('Server not found.'))
+
+    if (!sid && sid !== 0) {
+      return next(new Error('Server not found.'))
+    }
+
     req.params.sid = sid
     next()
   })

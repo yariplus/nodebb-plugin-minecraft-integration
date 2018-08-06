@@ -16,5 +16,5 @@ export default {
   warn: createLevel('warn', 2),
   info: createLevel('info', 3),
   verbose: createLevel('info', 4),
-  debug: createLevel('info', 4),
+  debug: createLevel('info', 5),
 }

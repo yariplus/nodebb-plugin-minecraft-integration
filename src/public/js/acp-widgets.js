@@ -57,7 +57,7 @@
         }
 
         if ($panel.data('motd') === void 0) {
-          $.get('/api/minecraft-integration/server/' + $panel.find('[name="sid"]').val() + '?v=' + config['cache-buster'], function (server) {
+          $.get('/api/minecraft-integration/sid/' + $panel.find('[name="sid"]').val() + '?v=' + config['cache-buster'], function (server) {
             if (server && server.motd && server.name) {
               $panel.data('motd', server.motd)
               $panel.data('name', server.name)
